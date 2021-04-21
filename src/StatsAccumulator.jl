@@ -1,6 +1,22 @@
 module StatsAccumulator
 
-export CountAcc, MeanVarAcc, MeanVarAcc2, add!, result, MaxMinAcc, AccList
+export CountAcc, MeanVarAcc, MeanVarAcc2, add!, results, result_type, MaxMinAcc, AccList
+
+
+tuple_type(struct_T) = NamedTuple{fieldnames(struct_T), Tuple{fieldtypes(struct_T)}}
+
+@generated function to_named_tuple(x)
+	tuptyp = Expr(:quote, tuple_type(x))
+	tup = Expr(:tuple)
+	for i in 1:fieldcount(x)
+		push!(tup.args, :(getfield(x, $i)) )
+	end
+	return :($tuptyp($tup))
+end
+
+result_type(::Type{T}) where {T} = tuple_type(T)
+
+results(t :: T) where {T} = to_named_tuple(t)
 
 
 ### CountAcc
@@ -29,7 +45,11 @@ function add!(acc :: MeanVarAcc{T}, v :: T) where {T}
 end
 
 
-result(acc :: MeanVarAcc{T}) where {T} = acc.sum / acc.n, (acc.sum_sq - acc.sum*acc.sum/acc.n) / (acc.n - 1)
+results(acc :: MeanVarAcc{T}) where {T} = 
+	(mean : acc.sum / acc.n, var : (acc.sum_sq - acc.sum*acc.sum/acc.n) / (acc.n - 1))
+
+result_type(::Type{MeanVarAcc{T}}) where {T} = @NamedTuple{mean::T, var::T}
+	
 
 
 mutable struct MeanVarAcc2{T}
@@ -66,17 +86,18 @@ function add!(acc :: MaxMinAcc{T}, v :: T) where {T}
 	acc.min = min(acc.min, v)
 end
 
+# does not work with results/result_type, maybe rework as tuples?
 
-struct AccList
-	list :: Vector{Any}
-end
-
-AccList() = AccList([])
-
-function add!(al :: AccList, v :: T) where {T}
-	for a in al.list
-		add!(a, v)
-	end
-end
+#struct AccList
+#	list :: Vector{Any}
+#end
+#
+#AccList() = AccList([])
+#
+#function add!(al :: AccList, v :: T) where {T}
+#	for a in al.list
+#		add!(a, v)
+#	end
+#end
 
 end # module

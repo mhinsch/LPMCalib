@@ -8,8 +8,28 @@ using MacroTools
 import Base.print
 
 
-prefixes(::Type{T}) where {T} = []
-printable(x, FS) = x
+prefixes(::Type{T}) where {T} = fieldnames(result_type(T))
+printable(x, FS) = join(x, FS)
+
+
+function print_header(output, stats)
+	fn = fieldnames(stats)
+	ft = fieldtypes(stats)
+
+	for i in eachindex(fn)
+		n = fn[i]
+		if n == :FS || n == :NS || n == :LS
+			continue
+		end
+
+		t = ft[i]
+		if t <: NamedTuple
+			header(output, t.names[2:end], stats.FS, stats.NS)
+		else
+			header(output, string(n), stats.FS, stats.NS)
+		end
+	end
+end
 
 
 function header(out, stat_type, name, sep = "\t", name_sep = "_")
@@ -82,6 +102,17 @@ function process_aggregate!(var, collection, stats, header_body, log_body, islas
 	push!(log_body, :(for $(esc(var)) in $(esc(collection)); $(loop_code...); end))
 	append!(log_body, output_code)
 end
+
+# struct ObsName
+#	FS :: String
+#	NS :: String
+#	LS :: String
+#	cap :: @NamedTuple{accumulator:Tuple{MM, MV}, min::Float64, max::Float64, mean::Float64, var::Float64}
+#	n_migrants :: Int
+# end
+#
+# obs.cap.mean
+# obs.cap.accumulator[1]
 
 
 macro observe(fname, model, decl)
