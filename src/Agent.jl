@@ -6,24 +6,26 @@ module Agent
     # It could be possible to have struct of common data entry in any agent, e.g. 
     #=
 
-    mutable struct AbstractAgentData{A <: AbstractAgent}
+    abstract type DataSpec end 
+
+    mutable struct Agent{A <: DataSpec} <: AbstractAgent
         Int64::id  
         A 
     end
 
-    mutable struct HouseData <: AbstractAgent
+    mutable struct HouseData <: DataSpec
         location 
         size
         ... 
     end
 
-    mutable struct PersonData <: AbstractAgent 
+    mutable struct PersonData <: DataSpec
         father 
         mother 
     end
 
-    const House  = AbstractAgentData{HouseData} 
-    const Person = AbstractAgentData{PersonData} 
+    const House  = Agent{HouseData} 
+    const Person = Agent{PersonData} 
     =# 
 
     #= 
