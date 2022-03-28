@@ -1,25 +1,25 @@
-module Agent
+module AgentTypes
 
-    export AbstractAgent, Agent, DataSpec, idcounter
+    export AbstractAgent, DataSpec, Agent #, idcounter
     
     abstract type AbstractAgent end              # Supertype of any agent type 
     
     # Abstract types in Julia come without data fields (i.e. they rather define common behavior)
     # It could be possible to have struct of common data entry in any agent, e.g. 
 
-    abstract type DataSpec end                   # Fields of a specific agent type
+    abstract type DataSpec end                   # Data fields of an Agent type
 
     # init!(data::DataSpec,arg...) = error("always implement init! for DataSpec type")
     # init!(data::DataSpec,dict::Dict{String,any})
 
-    #idcounter::Int = 0                           # Number of created agents 
+    # idcounter::Int = 0                         # Number of created agents 
 
     # Agent struct is not mutable, i.e. id is initialized 
     # once an agent is created by a constructor and shall 
     # not be changed 
     struct Agent{Data <: DataSpec} <: AbstractAgent
-        id::Int     # unique agent id   
-        data::Data 
+        # id::Int     # unique agent id   
+        # data::Data 
         #= Cor
             Agent(arg...)
                 id = idcounter += 1
@@ -38,15 +38,13 @@ module Agent
     end 
     =# 
 
+    # common attributes (fields & functionalities) for agents
+    # ...  
+
     #=
     Base.show(io,Agent) = ... 
     =# 
 
-
     include("House.jl")
-
     include("Person.jl")
-
-    # common attributes (fields & functionalities) for agents
-    # ...  
 end
