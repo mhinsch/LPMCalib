@@ -4,29 +4,28 @@ module Agent
     
     # Abstract types in Julia come without data fields (i.e. they rather define common behavior)
     # It could be possible to have struct of common data entry in any agent, e.g. 
-    #=
 
     abstract type DataSpec end 
 
-    mutable struct Agent{A <: DataSpec} <: AbstractAgent
-        Int64::id  
-        A 
-    end
+    # init!(data::DataSpec,arg...)
+    # init!(data::DataSpec,dict::Dict{String,any})
 
-    mutable struct HouseData <: DataSpec
-        location 
-        size
-        ... 
-    end
+    global idcounter::Int = 0   
 
-    mutable struct PersonData <: DataSpec
-        father 
-        mother 
-    end
+    # Agent struct is not mutable, i.e. id is initialized 
+    # once an agent is created by a constructor and shall 
+    # not be changed 
+    struct Agent{Data <: DataSpec} <: AbstractAgent
+        id::Int     # unique agent id   
+        data::Data 
 
-    const House  = Agent{HouseData} 
-    const Person = Agent{PersonData} 
-    =# 
+        #= Cor
+            Agent(arg...)
+                id = idcounter += 1
+                init!(data,arg...)
+            end 
+        =#
+    end
 
     #= 
     Common functions can be defined here, e.g.
@@ -37,6 +36,11 @@ module Agent
         # do something
     end 
     =# 
+
+    #=
+    Base.show(io,Agent) = ... 
+    =# 
+
 
     include("House.jl")
 
