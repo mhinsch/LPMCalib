@@ -3,6 +3,8 @@ import Agent.Agent
 import Agent.DataSpec
 
 module Person
+
+    export Person, PersonData
     
     # type Person to inherit from AbstractAgent
     #=
@@ -10,9 +12,11 @@ module Person
         father 
         mother 
     end
-
-
-    const Person = Agent{PersonData} 
     =# 
+
+    struct PersonData <: DataSpec
+    end 
+
+    const Person = Agent{PersonData}  
 
 end
