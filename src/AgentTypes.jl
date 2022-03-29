@@ -1,6 +1,8 @@
 module AgentTypes
 
     export AbstractAgent, DataSpec, Agent #, idcounter
+
+    IDCOUNTER = 0::Int                           # Number of instantiated agents 
     
     abstract type AbstractAgent end              # Supertype of any agent type 
     
