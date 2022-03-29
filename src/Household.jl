@@ -1,6 +1,12 @@
-module Household
+import AgentTypes: Person
 
-  # type HouseHold to extend AbstractAgentsGroup
-  # It is a collection of persons associated with a particular house
-  
-end 
+export Household
+
+"""
+   Household: group of persons associated with a particular house.
+"
+const Household = Group{Person}
+
+# A specific constructor that verify all persons in a household are related or associated
+# with a particular house
+

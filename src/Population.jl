@@ -1,5 +1,6 @@
-module Population
+import AgentTypes: Person
 
-# to extend from AbstractAgentsGroup
+export Population
 
-end
+"Population: group of persons"
+const Population = Group{Person}
