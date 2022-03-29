@@ -1,8 +1,12 @@
-#import AgentTypes: AbstractAgent, Agent, DataSpec
+#=
+If the types within this file to be instantiated separately from the parent module
+one may employ the following import 
 
+import AgentTypes: AbstractAgent, Agent, DataSpec
+=# 
 export Person, PersonData
     
-# type Person to inherit from AbstractAgent
+"Fields specification of a Person agent"
 mutable struct PersonData <: DataSpec
 #   father 
 #   mother 
@@ -10,5 +14,6 @@ mutable struct PersonData <: DataSpec
 #   ..
 end
 
+"Agent person" 
 const Person = Agent{PersonData}  
 

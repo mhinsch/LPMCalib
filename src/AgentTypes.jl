@@ -1,24 +1,32 @@
+@doc "Definitions of supertypes for all Agent types."
 module AgentTypes
 
     export AbstractAgent, DataSpec, Agent #, idcounter
 
-    IDCOUNTER = 0::Int                           # Number of instantiated agents 
+    "Number of instantiated agents"
+    IDCOUNTER = 0::Int                           
     
-    abstract type AbstractAgent end              # Supertype of any agent type 
+    "Supertype of any Agent type"
+    abstract type AbstractAgent end              
     
-    # Abstract types in Julia come without data fields (i.e. they rather define common behavior)
-    # It could be possible to have struct of common data entry in any agent, e.g. 
+    
+    """
+        DataSpec: Data fields of an Agent type.
 
-    abstract type DataSpec end                   # Data fields of an Agent type
+    Abstract types in Julia come without data fields (i.e. they rather define common 
+    behavior). This is the supertype of and data fields specification in any agent. 
+    """ 
+    abstract type DataSpec end                  
 
     # init!(data::DataSpec,arg...) = error("always implement init! for DataSpec type")
     # init!(data::DataSpec,dict::Dict{String,any})
 
-    # idcounter::Int = 0                         # Number of created agents 
+    """
+       Agent{D::DataSpec}
 
-    # Agent struct is not mutable, i.e. id is initialized 
-    # once an agent is created by a constructor and shall 
-    # not be changed 
+    Immutable Agent type, i.e. id is initialized once an agent is created by a constructor 
+    and shall not be changed. Data fields can be changed only if they are mutable 
+    """ 
     struct Agent{Data <: DataSpec} <: AbstractAgent
         # id::Int     # unique agent id   
         # data::Data 
