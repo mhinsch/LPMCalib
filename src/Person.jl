@@ -1,6 +1,4 @@
-#import Agent.AbstractAgent
-#import Agent.Agent
-#import Agent.DataSpec
+#import AgentTypes: AbstractAgent, Agent, DataSpec
 
 export Person, PersonData
     

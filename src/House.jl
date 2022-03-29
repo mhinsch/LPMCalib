@@ -8,9 +8,7 @@ use the following code
 
 if not Symbol(:AgentTypes) in names(parentmodule(House),imported=true)
     # using AgentTypes The same as below
-    import AgentTypes.AbstractAgent
-    import AgentTypes.Agent 
-    import AgentTypes.DataSpec
+    import AgentTypes: AbstractAgent, Agent, DataSpec
 end 
 =#
 
