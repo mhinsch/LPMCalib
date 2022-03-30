@@ -18,6 +18,5 @@ module GroupTypes
     # ... 
 
     include("Population.jl") 
-
-    #include("Household.jl") 
+    include("Household.jl") 
 end # module GroupTypes 
