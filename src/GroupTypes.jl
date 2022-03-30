@@ -8,7 +8,7 @@ module GroupTypes
     "Supertype for any group of agents type"
     abstract type AbstractGroup end
 
-    "Group type parameterized by agents"
+    "Group type parameterized by agents, @todo GroupSpec"
     struct Group{A <: AbstractAgent} <: AbstractGroup 
         # agents::Array{A,1}
     end 

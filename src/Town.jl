@@ -1,4 +1,6 @@
-module Town
-    # Type Town extends the type  AbstractAgentsGroup 
-    # a collection of houses 
-end 
+# Type Town extends the type Group 
+# a collection of houses 
+
+export Town 
+
+const Town = Group{House}
