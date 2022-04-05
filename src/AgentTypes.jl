@@ -9,6 +9,9 @@ module AgentTypes
     "Supertype of any Agent type"
     abstract type AbstractAgent end              
     
+    #
+    # id(A::AgentTypes) = A.id 
+    # 
     
     """
         DataSpec: Data fields of an Agent type.
