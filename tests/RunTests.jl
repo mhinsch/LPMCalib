@@ -14,4 +14,5 @@ using AgentTypes, GroupTypes, Test
     @test_throws UndefVarError town = Town()
 end 
 
+# detect_ambiguities(AgentTypes)
 
