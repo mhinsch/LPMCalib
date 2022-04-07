@@ -1,26 +1,28 @@
-@doc "Definitions of supertypes for all Agent types."
+"Definitions of supertypes for all Agent types."
 module AgentTypes
 
-    export AbstractAgent, DataSpec, Agent #, idcounter
+    export AbstractAgent, DataSpec, Agent, getID, getLocation
 
     "Number of instantiated agents"
-    IDCOUNTER = 0::Int                           
+    IDCOUNTER = 0::Int64                           
     
     "Supertype of any Agent type"
     abstract type AbstractAgent end              
     
-    #
-    # id(A::AgentTypes) = A.id 
-    # 
-    
+    "Any agent should have an ID number"
+    getID(A::AbstractAgent)::Int64 = A.id 
+
+    "Any agent should be assigned to a location"
+    getLocation(A::AbstractAgent)  = A.location
+     
     """
         DataSpec: Data fields of an Agent type.
 
     Abstract types in Julia come without data fields (i.e. they rather define common 
     behavior). This is the supertype of and data fields specification in any agent. 
     """ 
-    abstract type DataSpec end                  
-
+    abstract type DataSpec end   
+    
     # init!(data::DataSpec,arg...) = error("always implement init! for DataSpec type")
     # init!(data::DataSpec,dict::Dict{String,any})
 
@@ -31,15 +33,24 @@ module AgentTypes
     and shall not be changed. Data fields can be changed only if they are mutable 
     """ 
     struct Agent{Data <: DataSpec} <: AbstractAgent
-        # id::Int     # unique agent id   
-        # data::Data 
+        id::Int64     # unique agent id  
+        location 
+        spec::Data 
         #= Cor
             Agent(arg...)
                 id = idcounter += 1
                 init!(data,arg...)
             end 
         =#
+        function Agent{Data}(location) where Data <: DataSpec
+            global IDCOUNTER += 1
+            agent = new(IDCOUNTER,location) 
+        end 
     end
+
+    # "assign an agent with its specification"
+    # init!(A::Agent{DataSpec},spec::DataSpec)
+
 
     #= 
     Common functions can be defined here, e.g.

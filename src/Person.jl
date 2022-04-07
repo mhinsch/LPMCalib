@@ -17,3 +17,7 @@ end
 "Agent person" 
 const Person = Agent{PersonData}  
 
+"Default constructor"
+Person() = Person(nothing)
+
+  
