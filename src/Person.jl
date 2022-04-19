@@ -10,13 +10,19 @@ export Person, PersonData
 mutable struct PersonData <: DataSpec
 #   father 
 #   mother 
-#   age 
+    age 
 #   ..
 end
 
 "Agent person" 
 const Person = Agent{PersonData}  
 
+# TODO 
+#      implement getAge() attribute function 
+#      implement step! function 
+# or 
+#      adjust the implementation 
+ 
 "Default constructor"
 Person() = Person(nothing)
 
