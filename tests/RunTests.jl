@@ -4,7 +4,7 @@ Run this script from shell as
 
 or within REPL
 
-julia> push!(LOAD_PATH,"/path/to/...")
+julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
@@ -17,11 +17,11 @@ using AgentTypes, GroupTypes, Test, Utilities
     
         # skip implies that the test is broken indicating a non-implemented functionality
         @test person1.id > 0               skip=false         # every agent should have a unique id 
-        @test person1.location != nothing  skip=false         # every agent should be assigned with a location        
+        @test person1.pos != nothing  skip=false         # every agent should be assigned with a location        
   
         house = House() 
         @test house.id > 0                skip=false 
-        @test house.location != nothing   skip=false
+        @test house.pos != nothing   skip=false
         @test_throws MethodError person2 = Person(person1)  # copy constructor should not be implm,ented 
     
         person2 = person1                                   # This is just an alais 

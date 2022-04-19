@@ -20,7 +20,6 @@ if yes, then declare the following struct as mutable
    HouseData: Data fields specifying an Agent of type House 
 """
 struct HouseData <: DataSpec
-    location 
     # size
     # ... 
 end 

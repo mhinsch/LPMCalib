@@ -13,7 +13,7 @@ module AgentTypes
     getID(A::AbstractAgent)::Int64 = A.id 
 
     "Any agent should be assigned to a location"
-    getLocation(A::AbstractAgent)  = A.location
+    getPosition(A::AbstractAgent)  = A.pos
      
     """
         DataSpec: Data fields of an Agent type.
@@ -34,7 +34,7 @@ module AgentTypes
     """ 
     struct Agent{Data <: DataSpec} <: AbstractAgent
         id::Int64     # unique agent id  
-        location 
+        pos           # position 
         spec::Data 
         #= Cor
             Agent(arg...)
