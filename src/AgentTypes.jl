@@ -32,20 +32,23 @@ module AgentTypes
     Immutable Agent type, i.e. id is initialized once an agent is created by a constructor 
     and shall not be changed. Data fields can be changed only if they are mutable 
     """ 
-    struct Agent{Data <: DataSpec} <: AbstractAgent
+    mutable struct Agent{Data <: DataSpec} <: AbstractAgent
         id::Int64     # unique agent id  
         pos           # position 
         spec::Data 
-        #= Cor
+        #= Constructor
             Agent(arg...)
                 id = idcounter += 1
                 init!(data,arg...)
             end 
         =#
-        function Agent{Data}(location) where Data <: DataSpec
+        function Agent{Data}(position) where Data <: DataSpec
             global IDCOUNTER += 1
-            agent = new(IDCOUNTER,location) 
+            agent = new(IDCOUNTER,position) 
         end 
+
+        "Stepping function for agents"
+        function step! end 
     end
 
     # "assign an agent with its specification"
