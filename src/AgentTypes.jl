@@ -10,10 +10,10 @@ module AgentTypes
     abstract type AbstractAgent end              
     
     "Any agent should have an ID number"
-    getID(A::AbstractAgent)::Int64 = A.id 
+    getindex(A::AbstractAgent)::Int64 = A.id 
 
     "Any agent should be assigned to a location"
-    getPosition(A::AbstractAgent)  = A.pos
+    getposition(A::AbstractAgent)  = A.pos
      
     """
         DataSpec: Data fields of an Agent type.
@@ -42,14 +42,20 @@ module AgentTypes
                 init!(data,arg...)
             end 
         =#
+
         function Agent{Data}(position) where Data <: DataSpec
             global IDCOUNTER += 1
             agent = new(IDCOUNTER,position) 
         end 
 
-        "Stepping function for agents"
-        function step! end 
+        # function Agent{Data}(position,data::Data,check_consistancy=false)
     end
+
+    "Stepping function for agents"
+    function step_agent!(agent::AbstractAgent) 
+        agenttype = typeof(agent)
+        error("step_agent! needs to be implemented for $agenttype")
+    end 
 
     # "assign an agent with its specification"
     # init!(A::Agent{DataSpec},spec::DataSpec)

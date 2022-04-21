@@ -28,7 +28,7 @@ using AgentTypes, GroupTypes, Test, Utilities
         @test person1 === person2
 
         person3 = Person() 
-        @test getID(person3) != getID(person2) skip=false                  # A new person is another person    
+        @test getindex(person3) != getindex(person2) skip=false                  # A new person is another person    
   
         @test (pop = Population()) != nothing              # Population means something 
 

@@ -26,4 +26,12 @@ const Person = Agent{PersonData}
 "Default constructor"
 Person() = Person(nothing)
 
-  
+
+"named constructor" 
+function Person(position;age) 
+     
+end 
+
+function step_agent!(person::Person) 
+   # person.spec.age += Rational(1,12)
+end 
