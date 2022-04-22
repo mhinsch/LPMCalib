@@ -1,4 +1,4 @@
-import AgentTypes: Person
+import SocialAgents: Person
 
 export Household
 

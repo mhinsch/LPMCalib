@@ -2,10 +2,31 @@
 If the types within this file to be instantiated separately from the parent module
 one may employ the following import 
 
-import AgentTypes: AbstractAgent, Agent, DataSpec
+import MyAgents: AbstractAgent
 =# 
-export Person, PersonData
+export Person
     
+
+mutable struct Person <: AbstractAgent
+    id::Int
+    pos             # could be a tuble of Town, location, house?
+    age 
+    # father
+    # mother 
+end
+
+"Constructor with named arguments"
+Person(id,pos;age=0) = Person(id,pos,age)
+
+
+function agent_step!(person::Person) 
+   # person += Rational(1,12) or GlobalVariable.DT
+end 
+
+
+#= 
+Alternative approach
+
 "Fields specification of a Person agent"
 mutable struct PersonData <: DataSpec
 #   father 
@@ -16,22 +37,4 @@ end
 
 "Agent person" 
 const Person = Agent{PersonData}  
-
-# TODO 
-#      implement getAge() attribute function 
-#      implement step! function 
-# or 
-#      adjust the implementation 
- 
-"Default constructor"
-Person() = Person(nothing)
-
-
-"named constructor" 
-function Person(position;age) 
-     
-end 
-
-function step_agent!(person::Person) 
-   # person.spec.age += Rational(1,12)
-end 
+=#

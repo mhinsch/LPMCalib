@@ -13,12 +13,12 @@ end
 
 # examine some basic declarations 
 
-using AgentTypes
+using SocialAgents
 
-person = Person()
-house  = House()
+person = Person(1,"Glasgow",age=25)
+house  = House(2,"Edinbrugh",size="small")
 
-import GroupTypes: Population, Household
+import SocialGroups: Population, Household
 
 pop = Population()
 household = Household() 

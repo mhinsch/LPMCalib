@@ -3,19 +3,24 @@ Specification of a House Agent Type. This file is included in the module AgentTy
 Type House to extend from AbstractAgent.
 """ 
 
-#=
-If the code in this file to be included seperately, use the following imports 
+export  House 
 
-import AgentTypes: AbstractAgent, Agent, DataSpec
-=# 
 
-export  House, HouseData
+mutable struct House <: AbstractAgent
+    id::Int
+    pos         # could be a tuble of Town, location in town
+    size 
+    # .... 
+end 
+
+"Constructor with named arguments"
+House(id,pos;size) = House(id,pos,size)
+
+
+
 
 #= 
-Does house data need to be mutable during a simulation course?
-if yes, then declare the following struct as mutable 
-=# 
-
+Alternative approach 
 """
    HouseData: Data fields specifying an Agent of type House 
 """
@@ -26,6 +31,4 @@ end
 
 "House Agent" 
 const House  = Agent{HouseData} 
-
-"Default constructor"
-House() =  House(nothing) 
+=# 

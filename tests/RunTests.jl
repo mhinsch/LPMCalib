@@ -8,34 +8,35 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using AgentTypes, GroupTypes, Test, Utilities
+using SocialAgents, SocialGroups, Test, Utilities
+
+import SocialAgents: getindex, getposition 
 
 @testset "Lone Parent Model combonents testing" begin 
 
     @testset verbose=true "Basic declaration" begin
-        person1 = Person() 
+        person1 = Person(1,"Glasgow",45) 
     
         # skip implies that the test is broken indicating a non-implemented functionality
-        @test person1.id > 0               skip=false         # every agent should have a unique id 
-        @test person1.pos != nothing       skip=false         # every agent should be assigned with a location        
+        @test getindex(person1) > 0                 skip=false         # every agent should have a unique id 
+        @test getposition(person1) != nothing       skip=false         # every agent should be assigned with a location        
   
-        house = House() 
-        @test house.id > 0                skip=false 
-        @test house.pos != nothing        skip=false
-        @test_throws MethodError person2 = Person(person1)  # copy constructor should not be implm,ented 
+        house = House(2,"Edinbrugh","small") 
+        @test house.id > 0                           skip=false 
+        @test house.pos != nothing                   skip=false
     
-        person2 = person1                                   # This is just an alais 
+        person2 = person1                                               # This is just an alais 
         @test person1 === person2
 
-        person3 = Person() 
-        @test getindex(person3) != getindex(person2) skip=false                  # A new person is another person    
+        person3 = Person(3,"Aberdeen",45) 
+        @test getindex(person3) != getindex(person2) skip=false         # A new person is another person    
   
-        @test (pop = Population()) != nothing              # Population means something 
+        @test (pop = Population()) != nothing                           # Population means something 
 
-        @test household = Household() != nothing           # a household instance is something 
+        @test household = Household() != nothing                        # a household instance is something 
 
-        @test_throws UndefVarError town = Town()           # Town class is not yet implemented 
-        @test town = Town()                    skip=true  
+        @test_throws UndefVarError town = Town()                        # Town class is not yet implemented 
+        @test town = Town()                          skip=true  
     end 
 
     # detect_ambiguities(AgentTypes)
@@ -44,8 +45,8 @@ using AgentTypes, GroupTypes, Test, Utilities
 
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
-        @test !isempty(simfolder)              skip=false 
-        @test isdir(simfolder)                 skip=false 
+        @test !isempty(simfolder)                    skip=false 
+        @test isdir(simfolder)                       skip=false 
     end
 
 end  # Lone Parent Model main components 
