@@ -1,5 +1,5 @@
 """
-Specification of a House Agent Type. This file is included in the module AgentTypes
+Specification of a House Agent Type. This file is included in the module SocialAgents
 Type House to extend from AbstractAgent.
 """ 
 
