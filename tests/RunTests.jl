@@ -8,7 +8,7 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using SocialAgents, SocialGroups, Test, Utilities
+using SocialAgents, SocialABMs, Test, Utilities
 
 import SocialAgents: getindex, getposition 
 
@@ -21,7 +21,7 @@ import SocialAgents: getindex, getposition
         @test getindex(person1) > 0                 skip=false         # every agent should have a unique id 
         @test getposition(person1) != nothing       skip=false         # every agent should be assigned with a location        
   
-        house = House(2,"Edinbrugh","small") 
+        house = House(2,"Edinburgh","small") 
         @test house.id > 0                           skip=false 
         @test house.pos != nothing                   skip=false
     
@@ -31,15 +31,21 @@ import SocialAgents: getindex, getposition
         person3 = Person(3,"Aberdeen",45) 
         @test getindex(person3) != getindex(person2) skip=false         # A new person is another person    
   
-        @test (pop = Population()) != nothing                           # Population means something 
+    end 
 
+    # detect_ambiguities(AgentTypes)
+
+    #=
+        testing SocialABMs TODO 
+
+        @test (pop = Population()) != nothing                           # Population means something 
         @test household = Household() != nothing                        # a household instance is something 
 
         @test_throws UndefVarError town = Town()                        # Town class is not yet implemented 
         @test town = Town()                          skip=true  
-    end 
+    =# 
 
-    # detect_ambiguities(AgentTypes)
+    # TODO testing SocialABMs once designed
 
     # TODO testing stepping functions once design is fixed 
 

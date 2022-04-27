@@ -1,3 +1,9 @@
+# ABM(Person,HouseNetworks,properties)
+
+#= 
+
+Older specification to be removed 
+
 import SocialAgents: Person
 
 export Household
@@ -8,3 +14,4 @@ const Household = Group{Person}
 # A specific constructor that verify all persons in a household are related or associated
 # with a particular house
 
+=# 

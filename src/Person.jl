@@ -1,10 +1,10 @@
+export Person
+    
+
 """
 Specification of a Person Agent Type. This file is included in the module SocialAgents
 Type Person to extend from AbstractAgent.
 """ 
-export Person
-    
-
 mutable struct Person <: AbstractAgent
     id::Int
     pos             # could be a tuble of Town, location, house?

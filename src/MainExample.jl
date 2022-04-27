@@ -18,10 +18,14 @@ using SocialAgents
 person = Person(1,"Glasgow",age=25)
 house  = House(2,"Edinbrugh",size="small")
 
+#=
+deprecated 
+
 import SocialGroups: Population, Household
 
 pop = Population()
 household = Household() 
 
+=# 
 
 
