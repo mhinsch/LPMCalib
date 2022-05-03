@@ -8,8 +8,8 @@ module SocialABMs
     include("ABM.jl")        # could be replaced by Agents.ABM    
 
     include("Population.jl") 
-    include("Household.jl") 
-end # module GroupTypes 
+    include("Town.jl")
+end # Social ABMs
 
 #= 
 

@@ -5,19 +5,19 @@ Type House to extend from AbstractAgent.
 
 export  House 
 
-
 mutable struct House <: AbstractAgent
-    id::Int
-    pos         # could be a tuble of Town, location in town
+    id
+    pos         # could be a tuble of Town, location in map or town id
     size 
-    # .... 
-end 
 
-"Constructor with named arguments"
-House(id,pos;size) = House(id,pos,size)
+    function House(pos,s) 
+        global IDCOUNTER = IDCOUNTER + 1
+        new(IDCOUNTER,pos,s)
+    end 
+    
+end # House 
 
-
-
+House(pos;size="small") = House(pos,size)
 
 #= 
 Alternative approach 

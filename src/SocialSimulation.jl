@@ -1,36 +1,30 @@
+"Functionalities for simulating Social Mulit-ABMs"
 module SocialSimulation
 
+    export loadData, initABMs, run  
 
-    function execute() 
-        
-        loadData() 
-
-        initABMs()
-        
-        # After a Multi ABM has been initialized run the simulation 
-
-        run() 
-
-        nothing 
-    end 
+    using SocialABMs
 
     function loadData() 
         # load data 
-
         nothing 
     end 
 
+    "Initialize elemantry ABMs"
     function initABMs()
+        # init Towns 
+
         # init Population 
+        population = createPopulation() 
 
-        # init Households 
+        @show population
 
-        nothing 
+        # init Households
+        (population,)
     end 
 
+    "execute agent and model stepping functions"  
     function run() 
-        # execute agent and model stepping functions  
-
         nothing 
     end 
 

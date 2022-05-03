@@ -4,13 +4,13 @@ module SocialAgents
     export AbstractAgent, getindex, getposition, agent_step!
 
     "Number of instantiated agents"
-    IDCOUNTER = 0::Int64                           
+    global IDCOUNTER = 0::Int64                           
     
     "Supertype of any Agent type"
     abstract type AbstractAgent end              
     
     "Any agent should have an ID number"
-    getindex(A::AbstractAgent)::Int = A.id 
+    getindex(A::AbstractAgent) = A.id 
 
     "Any agent should be assigned to a location"
     getposition(A::AbstractAgent)  = A.pos
@@ -28,6 +28,8 @@ module SocialAgents
 
     include("House.jl")
     include("Person.jl")
+    include("Household.jl")
+    
 end  # SocialAgents 
 
 

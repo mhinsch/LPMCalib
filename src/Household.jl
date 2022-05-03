@@ -1,21 +1,12 @@
+export Household 
 
-# export Household 
 
-# ABM(Person,HouseNetworks,properties)
-# const Household = ABM()
+mutable struct Household <: AbstractAgent
+    id::Array{Int,1}   # list of person ids 
+    pos                # list of their positions 
+    # income 
+    # ... 
 
-#= 
+end 
 
-Older specification to be removed 
-
-import SocialAgents: Person
-
-export Household
-
-"Household: group of persons associated with a particular house."
-const Household = Group{Person}
-
-# A specific constructor that verify all persons in a household are related or associated
-# with a particular house
-
-=# 
+# Constructor Household(personList) 
