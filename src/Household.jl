@@ -1,4 +1,8 @@
+
+# export Household 
+
 # ABM(Person,HouseNetworks,properties)
+# const Household = ABM()
 
 #= 
 
