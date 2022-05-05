@@ -12,11 +12,13 @@ module SocialSimulation
 
     "Initialize elemantry ABMs"
     function initABMs()
-        # init Towns 
+
+        # init Towns
+        
+        # init Houses 
 
         # init Population 
         population = createPopulation() 
-
         @show population
 
         # init Households
