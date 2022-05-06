@@ -4,7 +4,9 @@ A set of spaces on which common agents and ABMs are operating
 
 modules Spaces 
 
-    export GridSpace 
+    export Map4DLocation, GridSpace 
+
+    const Map4DLocation = NTuple{4,Int} where {D,N} 
 
     struct GridSpace 
         gridDimension::NTuple{D,Int} where D  

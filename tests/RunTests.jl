@@ -15,6 +15,29 @@ import SocialAgents: getindex, getposition
 @testset "Lone Parent Model combonents testing" begin 
 
     @testset verbose=true "Basic declaration" begin
+        @test_throws MethodError person4 = Person(10,"Glasgow",22)                        # Default constructor should be disallowed
+
+        person1 = Person("Glasgow",45) 
+        
+        # skip implies that the test is broken indicating a non-implemented functionality
+        @test getindex(person1) > 0                 skip=false         # every agent should have a unique id 
+        @test getposition(person1) != nothing       skip=false         # every agent should be assigned with a location        
+  
+        house = House("Edinburgh","small") 
+        @test getindex(house) > 0                   skip=false 
+        @test getposition(house) != nothing         skip=false
+        @test getindex(house) != getindex(person1)
+
+        person2 = person1                                               # This is just an alais 
+        @test person1 === person2
+
+        person3 = Person("Aberdeen",45) 
+        @test getindex(person3) != getindex(person1) skip=false         # A new person is another person    
+  
+    end 
+
+
+    @testset verbose=true "Person functionalities" begin
         person1 = Person("Glasgow",45) 
     
         @test_throws MethodError person4 = Person(10,"Glasgow",22)                        # Default constructor should be disallowed
@@ -33,7 +56,6 @@ import SocialAgents: getindex, getposition
 
         person3 = Person("Aberdeen",45) 
         @test getindex(person3) != getindex(person1) skip=false         # A new person is another person    
-  
     end 
 
     # detect_ambiguities(AgentTypes)

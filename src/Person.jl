@@ -1,5 +1,6 @@
 export Person
-    
+
+import Spaces: GridSpace
 
 """
 Specification of a Person Agent Type. This file is included in the module SocialAgents
@@ -7,7 +8,12 @@ Type Person to extend from AbstractAgent.
 """ 
 mutable struct Person <: AbstractAgent
     id
-    pos             # could be a tuble of Town, location, house?
+    """
+    location of a parson's house in a map. May correspond to: 
+    - (x-y coordinates of a town, x-y coordinates of a house)
+    - (town::Town, x-y location in the map)
+    """ 
+    pos    
     age 
     # father
     # mother 
@@ -31,6 +37,16 @@ Person(;position=nothing,age=0) = Person(position,age)
 function agent_step!(person::Person) 
    # person += Rational(1,12) or GlobalVariable.DT
 end 
+
+"home town of a person"
+function getHomeTown(person::Person)
+    (-1,-1)   #invalid location 
+end
+
+"home town name of a person" 
+function getHomeTownName(person::Person) 
+    ""
+end
 
 
 #= 
