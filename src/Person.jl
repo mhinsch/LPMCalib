@@ -1,4 +1,4 @@
-export Person
+export Person, getHomeTown, getHomeTownName
 
 import Spaces: GridSpace
 

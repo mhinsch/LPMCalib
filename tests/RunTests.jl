@@ -40,8 +40,8 @@ import SocialAgents: getindex, getposition
     @testset verbose=true "Person functionalities" begin
         person1 = Person("Glasgow",45)  
 
-        @test getHomeTown(person1) != nothing    skip=false 
-        @test isempty(getHomeTownName(person1))  skip=false  
+        @test getHomeTown(person1) != nothing        skip=false 
+        @test !isempty(getHomeTownName(person1))     skip=false  
 
     end 
 

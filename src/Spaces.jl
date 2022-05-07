@@ -1,8 +1,8 @@
-#=
-A set of spaces on which common agents and ABMs are operating 
-=#
-
-modules Spaces 
+"""
+    A set of spaces on which common agents 
+    and ABMs are operating
+""" 
+module Spaces 
 
     export Map4DLocation, GridSpace 
 
