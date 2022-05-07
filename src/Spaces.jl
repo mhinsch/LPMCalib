@@ -6,7 +6,7 @@ modules Spaces
 
     export Map4DLocation, GridSpace 
 
-    const Map4DLocation = NTuple{4,Int} where {D,N} 
+    const Map4DLocation = NTuple{4,Int}
 
     struct GridSpace 
         gridDimension::NTuple{D,Int} where D  
