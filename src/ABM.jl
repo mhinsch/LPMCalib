@@ -14,7 +14,20 @@
 
 using SocialAgents
 
-export ABM, add_agent! 
+export AgentBasedModel, add_agent! 
+
+mutable struct AgentBasedModel{AgentType <: AbstractAgent} 
+    agentsList::Array{AgentType,1} 
+
+end # AgentBasedModel  
+
+AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[])
+
+#const ABM = AgentBasedModel{AgentType} 
+      # where AgentType <: AbstractAgent 
+
+#=
+This is how Agents.jl ABM looks like 
 
 mutable struct ABM
     AgentType::DataType  # where agentType <: AbstractAgent
@@ -33,15 +46,17 @@ mutable struct ABM
     end 
 end # ABM 
 
+=#
+
 """
-Stepping function for a model of type ABM with 
-    agent_step!(agentObj,modelObj::ABM) 
-    model_step!(modelObj::ABM)
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
     n::number of steps 
     agents_first : agent_step! executed first before model_step
 """
 function step!(
-    model::ABM, 
+    model::AgentBasedModel, 
     agent_step!,
     model_step!,  
     n::Int=1,
@@ -57,14 +72,14 @@ end
 #    agent_step! function can be a dummystep 
 
 "return the id-th agent"
-function getindex(model::ABM,id) 
+function getindex(model::AgentBasedModel,id) 
     nothing 
 end
 
 # equivalent to operator [], i.e. model[id] 
 
 "random seed of the model"
-function seed!(model::ABM,seed) 
+function seed!(model::AgentBasedModel,seed) 
     nothing 
 end 
 
@@ -81,23 +96,23 @@ function allids(model)    : iterator over ids
 
 #=
 "add agent to the model"
-function add_agent!(agent,pos,model::ABM) 
+function add_agent!(agent,pos,model::AgentBasedModel) 
     nothing 
 end
 =# 
 
 "add agent with its position to the model"
-function add_agent!(agent,model::ABM)
+function add_agent!(agent::AbstractAgent,model::AgentBasedModel) # where T <: AbstractAgent
     push!(model.agentsList,agent)
 end 
 
 "to a given position" 
-function move_agent!(agent,pos,model::ABM)
+function move_agent!(agent,pos,model::AgentBasedModel)
     nothing 
 end 
 
 "remove an agent"
-function kill_agent!(agent,model::ABM) 
+function kill_agent!(agent,model::AgentBasedModel) 
     nothing 
 end
 

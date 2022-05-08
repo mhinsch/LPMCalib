@@ -1,9 +1,9 @@
 using SocialSimulation
 
-loadData() 
+SocialSimulation.loadData() 
 
 # This could return a list of elemantry ABMs (ABMsList) 
-initABMs() 
+SocialSimulation.initABMs() 
 
 # Create a MultiABM 
 # 

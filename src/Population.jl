@@ -24,19 +24,24 @@ mutable struct Population
 end 
 =# 
 
-using SocialAgents
+# using SocialAgents
+import SocialAgents: Person
 
 export createPopulation, population_step!
 
 
 "Step function for the population"
-function population_step!(population::ABM)
+function population_step!(population::AgentBasedModel)
     nothing 
 end 
 
 "Establish a population"
 function createPopulation()
-    population = ABM(Person) # Person Type, Town or grid, population_step! ... 
+    
+    population = AgentBasedModel{Person}()
+
+    # Agents.jl interface: 
+    # population = ABM(Person) # Person Type, Town or grid, population_step! ... 
     
     # load people data and add them to population 
 

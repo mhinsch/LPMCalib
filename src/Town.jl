@@ -9,9 +9,13 @@ Initially not sure if this concept shall remain.
 # ABM(House,Map,Properties)
 # const Town = ABM()
 
+import SocialAgents: House
 
 function createTown()
-    town = ABM(House) # House, map or grid, ... 
+    town = AgentBasedModel{House}
+    
+    # Agents.jl API:
+    # town = ABM(House) # House, map or grid, ... 
 
     town 
 end 

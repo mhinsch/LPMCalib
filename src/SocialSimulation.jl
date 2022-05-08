@@ -12,7 +12,6 @@ module SocialSimulation
 
     "Initialize elemantry ABMs"
     function initABMs()
-
         # init Towns
         
         # init Houses 
@@ -57,6 +56,5 @@ module SocialSimulation
     function selfPyramidUpdate() end
     function healthcareCost() end
     function doStats() end  
-
 
 end # SocialSimulation 
