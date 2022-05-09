@@ -3,7 +3,7 @@ using SocialSimulation
 SocialSimulation.loadData() 
 
 # This could return a list of elemantry ABMs (ABMsList) 
-SocialSimulation.initABMs() 
+SocialSimulation.initDummyABMs() 
 
 # Create a MultiABM 
 # 
@@ -11,4 +11,4 @@ SocialSimulation.initABMs()
 # e.g.
 # createMultiABM(ABMsList) 
 # 
-SocialSimulation.run()
+SocialSimulation.runDummyExample()

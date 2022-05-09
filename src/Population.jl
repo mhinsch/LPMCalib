@@ -27,7 +27,7 @@ end
 # using SocialAgents
 import SocialAgents: Person
 
-export createPopulation, population_step!
+export initDummyPopulation, population_step!
 
 
 "Step function for the population"
@@ -36,7 +36,7 @@ function population_step!(population::AgentBasedModel)
 end 
 
 "Establish a population"
-function createPopulation()
+function initDummyPopulation()
     
     population = AgentBasedModel{Person}()
 

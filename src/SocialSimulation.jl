@@ -1,7 +1,7 @@
 "Functionalities for simulating Social Mulit-ABMs"
 module SocialSimulation
 
-    export loadData, initABMs, run  
+    export loadData, initDummyABMs, runDummyExample  
 
     using SocialABMs
 
@@ -11,13 +11,13 @@ module SocialSimulation
     end 
 
     "Initialize elemantry ABMs"
-    function initABMs()
-        # init Towns
-        
+    function initDummyABMs()
         # init Houses 
+        
+        # init Towns
 
         # init Population 
-        population = createPopulation() 
+        population = initDummyPopulation() 
         @show population
 
         # init Households
@@ -25,7 +25,7 @@ module SocialSimulation
     end 
 
     "execute agent and model stepping functions"  
-    function run() 
+    function runDummyExample() 
         nothing 
     end 
 
