@@ -1,14 +1,12 @@
 "Data types for a group of agents"
 module SocialABMs 
-
     # export AbstractGroup, Group
-
     import SocialAgents: AbstractAgent      
 
     include("ABM.jl")        # could be replaced by Agents.ABM    
 
     include("Population.jl") 
-    include("Town.jl")
+    include("TownCommunity.jl")
 end # Social ABMs
 
 #= 

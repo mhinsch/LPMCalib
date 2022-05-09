@@ -12,40 +12,62 @@ using SocialAgents, SocialABMs, Test, Utilities
 
 import SocialAgents: getindex, getposition, setProperty! 
 
+import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
+
+import Spaces: HouseLocation
+
 @testset "Lone Parent Model Components Testing" begin 
 
     @testset verbose=true "Basic declaration" begin
-        @test_throws MethodError person4 = Person(10,"Glasgow",22)                        # Default constructor should be disallowed
+       
+        glasgow   = Town((10,10),"Glasgow") 
+        edinbrugh = Town((11,12),"Edinbrugh")
+        sterling  = Town((12,10),"Sterling") 
+        aberdeen  = Town((20,12),"Aberdeen")
 
-        person1 = Person("Glasgow",45) 
+        house1 = House(edinbrugh,(1,2)::HouseLocation,"small") 
+
+        @test_throws MethodError person4 = Person(1,house1,22)                        # Default constructor should be disallowed
+
+        person1 = Person(house1,45) 
         
         # skip implies that the test is broken indicating a non-implemented functionality
         @test getindex(person1) > 0                 skip=false         # every agent should have a unique id 
         @test getposition(person1) != nothing       skip=false         # every agent should be assigned with a location        
-  
-        house = House("Edinburgh","small") 
-        @test getindex(house) > 0                   skip=false 
-        @test getposition(house) != nothing         skip=false
-        @test getindex(house) != getindex(person1)
+        @test getindex(house1) != getindex(person1)
 
         person2 = person1                                               # This is just an alais 
         @test person1 === person2
 
-        person3 = Person("Aberdeen",45) 
+        house2 = House(aberdeen,(1,2)::HouseLocation,"small") 
+        person3 = Person(house2,45) 
         @test getindex(person3) != getindex(person1) skip=false         # A new person is another person    
-  
     end 
 
 
-    @testset verbose=true "Person functionalities" begin
-        person1 = Person("Glasgow",45)  
+    @testset verbose=true "Type Person" begin
+        glasgow = Town((10,10),"Glasgow") 
+        house2 = House(glasgow,(1,2)::HouseLocation,"small") 
+        person1 = Person(house2,45)  
 
         @test getHomeTown(person1) != nothing        skip=false 
         @test !isempty(getHomeTownName(person1))     skip=false  
 
-        setProperty!(person1,:pos,"Sterling")
-        @test getHomeTown(person1) == "Sterling"     skip=false
+        setProperty!(person1,:pos,house2)
+        @test getHomeTown(person1) == glasgow     skip=false
     end 
+
+    @testset verbose=true "Type House" begin
+
+        edinbrugh = Town((11,12),"Edinbrugh")
+        house = House(edinbrugh,(1,2),"small") 
+
+        @test getindex(house) > 0                   skip=false 
+        @test getposition(house) != nothing         skip=false
+        @test getHomeTown(house) === edinbrugh 
+        @test getHouseLocation(house) == (1,2)
+
+    end # House functionalities 
 
     # detect_ambiguities(AgentTypes)
 

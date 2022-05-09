@@ -10,7 +10,7 @@ This file is included in the module SocialAgents
 Type Town to extend from AbstractAgent.
 """
 
-export Town
+export Town, undefinedTown
 
 import Spaces: TownLocation
 
@@ -26,5 +26,10 @@ mutable struct Town <: AbstractAgent
 
 end  # Town 
 
+Town(pos;str="") = Town(pos,str)
+
+const undefinedTown = Town((-1,-1),"")
 
 
+
+ 

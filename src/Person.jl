@@ -9,19 +9,19 @@ Type Person to extend from AbstractAgent.
 mutable struct Person <: AbstractAgent
     id
     """
-    location of a parson's house in a map. May correspond to: 
-    - (x-y coordinates of a town, x-y coordinates of a house)
+    location of a parson's house in a map which implicitly  
+    - (x-y coordinates of a house)
     - (town::Town, x-y location in the map)
     """ 
-    pos    
-    age 
+    pos::House     
+    age::Int 
     # father
     # mother 
     # houseid 
 
     # Person(id,pos,age) = new(id,pos,age)
 
-    function Person(pos,age)
+    function Person(pos::House,age)
         global IDCOUNTER = IDCOUNTER+1
         # @show IDCOUNTER
         new(IDCOUNTER,pos,age)
@@ -31,7 +31,7 @@ end
 "Constructor with named arguments"
 Person(pos;age=0) = Person(pos,age)
 
-Person(;position=nothing,age=0) = Person(position,age)
+Person(;pos=undefinedTown,age=0) = Person(pos,age)
 
 "stepping function for person"
 function agent_step!(person::Person) 
@@ -40,12 +40,17 @@ end
 
 "home town of a person"
 function getHomeTown(person::Person)
-    getProperty(person,:pos) # nothing # or (-1,-1)   #invalid location 
+    getProperty(person,:pos) 
 end
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
     ""
+end
+
+"set a new house to a person"
+function setHouse(person::Person,house::House)
+    person.pos = house
 end
 
 
