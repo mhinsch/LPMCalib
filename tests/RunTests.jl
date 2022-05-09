@@ -10,9 +10,9 @@ julia> include("RunTests.jl")
 
 using SocialAgents, SocialABMs, Test, Utilities
 
-import SocialAgents: getindex, getposition 
+import SocialAgents: getindex, getposition, setProperty! 
 
-@testset "Lone Parent Model combonents testing" begin 
+@testset "Lone Parent Model Components Testing" begin 
 
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(10,"Glasgow",22)                        # Default constructor should be disallowed
@@ -43,6 +43,8 @@ import SocialAgents: getindex, getposition
         @test getHomeTown(person1) != nothing        skip=false 
         @test !isempty(getHomeTownName(person1))     skip=false  
 
+        setProperty!(person1,:pos,"Sterling")
+        @test getHomeTown(person1) == "Sterling"     skip=false
     end 
 
     # detect_ambiguities(AgentTypes)

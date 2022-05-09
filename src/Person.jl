@@ -40,7 +40,7 @@ end
 
 "home town of a person"
 function getHomeTown(person::Person)
-    nothing # or (-1,-1)   #invalid location 
+    getProperty(person,:pos) # nothing # or (-1,-1)   #invalid location 
 end
 
 "home town name of a person" 

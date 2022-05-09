@@ -1,13 +1,21 @@
 "Definitions of supertypes for all Agent types."
 module SocialAgents
 
-    export AbstractAgent, getindex, getposition, agent_step!
+    export AbstractAgent
+    export agent_step!, getindex, getposition 
+    export getProperty, setProperty!
 
     "Number of instantiated agents"
     global IDCOUNTER = 0::Int64                           
     
     "Supertype of any Agent type"
-    abstract type AbstractAgent end              
+    abstract type AbstractAgent end     
+    
+    # "A list of all agents"
+    # allAgentsList::Array{AbstractAgent,1} = AbstractAgent[] 
+    # does not work ..
+    # TODO struct for mapping agents ids to agents 
+    # ...
     
     "Any agent should have an ID number"
     getindex(A::AbstractAgent) = A.id 
@@ -22,10 +30,23 @@ module SocialAgents
         nothing 
     end 
 
+    "Set an agent field using this function"
+    function setProperty!(agent::AbstractAgent,
+                         property::Symbol,
+                         val) 
+        setfield!(agent,property,val)
+    end
+
+    function getProperty(agent::AbstractAgent, 
+                         property::Symbol)
+        getfield(agent,property)
+    end
+
     #=
     Base.show(io,agent::AbstractAgent) = ... 
     =# 
 
+    include("Town.jl")
     include("House.jl")
     include("Person.jl")
     include("Household.jl")
