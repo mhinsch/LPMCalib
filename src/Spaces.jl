@@ -8,6 +8,8 @@ module Spaces
 
     const Map4DLocation = NTuple{4,Int}
 
+    const TownLocation  = NTuple{2,Int}
+
     struct GridSpace 
         gridDimension::NTuple{D,Int} where D  
     end 
