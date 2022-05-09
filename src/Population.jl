@@ -35,7 +35,7 @@ function population_step!(population::AgentBasedModel)
     nothing 
 end 
 
-"Establish a population"
+"Establish a dummy population"
 function initDummyPopulation()
     
     population = AgentBasedModel{Person}()
