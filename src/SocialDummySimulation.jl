@@ -1,9 +1,13 @@
-"Functionalities for simulating Social Mulit-ABMs"
-module SocialSimulation
+"""
+Establishing an artificial dummy abm-based communities 
+and implementing various simulations upon
+"""
+
+module SocialDummySimulation
 
     export loadData, initDummyABMs, runDummyExample  
 
-    using SocialABMs
+    using SocialAgents, SocialABMs
 
     function loadData() 
         # load data 
@@ -12,16 +16,34 @@ module SocialSimulation
 
     "Initialize elemantry ABMs"
     function initDummyABMs()
-        # init Houses 
-        
         # init Towns
+         
+        glasgow   = Town((10,10),"Glasgow") 
+        edinbrugh = Town((11,12),"Edinbrugh")
+        sterling  = Town((12,10),"Sterling") 
+        aberdeen  = Town((20,12),"Aberdeen")
+        towns = [aberdeen,edinbrugh,glasgow,sterling]
 
+        # init Houses 
+
+        numberOfHouses = 100 
+        sizes = ["small","medium","big"]
+
+        houses = House[] 
+        for index in range(1,numberOfHouses)
+            town = rand(towns)
+            sz   = rand(sizes) 
+            x,y  = rand(1:10),rand(1:10)
+            push!(houses,House(town,(x,y),sz))
+        end
+        @show houses[1:10]
         # init Population 
-        population = initDummyPopulation() 
+
+        population = initDummyPopulation(houses) 
         @show population
 
         # init Households
-        (population,)
+        (towns,houses,population)
     end 
 
     "execute agent and model stepping functions"  

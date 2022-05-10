@@ -36,20 +36,20 @@ function population_step!(population::AgentBasedModel)
 end 
 
 "Establish a dummy population"
-function initDummyPopulation()
+function initDummyPopulation(houses::Array{House,1})
     
     population = AgentBasedModel{Person}()
 
-    # Agents.jl interface: 
-    # population = ABM(Person) # Person Type, Town or grid, population_step! ... 
-    
-    # load people data and add them to population 
-
-    joe = Person(position="Glasgow",age=30)
-    katharina = Person(position="Edinbrugh",age=25)
-
-    add_agent!(joe,population)
-    add_agent!(katharina,population)
+    for house in houses
+        mother   = Person(house,rand(25:55))
+        father   = Person(house,rand(30:55))
+        son      = Person(house,rand(1:15))
+        daughter = Person(house,rand(1:15))
+        add_agent!(mother,population)
+        add_agent!(father,population)
+        add_agent!(son,population)
+        add_agent!(daughter,population)
+    end 
 
     population 
 end 

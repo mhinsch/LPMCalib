@@ -1,9 +1,9 @@
-using SocialSimulation
+using SocialDummySimulation
 
-SocialSimulation.loadData() 
+SocialDummySimulation.loadData() 
 
 # This could return a list of elemantry ABMs (ABMsList) 
-SocialSimulation.initDummyABMs() 
+SocialDummySimulation.initDummyABMs() 
 
 # Create a MultiABM 
 # 
@@ -11,4 +11,4 @@ SocialSimulation.initDummyABMs()
 # e.g.
 # createMultiABM(ABMsList) 
 # 
-SocialSimulation.runDummyExample()
+SocialDummySimulation.runDummyExample()
