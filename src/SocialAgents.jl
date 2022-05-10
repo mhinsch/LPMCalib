@@ -46,10 +46,10 @@ module SocialAgents
     Base.show(io,agent::AbstractAgent) = ... 
     =# 
 
-    include("Town.jl")
-    include("House.jl")
-    include("Person.jl")
-    include("Household.jl")
+    include("./agents/Town.jl")
+    include("./agents/House.jl")
+    include("./agents/Person.jl")
+    include("./agents/Household.jl")
     
 end  # SocialAgents 
 
