@@ -35,6 +35,11 @@ function getHomeTown(house::House)
     house.pos[1]
 end
 
+"town name associated with house"
+function getHomeTown(house::House)
+    getProperty(house.pos[1],:name)
+end
+
 "house location in the associated town"
 function getHouseLocation(house::House)
     house.pos[2]

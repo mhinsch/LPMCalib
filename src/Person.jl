@@ -40,12 +40,12 @@ end
 
 "home town of a person"
 function getHomeTown(person::Person)
-    getProperty(person,:pos) 
+    getHomeTown(person.pos) 
 end
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
-    ""
+    getProperty(getHomeTown(person),:name)
 end
 
 "set a new house to a person"
