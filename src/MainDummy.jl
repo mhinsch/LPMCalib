@@ -3,7 +3,8 @@ using SocialDummySimulation
 SocialDummySimulation.loadData() 
 
 # This could return a list of elemantry ABMs (ABMsList) 
-SocialDummySimulation.initDummyABMs() 
+(towns,houses,population) =
+    SocialDummySimulation.initDummyABMs() 
 
 # Create a MultiABM 
 # 
@@ -11,4 +12,4 @@ SocialDummySimulation.initDummyABMs()
 # e.g.
 # createMultiABM(ABMsList) 
 # 
-SocialDummySimulation.runDummyExample()
+SocialDummySimulation.runDummyExample(population)

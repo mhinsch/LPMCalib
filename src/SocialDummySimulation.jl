@@ -36,19 +36,28 @@ module SocialDummySimulation
             x,y  = rand(1:10),rand(1:10)
             push!(houses,House(town,(x,y),sz))
         end
+        print("sample houses: \n ")
+        print("============== \n ")
         @show houses[1:10]
         # init Population 
 
         population = initDummyPopulation(houses) 
-        @show population
+        print("Sample population : \n")
+        print("=================== \n ")
+        @show population.agentsList[1:10]
 
         # init Households
         (towns,houses,population)
     end 
 
     "execute agent and model stepping functions"  
-    function runDummyExample() 
-        nothing 
+    function runDummyExample(population::AgentBasedModel{Person}) 
+        for year in 1990:2030
+            SocialABMs.population_step!(population)
+            print("sample population after year $(year) :\n")
+            print("======================================== \n") 
+            @show population.agentsList[1:10]
+        end 
     end 
 
     #=

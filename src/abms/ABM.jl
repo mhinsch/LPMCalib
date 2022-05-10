@@ -18,7 +18,6 @@ export AgentBasedModel, add_agent!
 
 mutable struct AgentBasedModel{AgentType <: AbstractAgent} 
     agentsList::Array{AgentType,1} 
-
 end # AgentBasedModel  
 
 AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[])

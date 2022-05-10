@@ -36,6 +36,7 @@ Person(;pos=undefinedTown,age=0) = Person(pos,age)
 "stepping function for person"
 function agent_step!(person::Person) 
    # person += Rational(1,12) or GlobalVariable.DT
+   person.age += 1 
 end 
 
 "home town of a person"

@@ -31,8 +31,10 @@ export initDummyPopulation, population_step!
 
 
 "Step function for the population"
-function population_step!(population::AgentBasedModel)
-    nothing 
+function population_step!(population::AgentBasedModel{Person})
+    for agent in population.agentsList
+        agent_step!(agent)
+    end
 end 
 
 "Establish a dummy population"
