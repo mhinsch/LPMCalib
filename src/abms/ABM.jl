@@ -16,7 +16,13 @@ using SocialAgents
 
 export AgentBasedModel, add_agent! 
 
-mutable struct AgentBasedModel{AgentType <: AbstractAgent} 
+abstract type AbstractABM end 
+
+function getAgentsList(model::AbstractABM)::Array{AgentType,1}
+    model.agentsList
+end 
+
+mutable struct AgentBasedModel{AgentType <: AbstractAgent} <: AbstractABM
     agentsList::Array{AgentType,1} 
 end # AgentBasedModel  
 
@@ -55,15 +61,32 @@ Stepping function for a model of type AgentBasedModel with
     agents_first : agent_step! executed first before model_step
 """
 function step!(
-    model::AgentBasedModel, 
+    model::AbstractABM, 
     agent_step!,
     model_step!,  
     n::Int=1,
     agents_first::Bool=true 
 )  
-    # implementation     
-    nothing 
-end
+    
+    for i in range(1,n)
+        
+        if agents_first 
+            for agent in model.agentsList
+                agent_step!(agent,model) 
+            end
+        end
+    
+        model_step!(model)
+    
+        if !agents_first
+            for agent in model.agentsList
+                agent_step!(agent,model)
+            end
+        end
+    
+    end
+
+end # step! 
 
 # Other versions of the above function
 #    model_step! is omitted 
