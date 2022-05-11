@@ -1,7 +1,10 @@
-"Data types for a group of agents"
+"""
+Module for specifying a type for agent-based models with some examples
+"""
 module SocialABMs 
     import SocialAgents: AbstractAgent      
 
+    include("./abms/AbstractABM.jl")
     include("./abms/ABM.jl")        # could be replaced by Agents.ABM    
 
     include("./abms/Population.jl") 
