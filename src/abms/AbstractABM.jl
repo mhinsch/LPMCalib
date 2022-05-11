@@ -10,10 +10,43 @@ abstract type AbstractABM end
 export add_agent!, move_agent!, kill_agent!
 export step!, dummystep 
 
+
+#========================================
+Fields of an ABM
+=########################################
+
 "An AbstractABM subtype to have a list of agents"
 function getAgentsList(model::AbstractABM)::Array{AgentType,1}
     model.agentsList
 end 
+
+
+#========================================
+Functionalities for agents within an ABM
+=########################################
+
+"return the id-th agent"
+function getindex(model::AbstractABM,id) 
+    nothing 
+end
+
+# equivalent to operator [], i.e. model[id] 
+
+"random seed of the model"
+function seed!(model::AbstractABM,seed) 
+    nothing 
+end 
+
+#= 
+Couple of other useful functions may include:
+
+function nagents(model)   : number of agents 
+
+function allagents(model) : iterator over agents
+
+function allids(model)    : iterator over ids
+
+=# 
 
 #========================================
 Functionalities for agents within an ABM
@@ -112,26 +145,4 @@ end # step!
 #    n(model,s)::Function 
 #    agent_step! function can be a dummystep 
 
-"return the id-th agent"
-function getindex(model::AbstractABM,id) 
-    nothing 
-end
-
-# equivalent to operator [], i.e. model[id] 
-
-"random seed of the model"
-function seed!(model::AbstractABM,seed) 
-    nothing 
-end 
-
-#= 
-Couple of other useful functions may include:
-
-function nagents(model)   : number of agents 
-
-function allagents(model) : iterator over agents
-
-function allids(model)    : iterator over ids
-
-=# 
 

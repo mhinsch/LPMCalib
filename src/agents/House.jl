@@ -1,3 +1,9 @@
+export  House 
+
+export getHomeTown, getHouseLocation
+
+import Spaces: HouseLocation
+
 """
 Specification of a House Agent Type. 
 
@@ -5,14 +11,6 @@ This file is included in the module SocialAgents
 
 Type House to extend from AbstractAgent.
 """ 
-
-export  House 
-
-export getHomeTown, getHouseLocation
-
-import Spaces: HouseLocation
-# import SocialAgents:House
-
 mutable struct House <: AbstractAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    

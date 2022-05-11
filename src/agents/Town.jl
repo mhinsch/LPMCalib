@@ -1,3 +1,7 @@
+export Town, undefinedTown
+
+import Spaces: TownLocation
+
 """
 Specification of a Town agent type.
 
@@ -9,11 +13,6 @@ This file is included in the module SocialAgents
 
 Type Town to extend from AbstractAgent.
 """
-
-export Town, undefinedTown
-
-import Spaces: TownLocation
-
 mutable struct Town <: AbstractAgent
     id
     pos::TownLocation

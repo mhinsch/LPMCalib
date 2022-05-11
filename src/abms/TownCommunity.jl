@@ -3,6 +3,7 @@ Intuition: A Town community is composed of a variable
            population and a variable set of houses. 
            Thus, it can be viewed as an ABM. 
  
+           To be implemented if needed
 =# 
 
 
@@ -22,17 +23,3 @@ function initDummyTown(name::String,
 
     # town 
 end 
-#= 
-
-Older implementation to be removed 
-
-#
-# Type Town extends the type Group 
-# a collection of houses 
-# 
-
-export Town 
-
-const Town = Group{House}
-
-=# 

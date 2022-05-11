@@ -3,8 +3,11 @@ export Person, getHomeTown, getHomeTownName, agestep!
 import Spaces: GridSpace
 
 """
-Specification of a Person Agent Type. This file is included in the module SocialAgents
-Type Person to extend from AbstractAgent.
+Specification of a Person Agent Type. 
+
+This file is included in the module SocialAgents
+
+Type Person extends from AbstractAgent.
 """ 
 mutable struct Person <: AbstractAgent
     id

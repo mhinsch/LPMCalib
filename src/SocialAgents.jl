@@ -1,6 +1,6 @@
 """
-Module for defining a supertype, AbstractAgent for all Agent types
-
+Module for defining a supertype, AbstractAgent for all Agent types 
+    with additional ready-to-use agents to be used in Social (Multi-)ABMs models 
 """
 module SocialAgents
 

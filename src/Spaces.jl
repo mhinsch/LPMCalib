@@ -1,6 +1,8 @@
 """
     A set of spaces on which common agents 
-    and ABMs are operating
+    and ABMs are operating. 
+
+    Subject to progress in future to cope with Agents.jl
 """ 
 module Spaces 
 
