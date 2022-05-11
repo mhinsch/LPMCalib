@@ -52,12 +52,15 @@ module SocialDummySimulation
 
     "execute agent and model stepping functions"  
     function runDummyExample(population::AgentBasedModel{Person}) 
+       
         for year in 1990:2030
-            SocialABMs.population_step!(population)
-            print("sample population after year $(year) :\n")
-            print("======================================== \n") 
+            # SocialABMs.population_step!(population)
+            SocialABMs.step!(population,dummystep,population_step!)
+            print("\n\nsample population after year $(year) :\n")
+            print("======================================== \n\n") 
             @show population.agentsList[1:10]
         end 
+
     end 
 
     #=

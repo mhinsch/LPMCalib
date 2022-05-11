@@ -14,7 +14,7 @@
 
 using SocialAgents
 
-export AgentBasedModel, add_agent! 
+export AgentBasedModel, add_agent!, step!, dummystep 
 
 abstract type AbstractABM end 
 
@@ -52,6 +52,35 @@ mutable struct ABM
 end # ABM 
 
 =#
+
+
+
+"dummy stepping function for arbitrary agents"
+function dummystep(agent::AbstractAgent,model::AbstractABM) 
+    nothing 
+end 
+
+"""
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+    agents_first : agent_step! executed first before model_step
+"""
+function step!(
+    model::AbstractABM,
+    agent_step!,
+    n::Int=1
+)
+    
+    for i in range(1,n)
+        for agent in model.agentsList
+            agent_step!(agent,model) 
+        end
+    end 
+
+end
+
 
 """
 Stepping function for a model of type AgentBasedModel with 
@@ -124,17 +153,17 @@ end
 =# 
 
 "add agent with its position to the model"
-function add_agent!(agent::AbstractAgent,model::AgentBasedModel) # where T <: AbstractAgent
+function add_agent!(agent::AbstractAgent,model::AbstractABM) # where T <: AbstractAgent
     push!(model.agentsList,agent)
 end 
 
 "to a given position" 
-function move_agent!(agent,pos,model::AgentBasedModel)
+function move_agent!(agent,pos,model::AbstractABM)
     nothing 
 end 
 
 "remove an agent"
-function kill_agent!(agent,model::AgentBasedModel) 
+function kill_agent!(agent,model::AbstractABM) 
     nothing 
 end
 

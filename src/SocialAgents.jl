@@ -23,13 +23,6 @@ module SocialAgents
     "Any agent should be assigned to a location"
     getposition(A::AbstractAgent)  = A.pos
     
-    "Stepping function for agents"
-    function agent_step!(agent::AbstractAgent) 
-        agenttype = typeof(agent)
-        @warn "agent_step! is not defined for type $agenttype"
-        nothing 
-    end 
-
     "Set an agent field using this function"
     function setProperty!(agent::AbstractAgent,
                          property::Symbol,

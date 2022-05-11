@@ -1,4 +1,4 @@
-export Person, getHomeTown, getHomeTownName
+export Person, getHomeTown, getHomeTownName, agestep!
 
 import Spaces: GridSpace
 
@@ -33,10 +33,10 @@ Person(pos;age=0) = Person(pos,age)
 
 Person(;pos=undefinedTown,age=0) = Person(pos,age)
 
-"stepping function for person"
-function agent_step!(person::Person) 
+"increment an age for a person to be used in typical stepping functions"
+function agestep!(person::Person;dt=1) 
    # person += Rational(1,12) or GlobalVariable.DT
-   person.age += 1 
+   person.age += dt 
 end 
 
 "home town of a person"

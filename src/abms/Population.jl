@@ -33,7 +33,7 @@ export initDummyPopulation, population_step!
 "Step function for the population"
 function population_step!(population::AgentBasedModel{Person})
     for agent in population.agentsList
-        agent_step!(agent)
+        agestep!(agent;dt=1)
     end
 end 
 
