@@ -19,7 +19,9 @@ end
 "Establish a dummy population"
 function initDummyPopulation(houses::Array{House,1})
     
-    population = AgentBasedModel{Person}()
+    population = SocialABM{Person}(Dict(:startTime=>1990,
+                                              :finishTime=>2030,
+                                              :dt=>1))
 
     for house in houses
         mother   = Person(house,rand(25:55))
