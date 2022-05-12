@@ -13,8 +13,9 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - SocialABMs.jl   : Basic concept of an elementary ABM
   - /abms/*         : Examples of abms
   - MainDummy.jl    : An example of a dummy simulation
-  - SocialDummySimulation.jl
+  - SocialSimulations.jl
                     : the main functionalities of execcuting an ABM
+  - /simulations    : simulation functions for simulation examples 
   - Spaces.jl       : Spaces on which ABM and its agents are operating  
 - /tests
 
