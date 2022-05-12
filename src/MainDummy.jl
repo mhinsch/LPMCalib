@@ -6,7 +6,12 @@ Some agents are living together in a house.
 They are currently ageing together. 
 """ 
 
-using SocialDummySimulation
+
+using SocialSimulations: SocialSimulation, run! 
+using SocialABMs: SocialABM, dummystep, population_step!
+
+include("simulations/Dummy.jl")
+
 
 currdir = pwd()
 
@@ -18,11 +23,20 @@ if ! (currdir in LOAD_PATH)
     push!(LOAD_PATH,currdir) 
 end 
 
-SocialDummySimulation.loadData() 
+
+dummySimulation = SocialSimulation(createDummyPopulation,
+                                   Dict(:startTime=>1990,
+                                        :finishTime=>2030,
+                                        :dt=>1))
+
+# print(dummySimulation.model)
+
+run!(dummySimulation,dummystep,population_step!)
+ 
 
 # This could return a list of elemantry ABMs (ABMsList) 
-(towns,houses,population) =
-    SocialDummySimulation.initDummyABMs() 
+# (towns,houses,population) =
+#    SocialDummySimulation.initDummyABMs() 
 
 # Create a MultiABM 
 # 
@@ -31,4 +45,6 @@ SocialDummySimulation.loadData()
 # createMultiABM(ABMsList) 
 # 
 
-SocialDummySimulation.runDummyExample(population)
+# SocialDummySimulation.runDummyExample(population)
+
+

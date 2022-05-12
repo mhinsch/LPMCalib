@@ -17,14 +17,14 @@ export startTime, finishTime, dt
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
 
-"get the start time of the simulation"
-startTime(model::AbstractSocialABM) = model.properties[:startTime] 
+# "get the start time of the simulation"
+# startTime(model::AbstractSocialABM) = model.properties[:startTime] 
 
-"get the finish time of the simulation"
-finishTime(model::AbstractSocialABM) = model.properties[:finishTime] 
+# "get the finish time of the simulation"
+# finishTime(model::AbstractSocialABM) = model.properties[:finishTime] 
 
-"get the increment simulation step" 
-dt(model::AbstractSocialABM) = model.properties[:dt] 
+# "get the increment simulation step" 
+# dt(model::AbstractSocialABM) = model.properties[:dt] 
 
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
@@ -34,10 +34,12 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     it can be made possible to access a symbol like that model.x
     in the same way as Agents.jl 
     """ 
-    properties::Dict{Symbol}
+    properties
     # AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = new(AgentType[])
 
     SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
+
+    SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
 end # AgentBasedModel  
 
 # AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[]))
