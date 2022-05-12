@@ -18,7 +18,7 @@ Fields of an ABM
 =########################################
 
 "An AbstractABM subtype to have a list of agents"
-function getAgentsList(model::AbstractABM)::Array{AgentType,1}
+function getAgentsList(model::AbstractABM)::Array{AgentType,1} where AgentType <: AbstractAgent
     model.agentsList
 end 
 
