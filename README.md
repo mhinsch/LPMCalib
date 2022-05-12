@@ -3,7 +3,8 @@ An initial implementation of an ABM aiming at a social and child care simulation
 
 
 # Releases
-- V0.1: Initial concepts of agents, ABMs and a dummy exmaple are realized. Basic interfaces of the Package Agents.jl are imitated in order to fully exploit Agents.jl in future. 
+- **V0.1** (11-05-2022): Initial concepts of agents, ABMs and a dummy exmaple are realized. Basic interfaces of the Package Agents.jl are imitated in order to fully exploit Agents.jl in future. 
+  - V0.1.1: Improved concept for an ABM and data structure for a simulation    
 
 # Source code structure 
 - /src
