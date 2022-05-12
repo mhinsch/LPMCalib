@@ -1,10 +1,12 @@
 """
 Specification of an abstract ABM type as a supertype for all 
-    (elementary) Agent based models.
+    (elementary) Agent based models. It resembles the ABM concept
+    from Agents.jl
 """
 
 using SocialAgents
 
+"Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
 export add_agent!, move_agent!, kill_agent!

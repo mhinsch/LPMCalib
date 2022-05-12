@@ -1,26 +1,39 @@
 """
-    This is a struct that resembles the AgentBasedModel concept from the package Agents.jl 
-
-    Initial ideas: 
-
-    1. To integrate this code with SocialGroups.jl. Thus, a Group is an ABM. 
-    
-    2. a MultiAgentBasedModel concept is to be invented
-
-    3. This can be integrated to Agents.jl 
+    An Agent Based Model concept based on AbstractAgent type 
+    similar to Agents.jl. 
+    A new abstract ABM type called SocialABM is realized. 
+    It specifies further functionalities needed (as a contract)
+    for running a social simulation. 
 """ 
 
 # import SocialAgents: AbstractAgent
 
 
 
-export AgentBasedModel
+export SocialABM, AgentBasedModel
 
-mutable struct AgentBasedModel{AgentType <: AbstractAgent} <: AbstractABM
+export startTime, finishTime, dt
+
+"Social ABM to be enhanced with relevant functionlities"
+abstract type SocialABM <: AbstractABM end 
+
+"get the start time of the simulation"
+startTime(model::SocialABM) = error("Not implemented") 
+
+"get the finish time of the simulation"
+finishTime(model::SocialABM) = error("Not implemented") 
+
+"get the increment simulation step" 
+dt(model::SocialABM) = error("Not implemented")  
+
+mutable struct AgentBasedModel{AgentType <: AbstractAgent} <: SocialABM
     agentsList::Array{AgentType,1} 
 end # AgentBasedModel  
 
 AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[])
+
+
+
 
 #const ABM = AgentBasedModel{AgentType} 
       # where AgentType <: AbstractAgent 
