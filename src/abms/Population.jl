@@ -24,8 +24,7 @@ In future we could have something like that:
 mutable struct Population 
 
     abm::ABM  
-
-    Population() 
+    Population(createPopulation::Function) 
 
 end 
 =# 
