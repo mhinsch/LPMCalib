@@ -6,25 +6,12 @@
     for running a social simulation. 
 """ 
 
-# import SocialAgents: AbstractAgent
-
-
-
 export SocialABM
 
 export startTime, finishTime, dt
 
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
-
-# "get the start time of the simulation"
-# startTime(model::AbstractSocialABM) = model.properties[:startTime] 
-
-# "get the finish time of the simulation"
-# finishTime(model::AbstractSocialABM) = model.properties[:finishTime] 
-
-# "get the increment simulation step" 
-# dt(model::AbstractSocialABM) = model.properties[:dt] 
 
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM

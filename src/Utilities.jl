@@ -19,7 +19,6 @@ module Utilities
         "" 
     end
 
-
     # 
     # reading and writing a file 
     # try 
