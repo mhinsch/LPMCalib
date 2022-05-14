@@ -7,8 +7,9 @@ module Dummy
 
     import SocialAgents: Town, House, Person
     import SocialABMs: SocialABM, add_agent!
+    import SocialSimulations: SocialSimulation
 
-    export createPopulation
+    export createPopulation, loadData!
 
 
     "Establish a dummy population"
@@ -63,6 +64,9 @@ module Dummy
 
         population
     end 
+
+
+    loadData!(simulation::SocialSimulation) = nothing  
 
 end # module Dummy
 

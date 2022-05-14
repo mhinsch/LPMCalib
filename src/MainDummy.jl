@@ -16,7 +16,7 @@ julia> include("this_script.jl")
 using SocialSimulations: SocialSimulation, run! 
 using SocialABMs: SocialABM, dummystep, population_step!
 
-import SocialSimulations.Dummy: createPopulation
+import SocialSimulations.Dummy: createPopulation, loadData!
 
 
 dummySimulation = SocialSimulation(createPopulation,
@@ -24,7 +24,7 @@ dummySimulation = SocialSimulation(createPopulation,
                                         :finishTime=>2030,
                                         :dt=>1))
 
-# print(dummySimulation.model)
+loadData!(dummySimulation)
 
 run!(dummySimulation,dummystep,population_step!)
  

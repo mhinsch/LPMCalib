@@ -16,8 +16,8 @@ finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 
 
-# "load data needed by the simulation"
-# loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
+"load data needed by the simulation"
+loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
 
 # "define and initialize an elemantry ABM"
 # initABMs!(simulation::AbstractSocialSimulation) = error("Not implemented") 
@@ -33,8 +33,6 @@ Run a simulation using stepping functions
 function run!(simulation::AbstractSocialSimulation,
               agent_step_function,
               model_step_function) 
-
-    # loadData!(simulation) 
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
         step!(model(simulation),agent_step_function,model_step_function)
