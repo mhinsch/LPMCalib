@@ -6,11 +6,11 @@ under construction
 
 import SocialSimulations: SocialSimulation
 
-import SocialSimulations.LoneParentsModel: createPopulation, loadData!
+import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimulationParameters
 
-lpmSimulation = SocialSimulation(createPopulation,
-                    Dict(:startTime=>0,
-                         :finishTime=>3000,
-                         :dt=>1))
+
+simProperties = setSimulationParameters()
+
+lpmSimulation = SocialSimulation(createPopulation,simProperties)
 
 loadData!(lpmSimulation)
