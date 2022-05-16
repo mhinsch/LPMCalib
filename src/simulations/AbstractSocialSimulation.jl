@@ -4,7 +4,7 @@ Main specification of a Social Simulation type
 This file is included in SocialSimuilations module
 """
 
-export run!
+export run!, setProperty!
 import SocialABMs: step!
 
 # At the moment no need for Abstract Social Simulation! 
@@ -14,6 +14,14 @@ model(sim::AbstractSocialSimulation)      = sim.model
 startTime(sim::AbstractSocialSimulation)  = sim.properties[:startTime]
 finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
+
+"set property to a given vlaue"
+function setProperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
+    symbol in keys(sim.properties) ? 
+         sim.properties[symbol] = val :  
+            error("$(symbol) is not a key in $(sim.properties)")
+    nothing
+end
 
 
 "load data needed by the simulation"
