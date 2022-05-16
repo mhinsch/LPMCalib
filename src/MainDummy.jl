@@ -22,7 +22,8 @@ import SocialSimulations.Dummy: createPopulation, loadData!
 dummySimulation = SocialSimulation(createPopulation,
                                    Dict(:startTime=>1990,
                                         :finishTime=>2030,
-                                        :dt=>1))
+                                        :dt=>1,
+                                        :seed=>floor(Int,time())))
 
 loadData!(dummySimulation)
 
