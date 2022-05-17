@@ -19,17 +19,19 @@ module LoneParentsModel
     function loadData!(simulation::SocialSimulation)
         loadMetaParameters!(simulation)
         loadModelParameters!(simulation)
+        initSimulationVariables(simulation)
     end 
 
-#=================================
-Simulation and model parameters 
-=#################################
+#=============================================
+Simulation and model parameters initialization
+=#############################################
 
     "set simulation paramters @return dictionary of symbols to values"
     function setSimulationParameters() 
         Dict(:numRepeats=>1,
              :startYear=>1860,
-             :endYear=>2040)
+             :endYear=>2040,
+             :seed=> floor(Int,time()))
 
         #= multiprocessing params
         meta["multiprocessing"] = false
@@ -81,7 +83,7 @@ Simulation and model parameters
         meta["withBenefits"] = true                               # ?? 
         meta["externalCare"] = true                               # ?? 
         meta["careAllocationFromYear"] = simulation.properties[:startYear]   # meta["startYear"]
-        meta["favouriteSeed"] = floor(Int,time())
+        meta["favouriteSeed"] = simulation.properties[:seed] 
         meta["loadFromFile"] = false
         meta["numberClasses"] = 5                                 # ?? Socio-econimic classes
         meta["numCareLevels"] = 5
@@ -640,6 +642,177 @@ Simulation and model parameters
 
         nothing
 
+    end
+
+
+    function initSimulationVariables(simulation::SocialSimulation) 
+
+        #= 
+        variables = Dict()
+        simulation.properties[:variables] = variables 
+        
+        looks more relevant to have something like theta
+
+        simulation.variables = Dict()::Dict{Symbola,Any} 
+        =# 
+        
+        #= To translate 
+
+  
+
+
+
+        self.dataMap = ['town_x', 'town_y', 'x', 'y', 'size', 'unmetNeed'] 
+        
+        self.dataPyramid = ['year', 'Class Age 0', 'Class Age 1', 'Class Age 2', 'Class Age 3', 'Class Age 4', 'Class Age 5', 'Class Age 6', 'Class Age 7',
+                            'Class Age 8', 'Class Age 9', 'Class Age 10', 'Class Age 11', 'Class Age 12', 'Class Age 13', 'Class Age 14', 'Class Age 15',
+                            'Class Age 16', 'Class Age 17', 'Class Age 18', 'Class Age 19', 'Class Age 20', 'Class Age 21', 'Class Age 22', 'Class Age 23', 
+                            'Class Age 24']
+        
+        self.houseData = ['year', 'House name', 'size']
+        
+        self.householdData = ['ID', 'Sex', 'Age', 'Health']
+        
+        self.log = ['year', 'message']
+        
+        self.Outputs = ['year', 'month', 'period', 'currentPop', 'popFromStart', 'numHouseholds', 'averageHouseholdSize', 'marriageTally', 
+                        'marriagePropNow', 'divorceTally', 'shareSingleParents', 'shareFemaleSingleParent', 
+                        'taxPayers', 'taxBurden', 'familyCareRatio', 'employmentRate', 'shareWorkingHours', 
+                        'publicSocialCare', 'costPublicSocialCare', 'sharePublicSocialCare', 'costTaxFreeSocialCare', 
+                        'publicChildCare', 'costPublicChildCare', 'sharePublicChildCare', 'costTaxFreeChildCare', 
+                        'totalTaxRevenue', 'totalPensionRevenue', 'pensionExpenditure', 'totalHospitalizationCost', 
+                        'classShare_1', 'classShare_2', 'classShare_3', 'classShare_4', 'classShare_5', 'totalInformalChildCare', 
+                        'formalChildCare', 'totalUnmetChildCareNeed', 'childcareIncomeShare', 'shareInformalChildCare', 'shareCareGivers', 
+                        'ratioFemaleMaleCarers', 'shareMaleCarers', 'shareFemaleCarers', 'ratioWage', 'ratioIncome', 
+                        'shareFamilyCarer', 'share_over20Hours_FamilyCarers', 'numSocialCarers', 'averageHoursOfCare', 'share_40to64_carers', 
+                        'share_over65_carers', 'share_10PlusHours_over70', 'totalSocialCareNeed', 
+                        'totalInformalSocialCare', 'totalFormalSocialCare', 'totalUnmetSocialCareNeed', 
+                        'totalSocialCare', 'share_InformalSocialCare', 'share_UnmetSocialCareNeed', 'totalOWSC', 'shareOWSC', 'totalCostOWSC', 
+                        'singleHousehold_UC', 'coupleHousehold_UC', 'incomePerCapita_Single', 'incomePerCapita_Couple',
+                        'q1_socialCareNeed', 'q1_informalSocialCare', 'q1_formalSocialCare', 'q1_unmetSocialCareNeed', 'q1_outOfWorkSocialCare',
+                        'q2_socialCareNeed', 'q2_informalSocialCare', 'q2_formalSocialCare', 'q2_unmetSocialCareNeed', 'q2_outOfWorkSocialCare',
+                        'q3_socialCareNeed', 'q3_informalSocialCare', 'q3_formalSocialCare', 'q3_unmetSocialCareNeed', 'q3_outOfWorkSocialCare',
+                        'q4_socialCareNeed', 'q4_informalSocialCare', 'q4_formalSocialCare', 'q4_unmetSocialCareNeed', 'q4_outOfWorkSocialCare',
+                        'q5_socialCareNeed', 'q5_informalSocialCare', 'q5_formalSocialCare', 'q5_unmetSocialCareNeed', 'q5_outOfWorkSocialCare',
+                        'grossDomesticProduct', 'publicCareToGDP', 'onhUnmetChildcareNeed', 'medianChildCareNeedONH',
+                        'totalHoursOffWork', 'indIQ1', 'indIQ2', 'indIQ3', 'indIQ4', 'indIQ5', 'origIQ1', 'origIQ2', 'origIQ3', 'origIQ4', 'origIQ5', 
+                        'dispIQ1', 'dispIQ2', 'dispIQ3', 'dispIQ4', 'dispIQ5', 'netIQ1', 'netIQ2', 'netIQ3', 'netIQ4', 'etIQ5', 'shareSES_1', 
+                        'shareSES_2', 'shareSES_3', 'shareSES_4', 'shareSES_5', 'internalChildCare', 'internalSocialCare', 'externalChildCare', 
+                        'externalSocialCare', 'shareInternalCare', 'aggregateChildBenefits', 'aggregateDisabledChildrenBenefits', 'aggregatePIP', 
+                        'aggregateAttendanceAllowance', 'aggregateCarersAllowance', 'aggregateUC', 'aggregateHousingElement', 
+                        'aggregatePensionCredit', 'totalBenefits', 'benefitsIncomeShare']
+        
+        self.outputData = pd.DataFrame()
+        # Save initial parametrs into Scenario folder
+        self.folder = folder + '/Scenario_' + str(scenario)
+        if not os.path.exists(self.folder):
+            os.makedirs(self.folder)
+        filePath = self.folder + '/scenarioParameters.csv'
+        c = params.copy()
+        for key, value in c.iteritems():
+            if not isinstance(value, list):
+                c[key] = [value]
+        with open(filePath, "wb") as f:
+            csv.writer(f).writerow(c.keys())
+            csv.writer(f).writerows(itertools.izip_longest(*c.values()))
+        
+        
+        ####  SES variables   #####
+        self.socialClassShares = []
+        self.careNeedShares = []
+        self.householdIncomes = []
+        self.individualIncomes = []
+        self.incomeFrequencies = []
+        self.sesPops = []
+        self.sesPopsShares = []
+        self.hiredPeople = []
+        ## Statistical tallies
+        self.times = []
+        self.pops = []
+        self.avgHouseholdSize = []
+        self.marriageTally = 0
+        self.numMarriages = []
+        self.divorceTally = 0
+        self.numDivorces = []
+        self.totalCareDemand = []
+        self.totalCareSupply = []
+        self.informalSocialCareSupply = 0
+        self.totalHospitalizationCost = 0
+        self.hospitalizationCost = []
+        self.numTaxpayers = []
+        self.totalUnmetNeed = []
+        self.totalChildCareNeed = 0
+        self.totalSocialCareNeed = 0
+        self.totalUnmetCareNeed = 0
+        self.totalUnmetChildCareNeed = 0
+        self.totalUnmetSocialCareNeed = 0
+        self.internalChildCare = 0
+        self.internalSocialCare = 0
+        self.externalChildCare = 0
+        self.externalSocialCare = 0
+        self.shareUnmetNeed = []
+        self.totalFamilyCare = []
+        self.inHouseInformalCare = 0
+        self.totalTaxBurden = []
+        self.marriageProp = []
+        self.shareLoneParents = []
+        self.shareFemaleLoneParents = []
+        self.employmentRate = []
+        self.shareWorkingHours = []
+        self.publicCareProvision = []
+        
+        self.householdsWithFormalChildCare = []
+        self.periodFormalCare = False
+        self.totalFormalCare = 0
+        self.previousTotalFormalCare = 0
+        
+        self.publicSocialCare = 0
+        self.costPublicSocialCare = 0
+        self.grossDomesticProduct = 0
+        self.costTaxFreeSocialCare = 0
+        self.costTaxFreeChildCare = 0
+        self.costPublicChildCare = 0
+        self.publicChildCare = 0
+        self.sharePublicSocialCare = 0
+        self.sharePublicChildCare = 0
+        self.stateTaxRevenue = []
+        self.totalTaxRevenue = 0
+        self.statePensionRevenue = []
+        self.totalPensionRevenue = 0
+        self.statePensionExpenditure = []
+        self.pensionExpenditure = 0
+        self.aggregateChildBenefits = 0
+        self.aggregateDisabledChildrenBenefits = 0
+        self.aggregatePIP = 0
+        self.aggregateAttendanceAllowance = 0
+        self.aggregateCarersAllowance = 0
+        self.aggregateUC = 0
+        self.aggregateHousingElement = 0
+        self.aggregatePensionCredit = 0
+        
+        self.onhUnmetChildcareNeed = 0
+        self.medianChildCareNeedONH = 0
+        self.totalHoursOffWork = 0
+        self.allCareSlots = []
+        ## Counters and storage
+        self.year = self.p['startYear']
+        self.pyramid = PopPyramid(self.p['num5YearAgeClasses'],
+                                  self.p['numCareLevels'])
+        self.textUpdateList = []
+        
+        self.socialCareNetwork = nx.DiGraph()
+
+        self.aggregateSchedule = [0]*24
+        # if self.p['interactiveGraphics']:
+        # self.window = Tkinter.Tk()
+        # self.canvas = Tkinter.Canvas(self.window,
+        #                        width=self.p['screenWidth'],
+        #                        height=self.p['screenHeight'],
+        #                        background=self.p['bgColour']) 
+
+       =#
+
+       nothing  
     end
 
     function doDeaths() end 
