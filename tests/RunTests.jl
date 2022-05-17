@@ -8,13 +8,15 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using SocialAgents, SocialABMs, Test, Utilities
+using SocialAgents, SocialABMs, Test
 
 import SocialAgents: getindex, getposition, setProperty! 
 
 import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 import Spaces: HouseLocation
+
+import Utilities: readArrayFromCSVFile, createTimeStampedFolder
 
 @testset "Lone Parent Model Components Testing" begin 
 
@@ -86,6 +88,7 @@ import Spaces: HouseLocation
         simfolder = createTimeStampedFolder()
         @test !isempty(simfolder)                    skip=false 
         @test isdir(simfolder)                       skip=false 
+        @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
     end
 
 end  # Lone Parent Model main components 

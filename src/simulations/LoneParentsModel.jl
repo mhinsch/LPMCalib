@@ -8,8 +8,9 @@ module LoneParentsModel
     export createPopulation, loadData!, setSimulationParameters
 
     import SocialAgents: Person
-    import SocialABMs: SocialABM 
+    import SocialABMs: SocialABM, addProperty! 
     import SocialSimulations: SocialSimulation, setProperty!
+    import Utilities: readArrayFromCSVFile
 
 
     """
@@ -57,6 +58,21 @@ module LoneParentsModel
     "Create an empty population initially with no agents"
     function createPopulation() 
         population = SocialABM{Person}()
+
+        # ?? Brief descriptions of the numbers within the text file needed (not directly understandable in their pure format)
+
+        # Data related to population growth 
+        addProperty!(population,:fert_data,readArrayFromCSVFile("simulations/lpm/data/babyrate.txt.csv"))
+        addProperty!(population,:death_female,readArrayFromCSVFile("deathrate.female.csv"))
+        addProperty!(population,:death_male,readArrayFromCSVFile("deathrate.male.csv"))
+
+        # Data related to population income 
+        addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
+        addProperty!(population,:income_distribution,readArrayFromCSVFile("incomeDistribution.csv"))
+        addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
+        addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
+
+        population
     end
 
 

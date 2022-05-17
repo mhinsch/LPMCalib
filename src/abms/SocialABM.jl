@@ -8,7 +8,7 @@
 
 export SocialABM
 
-export startTime, finishTime, dt
+export addProperty! 
 
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
@@ -28,6 +28,14 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
 
     SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
 end # AgentBasedModel  
+
+"add a symbol property to a model"
+function addProperty!(model::AbstractSocialABM,property::Symbol,val)
+    if property in keys(model.properties)
+        error("$(property) is already available")
+    end 
+    model.properties[property] = val  
+end 
 
 # AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[]))
 
