@@ -37,17 +37,15 @@ function addProperty!(model::AbstractSocialABM,property::Symbol,val)
     model.properties[property] = val  
 end 
 
-# AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[]))
 
-# function AgentBasedModel{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent 
-#    AgentBasedModel(AgentType[],copy(properties))
-# end 
+#= 
+Further functionalities for sophisticated serious agents:  
 
+addVariable(model,:variable,initialValue)
+addParameter(model,:parameter,value)
 
-
-
-#const ABM = AgentBasedModel{AgentType} 
-      # where AgentType <: AbstractAgent 
+data-related routines for initializing a model 
+=#
 
 #=
 This is how Agents.jl ABM looks like 

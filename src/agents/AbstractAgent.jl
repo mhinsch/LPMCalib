@@ -19,13 +19,25 @@ function setProperty!(agent::AbstractAgent,
                       property::Symbol,
                       val) 
     setfield!(agent,property,val)
- end
+end
 
- function getProperty(agent::AbstractAgent, 
-                      property::Symbol)
-    getfield(agent,property)
- end
+function getProperty(agent::AbstractAgent, 
+                     property::Symbol)
+   getfield(agent,property)
+end
 
- #=
- Base.show(io,agent::AbstractAgent) = ... 
- =# 
+#=
+Base.show(io,agent::AbstractAgent) = ... 
+=# 
+
+#=
+Further functionalities for realistic sophisticated agents:
+
+addVariable(agent,symbol::Symbol,initVal)
+
+addParameter(agent,symbol::Symbol,val) 
+
+addConstant(agent,symbol::Symbol,val) 
+=#
+
+
