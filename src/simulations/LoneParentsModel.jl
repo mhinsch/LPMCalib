@@ -72,6 +72,8 @@ module LoneParentsModel
         addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
         addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
 
+        shifts = createShifts() 
+        
         population
     end
 

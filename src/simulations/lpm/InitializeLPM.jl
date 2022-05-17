@@ -429,7 +429,9 @@ function loadModelParameters!(simulation::SocialSimulation)
 
     #    parameters["shiftsWeights"] = [51.0, 51.34, 48.23, 43.29, 37.72, 33.61, 28.42, 22.47, 16.65, 11.64, 8.52, 6.77, 
     #                         5.5, 4.66, 4.18, 4.66, 6.86, 11.58, 17.81, 24.5, 31.34, 36.29, 41.96, 47.43]
-    #   ?? 
+    
+    #  weight of ratios for work shifts from hour 0 to hour 23
+    #  first entry corresponds to 7 a.m   
     parameters["shiftsWeights"] = [51.80, 66.10, 70.10, 71.40, 54.10, 63.40, 68.60, 65.00, 54.70, 35.00, 20.70, 15.70,
                                    13.00, 11.50, 9.10, 6.80, 4.60, 3.80, 3.20, 3.00, 4.60, 6.70, 13.90, 28.80]
 
@@ -448,8 +450,8 @@ function loadModelParameters!(simulation::SocialSimulation)
     parameters["shareAppointmentsStudents"] = 0.1
 
     parameters["sundaySocialIndex"] = 0.5
-    parameters["shiftBeta"] = 0.1
-    parameters["dayBeta"] = 0.1
+    parameters["shiftBeta"] = 0.1                   #  for computing socio-index related quantity, cf. createShifts 
+    parameters["dayBeta"] = 0.1                     #  for computing socio-index related quantity, cf. createShifts
     parameters["unemploymentBeta"] = 1.0
     parameters["maleUDS"] = [0.07, 0.11, 0.12, 0.07, 0.07, 0.06, 0.12, 0.06, 0.08, 0.04]
     parameters["femaleUDS"] = [0.12, 0.12, 0.12, 0.08, 0.07, 0.08, 0.12, 0.06, 0.06, 0.03]
@@ -767,3 +769,103 @@ function initSimulationVariables(simulation::SocialSimulation)
 
    nothing  
 end
+
+
+"Create a 1000-vector of 7 hour work shifts"
+function createShifts(simulation::SocialSimulation) 
+
+#= 
+        allShifts = []
+        
+        # < 
+        numShifts = [int(round(x)) for x in self.p['shiftsWeights']]
+        # > [52, 66, 70, 71, 54, 63, 69, 65, 55, 35, 21, 16, 13, 12, ...] 24 elements 
+
+        hours = []
+        for hourIndex in range(len(numShifts)):
+            hours.extend([hourIndex]*numShifts[hourIndex])
+        # A large array of length 748, with 52 0s, 66 1s etc. 
+
+        # seems that the function random.choices(population, weights=None, *, cum_weights=None, k=9000)
+        # is more efficient   
+        allHours = list(np.random.choice(hours, 9000))   
+        # > a list of 9000 entries randomly generated from hours array
+
+        # > Produce 1000 vectors of 8 hour shifts proportionally equivalent to the shiftsWieghts 
+        shifts = []
+        for i in range(1000):
+            shift = []
+            hour = np.random.choice(allHours)
+            shift.append(hour)
+            allHours.remove(hour)
+            if hour == 0:
+                nextHours = [23, 1]
+            elif hour == 23:
+                nextHours = [22, 0]
+            else:
+                nextHours = [hour-1, hour+1]
+            weights = []
+            for nextHour in nextHours:
+                weights.append(float(len([x for x in allHours if x == nextHour])))
+            if sum(weights) == 0:
+                break
+            probs = [x/sum(weights) for x in weights]
+            nextHour = np.random.choice(nextHours, p = probs)
+            if nextHours.index(nextHour) == 0:
+                shift = [nextHour]+shift
+            else:
+                shift.append(nextHour)
+            allHours.remove(nextHour)
+            while len(shift) < 8:
+                a = -1
+                b = -1
+                if shift[0] == 0:
+                    a = 23
+                else:
+                    a = shift[0]-1
+                if shift[-1] == 23:
+                    b = 0
+                else:
+                    b = shift[-1]+1
+                nextHours = [a,b]
+                weights = [float(len([x for x in allHours if x == a])), float(len([x for x in allHours if x == b]))]
+                if sum(weights) == 0:
+                    break
+                probs = [x/sum(weights) for x in weights]
+                nextHour = np.random.choice(nextHours, p = probs)
+                if nextHours.index(nextHour) == 0:
+                    shift = [nextHour]+shift
+                else:
+                    shift.append(nextHour)
+                allHours.remove(nextHour)
+            shifts.append(shift)
+            # pdb.set_trace()
+    
+        for shift in shifts:
+            days = []
+            weSocIndex = 0
+            if np.random.random() < self.p['probSaturdayShift']:
+                days.append(6)
+                weSocIndex -= 1
+            if np.random.random() < self.p['probSundayShift']:
+                days.append(7)
+                weSocIndex -= (1 + self.p['sundaySocialIndex'])
+            if len(days) == 0:
+                days = range(1, 6)
+            elif len(days) == 1:
+                days.extend(np.random.choice(range(1, 6), 4, replace=False))
+            else:
+                days.extend(np.random.choice(range(1, 6), 3, replace=False))
+                
+            startHour = (shift[0]+7)%24+1
+
+            # compute socio index related quantity based on shift characteristics 
+            socIndex = np.exp(self.p['shiftBeta']*self.p['shiftsWeights'][shift[0]]+self.p['dayBeta']*weSocIndex)
+            
+            newShift = Shift(days, startHour, shift[0], shift, socIndex)
+            allShifts.append(newShift)
+        
+        return allShifts
+=#
+
+end 
