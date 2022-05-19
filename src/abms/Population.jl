@@ -25,6 +25,11 @@ mutable struct Population
 
     abm::ABM  
     Population(createPopulation::Function) 
+    parameters::Dict
+    variables::Dict
+    data::Dict
+    properties::Dict
+    ...
 
 end 
 =# 

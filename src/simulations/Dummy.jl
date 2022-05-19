@@ -34,10 +34,10 @@ module Dummy
 
     function createPopulation()
         # init Towns
-        glasgow   = Town((10,10),"Glasgow") 
-        edinbrugh = Town((11,12),"Edinbrugh")
-        sterling  = Town((12,10),"Sterling") 
-        aberdeen  = Town((20,12),"Aberdeen")
+        glasgow   = Town((10,10),name="Glasgow") 
+        edinbrugh = Town((11,12),name="Edinbrugh")
+        sterling  = Town((12,10),name="Sterling") 
+        aberdeen  = Town((20,12),name="Aberdeen")
         towns = [aberdeen,edinbrugh,glasgow,sterling]
 
         # init Houses 

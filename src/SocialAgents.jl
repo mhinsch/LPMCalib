@@ -5,10 +5,13 @@ Module for defining a supertype, AbstractAgent for all Agent types
 module SocialAgents
 
     include("./agents/AbstractAgent.jl")    
+
     include("./agents/Town.jl")
     include("./agents/House.jl")
     include("./agents/Person.jl")
     include("./agents/Household.jl")
+
+    # include("./agents/LPMAgents.jl")
     
 end  # SocialAgents 
 

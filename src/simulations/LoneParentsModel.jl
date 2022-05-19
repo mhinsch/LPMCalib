@@ -67,13 +67,13 @@ module LoneParentsModel
         addProperty!(population,:death_male,readArrayFromCSVFile("deathrate.male.csv"))
 
         # Data related to population income 
-        addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
-        addProperty!(population,:income_distribution,readArrayFromCSVFile("incomeDistribution.csv"))
-        addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
-        addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
+        # addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
+        # addProperty!(population,:income_distribution,readArrayFromCSVFile("incomeDistribution.csv"))
+        # addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
+        # addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
 
-        shifts = createShifts() 
-        
+        # shifts = createShifts() 
+
         population
     end
 

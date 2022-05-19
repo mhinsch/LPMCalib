@@ -14,3 +14,5 @@ simProperties = setSimulationParameters()
 lpmSimulation = SocialSimulation(createPopulation,simProperties)
 
 loadData!(lpmSimulation)
+
+lpmSimulation

@@ -9,53 +9,55 @@ Main specification for meta and model parameters is specified here.
 Simulation and model parameters initialization
 =#############################################
 
-    
+# export createShifts! 
 
 function loadMetaParameters!(simulation::SocialSimulation) 
        
     meta = Dict()
 
-    simulation.properties[:meta] = meta 
-
-    meta["thePresent"] = 2012
-    meta["initialPop"] = 500
+    meta[:thePresent] = 2012
+    meta[:initialPop] = 500
    
-    meta["statsCollectFrom"] = 1960
-    meta["policyStartYear"] = 2020
-    meta["outputYear"] = 2015
+    meta[:statsCollectFrom] = 1960
+    meta[:policyStartYear] = 2020
+    meta[:outputYear] = 2015
    
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
-    meta["minStartAge"] = 24                  
-    meta["maxStartAge"] = 45                  
+    meta[:minStartAge] = 24                  
+    meta[:maxStartAge] = 45                  
    
-    meta["verboseDebugging"] = false
-    meta["singleRunGraphs"] = false                           # ?? 
-    meta["withBenefits"] = true                               # ?? 
-    meta["externalCare"] = true                               # ?? 
-    meta["careAllocationFromYear"] = simulation.properties[:startYear]   # meta["startYear"]
-    meta["favouriteSeed"] = simulation.properties[:seed] 
-    meta["loadFromFile"] = false
-    meta["numberClasses"] = 5                                 # ?? Socio-econimic classes
-    meta["numCareLevels"] = 5
-    meta["timeDiscountingRate"] = 0.035                       # ??
-    
+    #= not considered yet 
+    meta[:verboseDebugging] = false
+    meta[:singleRunGraphs] = false                           # ?? 
+    meta[:withBenefits] = true                               # ?? 
+    meta[:externalCare] = true                               # ?? 
+    meta[:careAllocationFromYear] = simulation.properties[:startYear]   # meta[:startYear]
+    meta[:favouriteSeed] = simulation.properties[:seed] 
+    meta[:loadFromFile] = false
+    meta[:numberClasses] = 5                                 # ?? Socio-econimic classes
+    meta[:numCareLevels] = 5
+    meta[:timeDiscountingRate] = 0.035                       # ??
+    =# 
+
     # Description of the map and towns: 
     #   The space is represented by a 2-level grid.  At the higher level, 
     #   an mapGridYDimension x mapGridXDimension grid roughly represents 
     #   the UK map. Each cell in this high-level grid is composed by 
-    #   a townGridDimension-grid, which represents the space at the lower level.
-    meta["mapGridXDimension"] = 8
-    meta["mapGridYDimension"] = 12    
-    meta["townGridDimension"] = 5 * 5                          
+    #   a (townGridDimension x townGridDimension)-grid, which represents 
+    #   the space at the lower level.
+    meta[:mapGridXDimension] = 8
+    meta[:mapGridYDimension] = 12    
+    meta[:townGridDimension] = 25                          
     
-    ## Description of houses 
-    meta["numHouseClasses"] = 3                
-    meta["houseClasses"] = ["small","medium","large"]
-    meta["cdfHouseClasses"] = [ 0.6, 0.9, 5.0 ]               # comulative distribution function
-    meta["shareClasses"] = [0.2, 0.23, 0.25, 0.22, 0.1]       # ?? Socio-economic classes?
-    meta["classAdjustmentBeta"] = 3.0                         # ??
-
+    ## Description of houses
+    #= not considered yet 
+    meta[:numHouseClasses] = 3                
+    meta[:houseClasses] = ["small","medium","large"]
+    meta[:cdfHouseClasses] = [ 0.6, 0.9, 5.0 ]               # comulative distribution function
+    meta[:shareClasses] = [0.2, 0.23, 0.25, 0.22, 0.1]       # ?? Socio-economic classes?
+    meta[:classAdjustmentBeta] = 3.0                         # ??
+    =#
 
     #======================================
     Warning: in the following, original implementation
@@ -65,7 +67,8 @@ function loadMetaParameters!(simulation::SocialSimulation)
 
     # Relative population density of UK.  A density of 1.0 corresponds to 
     #   the cell with the highest density   
-    meta["ukMap"] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+    #= not considered yet 
+    meta[:ukMap] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
                      0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
                      0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
                      0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
@@ -79,7 +82,7 @@ function loadMetaParameters!(simulation::SocialSimulation)
                      0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
 
     # ?? looks like deviation from the average 
-    meta["ukClassBias"] = [0.0  -0.05 -0.05 -0.05  0.0   0.0  0.0  0.0;
+    meta[:ukClassBias] = [0.0  -0.05 -0.05 -0.05  0.0   0.0  0.0  0.0;
                           -0.05 -0.05  0.0   0.0   0.0   0.0  0.0  0.0;
                            0.0  -0.05 -0.05  0.0   0.0   0.0  0.0  0.0;
                            0.0  -0.05 -0.05  0.05  0.0   0.0  0.0  0.0;
@@ -92,8 +95,9 @@ function loadMetaParameters!(simulation::SocialSimulation)
                            0.0   0.0   0.0   0.0   0.1   0.2  0.15 0.0;
                            0.0   0.0   0.1   0.0   0.0   0.0  0.0  0.0] 
     
-    # ?? 
-    meta["lha_1"] = [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
+    #
+    # Local house allowances for houses with 1,2,3 and 4-bed room houses 
+    meta[:lha_1] = [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
                      91.81  91.81  91.81  91.81  97.81  0.0    0.0    0.0;
                      0.0    91.81  91.81  79.24  0.0    0.0    0.0    0.0;
                      0.0    84.23  94.82  127.33 0.0    0.0    0.0    0.0;
@@ -107,7 +111,7 @@ function loadMetaParameters!(simulation::SocialSimulation)
                      0.0    104.89 96.98  0.0    0.0    0.0    0.0    0.0]
     
     # ?? 
-    meta["lha_2"] = [0.0    110.72 110.72 110.72 0.0    0.0    0.0    0.0;
+    meta[:lha_2] = [0.0    110.72 110.72 110.72 0.0    0.0    0.0    0.0;
                      110.72 110.72 110.72 110.72 133.48 0.0    0.0    0.0;
                      0.0    110.72 110.72 103.85 0.0    0.0    0.0    0.0;
                      0.0    103.85 120.03 154.28 0.0    0.0    0.0    0.0;
@@ -121,7 +125,7 @@ function loadMetaParameters!(simulation::SocialSimulation)
                      0.0    132.32 122.36 0.0    0.0    0.0    0.0    0.0]
     
     # ??
-    meta["lha_3"] = [0.0    126.92 126.92 126.92 0.0    0.0    0.0    0.0;
+    meta[:lha_3] = [0.0    126.92 126.92 126.92 0.0    0.0    0.0    0.0;
                      126.92 126.92 126.92 126.92 172.60 0.0    0.0    0.0;
                      0.0    126.92 126.92 128.19 0.0    0.0    0.0    0.0;
                      0.0    120.29 137.31 192.06 0.0    0.0    0.0    0.0;
@@ -135,7 +139,7 @@ function loadMetaParameters!(simulation::SocialSimulation)
                      0.0    151.50 145.43 0.0    0.0    0.0    0.0    0.0]
     
     # ??
-    meta["lha_4"] = [0.0    160.38 160.38 160.38 0.0    0.0    0.0    0.0;
+    meta[:lha_4] = [0.0    160.38 160.38 160.38 0.0    0.0    0.0    0.0;
                      160.38 160.38 160.38 160.38 228.99 0.0    0.0    0.0;
                      0.0    160.38 160.38 189.07 0.0    0.0    0.0    0.0;
                      0.0    180.00 212.21 276.92 0.0    0.0    0.0    0.0;
@@ -148,24 +152,16 @@ function loadMetaParameters!(simulation::SocialSimulation)
                      0.0    0.0    218.63 200.09 242.40 429.53 322.15 0.0;
                      0.0    185.29 182.45 0.0    0.0    0.0    0.0    0.0]
     
-    meta["mapDensityModifier"] = 0.6                          # ??
-    
-    #=
-    # Document all meta parameters in an (possibly existing) external file
-    folder = "defaultSimFolder"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    filePath = folder + "/metaParameters.csv"
-    c = m.copy()
-    for key, value in c.iteritems():
-        if not isinstance(value, list):
-            c[key] = [value]
-    with open(filePath, "wb") as f:
-        csv.writer(f).writerow(c.keys())
-        csv.writer(f).writerows(itertools.izip_longest(*c.values()))
-    =#     
+    =# 
 
-    nothing 
+    meta[:mapDensityModifier] = 0.6                          # for allocating houses in towns 
+    
+    existingKeys = [key for key in keys(meta) if key in keys(simulation.properties)]
+    if length(existingKeys) > 0 
+        error("Attempting to initialize keys : $(existingKeys) more than once")
+    end 
+
+    merge!(simulation.properties,meta)  
 end
 
 "model parameters"
@@ -173,6 +169,7 @@ function loadModelParameters!(simulation::SocialSimulation)
 
     parameters = Dict() 
 
+    #= not considered yet 
     simulation.properties[:parameters] = parameters
 
      # Public Finances Parameters
@@ -576,6 +573,7 @@ function loadModelParameters!(simulation::SocialSimulation)
     # parameters["incomeRelocationBeta"] = 0.0002
     # parameters["baseRelocationRate"] = 0.1
 
+    =# 
 
     #= 
 
@@ -600,7 +598,7 @@ end
 
 function initSimulationVariables(simulation::SocialSimulation) 
 
-    #= 
+    #= not considered yet 
     variables = Dict()
     simulation.properties[:variables] = variables 
     
@@ -772,7 +770,7 @@ end
 
 
 "Create a 1000-vector of 7 hour work shifts"
-function createShifts(simulation::SocialSimulation) 
+function createShifts!(simulation::SocialSimulation) 
 
 #= 
         allShifts = []
@@ -867,5 +865,7 @@ function createShifts(simulation::SocialSimulation)
         
         return allShifts
 =#
+
+    nothing 
 
 end 
