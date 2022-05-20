@@ -13,6 +13,17 @@ export addProperty!
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
 
+#=
+It is thinkable to associate further attributes to SocialABMs s.a.
+
+variable(sabm::AbstractSocialABM,var::Symbol,initalVal) = sabm.variable[var]
+parameter(sabm::AbstractSocialABM,par::Parameter,val) = sabm.parameter[par]
+data(sabm::AbstractSocialABM,symbol::Symbol;csvfname)  = sabm.data[symbol]
+addVariable(...
+deleteVariable(...
+
+=# 
+
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     agentsList::Array{AgentType,1}
@@ -36,41 +47,6 @@ function addProperty!(model::AbstractSocialABM,property::Symbol,val)
     end 
     model.properties[property] = val  
 end 
-
-
-#= 
-Further functionalities for sophisticated serious agents:  
-
-addVariable(model,:variable,initialValue)
-addParameter(model,:parameter,value)
-
-data-related routines for initializing a model 
-=#
-
-#=
-This is how Agents.jl ABM looks like 
-
-mutable struct ABM
-    AgentType::DataType  # where agentType <: AbstractAgent
-    
-    # spaceType  (default is nothing): The space on which the agents are operating 
-    # properties dictionary of symbols to values or struct 
-    
-    agentsList::Array{AbstractAgent,1} #     a list of agents of type A
-
-    # cors:
-    # ABM(agentType,spaceType,properties;kwargs...)
-    # ABM(agentType,properties;kwargs...)
-
-    function ABM(atype::DataType) 
-        atype <: AbstractAgent ? new(atype,[]) : error("$atype is not an agent type")
-    end 
-end # ABM 
-
-=#
-
-
-
 
 
 #=
