@@ -20,13 +20,12 @@ mutable struct Person <: AbstractAgent
     age::Int 
     # father
     # mother 
-    # houseid 
+    # partner
 
     # Person(id,pos,age) = new(id,pos,age)
 
     function Person(pos::House,age)
         global IDCOUNTER = IDCOUNTER+1
-        # @show IDCOUNTER
         new(IDCOUNTER,pos,age)
     end 
 end
@@ -58,17 +57,3 @@ function setHouse(person::Person,house::House)
 end
 
 
-#= 
-Alternative approach
-
-"Fields specification of a Person agent"
-mutable struct PersonData <: DataSpec
-#   father 
-#   mother 
-    age 
-#   ..
-end
-
-"Agent person" 
-const Person = Agent{PersonData}  
-=#
