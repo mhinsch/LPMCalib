@@ -20,9 +20,9 @@ variable(sabm::AbstractSocialABM,var::Symbol) = sabm.variable[var]
 parameter(sabm::AbstractSocialABM,par::Parameter) = sabm.parameter[par]
 data(sabm::AbstractSocialABM,symbol::Symbol)  = sabm.data[symbol]
 ... 
-function addData(sabm,symbol,csvfile) end
-function addVariable(sabm,symbol) end 
-function deleteVariable(sabm,symbol) end
+function addData!(sabm,symbol,csvfile) end
+function addVariable!(sabm,symbol) end 
+function deleteVariable!(sabm,symbol) end
 
 =# 
 
