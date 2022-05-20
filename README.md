@@ -2,12 +2,12 @@
 An initial implementation of an ABM aiming at a social and child care simulation. 
 
 
-# Releases
+### Releases
 - **V0.1** (11-05-2022): Initial concepts of agents, ABMs and a dummy exmaple are realized. Basic interfaces of the Package Agents.jl are imitated in order to fully exploit Agents.jl in future. 
   - V0.1.1: Improved concept for an ABM and data structure for a simulation    
   - V0.1.2: Improved concepts for Social Simulation, Social ABMs, started translation of LPM & further unit tests 
 
-# Source code structure 
+### Source code structure 
 - /src
   - SocialAgents.jl : Basic concept of an Agent
   - /agents/*       : Examples of agents 
@@ -22,5 +22,5 @@ An initial implementation of an ABM aiming at a social and child care simulation
 - /tests
 
 
-# Running the code
+### Running the code
 See the head documentation of RunTests.jl and MainDummy.jl 
