@@ -9,6 +9,8 @@ module SocialABMs
 
     include("./abms/Population.jl") 
     include("./abms/TownCommunity.jl")
+
+    include("./abms/LPMABMs.jl")
 end # Social ABMs
 
 #= 

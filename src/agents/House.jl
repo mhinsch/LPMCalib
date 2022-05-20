@@ -42,17 +42,3 @@ end
 function getHouseLocation(house::House)
     house.pos[2]
 end 
-
-#= 
-Alternative approach 
-"""
-   HouseData: Data fields specifying an Agent of type House 
-"""
-struct HouseData <: DataSpec
-    # size
-    # ... 
-end 
-
-"House Agent" 
-const House  = Agent{HouseData} 
-=# 

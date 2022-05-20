@@ -4,32 +4,28 @@ An example of a dummy simulation of an ABM model.
 The ABM model corresponds to a population of agents. 
 Some agents are living together in a house.
 They are currently ageing together. 
+
+to run this script, LoneParentsModel.jl package has to
+be in the load path. Within REPL, execute:
+
+julia> push!(LOAD_PATH,"/path/to/LoneParentsModel.jl/src")
+julia> include("this_script.jl")
 """ 
 
 
 using SocialSimulations: SocialSimulation, run! 
 using SocialABMs: SocialABM, dummystep, population_step!
 
-include("simulations/Dummy.jl")
+import SocialSimulations.Dummy: createPopulation, loadData!
 
 
-currdir = pwd()
-
-if ! endswith(currdir,"LoneParentsModel.jl/src")
-    @show currdir
-    error("this script has to be executed within the main source folder of LoneParentModel.jl")
-end 
-if ! (currdir in LOAD_PATH) 
-    push!(LOAD_PATH,currdir) 
-end 
-
-
-dummySimulation = SocialSimulation(createDummyPopulation,
+dummySimulation = SocialSimulation(createPopulation,
                                    Dict(:startTime=>1990,
                                         :finishTime=>2030,
-                                        :dt=>1))
+                                        :dt=>1,
+                                        :seed=>floor(Int,time())))
 
-# print(dummySimulation.model)
+loadData!(dummySimulation)
 
 run!(dummySimulation,dummystep,population_step!)
  

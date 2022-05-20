@@ -8,7 +8,7 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using SocialAgents, SocialABMs, Test, Utilities
+using SocialAgents, SocialABMs, Test
 
 import SocialAgents: getindex, getposition, setProperty! 
 
@@ -16,13 +16,15 @@ import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 import Spaces: HouseLocation
 
+import Utilities: readArrayFromCSVFile, createTimeStampedFolder
+
 @testset "Lone Parent Model Components Testing" begin 
 
     # List of towns 
-    glasgow   = Town((10,10),"Glasgow") 
-    edinbrugh = Town((11,12),"Edinbrugh")
-    sterling  = Town((12,10),"Sterling") 
-    aberdeen  = Town((20,12),"Aberdeen")
+    glasgow   = Town((10,10),name="Glasgow") 
+    edinbrugh = Town((11,12),name="Edinbrugh")
+    sterling  = Town((12,10),name="Sterling") 
+    aberdeen  = Town((20,12),name="Aberdeen")
 
     # List of houses 
     house1 = House(edinbrugh,(1,2)::HouseLocation,"small") 
@@ -86,6 +88,21 @@ import Spaces: HouseLocation
         simfolder = createTimeStampedFolder()
         @test !isempty(simfolder)                    skip=false 
         @test isdir(simfolder)                       skip=false 
+        @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
     end
+
+    @testset verbose=true "Lone Parent Model Simulation" begin
+
+        import SocialSimulations: SocialSimulation
+        import  SocialSimulations.LoneParentsModel as SimLPM  
+
+        simProperties = SimLPM.setSimulationParameters()
+        lpmSimulation = SocialSimulation(SimLPM.createPopulation,simProperties)
+
+        @test SimLPM.loadMetaParameters!(lpmSimulation) != nothing  skip=true
+        @test SimLPM.loadModelParameters!(lpmSimulation) != nothing skip=false
+        @test SimLPM.createShifts!(lpmSimulation) != nothing        skip=false 
+
+    end 
 
 end  # Lone Parent Model main components 

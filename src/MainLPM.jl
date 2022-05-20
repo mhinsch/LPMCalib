@@ -4,13 +4,15 @@ Main simulation of the lone parent model
 under construction 
 """
 
-currdir = pwd()
+import SocialSimulations: SocialSimulation
 
-if ! endswith(currdir,"LoneParentsModel.jl/src")
-    @show currdir
-    error("this script has to be executed within the main source folder of LoneParentModel.jl")
-end 
-if ! (currdir in LOAD_PATH) 
-    push!(LOAD_PATH,currdir) 
-end 
+import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimulationParameters
 
+
+simProperties = setSimulationParameters()
+
+lpmSimulation = SocialSimulation(createPopulation,simProperties)
+
+loadData!(lpmSimulation)
+
+lpmSimulation

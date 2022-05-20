@@ -24,8 +24,12 @@ In future we could have something like that:
 mutable struct Population 
 
     abm::ABM  
-
-    Population() 
+    Population(createPopulation::Function) 
+    parameters::Dict
+    variables::Dict
+    data::Dict
+    properties::Dict
+    ...
 
 end 
 =# 

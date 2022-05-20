@@ -3,7 +3,14 @@ Diverse useful functions
 """
 module Utilities
 
-    export createTimeStampedFolder
+    export createTimeStampedFolder, readFromCSVFile
+
+
+    "Read an array of values from CSV file name and return an array of values"
+    function readArrayFromCSVFile(csvfname::String)
+        # CSVfname should ends with *.csv 
+        nothing 
+    end 
 
     # useful built-in functions: 
     # function ispath(str) check the existance of a file or a directory 
@@ -18,7 +25,6 @@ module Utilities
         # folder
         "" 
     end
-
 
     # 
     # reading and writing a file 

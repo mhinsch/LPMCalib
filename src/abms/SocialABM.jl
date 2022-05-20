@@ -6,25 +6,25 @@
     for running a social simulation. 
 """ 
 
-# import SocialAgents: AbstractAgent
-
-
-
 export SocialABM
 
-export startTime, finishTime, dt
+export addProperty! 
 
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
 
-# "get the start time of the simulation"
-# startTime(model::AbstractSocialABM) = model.properties[:startTime] 
+#=
+It is thinkable to associate further attributes to SocialABMs s.a.
 
-# "get the finish time of the simulation"
-# finishTime(model::AbstractSocialABM) = model.properties[:finishTime] 
+variable(sabm::AbstractSocialABM,var::Symbol) = sabm.variable[var]
+parameter(sabm::AbstractSocialABM,par::Parameter) = sabm.parameter[par]
+data(sabm::AbstractSocialABM,symbol::Symbol)  = sabm.data[symbol]
+... 
+function addData!(sabm,symbol,csvfile) end
+function addVariable!(sabm,symbol) end 
+function deleteVariable!(sabm,symbol) end
 
-# "get the increment simulation step" 
-# dt(model::AbstractSocialABM) = model.properties[:dt] 
+=# 
 
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
@@ -42,42 +42,13 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
 end # AgentBasedModel  
 
-# AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = AgentBasedModel(AgentType[]))
-
-# function AgentBasedModel{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent 
-#    AgentBasedModel(AgentType[],copy(properties))
-# end 
-
-
-
-
-#const ABM = AgentBasedModel{AgentType} 
-      # where AgentType <: AbstractAgent 
-
-#=
-This is how Agents.jl ABM looks like 
-
-mutable struct ABM
-    AgentType::DataType  # where agentType <: AbstractAgent
-    
-    # spaceType  (default is nothing): The space on which the agents are operating 
-    # properties dictionary of symbols to values or struct 
-    
-    agentsList::Array{AbstractAgent,1} #     a list of agents of type A
-
-    # cors:
-    # ABM(agentType,spaceType,properties;kwargs...)
-    # ABM(agentType,properties;kwargs...)
-
-    function ABM(atype::DataType) 
-        atype <: AbstractAgent ? new(atype,[]) : error("$atype is not an agent type")
+"add a symbol property to a model"
+function addProperty!(model::AbstractSocialABM,property::Symbol,val)
+    if property in keys(model.properties)
+        error("$(property) is already available")
     end 
-end # ABM 
-
-=#
-
-
-
+    model.properties[property] = val  
+end 
 
 
 #=

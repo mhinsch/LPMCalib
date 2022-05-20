@@ -1,3 +1,7 @@
+"""
+Specification of an abstract agent supertype 
+"""
+
 export AbstractAgent
 export agent_step!, getindex, getposition 
 export getProperty, setProperty!
@@ -19,13 +23,29 @@ function setProperty!(agent::AbstractAgent,
                       property::Symbol,
                       val) 
     setfield!(agent,property,val)
- end
+end
 
- function getProperty(agent::AbstractAgent, 
-                      property::Symbol)
-    getfield(agent,property)
- end
+function getProperty(agent::AbstractAgent, 
+                     property::Symbol)
+   getfield(agent,property)
+end
 
- #=
- Base.show(io,agent::AbstractAgent) = ... 
- =# 
+#=
+Base.show(io,agent::AbstractAgent) = ... 
+=# 
+
+#=
+
+Possible extensions could realize the following 
+
+abstract type AbstractSocialAgent <: AbstractAgent
+
+# A contract for any agent subtype: 
+function addVariable!(agent::AbstractSocialAgent,var::Symbol,initValue)  end 
+function addParameter!(agent::AbstractSocialAgent,par::Symbol,val)  end 
+function addConstant!(agent::AbstractSocialAgent,cst::Symbol,val)  end 
+function deleteVariable!(agent::AbstractSocialAgent,var::Symbol)  end 
+
+=#
+
+
