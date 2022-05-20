@@ -41,10 +41,10 @@ Possible extensions could realize the following
 abstract type AbstractSocialAgent <: AbstractAgent
 
 # A contract for any agent subtype: 
-function addVariable(agent::AbstractSocialAgent,var::Symbol)  end 
-function addParameter(agent::AbstractSocialAgent,var::Symbol)  end 
-function addConstant(agent::AbstractSocialAgent,var::Symbol)  end 
-function deleteVariable(agent::AbstractSocialAgent,var::Symbol)  end 
+function addVariable!(agent::AbstractSocialAgent,var::Symbol)  end 
+function addParameter!(agent::AbstractSocialAgent,var::Symbol)  end 
+function addConstant!(agent::AbstractSocialAgent,var::Symbol)  end 
+function deleteVariable!(agent::AbstractSocialAgent,var::Symbol)  end 
 
 =#
 
