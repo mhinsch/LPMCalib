@@ -158,3 +158,8 @@ end # step!
 #    agent_step! function can be a dummystep 
 
 
+#=
+Other potential functions 
+
+genocide(model::ABM): kill all agents 
+=# 

@@ -8,23 +8,6 @@
 
 export SocialABM
 
-export addProperty! 
-
-
-
-#=
-It is thinkable to associate further attributes to SocialABMs s.a.
-
-variable(sabm::AbstractSocialABM,var::Symbol) = sabm.variable[var]
-parameter(sabm::AbstractSocialABM,par::Parameter) = sabm.parameter[par]
-data(sabm::AbstractSocialABM,symbol::Symbol)  = sabm.data[symbol]
-... 
-function addData!(sabm,symbol,csvfile) end
-function addVariable!(sabm,symbol) end 
-function deleteVariable!(sabm,symbol) end
-
-=# 
-
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     agentsList::Array{AgentType,1}
@@ -34,21 +17,14 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     in the same way as Agents.jl 
     """ 
     properties
-    # AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = new(AgentType[])
 
     SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
 
     SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
 
-    SocialABM{AgentType}(create()::Function) where AgentType <: AbstractAgent = new(create(),Dict()) 
+    SocialABM{AgentType}(create::Function) where AgentType <: AbstractAgent = new(create(),Dict()) 
 
-    SocialABM{AgentType}(create()::Function,properties::Dict{Symbol}) where AgentType <: AbstractAgnet = new(create(),copy(properties)) 
+    SocialABM{AgentType}(create::Function,properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(create(),copy(properties)) 
 end # AgentBasedModel  
 
 
-
-#=
-Other potential functions 
-
-genocide(model::ABM): kill all agents 
-=# 
