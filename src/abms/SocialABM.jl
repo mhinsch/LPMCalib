@@ -10,8 +10,7 @@ export SocialABM
 
 export addProperty! 
 
-"Social ABM to be enhanced with relevant functionlities"
-abstract type AbstractSocialABM <: AbstractABM end 
+
 
 #=
 It is thinkable to associate further attributes to SocialABMs s.a.
@@ -40,15 +39,12 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
 
     SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
+
+    SocialABM{AgentType}(create()::Function) where AgentType <: AbstractAgent = new(create(),Dict()) 
+
+    SocialABM{AgentType}(create()::Function,properties::Dict{Symbol}) where AgentType <: AbstractAgnet = new(create(),copy(properties)) 
 end # AgentBasedModel  
 
-"add a symbol property to a model"
-function addProperty!(model::AbstractSocialABM,property::Symbol,val)
-    if property in keys(model.properties)
-        error("$(property) is already available")
-    end 
-    model.properties[property] = val  
-end 
 
 
 #=
