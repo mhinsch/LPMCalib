@@ -18,8 +18,16 @@ Fields of an ABM
 =########################################
 
 "An AbstractABM subtype to have a list of agents"
-function getAgentsList(model::AbstractABM)::Array{AgentType,1} where AgentType <: AbstractAgent
+function allagents(model::AbstractABM)::Array{AgentType,1} where AgentType <: AbstractAgent
     model.agentsList
+end 
+
+"add a symbol property to a model"
+function getproperty(model::AbstractABM,property::Symbol)
+    if property in keys(model.properties)
+        return model.properties[property]
+    end 
+    error("$(property) is not available as a key")
 end 
 
 
@@ -44,7 +52,9 @@ Couple of other useful functions may include:
 
 function nagents(model)   : number of agents 
 
-function allagents(model) : iterator over agents
+randomagent(model) : a random agent 
+
+randomagent(model,condition) : allagents 
 
 function allids(model)    : iterator over ids
 
