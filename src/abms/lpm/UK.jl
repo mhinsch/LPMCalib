@@ -9,46 +9,62 @@
 # future candidate 
 # createUKTowns(variables,parameters,properties)
 
-export createUKTowns
+export createUKDemography # createUKTowns, createUKHouses 
+
+import SocialAgents: Town, House  
+
+import SocialABMs: SocialABM, add_agent!, allagents
 
 function createUKTowns(properties) 
 
-    uktowns = SocialABM{Town}()
-
-    for y in 1:properties[:gridYDimension]
-        for x in 1:properties[:gridXDimension] 
+    uktowns = Town[] 
+    
+    for y in 1:properties[:mapGridYDimension]
+        for x in 1:properties[:mapGridXDimension] 
             town = Town((x,y),density=properties[:ukMap][y,x])
-            add_agent!(town,uktowns)
+            push!(uktowns,town)
         end
     end
 
     uktowns
 end 
 
-#= 
-self.towns = []
-self.allHouses = []
-self.occupiedHouses = []
-ukMap = np.array(ukMap)
-ukMap.resize(int(gridYDimension), int(gridXDimension))
-ukClassBias = np.array(ukClassBias)
-ukClassBias.resize(int(gridYDimension), int(gridXDimension))
-lha1 = np.array(lha1)
-lha1.resize(int(gridYDimension), int(gridXDimension))
-lha2 = np.array(lha1)
-lha2.resize(int(gridYDimension), int(gridXDimension))
-lha3 = np.array(lha1)
-lha3.resize(int(gridYDimension), int(gridXDimension))
-lha4 = np.array(lha1)
-lha4.resize(int(gridYDimension), int(gridXDimension))
-for y in range(int(gridYDimension)):
-    for x in range(int(gridXDimension)):
-        newTown = Town(townGridDimension, x, y,
-                       cdfHouseClasses, ukMap[y][x],
-                       ukClassBias[y][x], densityModifier,
-                       lha1[y][x], lha2[y][x], lha3[y][x], lha4[y][x])
-        self.towns.append(newTown)
-=# 
+function createUKHouses(properties) 
+
+    ukhouses = House[]
+
+end 
+
+
+function createUKDemography(properties) 
+
+    #TODO distribute properties among ambs and MABM  
+
+    ukTowns  = SocialABM{Town}(createUKTowns,properties) # TODO delevir only the requird properties and substract them 
+    ukHouses = SocialABM{House}()              
+    # ukPopulation = createUKPopulation(properties)
+
+    # create houses within towns 
+    towns = allagents(ukTowns) 
+    for town in towns
+        if town.density > 0 
+            adjustedDensity = town.density * properties[:mapDensityModifier]
+
+            for hx in 1:ukTowns.properties[:townGridDimension]  # TODO employ getproperty
+                for hy in 1:ukTowns.properties[:townGridDimension] 
+
+                    if(rand() < adjustedDensity)
+                        house = House(town,(hx,hy))
+                        add_agent!(house,ukHouses)
+                    end
+
+                end # for hy 
+            end # for hx 
+        end # if town.density 
+    end # for town 
+
+    (ukTowns,ukHouses)
+end 
 
     #=
 

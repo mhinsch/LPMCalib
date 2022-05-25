@@ -8,11 +8,23 @@ import SocialSimulations: SocialSimulation
 
 import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimulationParameters
 
+import SocialSimulations.LoneParentsModel: loadUKMapParameters
+
+import SocialAgents: Town
+import SocialABMs: SocialABM 
+import SocialABMs.LoneParentsModel: createUKDemography
+
+
+ukmapProperties = loadUKMapParameters()
 
 simProperties = setSimulationParameters()
 
-lpmSimulation = SocialSimulation(createPopulation,simProperties)
+(uktowns,ukhouses) = createUKDemography(ukmapProperties) # = SocialABM{Town}(createUKDemography,ukmapProperties)
 
-loadData!(lpmSimulation)
 
-lpmSimulation
+
+# lpmSimulation = SocialSimulation(createPopulation,simProperties)
+
+# loadData!(lpmSimulation)
+
+# lpmSimulation
