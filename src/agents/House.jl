@@ -14,7 +14,7 @@ Type House to extend from AbstractAgent.
 mutable struct House <: AbstractAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
-    size::String 
+    size::String                       # TODO enumeration type 
 
     function House(pos,s) 
         global IDCOUNTER = IDCOUNTER + 1
@@ -24,7 +24,7 @@ mutable struct House <: AbstractAgent
 end # House 
 
 House(pos;s="") = House(pos,s)
-House(town::Town,locationInTown::HouseLocation,s::String) = House((town,locationInTown),s)
+House(town::Town,locationInTown::HouseLocation;s="") = House((town,locationInTown),s)
 
 const undefinedHouse = House(undefinedTown,(-1,-1),"")
 
