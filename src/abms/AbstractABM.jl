@@ -9,6 +9,7 @@ using SocialAgents
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
+export allagents
 export add_agent!, move_agent!, kill_agent!
 export step!, dummystep 
 
@@ -18,7 +19,7 @@ Fields of an ABM
 =########################################
 
 "An AbstractABM subtype to have a list of agents"
-function allagents(model::AbstractABM)::Array{AgentType,1} where AgentType <: AbstractAgent
+function allagents(model::AbstractABM)#::Array{AgentType,1} where AgentType <: AbstractAgent
     model.agentsList
 end 
 
