@@ -49,7 +49,7 @@ module Dummy
             town = rand(towns)
             sz   = rand(sizes) 
             x,y  = rand(1:10),rand(1:10)
-            push!(houses,House(town,(x,y),sz))
+            push!(houses,House(town,(x,y),size=sz))
         end
     
         print("sample houses: \n ")

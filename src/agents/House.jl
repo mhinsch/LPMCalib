@@ -23,10 +23,10 @@ mutable struct House <: AbstractAgent
     
 end # House 
 
-House(pos;s="") = House(pos,s)
-House(town::Town,locationInTown::HouseLocation;s="") = House((town,locationInTown),s)
+House(pos;size="") = House(pos,size)
+House(town::Town,locationInTown::HouseLocation;size="") = House((town,locationInTown),size)
 
-const undefinedHouse = House(undefinedTown,(-1,-1),"")
+const undefinedHouse = House(undefinedTown,(-1,-1))
 
 "town associated with house"
 function getHomeTown(house::House)
