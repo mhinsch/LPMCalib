@@ -1,4 +1,4 @@
-export Person, getHomeTown, getHomeTownName, agestep!
+export Person, getHomeTown, getHomeTownName, agestep!, isFemale, isMale
 
 import Spaces: GridSpace
 
@@ -33,7 +33,10 @@ mutable struct Person <: AbstractAgent
 
     function Person(pos::House,age,gender,father,mother,partner,childern)
         global IDCOUNTER = IDCOUNTER+1
+        #person = 
         new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        #pos != undefinedHouse ? push!(pos.occupants,person) : nothing 
+        #person
     end 
 end
 
@@ -50,6 +53,13 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,age,gender,father,mother,partner,childern)
 
 
+function isFemale(person::Person) 
+    person.gender == "Female"
+end
+
+function isPerson(person::Person) 
+    person.gender == "Male"
+end 
 
 "increment an age for a person to be used in typical stepping functions"
 function agestep!(person::Person;dt=1) 

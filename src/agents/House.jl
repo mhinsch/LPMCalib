@@ -15,14 +15,20 @@ mutable struct House <: AbstractAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     size::String                       # TODO enumeration type 
+    #occupants                          # cannot be static due to circular dependencies ::Vector{Person}
+                                        # Is this actually needed? 
 
-    function House(pos,s) 
+    function House(pos,s)#;occupants=[]) 
         global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,s)
+        new(IDCOUNTER,pos,s)#,occupants)
     end 
     
 end # House 
 
+#=
+House(pos;size="",occupants=[]) = House(pos,size)
+House(town::Town,locationInTown::HouseLocation;size="",occupants=[]) = House((town,locationInTown),size,occupants=[])
+=# 
 House(pos;size="") = House(pos,size)
 House(town::Town,locationInTown::HouseLocation;size="") = House((town,locationInTown),size)
 
