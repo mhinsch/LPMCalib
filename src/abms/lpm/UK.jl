@@ -42,20 +42,15 @@ function createUKPopulation(properties)
             ageFemale = 24
         end 
 
-        # the following is direct translation but it does not ok 
-        birthYear = properties[:startYear] - rand((properties[:minStartAge]:properties[:maxStartAge]))
-        # why not 
-        # birthYear = properties[:startYear]  - ageMale/Female 
-        birthMonth = rand((1:12))
+        # From the old code: 
+        #    the following is direct translation but it does not ok 
+        #    birthYear = properties[:startYear] - rand((properties[:minStartAge]:properties[:maxStartAge]))
+        #    why not 
+        #    birthYear = properties[:startYear]  - ageMale/Female 
+        #    birthMonth = rand((1:12))
 
-        newMan = Person(undefinedHouse,ageMale,
-                        birthYear=birthYear,birthMonth=birthMonth,gender="Male")
-        
-
-        # This a direct translation 
-        # The birthYear & birthMonth does not seem correct  
-        newWoman = Person(undefinedHouse,ageFemale,
-                          birthYear=birthYear,birthMonth=birthMonth,gender="Female")   
+        newMan = Person(undefinedHouse,ageMale,gender="Male")
+        newWoman = Person(undefinedHouse,ageFemale,gender="Female")   
 
         newMan.partner = newWoman 
         newWoman.partner = newMan.partner
@@ -149,7 +144,7 @@ function createUKDemography(properties)
         if town.density > 0 
             adjustedDensity = town.density * properties[:mapDensityModifier]
 
-            for hx in 1:ukTowns.properties[:townGridDimension]  # TODO employ getproperty
+            for hx in 1:ukTowns.properties[:townGridDimension]  
                 for hy in 1:ukTowns.properties[:townGridDimension] 
 
                     if(rand() < adjustedDensity)
@@ -164,6 +159,27 @@ function createUKDemography(properties)
 
     (ukTowns,ukHouses)
 end 
+
+#= 
+men = [x for x in self.pop.allPeople if x.sex == 'male']
+
+            remainingHouses = []
+            remainingHouses.extend(self.map.allHouses)
+        
+            for man in men:
+                man.house = random.choice(remainingHouses)
+                man.sec = man.house.size  ## This may not always work, assumes house classes = SEC classes!
+                self.map.occupiedHouses.append(man.house)            
+                remainingHouses.remove(man.house)
+                woman = man.partner
+                woman.house = man.house
+                woman.sec = man.sec
+                man.yearMarried.append(int(self.p['startYear']))
+                woman.yearMarried.append(int(self.p['startYear']))
+                man.house.occupants.append(man)
+                man.house.occupants.append(woman)
+                self.hiredPeople.extend([man, woman])
+=#
 
     #=
 

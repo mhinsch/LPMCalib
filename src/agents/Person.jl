@@ -17,9 +17,9 @@ mutable struct Person <: AbstractAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House     
-    age::Int 
-    birthYear::Int
-    birthMonth::Int
+    age::Int             # Rational 
+    # birthYear::Int        
+    # birthMonth::Int
     gender 
     father::Union{Person,Nothing}
     mother::Union{Person,Nothing} 
@@ -31,9 +31,9 @@ mutable struct Person <: AbstractAgent
 
     # Person(id,pos,age) = new(id,pos,age)
 
-    function Person(pos::House,age,birthYear,birthMonth,gender,father,mother,partner,childern)
+    function Person(pos::House,age,gender,father,mother,partner,childern)
         global IDCOUNTER = IDCOUNTER+1
-        new(IDCOUNTER,pos,age,birthYear,birthMonth,gender,father,mother,partner,childern)
+        new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
     end 
 end
 
@@ -41,13 +41,13 @@ Person(pos,age;birthYear=0,birthMonth=0,
                 gender="undefined",
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
-                    Person(pos,age,birthYear,birthMonth,gender,father,mother,partner,childern)
+                    Person(pos,age,gender,father,mother,partner,childern)
 
-Person(;pos=undefinedHouse,age=0,birthYear=0,birthMonth=0,
+Person(;pos=undefinedHouse,age=0,
         gender="undefined",
         father=nothing,mother=nothing,
         partner=nothing,childern=Person[]) = 
-            Person(pos,age,birthYear,birthMonth,gender,father,mother,partner,childern)
+            Person(pos,age,gender,father,mother,partner,childern)
 
 
 
