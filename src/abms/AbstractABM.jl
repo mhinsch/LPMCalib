@@ -9,7 +9,7 @@ using SocialAgents
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
-export allagents
+export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
 export step!, dummystep 
 
@@ -48,10 +48,13 @@ function seed!(model::AbstractABM,seed)
     nothing 
 end 
 
+"numbe of  agents"
+function nagents(model::AbstractABM) 
+    length(model.agentsList)
+end 
+
 #= 
 Couple of other useful functions may include:
-
-function nagents(model)   : number of agents 
 
 randomagent(model) : a random agent 
 
