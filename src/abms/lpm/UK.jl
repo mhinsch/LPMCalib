@@ -11,7 +11,7 @@
 
 export createUKDemography # createUKTowns, createUKHouses 
 
-import SocialAgents: Town, House  
+import SocialAgents: Town, House, Person, undefinedHouse 
 
 import SocialABMs: SocialABM, add_agent!, allagents
 
@@ -29,11 +29,110 @@ function createUKTowns(properties)
     uktowns
 end 
 
-function createUKHouses(properties) 
 
-    ukhouses = House[]
+function createUKPopulation(properties) 
 
-end 
+    population = Person[] 
+
+    for i in 1 : properties[:initialPop]
+        ageMale = rand((properties[:minStartAge]:properties[:maxStartAge]))
+        ageFemale = ageMale - rand((-2:5))
+
+        if(ageFemale < 24)
+            ageFemale = 24
+        end 
+
+        # the following is direct translation but it does not ok 
+        birthYear = properties[:startYear] - rand((properties[:minStartAge]:properties[:maxStartAge]))
+        # why not 
+        # birthYear = properties[:startYear]  - ageMale/Female 
+        birthMonth = rand((1:12))
+
+        newMan = Person(undefinedHouse,ageMale,
+                        birthYear=birthYear,birthMonth=birthMonth,gender="Male")
+        
+
+        # This a direct translation 
+        # The birthYear & birthMonth does not seem correct  
+        newWoman = Person(undefinedHouse,ageFemale,
+                          birthYear=birthYear,birthMonth=birthMonth,gender="Female")   
+
+        newMan.partner = newWoman 
+        newWoman.partner = newMan.partner
+        
+        push!(population,newMan)
+        push!(population,newWoman) 
+
+    end # for 
+
+    population
+
+end # createUKPopulation 
+
+#= 
+
+self.allPeople = []
+        self.livingPeople = []
+        for i in range(int(initial)/2):
+            ageMale = random.randint(minStartAge, maxStartAge)
+            ageFemale = ageMale - random.randint(-2,5)
+            if ( ageFemale < 24 ):
+                ageFemale = 24
+            birthYear = startYear - random.randint(minStartAge,maxStartAge)
+            classes = [0, 1, 2, 3, 4]
+            probClasses = [0.2, 0.35, 0.25, 0.15, 0.05]
+            classRank = np.random.choice(classes, p = probClasses)
+            
+            workingTime = 0
+            for i in range(int(ageMale)-int(workingAge[classRank])):
+                workingTime *= workDiscountingTime
+                workingTime += 1
+            
+            dKi = np.random.normal(0, wageVar)
+            initialWage = incomeInitialLevels[classRank]*math.exp(dKi)
+            dKf = np.random.normal(dKi, wageVar)
+            finalWage = incomeFinalLevels[classRank]*math.exp(dKf)
+            
+            c = np.math.log(initialWage/finalWage)
+            wage = finalWage*np.math.exp(c*np.math.exp(-1*incomeGrowthRate[classRank]*workingTime))
+            income = wage*weeklyHours
+            workExperience = workingTime
+            tenure = np.random.randint(50)
+            birthMonth = np.random.choice([x+1 for x in range(12)])
+            newMan = Person(None, None,
+                            birthYear, ageMale, 'male', None, None, classRank, classRank, wage, income, 0, initialWage, finalWage, workExperience, 'worker', True, tenure, birthMonth)
+            
+            workingTime = 0
+            for i in range(int(ageFemale)-int(workingAge[classRank])):
+                workingTime *= workDiscountingTime
+                workingTime += 1
+                
+            dKi = np.random.normal(0, wageVar)
+            initialWage = incomeInitialLevels[classRank]*math.exp(dKi)
+            dKf = np.random.normal(dKi, wageVar)
+            finalWage = incomeFinalLevels[classRank]*math.exp(dKf)
+            
+            c = np.math.log(initialWage/finalWage)
+            wage = finalWage*np.math.exp(c*np.math.exp(-1*incomeGrowthRate[classRank]*workingTime))
+            income = wage*weeklyHours
+            workExperience = workingTime
+            tenure = np.random.randint(50)
+            birthMonth = np.random.choice([x+1 for x in range(12)])
+            newWoman = Person(None, None,
+                              birthYear, ageFemale, 'female', None, None, classRank, classRank, wage, income, 0, initialWage, finalWage, workExperience, 'worker', True, tenure, birthMonth)
+
+            # newMan.status = 'independent adult'
+            # newWoman.status = 'independent adult'
+            
+            newMan.partner = newWoman
+            newWoman.partner = newMan
+            
+            self.allPeople.append(newMan)
+            self.livingPeople.append(newMan)
+            self.allPeople.append(newWoman)
+            self.livingPeople.append(newWoman)
+
+=# 
 
 
 function createUKDemography(properties) 
@@ -42,7 +141,7 @@ function createUKDemography(properties)
 
     ukTowns  = SocialABM{Town}(createUKTowns,properties) # TODO delevir only the requird properties and substract them 
     ukHouses = SocialABM{House}()              
-    # ukPopulation = createUKPopulation(properties)
+    ukPopulation = SocialABM{Person}(createUKPopulation,properties)
 
     # create houses within towns 
     towns = allagents(ukTowns) 

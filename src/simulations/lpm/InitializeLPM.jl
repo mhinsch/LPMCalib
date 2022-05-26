@@ -114,22 +114,35 @@ function loadUKMapParameters()
     mappars
 end
 
+
+function loadUKPopulationParameters() 
+    # TODO this is going to change after identifying a better 
+    # data structure for parameters 
+    poppars = Dict(:dummy=>any,:initialPop=>500)  # Population parameters  
+
+    # a population of males to be randomly generated in the 
+    # range of minStartAge - maxStartAge
+    poppars[:minStartAge] = 24                  
+    poppars[:maxStartAge] = 45    
+
+    # TODO this parameter does not belong here. It is a simulation parameters
+    poppars[:startYear]   = 1860 
+
+    poppars 
+end
+
 function loadMetaParameters!(simulation::SocialSimulation) 
        
     meta = Dict()
 
     meta[:thePresent] = 2012
-    meta[:initialPop] = 500
+    # meta[:initialPop] = 500
    
     meta[:statsCollectFrom] = 1960
     meta[:policyStartYear] = 2020
     meta[:outputYear] = 2015
    
-    # a population of males to be randomly generated in the 
-    # range of minStartAge - maxStartAge
-    meta[:minStartAge] = 24                  
-    meta[:maxStartAge] = 45                  
-   
+
     #= not considered yet 
     meta[:verboseDebugging] = false
     meta[:singleRunGraphs] = false                           # ?? 
