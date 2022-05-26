@@ -22,7 +22,7 @@ ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
 
 # simProperties = setSimulationParameters()
 
-(uktowns,ukhouses) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
+(uktowns,ukhouses,ukpopulation) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
 
 
 
