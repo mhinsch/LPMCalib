@@ -129,6 +129,34 @@ self.allPeople = []
 
 =# 
 
+"initialize an abm of houses through an abm of towns"
+function initial_connect!(abmhouses::SocialABM{House},abmtowns::SocialABM{Town},properties) 
+
+    # create houses within towns 
+    towns = allagents(abmtowns)  
+    for town in towns
+        if town.density > 0 
+            adjustedDensity = town.density * properties[:mapDensityModifier]
+    
+            for hx in 1:abmtowns.properties[:townGridDimension]  
+                for hy in 1:abmtowns.properties[:townGridDimension] 
+    
+                    if(rand() < adjustedDensity)
+                        house = House(town,(hx,hy))
+                        add_agent!(house,abmhouses)
+                    end
+    
+                end # for hy 
+            end # for hx 
+        end # if town.density 
+    end # for town 
+
+end
+
+# Connection is symmetric 
+initial_connect!(abmtowns::SocialABM{Town},abmhouses::SocialABM{House},properties) = initial_connect!(abmhouses,abmtowns,properties)
+
+# TODO if needed, Connection could be made as a struct 
 
 function createUKDemography(properties) 
 
@@ -138,24 +166,7 @@ function createUKDemography(properties)
     ukHouses = SocialABM{House}()              
     ukPopulation = SocialABM{Person}(createUKPopulation,properties)
 
-    # create houses within towns 
-    towns = allagents(ukTowns) 
-    for town in towns
-        if town.density > 0 
-            adjustedDensity = town.density * properties[:mapDensityModifier]
-
-            for hx in 1:ukTowns.properties[:townGridDimension]  
-                for hy in 1:ukTowns.properties[:townGridDimension] 
-
-                    if(rand() < adjustedDensity)
-                        house = House(town,(hx,hy))
-                        add_agent!(house,ukHouses)
-                    end
-
-                end # for hy 
-            end # for hx 
-        end # if town.density 
-    end # for town 
+    initial_connect!(ukHouses,ukTowns,properties)
 
     (ukTowns,ukHouses)
 end 
@@ -177,26 +188,7 @@ men = [x for x in self.pop.allPeople if x.sex == 'male']
                 man.yearMarried.append(int(self.p['startYear']))
                 woman.yearMarried.append(int(self.p['startYear']))
                 man.house.occupants.append(man)
-                man.house.occupants.append(woman)
-                self.hiredPeople.extend([man, woman])
+                man.house.occupants.append(woman) 
 =#
 
-    #=
 
-    self.x = tx
-    self.y = ty
-    self.houses = []
-    self.name = str(tx) + "-" + str(ty)
-    self.LHA = [lha1, lha2, lha3, lha4]
-    self.id = Town.counter
-    Town.counter += 1
-    if density > 0.0:
-        adjustedDensity = density * densityModifier
-        for hy in range(int(townGridDimension)):
-            for hx in range(int(townGridDimension)):
-                if random.random() < adjustedDensity:
-                    newHouse = House(self,cdfHouseClasses,
-                                     classBias,hx,hy)
-                    self.houses.append(newHouse)
-
-    =# 
