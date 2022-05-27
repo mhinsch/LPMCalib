@@ -2,6 +2,8 @@ export Person, getHomeTown, getHomeTownName, agestep!, isFemale, isMale
 
 import Spaces: GridSpace
 
+import Global: Gender, unknown, female, male
+
 """
 Specification of a Person Agent Type. 
 
@@ -20,7 +22,7 @@ mutable struct Person <: AbstractAgent
     age::Int             # Rational 
     # birthYear::Int        
     # birthMonth::Int
-    gender 
+    gender::Gender  
     father::Union{Person,Nothing}
     mother::Union{Person,Nothing} 
     partner::Union{Person,Nothing}
@@ -41,24 +43,24 @@ mutable struct Person <: AbstractAgent
 end
 
 Person(pos,age;birthYear=0,birthMonth=0,
-                gender="undefined",
+                gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
                     Person(pos,age,gender,father,mother,partner,childern)
 
 Person(;pos=undefinedHouse,age=0,
-        gender="undefined",
+        gender=unknown,
         father=nothing,mother=nothing,
         partner=nothing,childern=Person[]) = 
             Person(pos,age,gender,father,mother,partner,childern)
 
 
 function isFemale(person::Person) 
-    person.gender == "Female"
+    person.gender == female
 end
 
-function isPerson(person::Person) 
-    person.gender == "Male"
+function isMale(person::Person) 
+    person.gender == male
 end 
 
 "increment an age for a person to be used in typical stepping functions"
