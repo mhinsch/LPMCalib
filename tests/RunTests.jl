@@ -10,13 +10,15 @@ julia> include("RunTests.jl")
 
 using SocialAgents, SocialABMs, Test
 
-import SocialAgents: getindex, getposition, setProperty! 
+import SocialAgents: getindex, getposition, setProperty!, isFemale, isMale 
 
 import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 import Spaces: HouseLocation
 
 import Utilities: readArrayFromCSVFile, createTimeStampedFolder
+
+import Global: Gender, male, female 
 
 @testset "Lone Parent Model Components Testing" begin 
 
@@ -32,9 +34,9 @@ import Utilities: readArrayFromCSVFile, createTimeStampedFolder
     house3 = House(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
-    person1 = Person(house1,45) 
+    person1 = Person(house1,45,gender=male) 
     person2 = person1               
-    person3 = Person(house2,45) 
+    person3 = Person(house2,45,gender=female) 
 
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor should be disallowed
@@ -53,7 +55,10 @@ import Utilities: readArrayFromCSVFile, createTimeStampedFolder
 
     @testset verbose=true "Type Person" begin
         @test getHomeTown(person1) != nothing             
-        @test getHomeTownName(person1) == "Edinbrugh"      
+        @test getHomeTownName(person1) == "Edinbrugh"     
+        
+        @test isMale(person1)
+        @test !isFemale(person1)
 
         setProperty!(person1,:pos,house2)
         @test getHomeTown(person1) == aberdeen       
