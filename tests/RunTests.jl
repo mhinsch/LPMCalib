@@ -27,9 +27,9 @@ import Utilities: readArrayFromCSVFile, createTimeStampedFolder
     aberdeen  = Town((20,12),name="Aberdeen")
 
     # List of houses 
-    house1 = House(edinbrugh,(1,2)::HouseLocation,size="small") 
-    house2 = House(aberdeen,(5,10)::HouseLocation,size="small") 
-    house3 = House(glasgow,(2,3)::HouseLocation,size="small") 
+    house1 = House(edinbrugh,(1,2)::HouseLocation) 
+    house2 = House(aberdeen,(5,10)::HouseLocation) 
+    house3 = House(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
     person1 = Person(house1,45) 

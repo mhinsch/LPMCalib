@@ -42,14 +42,14 @@ module Dummy
 
         # init Houses 
         numberOfHouses = 100 
-        sizes = ["small","medium","big"]
+        # sizes = ["small","medium","big"]
 
         houses = House[] 
         for index in range(1,numberOfHouses)
             town = rand(towns)
-            sz   = rand(sizes) 
+            # sz   = rand(sizes) 
             x,y  = rand(1:10),rand(1:10)
-            push!(houses,House(town,(x,y),size=sz))
+            push!(houses,House(town,(x,y)))#,size=sz))
         end
     
         print("sample houses: \n ")
