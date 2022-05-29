@@ -194,9 +194,9 @@ function createUKDemography(properties)
 
     #TODO distribute properties among ambs and MABM  
 
-    ukTowns  = SocialABM{Town}(createUKTowns,properties) # TODO delevir only the requird properties and substract them 
-    ukHouses = SocialABM{House}()              
-    ukPopulation = SocialABM{Person}(createUKPopulation,properties)
+    ukTowns  = SocialABM{Town}(properties,declare=createUKTowns) # TODO delevir only the requird properties and substract them 
+    ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
+    ukPopulation = SocialABM{Person}(properties, declare=createUKPopulation)
 
     initial_connect!(ukHouses,ukTowns,properties)
     initial_connect!(ukPopulation,ukHouses,properties)
