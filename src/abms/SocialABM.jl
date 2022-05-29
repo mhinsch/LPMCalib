@@ -27,9 +27,8 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
 
     # SocialABM{AgentType}(;declare::Function) where AgentType <: AbstractAgent = new(declare(),Dict()) 
 
-    SocialABM{AgentType}(; 
-        declare::Function = dict::Dict{Symbol} -> AgentType[] ,
-        properties::Dict{Symbol} = Dict{Symbol,Any}()) where AgentType <: AbstractAgent = 
+    SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
+        declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
              new(declare(properties),copy(properties)) 
 end # AgentBasedModel  
 
