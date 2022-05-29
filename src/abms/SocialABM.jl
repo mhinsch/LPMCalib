@@ -8,6 +8,9 @@
 
 export SocialABM
 
+
+# dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
+
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     agentsList::Array{AgentType,1}
@@ -18,13 +21,16 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     """ 
     properties
 
-    SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
+    # SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
 
-    SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
+    # SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
 
-    SocialABM{AgentType}(create::Function) where AgentType <: AbstractAgent = new(create(),Dict()) 
+    # SocialABM{AgentType}(;declare::Function) where AgentType <: AbstractAgent = new(declare(),Dict()) 
 
-    SocialABM{AgentType}(create::Function,properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(create(properties),copy(properties)) 
+    SocialABM{AgentType}(; 
+        declare::Function = dict::Dict{Symbol} -> AgentType[] ,
+        properties::Dict{Symbol} = Dict{Symbol,Any}()) where AgentType <: AbstractAgent = 
+             new(declare(properties),copy(properties)) 
 end # AgentBasedModel  
 
 
