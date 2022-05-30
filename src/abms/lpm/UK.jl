@@ -177,7 +177,7 @@ function initial_connect!(abmpopulation::SocialABM{Person},abmhouses::SocialABM{
         house  = pop!(randomhouses) 
         man.pos = man.partner.pos = house 
 
-        # append!(house.occupants, [man, man.partner])
+        append!(house.occupants, [man, man.partner])
 
     end # for person     
     
