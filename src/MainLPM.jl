@@ -11,9 +11,8 @@ import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimul
 import SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
 
 import SocialAgents: Town
-import SocialABMs: SocialABM 
+import SocialABMs: MultiABM, SocialABM
 import SocialABMs.LoneParentsModel: createUKDemography
-
 
 
 ukmapParameters = loadUKMapParameters()
@@ -22,8 +21,10 @@ ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
 
 # simProperties = setSimulationParameters()
 
-(uktowns,ukhouses,ukpopulation) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
+# (uktowns,ukhouses,ukpopulation) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
 
+ukDemography = MultiABM(ukDemographyParameters,
+                         declare=createUKDemography)
 
 
 # lpmSimulation = SocialSimulation(createPopulation,simProperties)

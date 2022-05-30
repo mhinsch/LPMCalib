@@ -201,7 +201,7 @@ function createUKDemography(properties)
     initial_connect!(ukHouses,ukTowns,properties)
     initial_connect!(ukPopulation,ukHouses,properties)
 
-    (ukTowns,ukHouses,ukPopulation)
+    [ukTowns,ukHouses,ukPopulation]
 end 
 
 
