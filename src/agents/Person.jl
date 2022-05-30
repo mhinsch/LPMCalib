@@ -1,8 +1,8 @@
-export Person, getHomeTown, getHomeTownName, agestep!, isFemale, isMale
+export Person, getHomeTown, getHomeTownName, agestep!
 
 import Spaces: GridSpace
 
-import Global: Gender, unknown, female, male
+
 
 """
 Specification of a Person Agent Type. 
@@ -11,7 +11,7 @@ This file is included in the module SocialAgents
 
 Type Person extends from AbstractAgent.
 """ 
-mutable struct Person <: AbstractAgent
+mutable struct Person <: AbstractPersonAgent
     id
     """
     location of a parson's house in a map which implicitly  
@@ -55,13 +55,7 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,age,gender,father,mother,partner,childern)
 
 
-function isFemale(person::Person) 
-    person.gender == female
-end
 
-function isMale(person::Person) 
-    person.gender == male
-end 
 
 "increment an age for a person to be used in typical stepping functions"
 function agestep!(person::Person;dt=1) 
