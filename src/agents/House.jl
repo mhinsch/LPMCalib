@@ -16,13 +16,12 @@ Type House to extend from AbstractAgent.
 mutable struct House <: AbstractAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
-    # size::String                       # TODO enumeration type / at the moment not yet necessary  
-    # occupants                          # cannot be static due to circular dependencies ::Vector{Person}
-                                        # Is this actually needed? 
+    # size::String                     # TODO enumeration type / at the moment not yet necessary  
+    occupants::Vector{AbstractPersonAgent}                           
 
     function House(pos)#s;occupants=[]) 
         global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos)#,occupants)
+        new(IDCOUNTER,pos,AbstractPersonAgent[]) 
     end 
     
 end # House 
