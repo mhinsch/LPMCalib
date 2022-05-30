@@ -5,6 +5,7 @@ functions for a dummy simulation
 
 module Dummy
 
+    import Global: Gender, unknown, female, male
     import SocialAgents: Town, House, Person
     import SocialABMs: SocialABM, add_agent!
     import SocialSimulations: SocialSimulation
@@ -18,10 +19,10 @@ module Dummy
         population = SocialABM{Person}()
 
         for house in houses
-            mother   = Person(house,rand(25:55))
-            father   = Person(house,rand(30:55))
-            son      = Person(house,rand(1:15))
-            daughter = Person(house,rand(1:15))
+            mother   = Person(house,rand(25:55),gender=female)
+            father   = Person(house,rand(30:55),gender=male)
+            son      = Person(house,rand(1:15), gender=male)
+            daughter = Person(house,rand(1:15), gender=female)
             add_agent!(mother,population)
             add_agent!(father,population)
             add_agent!(son,population)
@@ -42,14 +43,14 @@ module Dummy
 
         # init Houses 
         numberOfHouses = 100 
-        sizes = ["small","medium","big"]
+        # sizes = ["small","medium","big"]
 
         houses = House[] 
         for index in range(1,numberOfHouses)
             town = rand(towns)
-            sz   = rand(sizes) 
+            # sz   = rand(sizes) 
             x,y  = rand(1:10),rand(1:10)
-            push!(houses,House(town,(x,y),sz))
+            push!(houses,House(town,(x,y)))#,size=sz))
         end
     
         print("sample houses: \n ")

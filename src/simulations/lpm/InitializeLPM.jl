@@ -11,76 +11,31 @@ Simulation and model parameters initialization
 
 # export createShifts! 
 
-function loadMetaParameters!(simulation::SocialSimulation) 
-       
-    meta = Dict()
+function loadUKMapParameters()
+    mappars = Dict(:dummy=>any,:mapGridXDimension=>8)::Dict{Symbol,Any} 
 
-    meta[:thePresent] = 2012
-    meta[:initialPop] = 500
-   
-    meta[:statsCollectFrom] = 1960
-    meta[:policyStartYear] = 2020
-    meta[:outputYear] = 2015
-   
-    # a population of males to be randomly generated in the 
-    # range of minStartAge - maxStartAge
-    meta[:minStartAge] = 24                  
-    meta[:maxStartAge] = 45                  
-   
-    #= not considered yet 
-    meta[:verboseDebugging] = false
-    meta[:singleRunGraphs] = false                           # ?? 
-    meta[:withBenefits] = true                               # ?? 
-    meta[:externalCare] = true                               # ?? 
-    meta[:careAllocationFromYear] = simulation.properties[:startYear]   # meta[:startYear]
-    meta[:favouriteSeed] = simulation.properties[:seed] 
-    meta[:loadFromFile] = false
-    meta[:numberClasses] = 5                                 # ?? Socio-econimic classes
-    meta[:numCareLevels] = 5
-    meta[:timeDiscountingRate] = 0.035                       # ??
-    =# 
+    # mappars[:mapGridXDimension] = 8
+    mappars[:mapGridYDimension] = 12    
+    mappars[:townGridDimension] = 25    
 
-    # Description of the map and towns: 
-    #   The space is represented by a 2-level grid.  At the higher level, 
-    #   an mapGridYDimension x mapGridXDimension grid roughly represents 
-    #   the UK map. Each cell in this high-level grid is composed by 
-    #   a (townGridDimension x townGridDimension)-grid, which represents 
-    #   the space at the lower level.
-    meta[:mapGridXDimension] = 8
-    meta[:mapGridYDimension] = 12    
-    meta[:townGridDimension] = 25                          
-    
-    ## Description of houses
-    #= not considered yet 
-    meta[:numHouseClasses] = 3                
-    meta[:houseClasses] = ["small","medium","large"]
-    meta[:cdfHouseClasses] = [ 0.6, 0.9, 5.0 ]               # comulative distribution function
-    meta[:shareClasses] = [0.2, 0.23, 0.25, 0.22, 0.1]       # ?? Socio-economic classes?
-    meta[:classAdjustmentBeta] = 3.0                         # ??
-    =#
-
-    #======================================
-    Warning: in the following, original implementation
-             was conducted using 1-D arrays rather 
-             than 2D matrices 
-    =#####################################
-
-    # Relative population density of UK.  A density of 1.0 corresponds to 
+        # Relative population density of UK.  A density of 1.0 corresponds to 
     #   the cell with the highest density   
-    #= not considered yet 
-    meta[:ukMap] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
-                     0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
-                     0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
-                     0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
-                     0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
-                     0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
-                     0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
-                     0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
-                     0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
-                     0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
-                     0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
-                     0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
+   
+    mappars[:ukMap] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+                       0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
+                       0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
+                       0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
+                       0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
+                       0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
+                       0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
+                       0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
+                       0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
+                       0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
+                       0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
+                       0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
 
+
+     #= not considered yet 
     # ?? looks like deviation from the average 
     meta[:ukClassBias] = [0.0  -0.05 -0.05 -0.05  0.0   0.0  0.0  0.0;
                           -0.05 -0.05  0.0   0.0   0.0   0.0  0.0  0.0;
@@ -154,7 +109,79 @@ function loadMetaParameters!(simulation::SocialSimulation)
     
     =# 
 
-    meta[:mapDensityModifier] = 0.6                          # for allocating houses in towns 
+    mappars[:mapDensityModifier] = 0.6                          # for allocating houses in towns 
+
+    mappars
+end
+
+
+function loadUKPopulationParameters() 
+    # TODO this is going to change after identifying a better 
+    # data structure for parameters 
+    poppars = Dict(:dummy=>any,:initialPop=>500)  # Population parameters  
+
+    # a population of males to be randomly generated in the 
+    # range of minStartAge - maxStartAge
+    poppars[:minStartAge] = 24                  
+    poppars[:maxStartAge] = 45    
+
+    # TODO this parameter does not belong here. It is a simulation parameters
+    poppars[:startYear]   = 1860 
+
+    poppars 
+end
+
+function loadMetaParameters!(simulation::SocialSimulation) 
+       
+    meta = Dict()
+
+    meta[:thePresent] = 2012
+    # meta[:initialPop] = 500
+   
+    meta[:statsCollectFrom] = 1960
+    meta[:policyStartYear] = 2020
+    meta[:outputYear] = 2015
+   
+
+    #= not considered yet 
+    meta[:verboseDebugging] = false
+    meta[:singleRunGraphs] = false                           # ?? 
+    meta[:withBenefits] = true                               # ?? 
+    meta[:externalCare] = true                               # ?? 
+    meta[:careAllocationFromYear] = simulation.properties[:startYear]   # meta[:startYear]
+    meta[:favouriteSeed] = simulation.properties[:seed] 
+    meta[:loadFromFile] = false
+    meta[:numberClasses] = 5                                 # ?? Socio-econimic classes
+    meta[:numCareLevels] = 5
+    meta[:timeDiscountingRate] = 0.035                       # ??
+    =# 
+
+    # Description of the map and towns: 
+    #   The space is represented by a 2-level grid.  At the higher level, 
+    #   an mapGridYDimension x mapGridXDimension grid roughly represents 
+    #   the UK map. Each cell in this high-level grid is composed by 
+    #   a (townGridDimension x townGridDimension)-grid, which represents 
+    #   the space at the lower level.
+                      
+    
+    ## Description of houses
+    #= not considered yet 
+    meta[:numHouseClasses] = 3                
+    meta[:houseClasses] = ["small","medium","large"]
+    meta[:cdfHouseClasses] = [ 0.6, 0.9, 5.0 ]               # comulative distribution function
+    meta[:shareClasses] = [0.2, 0.23, 0.25, 0.22, 0.1]       # ?? Socio-economic classes?
+    meta[:classAdjustmentBeta] = 3.0                         # ??
+    =#
+
+    #======================================
+    Warning: in the following, original implementation
+             was conducted using 1-D arrays rather 
+             than 2D matrices 
+    =#####################################
+
+
+
+   
     
     existingKeys = [key for key in keys(meta) if key in keys(simulation.properties)]
     if length(existingKeys) > 0 

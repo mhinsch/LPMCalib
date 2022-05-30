@@ -8,23 +8,8 @@
 
 export SocialABM
 
-export addProperty! 
 
-"Social ABM to be enhanced with relevant functionlities"
-abstract type AbstractSocialABM <: AbstractABM end 
-
-#=
-It is thinkable to associate further attributes to SocialABMs s.a.
-
-variable(sabm::AbstractSocialABM,var::Symbol) = sabm.variable[var]
-parameter(sabm::AbstractSocialABM,par::Parameter) = sabm.parameter[par]
-data(sabm::AbstractSocialABM,symbol::Symbol)  = sabm.data[symbol]
-... 
-function addData!(sabm,symbol,csvfile) end
-function addVariable!(sabm,symbol) end 
-function deleteVariable!(sabm,symbol) end
-
-=# 
+# dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
 
 "Agent based model specification for social simulations"
 mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
@@ -35,24 +20,16 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     in the same way as Agents.jl 
     """ 
     properties
-    # AgentBasedModel{AgentType}() where AgentType <: AbstractAgent = new(AgentType[])
 
-    SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
+    # SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
 
-    SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
+    # SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
+
+    # SocialABM{AgentType}(;declare::Function) where AgentType <: AbstractAgent = new(declare(),Dict()) 
+
+    SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
+        declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
+             new(declare(properties),copy(properties)) 
 end # AgentBasedModel  
 
-"add a symbol property to a model"
-function addProperty!(model::AbstractSocialABM,property::Symbol,val)
-    if property in keys(model.properties)
-        error("$(property) is already available")
-    end 
-    model.properties[property] = val  
-end 
 
-
-#=
-Other potential functions 
-
-genocide(model::ABM): kill all agents 
-=# 

@@ -9,6 +9,7 @@ using SocialAgents
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
+export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
 export step!, dummystep 
 
@@ -18,8 +19,16 @@ Fields of an ABM
 =########################################
 
 "An AbstractABM subtype to have a list of agents"
-function getAgentsList(model::AbstractABM)::Array{AgentType,1} where AgentType <: AbstractAgent
+function allagents(model::AbstractABM)#::Array{AgentType,1} where AgentType <: AbstractAgent
     model.agentsList
+end 
+
+"add a symbol property to a model"
+function getproperty(model::AbstractABM,property::Symbol)
+    if property in keys(model.properties)
+        return model.properties[property]
+    end 
+    error("$(property) is not available as a key")
 end 
 
 
@@ -39,12 +48,17 @@ function seed!(model::AbstractABM,seed)
     nothing 
 end 
 
+"numbe of  agents"
+function nagents(model::AbstractABM) 
+    length(model.agentsList)
+end 
+
 #= 
 Couple of other useful functions may include:
 
-function nagents(model)   : number of agents 
+randomagent(model) : a random agent 
 
-function allagents(model) : iterator over agents
+randomagent(model,condition) : allagents 
 
 function allids(model)    : iterator over ids
 
@@ -148,3 +162,8 @@ end # step!
 #    agent_step! function can be a dummystep 
 
 
+#=
+Other potential functions 
+
+genocide(model::ABM): kill all agents 
+=# 

@@ -1,7 +1,14 @@
 # Set of all global variables shared among modules 
-module GlobalVariables
+module Global
 
+    export Gender 
     export SimulationFolderPrefix
+
+    # list of types 
+
+    "Gender type enumeration"
+    @enum Gender unknown female male 
+
 
     # list of global variables
 

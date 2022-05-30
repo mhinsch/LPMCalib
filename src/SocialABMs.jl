@@ -5,10 +5,13 @@ module SocialABMs
     import SocialAgents: AbstractAgent      
 
     include("./abms/AbstractABM.jl")
-    include("./abms/SocialABM.jl")        # could be replaced by Agents.ABM    
+    include("./abms/AbstractSocialABM.jl")
 
+    include("./abms/MultiABM.jl")
+    
+    include("./abms/SocialABM.jl")        # could be replaced by Agents.ABM    
     include("./abms/Population.jl") 
-    include("./abms/TownCommunity.jl")
+    # include("./abms/TownCommunity.jl")
 
     include("./abms/LPMABMs.jl")
 end # Social ABMs

@@ -2,6 +2,8 @@ export Person, getHomeTown, getHomeTownName, agestep!
 
 import Spaces: GridSpace
 
+
+
 """
 Specification of a Person Agent Type. 
 
@@ -9,7 +11,7 @@ This file is included in the module SocialAgents
 
 Type Person extends from AbstractAgent.
 """ 
-mutable struct Person <: AbstractAgent
+mutable struct Person <: AbstractPersonAgent
     id
     """
     location of a parson's house in a map which implicitly  
@@ -17,23 +19,43 @@ mutable struct Person <: AbstractAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House     
-    age::Int 
-    # father
-    # mother 
-    # partner
+    age::Int             # Rational 
+    # birthYear::Int        
+    # birthMonth::Int
+    gender::Gender  
+    father::Union{Person,Nothing}
+    mother::Union{Person,Nothing} 
+    partner::Union{Person,Nothing}
+    childern::Vector{Person}
+    # self.yearMarried = []
+    # self.yearDivorced = []
+    # self.deadYear = 0
 
     # Person(id,pos,age) = new(id,pos,age)
 
-    function Person(pos::House,age)
+    function Person(pos::House,age,gender,father,mother,partner,childern)
         global IDCOUNTER = IDCOUNTER+1
-        new(IDCOUNTER,pos,age)
+        #person = 
+        new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        #pos != undefinedHouse ? push!(pos.occupants,person) : nothing 
+        #person
     end 
 end
 
-"Constructor with named arguments"
-Person(pos;age=0) = Person(pos,age)
+Person(pos,age;birthYear=0,birthMonth=0,
+                gender=unknown,
+                father=nothing,mother=nothing,
+                partner=nothing,childern=Person[]) = 
+                    Person(pos,age,gender,father,mother,partner,childern)
 
-Person(;pos=undefinedTown,age=0) = Person(pos,age)
+Person(;pos=undefinedHouse,age=0,
+        gender=unknown,
+        father=nothing,mother=nothing,
+        partner=nothing,childern=Person[]) = 
+            Person(pos,age,gender,father,mother,partner,childern)
+
+
+
 
 "increment an age for a person to be used in typical stepping functions"
 function agestep!(person::Person;dt=1) 

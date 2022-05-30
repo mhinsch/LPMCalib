@@ -4,6 +4,8 @@ export getHomeTown, getHouseLocation
 
 import Spaces: HouseLocation
 
+
+
 """
 Specification of a House Agent Type. 
 
@@ -14,19 +16,23 @@ Type House to extend from AbstractAgent.
 mutable struct House <: AbstractAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
-    size::String 
+    # size::String                     # TODO enumeration type / at the moment not yet necessary  
+    occupants::Vector{AbstractPersonAgent}                           
 
-    function House(pos,s) 
+    function House(pos)#s;occupants=[]) 
         global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,s)
+        new(IDCOUNTER,pos,AbstractPersonAgent[]) 
     end 
     
 end # House 
 
-House(pos;s="") = House(pos,s)
-House(town::Town,locationInTown::HouseLocation,s::String) = House((town,locationInTown),s)
+#=
+House(pos;size="",occupants=[]) = House(pos,size)
+House(town::Town,locationInTown::HouseLocation;size="",occupants=[]) = House((town,locationInTown),size,occupants=[])
+=# 
+House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
 
-const undefinedHouse = House(undefinedTown,(-1,-1),"")
+const undefinedHouse = House(undefinedTown,(-1,-1))
 
 "town associated with house"
 function getHomeTown(house::House)
