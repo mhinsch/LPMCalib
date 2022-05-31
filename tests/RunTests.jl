@@ -8,9 +8,11 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using SocialAgents, SocialABMs, Test
+using Test
 
-import SocialAgents: getindex, getposition, setProperty!, isFemale, isMale 
+import SocialAgents: Person, House, Town
+
+import SocialAgents: verify, isFemale, isMale 
 
 import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
@@ -39,16 +41,19 @@ import Global: Gender, male, female
     person3 = Person(house2,45,gender=female) 
 
     @testset verbose=true "Basic declaration" begin
-        @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor should be disallowed
+        @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
         
-        # Testing that every agent should have a unique ID 
-        @test getindex(person1) > 0                        
-        @test getindex(house1) != getindex(person1)     
-        @test getindex(person3) != getindex(person1)         # A new person is another person   
+        @test verify(glasgow) 
+        @test verify(house1)
+        @test verify(person1)
 
-         # skip implies that the test is broken indicating a non-implemented functionality
+        # Testing that every agent should have a unique ID 
+        @test person1.id > 0                        
+        @test house1.id != person1.id       
+        @test person3.id != person1.id                  # A new person is another person   
+
         # every agent should be assigned with a location        
-        @test getposition(person1) != nothing       skip=false   
+        @test person1.pos == house1     skip=false   
 
         @test person1 === person2 
     end 
@@ -60,14 +65,14 @@ import Global: Gender, male, female
         @test isMale(person1)
         @test !isFemale(person1)
 
-        setProperty!(person1,:pos,house2)
+        person1.pos = house2       
         @test getHomeTown(person1) == aberdeen       
     end 
 
     @testset verbose=true "Type House" begin
 
-        @test getindex(house1) > 0                    
-        @test getposition(house1) != nothing         
+        @test house1.id > 0                    
+        @test house1.pos != nothing         
         @test getHomeTown(house1) === edinbrugh 
         @test getHouseLocation(house1) == (1,2)
 
@@ -91,14 +96,14 @@ import Global: Gender, male, female
 
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
-        @test !isempty(simfolder)                    skip=false 
-        @test isdir(simfolder)                       skip=false 
+        @test !isempty(simfolder)                                       skip=false 
+        @test isdir(simfolder)                                          skip=false 
         @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin
 
-        import SocialSimulations: SocialSimulation
+        import  SocialSimulations: SocialSimulation
         import  SocialSimulations.LoneParentsModel as SimLPM  
 
         simProperties = SimLPM.setSimulationParameters()
