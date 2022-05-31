@@ -10,7 +10,7 @@ import Global: Gender, unknown, female, male
 export AbstractPersonAgent, isMale, isFemale
 
 
-abstract type AbstractPersonAgent <: AbstractAgent end 
+abstract type AbstractPersonAgent <: AbstractSocialAgent end 
 
 
   function isFemale(person::AbstractPersonAgent) 

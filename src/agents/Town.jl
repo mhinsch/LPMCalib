@@ -13,7 +13,7 @@ This file is included in the module SocialAgents
 
 Type Town to extend from AbstractAgent.
 """
-mutable struct Town <: AbstractAgent
+mutable struct Town <: AbstractSocialAgent
     id
     pos::TownLocation
     name::String                            # does not look necessary
@@ -33,23 +33,7 @@ Town(pos;name="",density=0.0) = Town(pos,name,density)
 
 const undefinedTown = Town((-1,-1),"",0.0)
 
-#=
-self.x = tx
-        self.y = ty
-        self.houses = []
-        self.name = str(tx) + "-" + str(ty)
-        self.LHA = [lha1, lha2, lha3, lha4]
-        self.id = Town.counter
-        Town.counter += 1
-        if density > 0.0:
-            adjustedDensity = density * densityModifier
-            for hy in range(int(townGridDimension)):
-                for hx in range(int(townGridDimension)):
-                    if random.random() < adjustedDensity:
-                        newHouse = House(self,cdfHouseClasses,
-                                         classBias,hx,hy)
-                        self.houses.append(newHouse)
-=# 
+
 
 
 
