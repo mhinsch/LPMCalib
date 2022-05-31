@@ -17,7 +17,8 @@ getindex(A::AbstractAgent) = A.id
 
 "Any agent should be assigned to a location"
 getposition(A::AbstractAgent)  = A.pos
-    
+
+#=
 "Set an agent field using this function"
 function setProperty!(agent::AbstractAgent,
                       property::Symbol,
@@ -29,6 +30,7 @@ function getProperty(agent::AbstractAgent,
                      property::Symbol)
    getfield(agent,property)
 end
+=# 
 
 #=
 Base.show(io,agent::AbstractAgent) = ... 
