@@ -10,15 +10,14 @@ julia> include("RunTests.jl")
 
 using SocialAgents, SocialABMs, Test
 
-import SocialAgents: getindex, getposition, setProperty!, isFemale, isMale 
+using SocialAgents: getindex, getposition, setProperty!, isFemale, isMale 
+using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
-import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
+using Spaces: HouseLocation
 
-import Spaces: HouseLocation
+using Utilities: readArrayFromCSVFile, createTimeStampedFolder
 
-import Utilities: readArrayFromCSVFile, createTimeStampedFolder
-
-import Global: Gender, male, female 
+using Global: Gender, male, female 
 
 @testset "Lone Parent Model Components Testing" begin 
 
