@@ -1,6 +1,6 @@
-export Person, getHomeTown, getHomeTownName, agestep!
+export Person, setHouse!
 
-import Spaces: GridSpace
+using Spaces: GridSpace
 
 
 
@@ -63,6 +63,15 @@ function agestep!(person::Person;dt=1)
    person.age += dt 
 end 
 
+
+function isFemale(person::AbstractPersonAgent) 
+    person.gender == female
+end
+
+function isMale(person::AbstractPersonAgent) 
+    person.gender == male
+end 
+
 "home town of a person"
 function getHomeTown(person::Person)
     getHomeTown(person.pos) 
@@ -74,8 +83,25 @@ function getHomeTownName(person::Person)
 end
 
 "set a new house to a person"
-function setHouse(person::Person,house::House)
+function setHouse!(person::Person,house::House)
     person.pos = house
+    push!(house.occupants,person)
+end
+
+"set the father of a hild"
+function setFather!(child::Person,father::Person) 
+    @assert child.age < father.age 
+    child.father = father 
+    push!(father.childern,child)
+    nothing 
+end
+
+"set the mother of a child"
+function setMother!(child::Person,mother::Person) 
+    @assert child.age < mother.age 
+    child.mother = mother 
+    push!(mother.childern,child)
+    nothing 
 end
 
 
