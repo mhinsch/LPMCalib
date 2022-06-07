@@ -13,7 +13,7 @@ using Test
 using SocialAgents: Person, House, Town
 
 using SocialAgents: verify, isFemale, isMale
-using SocialAgents: setFather!, setParent!
+using SocialAgents: setFather!, setParent!, setPartner!
 using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
@@ -75,6 +75,12 @@ using Global: Gender, male, female
         setParent!(person3,person4) 
         @test person3.mother === person4
         @test person3 in person4.childern 
+
+        @test_throws AssertionError setParent!(person4,person3)
+
+        setPartner!(person1,person4) 
+        @test person1.partner === person4
+        @test person4.partner === person1 
 
         person1.pos = house2       
         @test getHomeTown(person1) == aberdeen       

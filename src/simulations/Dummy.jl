@@ -7,7 +7,7 @@ module Dummy
 
     using Global: Gender, unknown, female, male
     using SocialAgents: Town, House, Person
-    using SocialAgents: setParent!, setMother! 
+    using SocialAgents: setParent!, setMother!, setPartner! 
     using SocialABMs: SocialABM, add_agent!
     using SocialSimulations: SocialSimulation
 
@@ -25,6 +25,8 @@ module Dummy
             son      = Person(house,rand(1:15), gender=male)
             daughter = Person(house,rand(1:15), gender=female)
     
+            setPartner!(mother,father) 
+
             setParent!(son,father)
             setParent!(daughter,father)
             setMother!(son,mother)

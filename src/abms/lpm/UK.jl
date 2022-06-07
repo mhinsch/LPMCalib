@@ -12,7 +12,7 @@
 using Random: shuffle 
 
 import Global: Gender, unknown, female, male
-import SocialAgents: Town, House, Person, undefinedHouse, isFemale 
+import SocialAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
 import SocialABMs: SocialABM, add_agent!, allagents, nagents
 
 export createUKDemography # createUKTowns, createUKHouses 
@@ -51,8 +51,7 @@ function createUKPopulation(properties)
 
         newMan = Person(undefinedHouse,ageMale,gender=male)
         newWoman = Person(undefinedHouse,ageFemale,gender=female)   
-
-        newMan.partner = newWoman; newWoman.partner = newMan.partner
+        setPartner!(newMan,newWoman) 
         
         push!(population,newMan);  push!(population,newWoman) 
 
