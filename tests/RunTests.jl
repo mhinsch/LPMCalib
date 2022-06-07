@@ -10,9 +10,10 @@ julia> include("RunTests.jl")
 
 using Test
 
-import SocialAgents: Person, House, Town
+using SocialAgents: Person, House, Town
 
-import SocialAgents: verify, isFemale, isMale 
+using SocialAgents: verify, isFemale, isMale
+using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
 
