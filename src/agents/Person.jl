@@ -101,6 +101,15 @@ end
 function setPartner!(person1::Person,person2::Person)
     if (isMale(person1) && isFemale(person2) || 
         isFemale(person1) && isMale(person2)) 
+
+        # resolve previous partnership 
+        if person1.partner != nothing 
+            person1.partner.partner = nothing 
+        end 
+        if person2.partner != nothing 
+            person2.partner.partner = nothing 
+        end 
+
         person1.partner = person2
         person2.partner = person1
         return nothing 
