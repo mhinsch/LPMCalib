@@ -5,7 +5,7 @@ Household concept.
 It is still not determined if a household is an agent or an ABM 
 within a multi-ABM. 
 """
-mutable struct Household <: AbstractAgent
+mutable struct Household <: AbstractSocialAgent
     id                 # list of person ids 
     pos                # House   
     income 
