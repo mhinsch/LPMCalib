@@ -41,14 +41,12 @@ mutable struct Person <: AbstractPersonAgent
     end 
 end
 
-#=
 "Constructor with default values"
-Person(pos,age;birthYear=0,birthMonth=0,
-                gender=unknown,
+Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
                     Person(pos,age,gender,father,mother,partner,childern)
-=# 
+
 
 "Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
