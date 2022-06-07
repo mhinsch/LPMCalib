@@ -81,12 +81,6 @@ function getHomeTownName(person::Person)
     getHomeTown(person).name 
 end
 
-"set a new house to a person"
-function setHouse!(person::Person,house::House)
-    person.pos = house
-    push!(house.occupants,person)
-end
-
 "set the father of a hild"
 function setFather!(child::Person,father::Person) 
     @assert child.age < father.age 
@@ -112,5 +106,11 @@ function setPartner!(person1::Person,person2::Person)
         return nothing 
     end 
     error("Undefined case + $person1 partnering with $person2")
+end
+
+"associate a house to a person"
+function setHouse!(person::Person,house::House)
+    person.pos = house
+    push!(house.occupants,person)
 end
 

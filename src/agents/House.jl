@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation
+export getHomeTown, getHouseLocation, setHouse!
 
 import Spaces: HouseLocation
 
@@ -47,3 +47,12 @@ end
 function getHouseLocation(house::House)
     house.pos[2]
 end 
+
+
+"associate a house to a person"
+setHouse!(person::AbstractPersonAgent,house::House)  = error("Not implemented")
+
+"assoicate a house to a person"
+setHouse!(house::House,person::AbstractPersonAgent)  = setHouse!(person,house)
+
+

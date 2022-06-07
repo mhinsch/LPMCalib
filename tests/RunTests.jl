@@ -13,7 +13,7 @@ using Test
 using SocialAgents: Person, House, Town
 
 using SocialAgents: verify, isFemale, isMale
-using SocialAgents: setFather!, setParent!, setPartner!
+using SocialAgents: setFather!, setParent!, setPartner!, setHouse!
 using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
@@ -82,8 +82,13 @@ using Global: Gender, male, female
         @test person1.partner === person4
         @test person4.partner === person1 
 
-        person1.pos = house2       
-        @test getHomeTown(person1) == aberdeen       
+        setHouse!(person1,house2) # person1.pos = house2       
+        @test getHomeTown(person1) === aberdeen   
+        @test person1 in house2.occupants   
+        
+        setHouse!(house2,person4)
+        @test getHomeTown(person4) === aberdeen     
+
     end 
 
     @testset verbose=true "Type House" begin
