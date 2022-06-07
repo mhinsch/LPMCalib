@@ -5,10 +5,11 @@ functions for a dummy simulation
 
 module Dummy
 
-    import Global: Gender, unknown, female, male
-    import SocialAgents: Town, House, Person
-    import SocialABMs: SocialABM, add_agent!
-    import SocialSimulations: SocialSimulation
+    using Global: Gender, unknown, female, male
+    using SocialAgents: Town, House, Person
+    using SocialAgents: setParent!, setMother! 
+    using SocialABMs: SocialABM, add_agent!
+    using SocialSimulations: SocialSimulation
 
     export createPopulation, loadData!
 
@@ -23,6 +24,12 @@ module Dummy
             father   = Person(house,rand(30:55),gender=male)
             son      = Person(house,rand(1:15), gender=male)
             daughter = Person(house,rand(1:15), gender=female)
+    
+            setParent!(son,father)
+            setParent!(daughter,father)
+            setMother!(son,mother)
+            setParent!(daughter,mother)
+
             add_agent!(mother,population)
             add_agent!(father,population)
             add_agent!(son,population)
