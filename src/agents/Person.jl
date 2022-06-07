@@ -70,7 +70,7 @@ end
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
-    getProperty(getHomeTown(person),:name)
+    getHomeTown(person).name 
 end
 
 "set a new house to a person"

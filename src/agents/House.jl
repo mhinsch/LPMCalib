@@ -5,15 +5,14 @@ export getHomeTown, getHouseLocation
 import Spaces: HouseLocation
 
 
-
 """
 Specification of a House Agent Type. 
 
 This file is included in the module SocialAgents 
 
-Type House to extend from AbstractAgent.
+Type House to extend from AbstractSocialAgent.
 """ 
-mutable struct House <: AbstractAgent
+mutable struct House <: AbstractSocialAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
@@ -41,7 +40,7 @@ end
 
 "town name associated with house"
 function getHomeTownName(house::House)
-    getProperty(house.pos[1],:name)
+    house.pos[1].name
 end
 
 "house location in the associated town"
