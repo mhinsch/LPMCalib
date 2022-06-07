@@ -2,7 +2,7 @@
 module Global
 
     export Gender 
-    export SimulationFolderPrefix
+    export USEAGENTJL, SimulationFolderPrefix
 
     # list of types 
 
@@ -11,6 +11,9 @@ module Global
 
 
     # list of global variables
+
+    "whether the package Agents.jl shall be used" 
+    const USEAGENTJL = false 
 
     "Folder in which simulation results are stored"
     const SimulationFolderPrefix = "Simulations_Folder"
