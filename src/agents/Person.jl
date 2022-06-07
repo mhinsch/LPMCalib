@@ -32,22 +32,25 @@ mutable struct Person <: AbstractPersonAgent
     # self.deadYear = 0
 
     # Person(id,pos,age) = new(id,pos,age)
-
+    "Internal constructor" 
     function Person(pos::House,age,gender,father,mother,partner,childern)
         global IDCOUNTER = IDCOUNTER+1
-        #person = 
-        new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
-        #pos != undefinedHouse ? push!(pos.occupants,person) : nothing 
-        #person
+        person = new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        pos != undefinedHouse ? push!(pos.occupants,person) : nothing
+        person  
     end 
 end
 
+#=
+"Constructor with default values"
 Person(pos,age;birthYear=0,birthMonth=0,
                 gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
                     Person(pos,age,gender,father,mother,partner,childern)
+=# 
 
+"Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
@@ -114,11 +117,20 @@ function setPartner!(person1::Person,person2::Person)
         person2.partner = person1
         return nothing 
     end 
-    error("Undefined case + $person1 partnering with $person2")
+    print("Undefined case + $person1 partnering with $person2")
+    throw(InvalidStateException)
 end
 
 "associate a house to a person"
 function setHouse!(person::Person,house::House)
+    if !isempty(person.pos.occupants)
+        try 
+            deleteat!(person.pos.occupants, findfirst(x->x==person,person.pos.occupants))
+        catch 
+            print("inconsistancy $person is not within $(person.pos.occupants)")
+            throw(InvalidStateException)
+        end 
+    end 
     person.pos = house
     push!(house.occupants,person)
 end
