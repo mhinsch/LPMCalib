@@ -56,7 +56,6 @@ Person(;pos=undefinedHouse,age=0,
 
 
 
-
 "increment an age for a person to be used in typical stepping functions"
 function agestep!(person::Person;dt=1) 
    # person += Rational(1,12) or GlobalVariable.DT
@@ -104,4 +103,14 @@ function setMother!(child::Person,mother::Person)
     nothing 
 end
 
+
+function setPartner!(person1::Person,person2::Person)
+    if (isMale(person1) && isFemale(person2) || 
+        isFemale(person1) && isMale(person2)) 
+        person1.partner = person2
+        person2.partner = person1
+        return nothing 
+    end 
+    error("Undefined case + $person1 partnering with $person2")
+end
 

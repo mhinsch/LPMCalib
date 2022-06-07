@@ -9,7 +9,7 @@ import Global: Gender, unknown, female, male
 
 export AbstractPersonAgent, isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
-export setFather, setMother, setParent 
+export setFather!, setMother!, setParent!, setPartner! 
 
 
 abstract type AbstractPersonAgent <: AbstractSocialAgent end 
@@ -40,3 +40,7 @@ function setParent!(child::AbstractPersonAgent,parent::AbstractPersonAgent)
     error("undefined case")
   end
 end 
+
+"set a partnership"
+setPartner!(person1::AbstractPersonAgent,
+            person2::AbstractPersonAgent) = error("Not implemented") 
