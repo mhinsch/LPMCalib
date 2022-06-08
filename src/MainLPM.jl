@@ -4,15 +4,13 @@ Main simulation of the lone parent model
 under construction 
 """
 
-import SocialSimulations: SocialSimulation
+using SocialSimulations: SocialSimulation
 
-import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimulationParameters
+using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
 
-import SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
-
-import SocialAgents: Town
-import SocialABMs: MultiABM, SocialABM
-import SocialABMs.LoneParentsModel: createUKDemography
+# using SocialAgents: Town
+using SocialABMs: MultiABM
+using SocialABMs.LoneParentsModel: createUKDemography
 
 
 ukmapParameters = loadUKMapParameters()
