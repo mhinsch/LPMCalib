@@ -4,7 +4,7 @@ Module for defining a supertype, AbstractAgent for all Agent types
 """
 module SocialAgents
 
-    include("./agents/AbstractAgent.jl")    
+    include("./agents/AbstractSocialAgent.jl")    
     include("./agents/AbstractPersonAgent.jl")
 
     include("./agents/Town.jl")

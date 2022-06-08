@@ -8,17 +8,19 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("RunTests.jl")
 """
 
-using SocialAgents, SocialABMs, Test
+using Test
 
-import SocialAgents: getindex, getposition, setProperty!, isFemale, isMale 
+using SocialAgents: Person, House, Town
 
-import SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
+using SocialAgents: verify, isFemale, isMale
+using SocialAgents: setFather!, setParent!, setPartner!, setHouse!
+using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
-import Spaces: HouseLocation
+using Spaces: HouseLocation
 
-import Utilities: readArrayFromCSVFile, createTimeStampedFolder
+using Utilities: readArrayFromCSVFile, createTimeStampedFolder
 
-import Global: Gender, male, female 
+using Global: Gender, male, female 
 
 @testset "Lone Parent Model Components Testing" begin 
 
@@ -34,42 +36,73 @@ import Global: Gender, male, female
     house3 = House(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
-    person1 = Person(house1,45,gender=male) 
+    person1 = Person(house1,55,gender=male) 
     person2 = person1               
-    person3 = Person(house2,45,gender=female) 
+    person3 = Person(house2,25,gender=female) 
+    person4 = Person(house1,50,gender=female) 
 
     @testset verbose=true "Basic declaration" begin
-        @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor should be disallowed
+        @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
         
-        # Testing that every agent should have a unique ID 
-        @test getindex(person1) > 0                        
-        @test getindex(house1) != getindex(person1)     
-        @test getindex(person3) != getindex(person1)         # A new person is another person   
+        @test verify(glasgow) 
+        @test verify(house1)
+        @test verify(person1)
 
-         # skip implies that the test is broken indicating a non-implemented functionality
+        # Testing that every agent should have a unique ID 
+        @test person1.id > 0                        
+        @test house1.id != person1.id       
+        @test person3.id != person1.id                  # A new person is another person   
+
         # every agent should be assigned with a location        
-        @test getposition(person1) != nothing       skip=false   
+        @test person1.pos == house1   
+        @test person1 in house1.occupants     
 
         @test person1 === person2 
     end 
 
     @testset verbose=true "Type Person" begin
         @test getHomeTown(person1) != nothing             
-        @test getHomeTownName(person1) == "Edinbrugh"     
+        @test getHomeTownName(person1) == "Edinbrugh"    
+        
+        @test !isinteger(person1.age) skip = false 
         
         @test isMale(person1)
         @test !isFemale(person1)
+        
+        setFather!(person3,person1) 
+        @test person3 in person1.childern
+        @test person3.father === person1 
 
-        setProperty!(person1,:pos,house2)
-        @test getHomeTown(person1) == aberdeen       
+        setParent!(person3,person4) 
+        @test person3.mother === person4
+        @test person3 in person4.childern 
+
+        @test_throws AssertionError setParent!(person4,person3)
+
+        setPartner!(person1,person4) 
+        @test person1.partner === person4
+        @test person4.partner === person1 
+
+        @test_throws InvalidStateException setPartner!(person3,person4)
     end 
 
     @testset verbose=true "Type House" begin
 
-        @test getindex(house1) > 0                    
-        @test getposition(house1) != nothing         
+        @test house1.id > 0                    
+        @test house1.pos != nothing         
         @test getHomeTown(house1) === edinbrugh 
         @test getHouseLocation(house1) == (1,2)
+
+        setHouse!(person1,house2) # person1.pos = house2       
+        @test getHomeTown(person1) === aberdeen   
+        @test person1 in house2.occupants   
+        
+        setHouse!(house2,person4)
+        @test getHomeTown(person4) === aberdeen    
+
+        person1.pos = house1 
+        @test_throws InvalidStateException setHouse!(person1,house3)
+        person1.pos = house2
 
     end # House functionalities 
 
@@ -91,14 +124,14 @@ import Global: Gender, male, female
 
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
-        @test !isempty(simfolder)                    skip=false 
-        @test isdir(simfolder)                       skip=false 
+        @test !isempty(simfolder)                                       skip=false 
+        @test isdir(simfolder)                                          skip=false 
         @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin
 
-        import SocialSimulations: SocialSimulation
+        import  SocialSimulations: SocialSimulation
         import  SocialSimulations.LoneParentsModel as SimLPM  
 
         simProperties = SimLPM.setSimulationParameters()

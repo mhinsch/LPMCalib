@@ -1,6 +1,6 @@
-export Person, getHomeTown, getHomeTownName, agestep!
+export Person, setHouse!
 
-import Spaces: GridSpace
+using Spaces: GridSpace
 
 
 
@@ -32,28 +32,28 @@ mutable struct Person <: AbstractPersonAgent
     # self.deadYear = 0
 
     # Person(id,pos,age) = new(id,pos,age)
-
+    "Internal constructor" 
     function Person(pos::House,age,gender,father,mother,partner,childern)
         global IDCOUNTER = IDCOUNTER+1
-        #person = 
-        new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
-        #pos != undefinedHouse ? push!(pos.occupants,person) : nothing 
-        #person
+        person = new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        pos != undefinedHouse ? push!(pos.occupants,person) : nothing
+        person  
     end 
 end
 
-Person(pos,age;birthYear=0,birthMonth=0,
-                gender=unknown,
+"Constructor with default values"
+Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
                     Person(pos,age,gender,father,mother,partner,childern)
 
+
+"Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
         partner=nothing,childern=Person[]) = 
             Person(pos,age,gender,father,mother,partner,childern)
-
 
 
 
@@ -63,6 +63,15 @@ function agestep!(person::Person;dt=1)
    person.age += dt 
 end 
 
+
+function isFemale(person::Person) 
+    person.gender == female
+end
+
+function isMale(person::Person) 
+    person.gender == male
+end 
+
 "home town of a person"
 function getHomeTown(person::Person)
     getHomeTown(person.pos) 
@@ -70,12 +79,53 @@ end
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
-    getProperty(getHomeTown(person),:name)
+    getHomeTown(person).name 
 end
 
-"set a new house to a person"
-function setHouse(person::Person,house::House)
+"set the father of a hild"
+function setFather!(child::Person,father::Person) 
+    @assert child.age < father.age 
+    child.father = father 
+    push!(father.childern,child)
+    nothing 
+end
+
+"set the mother of a child"
+function setMother!(child::Person,mother::Person) 
+    @assert child.age < mother.age 
+    child.mother = mother 
+    push!(mother.childern,child)
+    nothing 
+end
+
+
+function setPartner!(person1::Person,person2::Person)
+    if (isMale(person1) && isFemale(person2) || 
+        isFemale(person1) && isMale(person2)) 
+
+        # resolve previous partnership 
+        if person1.partner != nothing 
+            person1.partner.partner = nothing 
+        end 
+        if person2.partner != nothing 
+            person2.partner.partner = nothing 
+        end 
+
+        person1.partner = person2
+        person2.partner = person1
+        return nothing 
+    end 
+    throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
+end
+
+"associate a house to a person"
+function setHouse!(person::Person,house::House)
+    try 
+        deleteat!(person.pos.occupants, findfirst(x->x==person,person.pos.occupants))
+    catch 
+        throw(InvalidStateException("inconsistancy $person is not within $(person.pos.occupants)",:inconsistant))
+    end 
     person.pos = house
+    push!(house.occupants,person)
 end
-
 
