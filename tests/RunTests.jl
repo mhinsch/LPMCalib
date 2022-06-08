@@ -18,7 +18,7 @@ using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using Utilities: readArrayFromCSVFile, createTimeStampedFolder
+using Utilities: readArrayFromCSVFile, createTimeStampedFolder, subtract!
 
 using Global: Gender, male, female 
 
@@ -127,6 +127,15 @@ using Global: Gender, male, female
         @test !isempty(simfolder)                                       skip=false 
         @test isdir(simfolder)                                          skip=false 
         @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
+
+        param = Dict(:a=>1,:b=>[1,2],:c=>3.1,:s=>"msg") 
+        paramab = subtract!(param,[:a,:b]) 
+        @test issetequal(keys(paramab),[:a,:b])   
+        @test issetequal(keys(param),[:s,:c])          
+        @test_throws ArgumentError subtract!(param,[:c,:d])
+        parama  = paramab - [:a] 
+        @test issetequal(keys(parama),[:a]) 
+        @test issetequal(keys(paramab),[:b])
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin

@@ -3,8 +3,32 @@ Diverse useful functions
 """
 module Utilities
 
-    export createTimeStampedFolder, readFromCSVFile
+    export createTimeStampedFolder, readFromCSVFile, subtract! 
 
+    """
+       Subtract keys from a given dictionary
+       @argument dict : input dictionary 
+       @argument ks   : input keys
+       @throws  ArgumentError if a key in keys not available in dict  
+       @return a new dictionary with exactly the specified keys 
+    """ 
+    function subtract!(dict::Dict,ks::Vector{Symbol}) 
+        if  ks ⊈  keys(dict) 
+            throw(ArgumentError("$keys ⊈  $(keys(dict))")) 
+        end 
+        newdict = Dict{Symbol,Any}()  
+        for k in ks 
+            newdict[k] = dict[k] 
+            delete!(dict,k) 
+        end 
+        newdict 
+    end
+
+    "" 
+    subtract!(keys::Vector{Symbol},dict::Dict) = subtract!(dict,keys)
+
+    "" 
+    Base.:(-)(dict::Dict,keys::Vector{Symbol}) = subtract!(dict,keys) 
 
     "Read an array of values from CSV file name and return an array of values"
     function readArrayFromCSVFile(csvfname::String)
