@@ -54,7 +54,8 @@ using Global: Gender, male, female
         @test person3.id != person1.id                  # A new person is another person   
 
         # every agent should be assigned with a location        
-        @test person1.pos == house1        
+        @test person1.pos == house1   
+        @test person1 in house1.occupants     
 
         @test person1 === person2 
     end 
@@ -82,13 +83,7 @@ using Global: Gender, male, female
         @test person1.partner === person4
         @test person4.partner === person1 
 
-        setHouse!(person1,house2) # person1.pos = house2       
-        @test getHomeTown(person1) === aberdeen   
-        @test person1 in house2.occupants   
-        
-        setHouse!(house2,person4)
-        @test getHomeTown(person4) === aberdeen     
-
+        @test_throws InvalidStateException setPartner!(person3,person4)
     end 
 
     @testset verbose=true "Type House" begin
@@ -97,6 +92,17 @@ using Global: Gender, male, female
         @test house1.pos != nothing         
         @test getHomeTown(house1) === edinbrugh 
         @test getHouseLocation(house1) == (1,2)
+
+        setHouse!(person1,house2) # person1.pos = house2       
+        @test getHomeTown(person1) === aberdeen   
+        @test person1 in house2.occupants   
+        
+        setHouse!(house2,person4)
+        @test getHomeTown(person4) === aberdeen    
+
+        person1.pos = house1 
+        @test_throws InvalidStateException setHouse!(person1,house3)
+        person1.pos = house2
 
     end # House functionalities 
 
