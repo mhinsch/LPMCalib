@@ -64,11 +64,11 @@ function agestep!(person::Person;dt=1)
 end 
 
 
-function isFemale(person::AbstractPersonAgent) 
+function isFemale(person::Person) 
     person.gender == female
 end
 
-function isMale(person::AbstractPersonAgent) 
+function isMale(person::Person) 
     person.gender == male
 end 
 
@@ -115,19 +115,15 @@ function setPartner!(person1::Person,person2::Person)
         person2.partner = person1
         return nothing 
     end 
-    print("Undefined case + $person1 partnering with $person2")
-    throw(InvalidStateException)
+    throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
 end
 
 "associate a house to a person"
 function setHouse!(person::Person,house::House)
-    if !isempty(person.pos.occupants)
-        try 
-            deleteat!(person.pos.occupants, findfirst(x->x==person,person.pos.occupants))
-        catch 
-            print("inconsistancy $person is not within $(person.pos.occupants)")
-            throw(InvalidStateException)
-        end 
+    try 
+        deleteat!(person.pos.occupants, findfirst(x->x==person,person.pos.occupants))
+    catch 
+        throw(InvalidStateException("inconsistancy $person is not within $(person.pos.occupants)",:inconsistant))
     end 
     person.pos = house
     push!(house.occupants,person)
