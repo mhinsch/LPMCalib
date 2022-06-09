@@ -21,7 +21,7 @@ mutable struct Person <: AbstractPersonAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House     
-    age::Int             # <<<<<< Rational 
+    age::Rational 
     # birthYear::Int        
     # birthMonth::Int
     gender::Gender  
@@ -60,7 +60,7 @@ Person(;pos=undefinedHouse,age=0,
 
 
 "increment an age for a person to be used in typical stepping functions"
-function agestep!(person::Person;dt=1) 
+function agestep!(person::Person;dt=1//12) 
    # person += Rational(1,12) or GlobalVariable.DT
    person.age += dt 
 end 
