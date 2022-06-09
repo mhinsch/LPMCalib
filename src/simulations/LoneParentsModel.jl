@@ -10,7 +10,7 @@ module LoneParentsModel
     using SocialAgents: Person
     using SocialABMs: SocialABM, setproperty! 
     using SocialSimulations: SocialSimulation, setproperty!
-    using Utilities: readArrayFromCSVFile
+    using Utilities: read2DArray
 
 
     """
@@ -63,9 +63,9 @@ module LoneParentsModel
 
         # Data related to population growth 
         # vvv attachData(...)
-        setproperty!(population,:fert_data,readArrayFromCSVFile("simulations/lpm/data/babyrate.txt.csv"))
-        setproperty!(population,:death_female,readArrayFromCSVFile("deathrate.female.csv"))
-        setproperty!(population,:death_male,readArrayFromCSVFile("deathrate.male.csv"))
+        setproperty!(population,:fert_data,read2DArray("../data/babyrate.txt.csv"))
+        setproperty!(population,:death_female,read2DArray("../data/deathrate.fem.csv"))
+        setproperty!(population,:death_male,read2DArray("../data/deathrate.male.csv"))
 
         # Data related to population income 
         # addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
