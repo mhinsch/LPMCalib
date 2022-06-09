@@ -4,14 +4,14 @@ A type specifying special functionalities for elemantary Social ABMs,
 """
 
 export AbstractSocialABM
-export addproperty!
+export setproperty!
 
 "Social ABM to be enhanced with relevant functionlities"
 abstract type AbstractSocialABM <: AbstractABM end 
 
 
-"add a symbol property to a model"
-function addproperty!(model::AbstractSocialABM,property::Symbol,val)
+"set a symbol property to a model"
+function setproperty!(model::AbstractSocialABM,property::Symbol,val)
     if property in keys(model.properties)
         error("$(property) is already available")
     end 
