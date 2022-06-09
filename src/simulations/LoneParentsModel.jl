@@ -7,10 +7,10 @@ module LoneParentsModel
 
     export createPopulation, loadData!, setSimulationParameters
 
-    import SocialAgents: Person
-    import SocialABMs: SocialABM, setproperty! 
-    import SocialSimulations: SocialSimulation, setProperty!
-    import Utilities: readArrayFromCSVFile
+    using SocialAgents: Person
+    using SocialABMs: SocialABM, setproperty! 
+    using SocialSimulations: SocialSimulation, setproperty!
+    using Utilities: readArrayFromCSVFile
 
 
     """
