@@ -23,3 +23,5 @@ mutable struct MultiABM # <: AbstractSocialABM (to think about it)
              declare::Function) =  new(declare(properties),copy(properties))     
 end # MultiABM  
 
+### ^^^ attach stepfunction!
+

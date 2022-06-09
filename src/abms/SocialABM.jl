@@ -35,6 +35,7 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
              new(declare(properties),copy(properties))
              
     # ^^^ to add an argument for data with default value empty 
+
 end # AgentBasedModel  
 
-
+### ^^^ attach stepfunction!
