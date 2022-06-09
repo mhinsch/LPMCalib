@@ -30,7 +30,11 @@ module Utilities
     "" 
     Base.:(-)(dict::Dict,keys::Vector{Symbol}) = subtract!(dict,keys) 
 
-    "Read an array of values from CSV file name and return an array of values"
+    """ 
+       Read an array of values from CSV file name and return an array of values 
+       vvv
+       a way to read it as multidimensional array 
+    """
     function readArrayFromCSVFile(csvfname::String)
         # CSVfname should ends with *.csv 
         nothing 
