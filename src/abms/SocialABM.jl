@@ -21,6 +21,9 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     """ 
     properties
 
+    # data::Dict{Symbol}
+    #       
+
     # SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
 
     # SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
@@ -29,7 +32,9 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
 
     SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
         declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
-             new(declare(properties),copy(properties)) 
+             new(declare(properties),copy(properties))
+             
+    # ^^^ to add an argument for data with default value empty 
 end # AgentBasedModel  
 
 
