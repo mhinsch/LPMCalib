@@ -18,7 +18,7 @@ using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using Utilities: readArrayFromCSVFile, createTimeStampedFolder, subtract!
+using Utilities: read2DArray, createTimeStampedFolder, subtract!
 
 using Global: Gender, male, female 
 
@@ -124,10 +124,15 @@ using Global: Gender, male, female
 
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
-        @test !isempty(simfolder)                                       skip=false 
-        @test isdir(simfolder)                                          skip=false 
-        @test readArrayFromCSVFile("filename-todo.csv") != nothing      skip=false 
+        @test !isempty(simfolder)                            
+        @test isdir(simfolder)
 
+        # reading matrix from file 
+        T = read2DArray("../data/test23.csv")         
+        @test size(T) == (2,3)
+        @test  0.3434 - eps() < T[2,2] < .3434 + eps()
+
+        # dictionary subtraction 
         param = Dict(:a=>1,:b=>[1,2],:c=>3.1,:s=>"msg") 
         paramab = subtract!(param,[:a,:b]) 
         @test issetequal(keys(paramab),[:a,:b])   
