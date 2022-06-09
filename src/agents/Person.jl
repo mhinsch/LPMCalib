@@ -11,6 +11,8 @@ This file is included in the module SocialAgents
 
 Type Person extends from AbstractAgent.
 """ 
+
+# vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractPersonAgent
     id
     """
@@ -19,7 +21,7 @@ mutable struct Person <: AbstractPersonAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House     
-    age::Int             # Rational 
+    age::Int             # <<<<<< Rational 
     # birthYear::Int        
     # birthMonth::Int
     gender::Gender  
