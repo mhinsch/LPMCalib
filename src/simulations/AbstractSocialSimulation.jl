@@ -6,7 +6,7 @@ This file is included in SocialSimuilations module
 
 import Random 
 
-export run!, setProperty!
+export run!, setproperty!
 import SocialABMs: step!
 
 # At the moment no need for Abstract Social Simulation! 
@@ -19,7 +19,7 @@ dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
 "set property to a given vlaue"
-function setProperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
+function setproperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
     symbol in keys(sim.properties) ? 
          sim.properties[symbol] = val :  
             error("$(symbol) is not a key in $(sim.properties)")
