@@ -8,7 +8,7 @@ module LoneParentsModel
     export createPopulation, loadData!, setSimulationParameters
 
     import SocialAgents: Person
-    import SocialABMs: SocialABM, addproperty! 
+    import SocialABMs: SocialABM, setproperty! 
     import SocialSimulations: SocialSimulation, setProperty!
     import Utilities: readArrayFromCSVFile
 
@@ -62,9 +62,10 @@ module LoneParentsModel
         # ?? Brief descriptions of the numbers within the text file needed (not directly understandable in their pure format)
 
         # Data related to population growth 
-        addproperty!(population,:fert_data,readArrayFromCSVFile("simulations/lpm/data/babyrate.txt.csv"))
-        addproperty!(population,:death_female,readArrayFromCSVFile("deathrate.female.csv"))
-        addproperty!(population,:death_male,readArrayFromCSVFile("deathrate.male.csv"))
+        # vvv attachData(...)
+        setproperty!(population,:fert_data,readArrayFromCSVFile("simulations/lpm/data/babyrate.txt.csv"))
+        setproperty!(population,:death_female,readArrayFromCSVFile("deathrate.female.csv"))
+        setproperty!(population,:death_male,readArrayFromCSVFile("deathrate.male.csv"))
 
         # Data related to population income 
         # addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
