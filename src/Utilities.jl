@@ -3,7 +3,9 @@ Diverse useful functions
 """
 module Utilities
 
-    export createTimeStampedFolder, readFromCSVFile, subtract! 
+    using CSV, Tables     # for reading 2D matrices from a file
+
+    export createTimeStampedFolder, read2DArray, subtract! 
 
     """
        Subtract keys from a given dictionary
@@ -30,14 +32,9 @@ module Utilities
     "" 
     Base.:(-)(dict::Dict,keys::Vector{Symbol}) = subtract!(dict,keys) 
 
-    """ 
-       Read an array of values from CSV file name and return an array of values 
-       vvv
-       a way to read it as multidimensional array 
-    """
-    function readArrayFromCSVFile(csvfname::String)
-        # CSVfname should ends with *.csv 
-        nothing 
+    "Read and return a 2D array from a file without a header"
+    function read2DArray(fname::String)
+        CSV.File(fname,header=0) |> Tables.matrix
     end 
 
     # useful built-in functions: 
