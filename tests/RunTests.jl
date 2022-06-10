@@ -134,11 +134,11 @@ using Global: Gender, male, female
 
         # dictionary subtraction 
         param = Dict(:a=>1,:b=>[1,2],:c=>3.1,:s=>"msg") 
-        paramab = subtract!(param,[:a,:b]) 
+        paramab = subtract!([:a,:b],param) 
         @test issetequal(keys(paramab),[:a,:b])   
         @test issetequal(keys(param),[:s,:c])          
-        @test_throws ArgumentError subtract!(param,[:c,:d])
-        parama  = paramab - [:a] 
+        @test_throws ArgumentError subtract!([:c,:d],param)
+        parama  = [:a] - paramab
         @test issetequal(keys(parama),[:a]) 
         @test issetequal(keys(paramab),[:b])
     end

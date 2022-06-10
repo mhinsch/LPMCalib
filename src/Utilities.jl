@@ -14,23 +14,21 @@ module Utilities
        @throws  ArgumentError if a key in keys not available in dict  
        @return a new dictionary with exactly the specified keys 
     """ 
-    function subtract!(dict::Dict,ks::Vector{Symbol}) 
+
+    function  subtract!(ks::Vector{Symbol},dict::Dict) 
         if  ks ⊈  keys(dict) 
-            throw(ArgumentError("$keys ⊈  $(keys(dict))")) 
+            throw(ArgumentError("$ks ⊈  $(keys(dict))")) 
         end 
         newdict = Dict{Symbol,Any}()  
-        for k in ks 
-            newdict[k] = dict[k] 
-            delete!(dict,k) 
+        for key in ks 
+            newdict[key] = dict[key] 
+            delete!(dict,key) 
         end 
         newdict 
-    end
+    end 
 
     "" 
-    subtract!(keys::Vector{Symbol},dict::Dict) = subtract!(dict,keys)
-
-    "" 
-    Base.:(-)(dict::Dict,keys::Vector{Symbol}) = subtract!(dict,keys) 
+    Base.:(-)(ks::Vector{Symbol},dict::Dict) = subtract!(ks,dict) 
 
     "Read and return a 2D array from a file without a header"
     function read2DArray(fname::String)
