@@ -6,7 +6,7 @@
     for running a social simulation. 
 """ 
 
-export SocialABM
+export SocialABM, initial_connect!
 
 
 # dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
@@ -21,14 +21,8 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     """ 
     properties
 
-    # data::Dict{Symbol}
+    # >>> data::Dict{Symbol}
     #       
-
-    # SocialABM{AgentType}(properties::Dict{Symbol}) where AgentType <: AbstractAgent = new(AgentType[],copy(properties))
-
-    # SocialABM{AgentType}() where AgentType <: AbstractAgent = new(AgentType[],Dict())
-
-    # SocialABM{AgentType}(;declare::Function) where AgentType <: AbstractAgent = new(declare(),Dict()) 
 
     SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
         declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
@@ -39,3 +33,15 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
 end # AgentBasedModel  
 
 ### ^^^ attach stepfunction!
+
+
+"A dummy connection between arbitrary ABMs"
+dummyconnect(abm1::AbstractSocialABM,
+             abm2::AbstractSocialABM,
+             properties::Dict{Symbol}) = nothing
+
+ 
+"ensure symmetry"
+initial_connect!(abm2::SocialABM{T2},
+                 abm1::SocialABM{T1},
+                 properties::Dict{Symbol}) where {T1 <: AbstractSocialABM,T2 <: AbstractSocialABM} = initial_connect!(abm1,abm2,properties)
