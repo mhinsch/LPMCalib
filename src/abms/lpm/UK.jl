@@ -11,12 +11,14 @@
 
 using Random: shuffle 
 
-import Global: Gender, unknown, female, male
-import SocialAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
-import SocialABMs: SocialABM, add_agent!, allagents, nagents
-import Utilities:(-)
+using Global: Gender, unknown, female, male
+using SocialAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
+using SocialABMs: SocialABM, add_agent!, allagents, nagents 
+using SocialABMs: MultiABM
+using Utilities:(-)
+import SocialABMs: initial_connect!
 
-export createUKDemography # createUKTowns, createUKHouses 
+export createUKDemography, initial_connect!, initializeDemography!
 
 function createUKTowns(properties) 
 
@@ -184,14 +186,8 @@ function initial_connect!(abmpopulation::SocialABM{Person},abmhouses::SocialABM{
     length(randomhouses) > 0 ? error("random houses for occupation has length $(length(randomhouses)) > 0") : nothing 
 end 
 
-# TODO may be some generic function somewhere 
-# connection is symmetric 
-initial_connect!(abmhouses::SocialABM{House},abmpopulation::SocialABM{Person},properties) = initial_connect!(abmpopulation,abmhouses,properties) 
-
-
-
+"create UK demography"
 function createUKDemography(properties) 
-
     #TODO distribute properties among ambs and MABM  
     mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
     ukTowns  = SocialABM{Town}(mapProperties,
@@ -203,11 +199,18 @@ function createUKDemography(properties)
     # Consider an argument for data 
     ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
 
-    initial_connect!(ukHouses,ukTowns,properties)
-    initial_connect!(ukPopulation,ukHouses,properties)
-
     [ukTowns,ukHouses,ukPopulation]
 end 
 
+"Establish town houses and assign population to them"
+function  initializeDemography!(demography::MultiABM)
+    
+    ukTowns  = demography.abms[1]
+    ukHouses = demography.abms[2]
+    ukPopulation = demography.abms[3] 
+
+    initial_connect!(ukHouses,ukTowns,demography.properties)
+    initial_connect!(ukPopulation,ukHouses,demography.properties)
+end
 
 
