@@ -14,6 +14,7 @@ using Random: shuffle
 import Global: Gender, unknown, female, male
 import SocialAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
 import SocialABMs: SocialABM, add_agent!, allagents, nagents
+import Utilities:(-)
 
 export createUKDemography # createUKTowns, createUKHouses 
 
@@ -192,12 +193,15 @@ initial_connect!(abmhouses::SocialABM{House},abmpopulation::SocialABM{Person},pr
 function createUKDemography(properties) 
 
     #TODO distribute properties among ambs and MABM  
-
-    ukTowns  = SocialABM{Town}(properties,declare=createUKTowns) # TODO delevir only the requird properties and substract them 
+    mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
+    ukTowns  = SocialABM{Town}(mapProperties,
+                               declare=createUKTowns) # TODO delevir only the requird properties and substract them 
+    
     ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
     
+    populationProperties = [:initialPop,:minStartAge,:maxStartAge] - properties 
     # Consider an argument for data 
-    ukPopulation = SocialABM{Person}(properties, declare=createUKPopulation)
+    ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
 
     initial_connect!(ukHouses,ukTowns,properties)
     initial_connect!(ukPopulation,ukHouses,properties)
