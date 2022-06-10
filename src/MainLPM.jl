@@ -13,17 +13,16 @@ using SocialABMs: MultiABM
 using SocialABMs.LoneParentsModel: createUKDemography
 
 
+# Model parameters 
 ukmapParameters = loadUKMapParameters()
 ukpopParameters = loadUKPopulationParameters() 
 ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
 
-# simProperties = setSimulationParameters()
-
-# (uktowns,ukhouses,ukpopulation) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
-
+# Declaration and initialization of a MABM for a demography model of UK 
 ukDemography = MultiABM(ukDemographyParameters,
-                         declare=createUKDemography)
+                        declare=createUKDemography)
 
+# simProperties = setSimulationParameters()
 
 # lpmSimulation = SocialSimulation(createPopulation,simProperties)
 
