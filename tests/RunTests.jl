@@ -20,7 +20,7 @@ using Spaces: HouseLocation
 
 using Utilities: read2DArray, createTimeStampedFolder, subtract!
 
-using Global: Gender, male, female 
+using Global: Gender, male, female, unknown 
 
 @testset "Lone Parent Model Components Testing" begin 
 
@@ -36,10 +36,12 @@ using Global: Gender, male, female
     house3 = House(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
-    person1 = Person(house1,55,gender=male) 
+    person1 = Person(house1,25,gender=male) 
     person2 = person1               
-    person3 = Person(house2,25,gender=female) 
-    person4 = Person(house1,50,gender=female) 
+    person3 = Person(house2,35,gender=female) 
+    person4 = Person(house1,40,gender=female) 
+    person5 = Person(house3,55,gender=unknown)
+    person6 = Person(house1,55,gender=male) 
 
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
@@ -69,21 +71,23 @@ using Global: Gender, male, female
         @test isMale(person1)
         @test !isFemale(person1)
         
-        setFather!(person3,person1) 
-        @test person3 in person1.childern
-        @test person3.father === person1 
+        setFather!(person1,person6) 
+        @test person1 in person6.childern
+        @test person1.father === person6 
 
-        setParent!(person3,person4) 
-        @test person3.mother === person4
-        @test person3 in person4.childern 
-
-        @test_throws AssertionError setParent!(person4,person3)
+        setParent!(person2,person4) 
+        @test person2.mother === person4
+        @test person2 in person4.childern 
 
         setPartner!(person1,person4) 
         @test person1.partner === person4
         @test person4.partner === person1 
 
-        @test_throws InvalidStateException setPartner!(person3,person4)
+        @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
+
+        @test_throws InvalidStateException setParent!(person4,person5)  # unknown gender 
+        @test_throws ArgumentError setFather!(person4,person1)          # ages incompatibe / well they are also partners  
+        @test_throws ArgumentError setMother!(person2,person3)          # person 2 has a mother 
     end 
 
     @testset verbose=true "Type House" begin

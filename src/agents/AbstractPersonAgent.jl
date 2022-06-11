@@ -5,7 +5,7 @@
     the agent types House and Person  
 """
 
-import Global: Gender, unknown, female, male
+using Global: Gender, unknown, female, male
 
 export AbstractPersonAgent, isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
@@ -23,6 +23,7 @@ isMale(person::AbstractPersonAgent) = error("Not implemented")
 getHomeTown(person::AbstractPersonAgent) = error("Not implemented")
 "home town name of a person" 
 getHomeTownName(person::AbstractPersonAgent) = error("Not implemented") 
+
 # "set a new house to a person"
 # setHouse(person::AbstractPersonAgent,house::House) = error("Not implemented") 
 "set the father of child"
@@ -37,7 +38,7 @@ function setParent!(child::AbstractPersonAgent,parent::AbstractPersonAgent)
   elseif isMale(parent) 
     setFather!(child,parent)
   else
-    error("undefined case")
+    throw(InvalidStateException("undefined case",:undefined))
   end
 end 
 
