@@ -1,7 +1,7 @@
 """
 Implementation of a population as an ABM model 
 
-This file is included with SocialABMs module.
+This file is included with SocialABMs module. This file is subject to removal or modification
 """
 
 import SocialAgents: Person

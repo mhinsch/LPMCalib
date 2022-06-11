@@ -10,7 +10,7 @@ export setproperty!
 abstract type AbstractSocialABM <: AbstractABM end 
 
 
-"set a symbol property to a model"
+"set a symbol property to a model without overwriting"
 function setproperty!(model::AbstractSocialABM,property::Symbol,val)
     if property in keys(model.properties)
         error("$(property) is already available")

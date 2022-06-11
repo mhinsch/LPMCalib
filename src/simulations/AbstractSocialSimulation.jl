@@ -30,12 +30,6 @@ end
 "load data needed by the simulation"
 loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
 
-# "define and initialize an elemantry ABM"
-# initABMs!(simulation::AbstractSocialSimulation) = error("Not implemented") 
-
-# "Establish a Multi ABM from the elemantry ABMs"
-# function initMultiABMs end 
-
 """
 Run a simulation using stepping functions
     - agent_step_function()
