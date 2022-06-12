@@ -7,7 +7,7 @@ This file is included in SocialSimuilations module
 import Random 
 
 export run!, setproperty!
-import SocialABMs: step!
+using SocialABMs: step!
 
 # At the moment no need for Abstract Social Simulation! 
 abstract type AbstractSocialSimulation end 

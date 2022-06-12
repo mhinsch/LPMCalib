@@ -1,6 +1,6 @@
 export Town, undefinedTown
 
-import Spaces: TownLocation
+using Spaces: TownLocation
 
 """
 Specification of a Town agent type.

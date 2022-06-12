@@ -3,7 +3,7 @@ Definition of a social simulation type
 """ 
 
 export SocialSimulation 
-import SocialABMs: SocialABM
+using SocialABMs: SocialABM
 
 mutable struct SocialSimulation <: AbstractSocialSimulation  
     model::SocialABM
