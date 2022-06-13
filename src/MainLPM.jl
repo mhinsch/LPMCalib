@@ -6,7 +6,7 @@ under construction
 
 using SocialSimulations: SocialSimulation
 
-using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
+using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters, loadSimulationParameters
 
 # using SocialAgents: Town
 using SocialABMs: MultiABM
@@ -36,8 +36,7 @@ println(); println();
 println(); println(); 
 
 
-
-# simProperties = setSimulationParameters()
+simProperties = loadSimulationParameters()
 
 # lpmSimulation = SocialSimulation(createPopulation,simProperties)
 

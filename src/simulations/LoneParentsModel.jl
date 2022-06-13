@@ -5,7 +5,7 @@
 
 module LoneParentsModel
 
-    export createPopulation, loadData!, setSimulationParameters
+    export createPopulation, loadSimulationParameters
 
     using SocialAgents: Person
     using SocialABMs: SocialABM, setproperty! 
@@ -21,10 +21,11 @@ module LoneParentsModel
         
         @return dictionary of required simulation parameters 
     """
-    function setSimulationParameters() 
+    function loadSimulationParameters() 
         Dict(:numRepeats=>1,
-             :startYear=>1860,
-             :endYear=>2040,
+             :startTime=>1860,
+             :endTime=>2040,
+             :dt,1//12,
              :seed=> floor(Int,time()))
 
         #= multiprocessing params

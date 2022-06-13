@@ -152,7 +152,7 @@ using Global: Gender, male, female, unknown
         import  SocialSimulations: SocialSimulation
         import  SocialSimulations.LoneParentsModel as SimLPM  
 
-        simProperties = SimLPM.setSimulationParameters()
+        simProperties = SimLPM.loadSimulationParameters()
         lpmSimulation = SocialSimulation(SimLPM.createPopulation,simProperties)
 
         @test SimLPM.loadMetaParameters!(lpmSimulation) != nothing  skip=true
