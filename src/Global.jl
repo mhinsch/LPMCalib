@@ -13,7 +13,7 @@ module Global
     # list of global variables
 
     "whether the package Agents.jl shall be used" 
-    const USEAGENTSJL = false 
+    const USEAGENTSJL = false      # Still not employed / implemented 
 
     "Folder in which simulation results are stored"
     const SimulationFolderPrefix = "Simulations_Folder"

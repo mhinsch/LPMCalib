@@ -4,28 +4,35 @@ Main simulation of the lone parent model
 under construction 
 """
 
-import SocialSimulations: SocialSimulation
+using SocialSimulations: SocialSimulation
 
-import SocialSimulations.LoneParentsModel: createPopulation, loadData!, setSimulationParameters
+using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
 
-import SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters
-
-import SocialAgents: Town
-import SocialABMs: MultiABM, SocialABM
-import SocialABMs.LoneParentsModel: createUKDemography
+# using SocialAgents: Town
+using SocialABMs: MultiABM
+using SocialABMs.LoneParentsModel: createUKDemography, initializeDemography!
 
 
+# Model parameters 
 ukmapParameters = loadUKMapParameters()
 ukpopParameters = loadUKPopulationParameters() 
 ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
 
-# simProperties = setSimulationParameters()
-
-# (uktowns,ukhouses,ukpopulation) = createUKDemography(ukDemographyParameters) # = SocialABM{Town}(createUKDemography,ukmapProperties)
-
+# Declaration and initialization of a MABM for a demography model of UK 
 ukDemography = MultiABM(ukDemographyParameters,
-                         declare=createUKDemography)
+                        declare=createUKDemography,
+                        initialize=initializeDemography!)
 
+@show "Town Samples: \n"       ukDemography.abms[1].agentsList[1:10]
+println(); println(); 
+
+@show "Houses samples: \n"      ukDemography.abms[2]
+println(); println(); 
+
+@show "population samples : \n" ukDemography.abms[3].agentsList[1:10]
+
+
+# simProperties = setSimulationParameters()
 
 # lpmSimulation = SocialSimulation(createPopulation,simProperties)
 

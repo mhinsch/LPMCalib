@@ -16,7 +16,7 @@ julia> include("this_script.jl")
 using SocialSimulations: SocialSimulation, run! 
 using SocialABMs: SocialABM, dummystep, population_step!
 
-import SocialSimulations.Dummy: createPopulation, loadData!
+using SocialSimulations.Dummy: createPopulation, loadData!
 
 
 dummySimulation = SocialSimulation(createPopulation,
@@ -29,18 +29,5 @@ loadData!(dummySimulation)
 
 run!(dummySimulation,dummystep,population_step!)
  
-
-# This could return a list of elemantry ABMs (ABMsList) 
-# (towns,houses,population) =
-#    SocialDummySimulation.initDummyABMs() 
-
-# Create a MultiABM 
-# 
-# After a Multi ABM has been initialized run the simulation 
-# e.g.
-# createMultiABM(ABMsList) 
-# 
-
-# SocialDummySimulation.runDummyExample(population)
 
 

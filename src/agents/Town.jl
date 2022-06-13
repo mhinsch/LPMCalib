@@ -1,6 +1,6 @@
 export Town, undefinedTown
 
-import Spaces: TownLocation
+using Spaces: TownLocation
 
 """
 Specification of a Town agent type.
@@ -20,8 +20,8 @@ mutable struct Town <: AbstractSocialAgent
     # lha::Array{Float64,1}                 # local house allowance 
                                             #   a vector of size 4 each corresponding the number of bed rooms 
     density::Float64                        # relative population density w.r.t. the town with the highest density 
-    # houses::Array{LPMHouse,1}             # List of houses  (can be omitted to avoid circular dependence)  
 
+    ""
     function Town(pos::TownLocation,name::String,density) 
         global IDCOUNTER = IDCOUNTER + 1 
         new(IDCOUNTER,pos,name,density)

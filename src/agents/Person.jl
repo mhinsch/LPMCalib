@@ -11,6 +11,8 @@ This file is included in the module SocialAgents
 
 Type Person extends from AbstractAgent.
 """ 
+
+# vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractPersonAgent
     id
     """
@@ -19,7 +21,7 @@ mutable struct Person <: AbstractPersonAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House     
-    age::Int             # Rational 
+    age::Rational 
     # birthYear::Int        
     # birthMonth::Int
     gender::Gender  
@@ -58,7 +60,7 @@ Person(;pos=undefinedHouse,age=0,
 
 
 "increment an age for a person to be used in typical stepping functions"
-function agestep!(person::Person;dt=1) 
+function agestep!(person::Person;dt=1//12) 
    # person += Rational(1,12) or GlobalVariable.DT
    person.age += dt 
 end 
@@ -82,9 +84,11 @@ function getHomeTownName(person::Person)
     getHomeTown(person).name 
 end
 
-"set the father of a hild"
+"set the father of a child"
 function setFather!(child::Person,father::Person) 
-    @assert child.age < father.age 
+    child.age < father.age  ? nothing  : throw(ArgumentError("$(child.age) >= $(father.age)")) 
+    isMale(father) ?          nothing  : throw(ArgumentError("$(father) is not a male")) 
+    (child.father == nothing) ? father : throw(ArgumentError("$(child) has a father")) 
     child.father = father 
     push!(father.childern,child)
     nothing 
@@ -92,13 +96,15 @@ end
 
 "set the mother of a child"
 function setMother!(child::Person,mother::Person) 
-    @assert child.age < mother.age 
+    child.age < mother.age    ?  nothing : throw(ArgumentError("$(child.age) >= $(father.age)")) 
+    isFemale(mother)          ?  nothing : throw(ArgumentError("$(mother) is not a female")) 
+    (child.mother == nothing) ?  mother  : throw(ArgumentError("$(child) has a mother")) 
     child.mother = mother 
     push!(mother.childern,child)
     nothing 
 end
 
-
+"set two persons to be a partner"
 function setPartner!(person1::Person,person2::Person)
     if (isMale(person1) && isFemale(person2) || 
         isFemale(person1) && isMale(person2)) 

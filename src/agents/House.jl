@@ -2,7 +2,7 @@ export  House
 
 export getHomeTown, getHouseLocation, setHouse!
 
-import Spaces: HouseLocation
+using Spaces: HouseLocation
 
 
 """

@@ -1,20 +1,39 @@
 """
-Diverse useful functions 
+Diverse useful functions and types 
 """
 module Utilities
 
-    export createTimeStampedFolder, readFromCSVFile
+    using CSV, Tables     # for reading 2D matrices from a file
 
+    export createTimeStampedFolder, read2DArray, subtract! 
 
-    "Read an array of values from CSV file name and return an array of values"
-    function readArrayFromCSVFile(csvfname::String)
-        # CSVfname should ends with *.csv 
-        nothing 
+    """
+       Subtract keys from a given dictionary
+       @argument dict : input dictionary 
+       @argument ks   : input keys
+       @throws  ArgumentError if a key in keys not available in dict  
+       @return a new dictionary with exactly the specified keys 
+    """ 
+
+    function  subtract!(ks::Vector{Symbol},dict::Dict) 
+        if  ks ⊈  keys(dict) 
+            throw(ArgumentError("$ks ⊈  $(keys(dict))")) 
+        end 
+        newdict = Dict{Symbol,Any}()  
+        for key in ks 
+            newdict[key] = dict[key] 
+            delete!(dict,key) 
+        end 
+        newdict 
     end 
 
-    # useful built-in functions: 
-    # function ispath(str) check the existance of a file or a directory 
-    # isdir(str), isfile(str)
+    "" 
+    Base.:(-)(ks::Vector{Symbol},dict::Dict) = subtract!(ks,dict) 
+
+    "Read and return a 2D array from a file without a header"
+    function read2DArray(fname::String)
+        CSV.File(fname,header=0) |> Tables.matrix
+    end 
 
     "create a folder in which simulation results are stored"
     function createTimeStampedFolder() 
@@ -25,16 +44,4 @@ module Utilities
         # folder
         "" 
     end
-
-    # 
-    # reading and writing a file 
-    # try 
-    #   fin = fopen("input.txt",mode)
-    # catch exc
-    #   println("$exc")
-    # finally
-    #   close(fin)
-    # 
-    
-    # run(command)
 end 

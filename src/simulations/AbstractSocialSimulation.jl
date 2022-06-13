@@ -6,8 +6,8 @@ This file is included in SocialSimuilations module
 
 import Random 
 
-export run!, setProperty!
-import SocialABMs: step!
+export run!, setproperty!
+using SocialABMs: step!
 
 # At the moment no need for Abstract Social Simulation! 
 abstract type AbstractSocialSimulation end 
@@ -19,7 +19,7 @@ dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
 "set property to a given vlaue"
-function setProperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
+function setproperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
     symbol in keys(sim.properties) ? 
          sim.properties[symbol] = val :  
             error("$(symbol) is not a key in $(sim.properties)")
@@ -29,12 +29,6 @@ end
 
 "load data needed by the simulation"
 loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
-
-# "define and initialize an elemantry ABM"
-# initABMs!(simulation::AbstractSocialSimulation) = error("Not implemented") 
-
-# "Establish a Multi ABM from the elemantry ABMs"
-# function initMultiABMs end 
 
 """
 Run a simulation using stepping functions
