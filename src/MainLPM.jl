@@ -11,7 +11,7 @@ using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationP
 # using SocialAgents: Town
 using SocialABMs: MultiABM
 using SocialABMs.LoneParentsModel: createUKDemography, initializeDemography!
-
+using SocialAgents: show
 
 # Model parameters 
 ukmapParameters = loadUKMapParameters()
@@ -23,13 +23,18 @@ ukDemography = MultiABM(ukDemographyParameters,
                         declare=createUKDemography,
                         initialize=initializeDemography!)
 
-@show "Town Samples: \n"       ukDemography.abms[1].agentsList[1:10]
+@show "Town Samples: \n"     
+@show ukDemography.abms[1].agentsList[1:10]
 println(); println(); 
 
-@show "Houses samples: \n"      ukDemography.abms[2]
+@show "Houses samples: \n"      
+@show ukDemography.abms[2].agentsList[1:10]
 println(); println(); 
 
-@show "population samples : \n" ukDemography.abms[3].agentsList[1:10]
+@show "population samples : \n" 
+@show ukDemography.abms[3].agentsList[1:10]
+println(); println(); 
+
 
 
 # simProperties = setSimulationParameters()

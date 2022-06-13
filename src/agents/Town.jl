@@ -1,4 +1,5 @@
 export Town, undefinedTown
+# export show
 
 using Spaces: TownLocation
 
@@ -23,16 +24,26 @@ mutable struct Town <: AbstractSocialAgent
 
     ""
     function Town(pos::TownLocation,name::String,density) 
-        global IDCOUNTER = IDCOUNTER + 1 
+        global IDCOUNTER = IDCOUNTER + 1
         new(IDCOUNTER,pos,name,density)
     end 
 
 end  # Town 
 
+"costum show method for Town"
+function Base.show(io::IO,  town::Town) 
+    print(" Town $(town.id) ")  
+    isempty(town.name) ? nothing : print(" $(town.name) ")
+    print("@ $(town.pos)") 
+    println(" density: $(town.density)")
+end 
+
+# Base.show(io::IO, ::MIME"text/plain", town::Town) = Base.show(io,town)
+    
 Town(pos;name="",density=0.0) = Town(pos,name,density)
 
 const undefinedTown = Town((-1,-1),"",0.0)
-
+1
 
 
 

@@ -43,6 +43,22 @@ mutable struct Person <: AbstractPersonAgent
     end 
 end
 
+"costum @show method for Agent person"
+function Base.show(io::IO,  person::Person)
+    print("Person: $(person.id), $(person.age) years , $(person.gender)") 
+    person.pos     == undefinedHouse ? nothing : print(" @ House id : $(person.pos.id)") 
+    person.father  == nothing        ? nothing : print(" , father    : $(person.father.id)") 
+    person.mother  == nothing        ? nothing : print(" , mother    : $(person.mother.id)") 
+    person.partner == nothing        ? nothing : print(" , partner   : $(person.partner.id)") 
+    length(person.childern) == 0      ? nothing : print(" , childern  : ")
+    for child in person.childern
+        print(" $(child.id) ") 
+    end 
+    println() 
+end
+
+#Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
+
 "Constructor with default values"
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
@@ -134,4 +150,5 @@ function setHouse!(person::Person,house::House)
     person.pos = house
     push!(house.occupants,person)
 end
+
 
