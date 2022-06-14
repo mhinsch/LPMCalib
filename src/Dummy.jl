@@ -11,8 +11,7 @@ module Dummy
     using SocialABMs: SocialABM, add_agent!
     using SocialSimulations: SocialSimulation
 
-    export createPopulation, loadData!
-
+    export createPopulation
 
     "Establish a dummy population"
     function initPopulation(houses::Array{House,1})
@@ -75,8 +74,6 @@ module Dummy
         population
     end 
 
-
-    loadData!(simulation::SocialSimulation) = nothing  
 
 end # module Dummy
 

@@ -13,19 +13,17 @@ julia> include("this_script.jl")
 """ 
 
 
-using SocialSimulations: SocialSimulation, run! 
+using SocialSimulations: ABMSocialSimulation, run! 
 using SocialABMs: SocialABM, dummystep, population_step!
 
 using Dummy: createPopulation, loadData!
 
 
-dummySimulation = SocialSimulation(createPopulation,
+dummySimulation = ABMSocialSimulation(createPopulation,
                                    Dict(:startTime=>1990,
                                         :finishTime=>2030,
                                         :dt=>1,
                                         :seed=>floor(Int,time())))
-
-loadData!(dummySimulation)
 
 run!(dummySimulation,dummystep,population_step!)
  
