@@ -8,6 +8,7 @@ using SocialABMs: MultiABM
 using LoneParentsModel.Loaders:    loadUKMapParameters, loadUKPopulationParameters
 using LoneParentsModel.Declare:    createUKDemography 
 using LoneParentsModel.Initialize: initializeDemography!
+using LoneParentsModel.SimSetup:   loadSimulationParameters
 
 # Model parameters 
 
@@ -32,13 +33,13 @@ println(); println();
 @show "population samples : \n" 
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
+
+simProperties = loadSimulationParameters()
                         
 #=
 using SocialSimulations: SocialSimulation
 
 using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters, loadSimulationParameters
-
-simProperties = loadSimulationParameters()
 
 # lpmSimulation = SocialSimulation(createPopulation,simProperties)
 
