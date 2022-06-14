@@ -7,8 +7,5 @@ module SocialSimulations
 
     include("simulations/AbstractSocialSimulation.jl")
     include("simulations/SocialSimulation.jl")
-    
-    include("simulations/Dummy.jl")
-    include("simulations/LoneParentsModel.jl")
 
 end # Socialimulations 
