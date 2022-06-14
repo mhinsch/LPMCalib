@@ -11,3 +11,5 @@ mutable struct SocialSimulation <: AbstractSocialSimulation
     SocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties))
 end 
 
+# Simulation setup phasze 
+# attaching simulations ... 
