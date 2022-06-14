@@ -19,6 +19,20 @@ function setproperty!(model::AbstractSocialABM,property::Symbol,val)
 end 
 
 
+"A dummy connection between arbitrary ABMs"
+dummyconnect(abm1::AbstractSocialABM,
+             abm2::AbstractSocialABM,
+             properties::Dict{Symbol}) = nothing
+             
+# Simulation 
+# ... 
+# function attachAgentStepFunction!(::AbstractSocialABM,::Function) end
+# function attachModelStepFunction!(::AbstractSocialABM,::Function) end 
+# function attachFirstModelStepFunction! ... 
+# function attachLastModelStepFunction! ... 
+# ...
+
+
 #=
 It is thinkable to associate further attributes to SocialABMs s.a.
 
