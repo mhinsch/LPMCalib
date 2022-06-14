@@ -11,6 +11,4 @@ module SocialABMs
     
     include("./abms/SocialABM.jl")        
     include("./abms/Population.jl") 
-
-    include("./abms/LPMABMs.jl")
 end # Social ABMs

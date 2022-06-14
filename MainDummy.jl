@@ -16,7 +16,7 @@ julia> include("this_script.jl")
 using SocialSimulations: SocialSimulation, run! 
 using SocialABMs: SocialABM, dummystep, population_step!
 
-using SocialSimulations.Dummy: createPopulation, loadData!
+using Dummy: createPopulation, loadData!
 
 
 dummySimulation = SocialSimulation(createPopulation,

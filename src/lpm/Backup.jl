@@ -1,138 +1,12 @@
 #=
-A script file included in the module SocialSimulations.LoneParentModel 
 
-Main specification for meta and model parameters is specified here. 
-=#
+Unused code from translation phase subject to reuse 
 
+=# 
 
-#=============================================
-Simulation and model parameters initialization
-=#############################################
-
-# export createShifts! 
-
-function loadUKMapParameters()
-    mappars = Dict(:dummy=>any,:mapGridXDimension=>8)::Dict{Symbol,Any} 
-
-    # mappars[:mapGridXDimension] = 8
-    mappars[:mapGridYDimension] = 12    
-    mappars[:townGridDimension] = 25    
-
-        # Relative population density of UK.  A density of 1.0 corresponds to 
-    #   the cell with the highest density   
-   
-    mappars[:ukMap] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
-                       0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
-                       0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
-                       0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
-                       0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
-                       0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
-                       0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
-                       0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
-                       0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
-                       0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
-                       0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
-                       0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
-
-
-     #= not considered yet 
-    # ?? looks like deviation from the average 
-    meta[:ukClassBias] = [0.0  -0.05 -0.05 -0.05  0.0   0.0  0.0  0.0;
-                          -0.05 -0.05  0.0   0.0   0.0   0.0  0.0  0.0;
-                           0.0  -0.05 -0.05  0.0   0.0   0.0  0.0  0.0;
-                           0.0  -0.05 -0.05  0.05  0.0   0.0  0.0  0.0;
-                          -0.05  0.0  -0.05 -0.05  0.0   0.0  0.0  0.0;
-                          -0.05  0.0   0.0  -0.05 -0.05 -0.05 0.0  0.0;
-                           0.0   0.0   0.0  -0.05 -0.05 -0.05 0.0  0.0;
-                           0.0   0.0  -0.05 -0.05  0.0   0.0  0.0  0.0;
-                           0.0   0.0  -0.05  0.0  -0.05  0.0  0.0  0.0;
-                           0.0   0.0   0.0  -0.05  0.0   0.2  0.15 0.0;
-                           0.0   0.0   0.0   0.0   0.1   0.2  0.15 0.0;
-                           0.0   0.0   0.1   0.0   0.0   0.0  0.0  0.0] 
-    
-    #
-    # Local house allowances for houses with 1,2,3 and 4-bed room houses 
-    meta[:lha_1] = [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
-                     91.81  91.81  91.81  91.81  97.81  0.0    0.0    0.0;
-                     0.0    91.81  91.81  79.24  0.0    0.0    0.0    0.0;
-                     0.0    84.23  94.82  127.33 0.0    0.0    0.0    0.0;
-                     0.0    0.0    80.55  72.00  74.15  0.0    0.0    0.0;
-                     0.0    0.0    0.0    79.24  90.90  83.78  0.0    0.0;
-                     0.0    0.0    0.0    85.00  100.05 69.73  0.0    0.0;
-                     0.0    0.0    71.41  105.04 94.80  90.90  90.64  0.0;
-                     0.0    0.0    65.59  92.05  101.84 106.14 133.72 95.77;
-                     0.0    0.0    103.56 132.43 163.67 276.51 165.05 0.0;
-                     0.0    0.0    116.52 105.94 120.03 222.54 170.83 0.0;
-                     0.0    104.89 96.98  0.0    0.0    0.0    0.0    0.0]
-    
-    # ?? 
-    meta[:lha_2] = [0.0    110.72 110.72 110.72 0.0    0.0    0.0    0.0;
-                     110.72 110.72 110.72 110.72 133.48 0.0    0.0    0.0;
-                     0.0    110.72 110.72 103.85 0.0    0.0    0.0    0.0;
-                     0.0    103.85 120.03 154.28 0.0    0.0    0.0    0.0;
-                     0.0    0.0    97.81  92.05  87.45  0.0    0.0    0.0;
-                     0.0    0.0    0.0    92.05  103.56 97.81  0.0    0.0;
-                     0.0    0.0    0.0    113.92 122.36 86.30  0.0    0.0;
-                     0.0    0.0    91.43  123.58 107.11 108.26 115.58 0.0;
-                     0.0    0.0    86.00  117.37 127.62 134.00 153.79 120.02;
-                     0.0    0.0    126.92 160.73 192.48 320.74 204.35 0.0;
-                     0.0    0.0    141.24 136.93 161.07 280.60 210.17 0.0;
-                     0.0    132.32 122.36 0.0    0.0    0.0    0.0    0.0]
-    
-    # ??
-    meta[:lha_3] = [0.0    126.92 126.92 126.92 0.0    0.0    0.0    0.0;
-                     126.92 126.92 126.92 126.92 172.60 0.0    0.0    0.0;
-                     0.0    126.92 126.92 128.19 0.0    0.0    0.0    0.0;
-                     0.0    120.29 137.31 192.06 0.0    0.0    0.0    0.0;
-                     0.0    0.0    115.07 109.62 103.56 0.0    0.0    0.0;
-                     0.0    0.0    0.0    104.89 115.07 114.00 0.0    0.0;
-                     0.0    0.0    0.0    130.00 149.59 103.56 0.0    0.0;
-                     0.0    0.0    110.41 137.32 116.53 123.90 133.35 0.0;
-                     0.0    0.0    101.11 135.19 135.96 144.04 178.71 139.42;
-                     0.0    0.0    150.00 192.03 230.14 376.04 257.16 0.0;
-                     0.0    0.0    164.79 161.10 190.02 336.96 257.16 0.0;
-                     0.0    151.50 145.43 0.0    0.0    0.0    0.0    0.0]
-    
-    # ??
-    meta[:lha_4] = [0.0    160.38 160.38 160.38 0.0    0.0    0.0    0.0;
-                     160.38 160.38 160.38 160.38 228.99 0.0    0.0    0.0;
-                     0.0    160.38 160.38 189.07 0.0    0.0    0.0    0.0;
-                     0.0    180.00 212.21 276.92 0.0    0.0    0.0    0.0;
-                     0.0    0.0    158.90 142.61 138.08 0.0    0.0    0.0;
-                     0.0    0.0    0.0    134.02 149.59 149.59 0.0    0.0;
-                     0.0    0.0    0.0    150.00 195.62 132.33 0.0    0.0;
-                     0.0    0.0    133.32 186.47 156.00 156.05 168.05 0.0;
-                     0.0    0.0    126.58 173.09 173.41 192.75 238.38 184.11;
-                     0.0    0.0    190.38 257.09 299.18 442.42 331.81 0.0;
-                     0.0    0.0    218.63 200.09 242.40 429.53 322.15 0.0;
-                     0.0    185.29 182.45 0.0    0.0    0.0    0.0    0.0]
-    
-    =# 
-
-    mappars[:mapDensityModifier] = 0.6                          # for allocating houses in towns 
-
-    mappars
-end
-
-
-function loadUKPopulationParameters() 
-    # TODO this is going to change after identifying a better 
-    # data structure for parameters 
-    poppars = Dict(:dummy=>any,:initialPop=>500)  # Population parameters  
-
-    # a population of males to be randomly generated in the 
-    # range of minStartAge - maxStartAge
-    poppars[:minStartAge] = 24                  
-    poppars[:maxStartAge] = 45    
-
-    # TODO this parameter does not belong here. It is a simulation parameters
-    poppars[:startYear]   = 1860 
-
-    poppars 
-end
 
 function loadMetaParameters!(simulation::SocialSimulation) 
-       
+    
     meta = Dict()
 
     meta[:thePresent] = 2012
@@ -896,3 +770,381 @@ function createShifts!(simulation::SocialSimulation)
     nothing 
 
 end 
+
+
+#= 
+
+self.allPeople = []
+        self.livingPeople = []
+        for i in range(int(initial)/2):
+            ageMale = random.randint(minStartAge, maxStartAge)
+            ageFemale = ageMale - random.randint(-2,5)
+            if ( ageFemale < 24 ):
+                ageFemale = 24
+            birthYear = startYear - random.randint(minStartAge,maxStartAge)
+            classes = [0, 1, 2, 3, 4]
+            probClasses = [0.2, 0.35, 0.25, 0.15, 0.05]
+            classRank = np.random.choice(classes, p = probClasses)
+            
+            workingTime = 0
+            for i in range(int(ageMale)-int(workingAge[classRank])):
+                workingTime *= workDiscountingTime
+                workingTime += 1
+            
+            dKi = np.random.normal(0, wageVar)
+            initialWage = incomeInitialLevels[classRank]*math.exp(dKi)
+            dKf = np.random.normal(dKi, wageVar)
+            finalWage = incomeFinalLevels[classRank]*math.exp(dKf)
+            
+            c = np.math.log(initialWage/finalWage)
+            wage = finalWage*np.math.exp(c*np.math.exp(-1*incomeGrowthRate[classRank]*workingTime))
+            income = wage*weeklyHours
+            workExperience = workingTime
+            tenure = np.random.randint(50)
+            birthMonth = np.random.choice([x+1 for x in range(12)])
+            newMan = Person(None, None,
+                            birthYear, ageMale, 'male', None, None, classRank, classRank, wage, income, 0, initialWage, finalWage, workExperience, 'worker', True, tenure, birthMonth)
+            
+            workingTime = 0
+            for i in range(int(ageFemale)-int(workingAge[classRank])):
+                workingTime *= workDiscountingTime
+                workingTime += 1
+                
+            dKi = np.random.normal(0, wageVar)
+            initialWage = incomeInitialLevels[classRank]*math.exp(dKi)
+            dKf = np.random.normal(dKi, wageVar)
+            finalWage = incomeFinalLevels[classRank]*math.exp(dKf)
+            
+            c = np.math.log(initialWage/finalWage)
+            wage = finalWage*np.math.exp(c*np.math.exp(-1*incomeGrowthRate[classRank]*workingTime))
+            income = wage*weeklyHours
+            workExperience = workingTime
+            tenure = np.random.randint(50)
+            birthMonth = np.random.choice([x+1 for x in range(12)])
+            newWoman = Person(None, None,
+                              birthYear, ageFemale, 'female', None, None, classRank, classRank, wage, income, 0, initialWage, finalWage, workExperience, 'worker', True, tenure, birthMonth)
+
+            # newMan.status = 'independent adult'
+            # newWoman.status = 'independent adult'
+            
+            newMan.partner = newWoman
+            newWoman.partner = newMan
+            
+            self.allPeople.append(newMan)
+            self.livingPeople.append(newMan)
+            self.allPeople.append(newWoman)
+            self.livingPeople.append(newWoman)
+
+=# 
+
+
+function loadData!(simulation::SocialSimulation)
+    loadMetaParameters!(simulation)
+    loadModelParameters!(simulation)
+    initSimulationVariables(simulation)
+end 
+
+
+
+function doDeaths() end 
+function doAdoptions() end 
+function oneTransition_UCN() end
+function computeIncome() end 
+function updateWealthInd() end
+function jobMarket() end
+function computeAggregateSchedule() end 
+function startCareAllocation() end 
+function allocateWeeklyCare() end 
+function updateUnmetCare() end 
+function updateUnmetCareNeed() end 
+function doAgeTransition() end 
+function doSocialTransitions() end 
+function houseOwnership() end 
+function computeBenefits() end 
+function doBirths() end 
+function doDevorces() end 
+function doMarriages() end 
+function doMovingAround() end
+function selfPyramidUpdate() end
+function healthcareCost() end
+function doStats() end  
+
+end # Module LoneParentsModel
+
+#= 
+def doOneMonth(self, policyFolder, dataMapFolder, dataHouseholdFolder, year, month, period):
+    """Run one year of simulated time."""
+
+    ##print "Sim Year: ", self.year, "OH count:", len(self.map.occupiedHouses), "H count:", len(self.map.allHouses)
+    print 'Year: ' + str(year) + ' - Month: ' + str(month)
+    # self.checkHouseholds(0)
+    
+    startYear = time.time()
+    
+    print 'Tot population: ' + str(len(self.pop.livingPeople))
+    # print 'Doing fucntion 1...'
+    
+    self.computeClassShares()
+    
+    # print 'Doing doDeaths...'
+  
+    ###################   Do Deaths   #############################
+    
+    # self.checkIndependentAgents(0)
+  
+    self.doDeaths(policyFolder, month)
+    
+    # self.checkIndependentAgents(1)
+    
+    self.doAdoptions(policyFolder)
+    
+    # self.checkIndependentAgents(1)
+    
+    
+    ###################   Do Care Transitions   ##########################
+    
+    # self.doCareTransitions()
+    
+    # print 'Doing fucntion 4...'
+    
+    
+    self.doCareTransitions_UCN(policyFolder, month)
+    
+    # self.checkIndependentAgents(1.1)
+    
+
+    self.computeIncome(month)
+    
+    if month == 12:
+        self.computeIncomeQuintileShares()
+    
+    self.updateWealth_Ind()
+    
+    
+    # self.checkIncome(2)
+    
+    print 'Doing jobMarket...'
+    
+    self.jobMarket(year, month)
+    # Here, people change job, find a job if unemployed and lose a job if employed.
+    # The historical UK unemployment rate is the input.
+    # Unmeployement rates are adjusted for age and SES.
+    # Upon losing the job, a new unemplyed agent is assigned an 'unemployment duration' draw from the empirical distribution.
+    # Unemployment duration is also age and SES specific.
+    
+    self.computeAggregateSchedule()
+    
+    # print 'Doing fucntion 9...'
+    # self.checkIncome(3)
+    
+    
+    # self.computeTax()
+    
+
+    # print 'Doing startCareAllocation...'
+
+    self.startCareAllocation()
+    
+    if year >= self.p['careAllocationFromYear']:
+        
+        self.allocateWeeklyCare()
+        
+        # self.checkHouseholdsProvidingFormalCare()
+    
+    # print 'Doing fucntion 7...'
+    # self.checkIncome(5)
+    
+    
+    ##### Temporarily bypassing social care alloction
+    
+    ## self.allocateSocialCare_Ind()
+
+    # print 'Doing fucntion 8...'
+
+    self.updateUnmetCareNeed()
+    
+    self.doAgeTransitions(policyFolder, month)
+    
+    # self.checkIndependentAgents(1.2)
+    
+    
+    self.doSocialTransition(policyFolder, month)
+    
+    
+    # self.checkIndependentAgents(1.3)
+    
+    
+    # Each year
+    self.houseOwnership(year)
+    
+    
+    # Compute benefits.
+    # They increase the household income in the following period.
+    if self.p['withBenefits'] == True:
+        self.computeBenefits()
+    
+    # self.publicCareEntitlements()
+    
+    # print 'Doing fucntion 10...'
+    
+    # self.checkHouseholds(0)
+    
+    self.doBirths(policyFolder, month)
+    
+    # self.checkIndependentAgents(1.3)
+    # print 'Doing fucntion 11...'
+
+    
+    
+    
+    
+    # print 'Doing fucntion 12...'
+    
+    # self.updateWealth()
+    
+    
+  
+    # print 'Doing fucntion 13...'
+    
+    # self.doSocialTransition_TD()
+    
+    # self.checkIndependentAgents(2)
+    
+    # print 'Doing fucntion 14...'
+    
+    self.doDivorces(policyFolder, month)
+    
+    # self.checkIndependentAgents(3)
+    
+    self.doMarriages(policyFolder, month)
+    
+    
+    # self.checkIndependentAgents(4)
+    
+    # print 'Doing fucntion 16...'
+    print 'Doing doMovingAround...'
+    
+    self.doMovingAround(policyFolder)
+    
+    
+    # self.checkIndependentAgents(5)
+    
+    # print 'Doing householdRelocation...'
+    
+    # self.householdRelocation(policyFolder)
+    
+    
+    # print 'Doing fucntion 17...'
+    
+    self.pyramid.update(self.year, self.p['num5YearAgeClasses'], self.p['numCareLevels'],
+                        self.p['pixelsInPopPyramid'], self.pop.livingPeople)
+    
+    
+    # print 'Doing fucntion 18...'
+    
+    self.healthCareCost()
+    
+    self.doStats(policyFolder, dataMapFolder, dataHouseholdFolder, period)
+    
+    if (self.p['interactiveGraphics']):
+        self.updateCanvas()
+        
+    endYear = time.time()
+    
+    print 'Year execution time: ' + str(endYear - startYear)     # ?? Looks rather like month execution time?
+
+        
+    # print 'Did doStats'
+=# 
+
+#=
+def doDeaths(self, policyFolder, month):
+    
+preDeath = len(self.pop.livingPeople)
+
+deaths = [0, 0, 0, 0, 0]
+"""Consider the possibility of death for each person in the sim."""
+for person in self.pop.livingPeople:
+age = person.age
+
+####     Death process with histroical data  after 1950   ##################
+if self.year >= 1950:
+    if age > 109:
+        age = 109
+    if person.sex == 'male':
+        rawRate = self.death_male[age, self.year-1950]
+    if person.sex == 'female':
+        rawRate = self.death_female[age, self.year-1950]
+        
+    classPop = [x for x in self.pop.livingPeople if x.careNeedLevel == person.careNeedLevel]
+    
+    dieProb = self.deathProb(rawRate, person)
+    
+    person.lifeExpectancy = max(90-person.age, 3)
+    # dieProb = self.deathProb_UCN(rawRate, person, person.averageShareUnmetNeed, classPop)
+
+#############################################################################
+
+    if np.random.random() < dieProb and np.random.choice([x+1 for x in range(12)]) == month:
+        person.dead = True
+        person.deadYear = self.year
+        person.house.occupants.remove(person)
+        if len(person.house.occupants) == 0:
+            self.map.occupiedHouses.remove(person.house)
+            if (self.p['interactiveGraphics']):
+                self.canvas.itemconfig(person.house.icon, state='hidden')
+        if person.partner != None:
+            person.partner.partner = None
+        if person.house == self.displayHouse:
+            messageString = str(self.year) + ": #" + str(person.id) + " died aged " + str(age) + "." 
+            self.textUpdateList.append(messageString)
+            
+            with open(os.path.join(policyFolder, "Log.csv"), "a") as file:
+                writer = csv.writer(file, delimiter = ",", lineterminator='\r')
+                writer.writerow([self.year, messageString])
+    
+else: 
+    #######   Death process with made-up rates  ######################
+    babyDieProb = 0.0
+    if age < 1:
+        babyDieProb = self.p['babyDieProb']
+    if person.sex == 'male':
+        ageDieProb = (math.exp(age/self.p['maleAgeScaling']))*self.p['maleAgeDieProb'] 
+    else:
+        ageDieProb = (math.exp(age/self.p['femaleAgeScaling']))* self.p['femaleAgeDieProb']
+    rawRate = self.p['baseDieProb'] + babyDieProb + ageDieProb
+    
+    classPop = [x for x in self.pop.livingPeople if x.careNeedLevel == person.careNeedLevel]
+    
+    dieProb = self.deathProb(rawRate, person)
+    
+    person.lifeExpectancy = max(90-person.age, 5)
+    #### Temporarily by-passing the effect of unmet care need   ######
+    # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
+    
+    if np.random.random() < dieProb and np.random.choice([x+1 for x in range(12)]) == month:
+        person.dead = True
+        person.deadYear = self.year
+        deaths[person.classRank] += 1
+        person.house.occupants.remove(person)
+        if len(person.house.occupants) == 0:
+            self.map.occupiedHouses.remove(person.house)
+            if (self.p['interactiveGraphics']):
+                self.canvas.itemconfig(person.house.icon, state='hidden')
+        if person.partner != None:
+            person.partner.partner = None
+        if person.house == self.displayHouse:
+            messageString = str(self.year) + ": #" + str(person.id) + " died aged " + str(age) + "." 
+            self.textUpdateList.append(messageString)
+            
+            with open(os.path.join(policyFolder, "Log.csv"), "a") as file:
+                writer = csv.writer(file, delimiter = ",", lineterminator='\r')
+                writer.writerow([self.year, messageString])
+            
+      
+self.pop.livingPeople[:] = [x for x in self.pop.livingPeople if x.dead == False]
+
+postDeath = len(self.pop.livingPeople)
+
+print('the number of deaths is: ' + str(preDeath - postDeath))      
+=# 

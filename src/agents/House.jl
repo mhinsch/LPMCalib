@@ -25,10 +25,6 @@ mutable struct House <: AbstractSocialAgent
     
 end # House 
 
-#=
-House(pos;size="",occupants=[]) = House(pos,size)
-House(town::Town,locationInTown::HouseLocation;size="",occupants=[]) = House((town,locationInTown),size,occupants=[])
-=# 
 House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
 
 const undefinedHouse = House(undefinedTown,(-1,-1))
@@ -56,3 +52,13 @@ setHouse!(person::AbstractPersonAgent,house::House)  = error("Not implemented")
 setHouse!(house::House,person::AbstractPersonAgent)  = setHouse!(person,house)
 
 
+"Costum print function for agents"
+function Base.show(io::IO, house::House)
+    townName = getHomeTownName(house)
+    print("House $(house.id) @ town $(townName) @ $(house.pos[2])")
+    length(house.occupants) == 0 ? nothing : print(" occupants: ") 
+    for person in house.occupants
+        print(" $(person.id) ")
+    end
+    println() 
+end 
