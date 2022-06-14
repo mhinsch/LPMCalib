@@ -24,12 +24,6 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     # >>> data::Dict{Symbol}
     #       
 
-    # 
-    # model_pre_step::Function  # or ::Vector{Function}
-    # agent_step::Function      # 
-    # model_post_step::Function # 
-    #
-
     SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
         declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
              new(declare(properties),copy(properties))

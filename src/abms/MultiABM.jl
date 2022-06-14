@@ -18,12 +18,6 @@ mutable struct MultiABM   <: AbstractMABM
     "Dictionary of model properties"
     properties::Dict{Symbol}
 
-
-    # 
-    # model_pre_step::Function  # or ::Vector{Function}
-    # model_post_step::Function # 
-    #
-    
     """
     Cor expecting a declaration function that declares 
         a list of elemantary ABMs together with
