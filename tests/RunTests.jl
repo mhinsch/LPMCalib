@@ -149,15 +149,20 @@ using Global: Gender, male, female, unknown
 
     @testset verbose=true "Lone Parent Model Simulation" begin
 
-        import  SocialSimulations: SocialSimulation
-        import  SocialSimulations.LoneParentsModel as SimLPM  
+        #= 
 
-        simProperties = SimLPM.loadSimulationParameters()
-        lpmSimulation = SocialSimulation(SimLPM.createPopulation,simProperties)
+        To re-implement 
+        
+        using  SocialSimulations: SocialSimulation
+       
 
-        @test SimLPM.loadMetaParameters!(lpmSimulation) != nothing  skip=true
-        @test SimLPM.loadModelParameters!(lpmSimulation) != nothing skip=false
-        @test SimLPM.createShifts!(lpmSimulation) != nothing        skip=false 
+        simProperties = LoneParentsModel.loadSimulationParameters()
+        lpmSimulation = SocialSimulation(LoneParentsModel.createPopulation,simProperties)
+
+        @test LoneParentsModel.loadMetaParameters!(lpmSimulation) != nothing  skip=true
+        @test LoneParentsModel.loadModelParameters!(lpmSimulation) != nothing skip=false
+        @test LoneParentsModel.createShifts!(lpmSimulation) != nothing        skip=false 
+        =# 
 
     end 
 
