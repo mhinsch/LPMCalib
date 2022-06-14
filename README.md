@@ -9,6 +9,7 @@ An initial implementation of an ABM aiming at a social and child care simulation
 - **V0.2** (30-05-2022): improved unification potentials with Agents.jl, improved agents subtypes, SocialABM with a constructor with an argument as a declare function, First realization of a multiABM concept, Initialization of the demography model
   - V0.2.1: unnecessary code removed, additional functionalities, exception handling, Unit testing (Person & House)
   - V0.2.2: Distributing properties among smaller ABMs, Separation between declaration and initialisation, utilisation of built-in exceptions, Agent person tuning + unit tests
+  - v0.2.3: re-structure of examples, improved printing 
 
 
 ### Source code structure 
