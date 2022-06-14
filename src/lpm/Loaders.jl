@@ -126,48 +126,5 @@ end
 
 
 
-"""
-set simulation paramters @return dictionary of symbols to values
-
-All information needed by the generic SocialSimulations.run! function
-is provided here
-
-@return dictionary of required simulation parameters 
-"""
-function loadSimulationParameters() 
-Dict(:numRepeats=>1,
-     :startTime=>1860,
-     :endTime=>2040,
-     :dt=>1//12,
-     :seed=> floor(Int,time()))
-
-#= multiprocessing params
-meta["multiprocessing"] = false
-meta["numberProcessors"] = 10
-meta["debuggingMode"] = true
-=# 
-
-#= Graphical interface details
-meta["interactiveGraphics"] = false
-meta["delayTime"] = 0.0
-meta["screenWidth"] = 1300
-meta["screenHeight"] = 700
-meta["bgColour"] = "black"
-meta["mainFont"] = "Helvetica 18"
-meta["fontColour"] = "white"
-meta["dateX"] = 70
-meta["dateY"] = 20
-meta["popX"] = 70
-meta["popY"] = 50
-meta["pixelsInPopPyramid"] = 2000
-meta["careLevelColour"] = ["blue","green","yellow","orange","red"]
-# ?? number of colors = number of house classes x 2
-meta["houseSizeColour"] = ["blue","green","yellow","orange","red", "lightgrey"]
-meta["pixelsPerTown"] = 56
-meta["maxTextUpdateList"] = 22
-=# 
-end 
-
-
 
 end # Loaders 
