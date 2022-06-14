@@ -25,7 +25,7 @@ module LoneParentsModel
         Dict(:numRepeats=>1,
              :startTime=>1860,
              :endTime=>2040,
-             :dt,1//12,
+             :dt=>1//12,
              :seed=> floor(Int,time()))
 
         #= multiprocessing params
