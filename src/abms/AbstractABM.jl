@@ -99,6 +99,9 @@ function dummystep(agent::AbstractAgent,model::AbstractABM)
     nothing 
 end 
 
+"default dummy model stepping function"
+dummystep(::AbstractABM) = nothing 
+
 """
 Stepping function for a model of type AgentBasedModel with 
     agent_step!(agentObj,modelObj::AgentBasedModel) 
