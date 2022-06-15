@@ -10,9 +10,9 @@ export population_step!
 
 
 "Step function for the population"
-function population_step!(population::SocialABM{Person})
+function population_step!(population::SocialABM{Person};dt=1//12)
     for agent in population.agentsList
-        agestep!(agent;dt=1//12)
+        agestep!(agent,dt=dt)
     end
 end 
 
