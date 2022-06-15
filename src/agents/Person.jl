@@ -1,6 +1,7 @@
 export Person, setHouse!
 
 using Spaces: GridSpace
+using Utilities: age2yearsmonths
 
 
 
@@ -45,7 +46,8 @@ end
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
-    print("Person: $(person.id), $(person.age) years , $(person.gender)") 
+    years , months = age2yearsmonths(person.age)
+    print("Person: $(person.id), $(years) years & $(months) months, $(person.gender)") 
     person.pos     == undefinedHouse ? nothing : print(" @ House id : $(person.pos.id)") 
     person.father  == nothing        ? nothing : print(" , father    : $(person.father.id)") 
     person.mother  == nothing        ? nothing : print(" , mother    : $(person.mother.id)") 
