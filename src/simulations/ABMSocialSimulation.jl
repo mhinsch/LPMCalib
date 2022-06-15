@@ -4,20 +4,21 @@ Definition of a social simulation type. It resembles Agents.jl
 
 export ABMSocialSimulation 
 using SocialABMs: AbstractSocialABM
+using SocialABMs: dummystep
 
 mutable struct ABMSocialSimulation <: AbstractSocialSimulation  
     model::AbstractSocialABM
     properties::Dict{Symbol,Any} 
     
     # pre_model_step::Function 
-    # agent_step::Function       # agent_step::Vector{Function}
-    # model_step::Function 
+    agent_step::Function       # agent_step::Vector{Function}
+    model_step::Function 
 
     #=
     ABMSocialSimulation(model::AbstractSocialABM,properties::Dict{Symbol})
         = new(model,properties)
     =# 
-    ABMSocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties))
+    ABMSocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties),dummystep,dummystep)
 end 
 
 # default cors .
