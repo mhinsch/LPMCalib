@@ -21,6 +21,9 @@ mutable struct ABMSocialSimulation <: AbstractABMSimulation
         setup!(abmsimulation,example)
         abmsimulation 
     end 
+
+    ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
+                        agent_step=dummystep,model_step=dummystep) = new(abm,properties,agent_step,dummy_step)
 end 
 
 # default cors .
