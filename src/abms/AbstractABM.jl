@@ -11,7 +11,7 @@ abstract type AbstractABM end
 
 export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
-
+export step!, run!, dummystep 
 
 
 #========================================
@@ -96,3 +96,70 @@ Other potential functions
 
 genocide(model::ABM): kill all agents 
 =# 
+
+#===========================
+General stepping functions / imitating Agents.jl 
+=###########################
+
+"dummy stepping function for arbitrary agents"
+dummystep(agent::AbstractAgent,model::AbstractABM) = nothing 
+ 
+"default dummy model stepping function"
+dummystep(::AbstractABM) = nothing 
+
+"""
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+    agents_first : agent_step! executed first before model_step
+"""
+function step!(
+    model::AbstractABM,
+    agent_step!,
+    n::Int=1
+)
+    
+    for i in range(1,n)
+        for agent in model.agentsList
+            agent_step!(agent,model) 
+        end
+    end 
+
+end
+
+
+"""
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+    agents_first : agent_step! executed first before model_step
+"""
+function step!(
+    model::AbstractABM, 
+    agent_step!,
+    model_step!,  
+    n::Int=1,
+    agents_first::Bool=true 
+)  
+    
+    for i in range(1,n)
+        
+        if agents_first 
+            for agent in model.agentsList
+                agent_step!(agent,model) 
+            end
+        end
+    
+        model_step!(model)
+    
+        if !agents_first
+            for agent in model.agentsList
+                agent_step!(agent,model)
+            end
+        end
+    
+    end
+
+end # step! 
