@@ -15,6 +15,8 @@
     end 
 """
 
+export AbstractExample, DummyExample
+
 "A super type for all simulation examples"
 abstract type AbstractExample end 
 
