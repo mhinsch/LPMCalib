@@ -9,6 +9,8 @@ using Random
 export run!, attach_model_step!, attach_agent_step!
 using SocialABMs: step!
 
+
+
 # At the moment no need for Abstract Social Simulation! 
 abstract type AbstractSocialSimulation end 
 
@@ -18,22 +20,25 @@ finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
+"Abstract type for ABMs" 
+abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
 
 # "setup the simulation stepping functions"
-function setup!(::AbstractSocialSimulation) end 
+setup!(::AbstractABMSimulation;
+       example::AbstractExample=DummyExample()) = error("simulation setup not implemented") 
 
 # attaching a stepping function is done via a function call, 
 # since data structure is subject to change, e.g. Vector{Function}
 
 "attach an agent step function to the simulation"
-function attach_agent_step!(simulation::AbstractSocialSimulation,
+function attach_agent_step!(simulation::AbstractABMSimulation,
                             agent_step::Function) 
     simulation.agent_step = agent_step             
     nothing           
 end  
 
 "attach a model step function to the simualtion"
-function attach_model_step!(simulation::AbstractSocialSimulation,
+function attach_model_step!(simulation::AbstractABMSimulation,
                             model_step::Function) 
     simulation.model_step = model_step 
     nothing

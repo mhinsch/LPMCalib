@@ -6,7 +6,7 @@ export ABMSocialSimulation
 using SocialABMs: AbstractSocialABM
 using SocialABMs: dummystep
 
-mutable struct ABMSocialSimulation <: AbstractSocialSimulation  
+mutable struct ABMSocialSimulation <: AbstractABMSimulation  
     model::AbstractSocialABM
     properties::Dict{Symbol,Any} 
     
@@ -14,11 +14,13 @@ mutable struct ABMSocialSimulation <: AbstractSocialSimulation
     agent_step::Function       # agent_step::Vector{Function}
     model_step::Function 
 
-    #=
-    ABMSocialSimulation(model::AbstractSocialABM,properties::Dict{Symbol})
-        = new(model,properties)
-    =# 
-    ABMSocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties),dummystep,dummystep)
+    # ABMSocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties),dummystep,dummystep)
+    function ABMSocialSimulation(createABM::Function,properties::Dict{Symbol};
+                                 example=DummyExample()) 
+        abmsimulation = new(createABM(),copy(properties),dummystep,dummystep)
+        setup!(abmsimulation,example)
+        abmsimulation 
+    end 
 end 
 
 # default cors .
