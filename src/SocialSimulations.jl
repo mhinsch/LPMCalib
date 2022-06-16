@@ -7,6 +7,7 @@ module SocialSimulations
 
     include("simulations/AbstractExample.jl")
     include("simulations/AbstractSocialSimulation.jl")
+    include("simulations/AbstractABMSimulation.jl")
     include("simulations/ABMSocialSimulation.jl")
     include("simulations/MABMSimulation.jl") 
 

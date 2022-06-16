@@ -5,10 +5,11 @@ This file is included in SocialSimuilations module
 """
 
 using Random
+using SocialAgents: AbstractAgent 
+using SocialABMs:   AbstractABM 
 
-export run!, attach_model_step!, attach_agent_step!
-using SocialABMs: step!
-
+export step!, dummystep, run!  
+export attach_model_step!, attach_agent_step!
 
 
 # At the moment no need for Abstract Social Simulation! 
@@ -20,31 +21,79 @@ finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
-"Abstract type for ABMs" 
-abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
+#===========================
+General stepping functions / imitating Agents.jl 
+=###########################
 
-# "setup the simulation stepping functions"
-setup!(::AbstractABMSimulation;
-       example::AbstractExample=DummyExample()) = error("simulation setup not implemented") 
+"dummy stepping function for arbitrary agents"
+dummystep(agent::AbstractAgent,model::AbstractABM) = nothing 
+ 
+"default dummy model stepping function"
+dummystep(::AbstractABM) = nothing 
 
-# attaching a stepping function is done via a function call, 
-# since data structure is subject to change, e.g. Vector{Function}
+"""
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+    agents_first : agent_step! executed first before model_step
+"""
+function step!(
+    model::AbstractABM,
+    agent_step!,
+    n::Int=1
+)
+    
+    for i in range(1,n)
+        for agent in model.agentsList
+            agent_step!(agent,model) 
+        end
+    end 
 
-"attach an agent step function to the simulation"
-function attach_agent_step!(simulation::AbstractABMSimulation,
-                            agent_step::Function) 
-    simulation.agent_step = agent_step             
-    nothing           
-end  
+end
 
-"attach a model step function to the simualtion"
-function attach_model_step!(simulation::AbstractABMSimulation,
-                            model_step::Function) 
-    simulation.model_step = model_step 
-    nothing
-end 
 
-#= 
+"""
+Stepping function for a model of type AgentBasedModel with 
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+    agents_first : agent_step! executed first before model_step
+"""
+function step!(
+    model::AbstractABM, 
+    agent_step!,
+    model_step!,  
+    n::Int=1,
+    agents_first::Bool=true 
+)  
+    
+    for i in range(1,n)
+        
+        if agents_first 
+            for agent in model.agentsList
+                agent_step!(agent,model) 
+            end
+        end
+    
+        model_step!(model)
+    
+        if !agents_first
+            for agent in model.agentsList
+                agent_step!(agent,model)
+            end
+        end
+    
+    end
+
+end # step! 
+
+# Other versions of the above function
+#    model_step! is omitted 
+#    n(model,s)::Function 
+#    agent_step! function can be a dummystep 
+
+ 
 """
 Run a simulation using stepping functions
     - agent_step_function()
@@ -61,19 +110,4 @@ function run!(simulation::AbstractSocialSimulation,
     end 
 
 end 
-=# 
-
-
-
-"""
-Run a simulation
-"""
-function run!(simulation::AbstractSocialSimulation) 
-
-    Random.seed!(seed(simulation))
-
-    for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
-        step!(model(simulation),simulation.agent_step,simulation.model_step)
-    end 
-
-end 
+ 
