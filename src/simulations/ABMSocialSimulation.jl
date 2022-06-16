@@ -4,6 +4,7 @@ Definition of a social simulation type. It resembles Agents.jl
 
 export ABMSocialSimulation 
 using SocialABMs: AbstractSocialABM
+using SocialABMs: dummystep
 
 mutable struct ABMSocialSimulation <: AbstractABMSimulation  
     model::AbstractSocialABM
@@ -22,7 +23,7 @@ mutable struct ABMSocialSimulation <: AbstractABMSimulation
     end 
 
     ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
-                        agent_step=dummystep,model_step=dummystep) = new(abm,properties,agent_step,dummy_step)
+                        agent_step=dummystep,model_step=dummystep) = new(abm,properties,agent_step,model_step)
 end 
 
 # default cors .
