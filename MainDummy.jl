@@ -13,10 +13,11 @@ julia> include("this_script.jl")
 """ 
 
 
-using  SocialABMs: SocialABM, dummystep, population_step!
+using  SocialABMs: SocialABM, population_step!
 using  SocialSimulations: DummyExample
-using  SocialSimulations: ABMSocialSimulation, run!, attach_model_step! 
-import SocialSimulations: setup! 
+using  SocialSimulations: ABMSocialSimulation
+using  SocialSimulations: dummystep, run!, attach_model_step! 
+import SocialSimulations: setup!
 using Dummy: createPopulation # , loadData!
 
 

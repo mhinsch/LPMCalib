@@ -4,7 +4,6 @@ Definition of a social simulation type. It resembles Agents.jl
 
 export ABMSocialSimulation 
 using SocialABMs: AbstractSocialABM
-using SocialABMs: dummystep
 
 mutable struct ABMSocialSimulation <: AbstractABMSimulation  
     model::AbstractSocialABM
