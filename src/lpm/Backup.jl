@@ -869,7 +869,6 @@ function selfPyramidUpdate() end
 function healthcareCost() end
 function doStats() end  
 
-end # Module LoneParentsModel
 
 #= 
 def doOneMonth(self, policyFolder, dataMapFolder, dataHouseholdFolder, year, month, period):
