@@ -4,9 +4,9 @@ Main specification of a Social Simulation type
 This file is included in SocialSimuilations module
 """
 
-import Random 
+using Random
 
-export run!, setproperty!
+export run!, attach_model_step!, attach_agent_step!
 using SocialABMs: step!
 
 # At the moment no need for Abstract Social Simulation! 
@@ -18,18 +18,28 @@ finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
-"set property to a given vlaue"
-function setproperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
-    symbol in keys(sim.properties) ? 
-         sim.properties[symbol] = val :  
-            error("$(symbol) is not a key in $(sim.properties)")
+
+# "setup the simulation stepping functions"
+function setup!(::AbstractSocialSimulation) end 
+
+# attaching a stepping function is done via a function call, 
+# since data structure is subject to change, e.g. Vector{Function}
+
+"attach an agent step function to the simulation"
+function attach_agent_step!(simulation::AbstractSocialSimulation,
+                            agent_step::Function) 
+    simulation.agent_step = agent_step             
+    nothing           
+end  
+
+"attach a model step function to the simualtion"
+function attach_model_step!(simulation::AbstractSocialSimulation,
+                            model_step::Function) 
+    simulation.model_step = model_step 
     nothing
-end
+end 
 
-
-"load data needed by the simulation"
-loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
-
+#= 
 """
 Run a simulation using stepping functions
     - agent_step_function()
@@ -43,10 +53,22 @@ function run!(simulation::AbstractSocialSimulation,
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
         step!(model(simulation),agent_step_function,model_step_function)
-        # Outputing result to be improved later by using agents.jl 
-        print("\n\nsample after step: $(simulation_step) :\n")
-        print("======================================== \n\n") 
-        @show model(simulation).agentsList[1:10]
+    end 
+
+end 
+=# 
+
+
+
+"""
+Run a simulation
+"""
+function run!(simulation::AbstractSocialSimulation) 
+
+    Random.seed!(seed(simulation))
+
+    for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
+        step!(model(simulation),simulation.agent_step,simulation.model_step)
     end 
 
 end 

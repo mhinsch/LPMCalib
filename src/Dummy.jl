@@ -9,10 +9,8 @@ module Dummy
     using SocialAgents: Town, House, Person
     using SocialAgents: setParent!, setMother!, setPartner! 
     using SocialABMs: SocialABM, add_agent!
-    using SocialSimulations: SocialSimulation
 
-    export createPopulation, loadData!
-
+    export createPopulation
 
     "Establish a dummy population"
     function initPopulation(houses::Array{House,1})
@@ -20,10 +18,10 @@ module Dummy
         population = SocialABM{Person}()
 
         for house in houses
-            mother   = Person(house,rand(25:55),gender=female)
-            father   = Person(house,rand(30:55),gender=male)
-            son      = Person(house,rand(1:15), gender=male)
-            daughter = Person(house,rand(1:15), gender=female)
+            mother   = Person(house,rand(25:55) + rand(0:11) // 12 , gender=female)
+            father   = Person(house,rand(30:55) + rand(0:11) // 12 , gender=male)
+            son      = Person(house,rand(1:15)  + rand(0:11) // 12 , gender=male)
+            daughter = Person(house,rand(1:15)  + rand(0:11) // 12 , gender=female)
     
             setPartner!(mother,father) 
 
@@ -75,8 +73,6 @@ module Dummy
         population
     end 
 
-
-    loadData!(simulation::SocialSimulation) = nothing  
 
 end # module Dummy
 

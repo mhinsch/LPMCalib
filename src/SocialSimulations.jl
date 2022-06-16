@@ -6,6 +6,6 @@ Generic interface specifying main functions for
 module SocialSimulations
 
     include("simulations/AbstractSocialSimulation.jl")
-    include("simulations/SocialSimulation.jl")
+    include("simulations/ABMSocialSimulation.jl")
 
 end # Socialimulations 
