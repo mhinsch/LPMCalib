@@ -14,16 +14,19 @@ mutable struct ABMSocialSimulation <: AbstractABMSimulation
     agent_step::Function       # agent_step::Vector{Function}
     model_step::Function 
 
-    # ABMSocialSimulation(createABM::Function,properties::Dict{Symbol}) = new(createABM(),copy(properties),dummystep,dummystep)
-    function ABMSocialSimulation(createABM::Function,properties::Dict{Symbol};
-                                 example=DummyExample()) 
-        abmsimulation = new(createABM(),copy(properties),dummystep,dummystep)
+    function ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
+        example::AbstractExample=DummyExample()) 
+        abmsimulation = new(abm,copy(properties),dummystep,dummystep)
         setup!(abmsimulation,example)
         abmsimulation 
-    end 
+    end
 
-    ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
-                        agent_step=dummystep,model_step=dummystep) = new(abm,properties,agent_step,model_step)
+    ABMSocialSimulation(createABM::Function,properties::Dict{Symbol};
+                        example::AbstractExample=DummyExample()) = 
+                            ABMSocialSimulation(createABM(),properties,example=example)
+
+#    ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
+#                         agent_step=dummystep,model_step=dummystep) = new(abm,properties,agent_step,model_step)
 end 
 
 # default cors .

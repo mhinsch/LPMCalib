@@ -18,10 +18,11 @@ using  SocialSimulations: DummyExample
 using  SocialSimulations: ABMSocialSimulation
 using  SocialSimulations: run!, attach_model_step! 
 import SocialSimulations: setup!
-using Dummy: createPopulation # , loadData!
+using Dummy: createPopulation 
 
 
-function setup!(simulation::ABMSocialSimulation,::DummyExample) 
+function setup!(simulation::ABMSocialSimulation,
+                example::DummyExample=DummyExample()) 
      attach_model_step!(simulation,population_step!) 
 end
 

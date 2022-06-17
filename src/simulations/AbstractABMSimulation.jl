@@ -10,8 +10,8 @@ export attach_agent_step!, attach_model_step!, step!, run!
 abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
 
 # "setup the simulation stepping functions"
-setup!(::AbstractABMSimulation;
-       example::AbstractExample=DummyExample()) = error("simulation setup not implemented") 
+setup!(::AbstractABMSimulation,example::AbstractExample) = 
+      error("simulation setup not implemented") 
 
 # attaching a stepping function is done via a function call, 
 # since data structure is subject to change, e.g. Vector{Function}
