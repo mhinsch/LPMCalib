@@ -5,10 +5,26 @@ under construction
 """
 
 using SocialABMs: MultiABM
+
+# dummystep 
+
 using LoneParentsModel.Loaders:    loadUKMapParameters, loadUKPopulationParameters
 using LoneParentsModel.Declare:    createUKDemography 
 using LoneParentsModel.Initialize: initializeDemography!
 using LoneParentsModel.SimSetup:   loadSimulationParameters
+
+using SocialABMs: dummystep 
+
+using SocialSimulations: ABMSocialSimulation, MABMSimulation
+using SocialSimulations: run!, attach_agent_step!, attach_model_step!  
+
+import SocialSimulations: setup!, AbstractExample
+
+# export setup!, LPMUKDemography 
+
+# Example Name 
+
+struct LPMUKDemography <: AbstractExample end 
 
 # Model parameters 
 
@@ -34,16 +50,28 @@ println(); println();
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
 
+# Declaration of a simulation 
+
 simProperties = loadSimulationParameters()
-                        
-#=
-using SocialSimulations: SocialSimulation
 
-using SocialSimulations.LoneParentsModel: loadUKMapParameters, loadUKPopulationParameters, loadSimulationParameters
+function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
+    #attach_agent_step!(sim,dummystep) 
+    #attach_model_step!(sim,dummystep)
+    nothing 
+end
 
-# lpmSimulation = SocialSimulation(createPopulation,simProperties)
+function setup!(sim::MABMSimulation,example::LPMUKDemography) 
+    #= 
+    n = length(sim.simulations) 
+    for i in 1:n 
+        attach_agent_step!(simulations[i],dummystep) 
+        attach_model_step!(simulations[i],dummystep)
+    end
+    =# 
+    nothing 
+end
 
-# loadData!(lpmSimulation)
+lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
+                                  example=LPMUKDemography())
 
-# lpmSimulation
-=# 
+run!(lpmDemographySim)
