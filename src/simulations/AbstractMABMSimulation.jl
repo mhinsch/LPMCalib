@@ -15,8 +15,11 @@ setup!(::AbstractMABMSimulation,::AbstractExample) = error("Not implemented")
 "condcut n simulation step(s) for a given MABM"
 function step!(sim::AbstractMABMSimulation,n::Int=1,agents_first=true) 
 
+    nabm = length(sim.simulations)
     for simulation_step in 1:n 
-        step!(sim.simulations[i],1,agents_first)
+        for j in 1:nabm
+            step!(sim.simulations[j],1,agents_first)
+        end 
     end
 
 end
@@ -24,10 +27,10 @@ end
 "Run a simulation for a given MABM"
 function run!(sim::AbstractMABMSimulation)  
 
-    Random.seed!(seed(simulation))
+    Random.seed!(seed(sim))
     n = length(sim.simulations)
-    for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
-        step!(sim)
+    for simulation_step in range(startTime(sim),finishTime(sim),step=dt(sim))
+        step!(sim) 
     end
 
 end

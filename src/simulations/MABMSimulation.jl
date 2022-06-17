@@ -16,12 +16,13 @@ mutable struct MABMSimulation <: AbstractMABMSimulation
     
     #mabm_step::Function 
     
-    function MABM(mabm::AbstractMABM,properties::Dict{Symbol};
-                example=DummyExample())
-        n = length(model.abms)
+    function MABMSimulation(mabm::AbstractMABM,properties::Dict{Symbol};
+                            example::AbstractExample=DummyExample())
+        n = length(mabm.abms)
         simulations = AbstractABMSimulation[] 
         for i in 1:n 
-            simulations[i] = ABMSocialSimulation(model.abms[i],propoerties,example=example)
+            abmsim = ABMSocialSimulation(mabm.abms[i],properties,example=example)
+            push!(simulations,abmsim)
         end 
         sim = new(mabm,simulations,properties)
         setup!(sim,example)
