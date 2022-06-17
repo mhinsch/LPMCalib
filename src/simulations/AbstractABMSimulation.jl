@@ -4,7 +4,7 @@
 """
 
 export AbstractABMSimulation
-export attach_agent_step!, attach_model_step!, run! 
+export attach_agent_step!, attach_model_step!, step!, run! 
 
 "Abstract type for ABMs" 
 abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
@@ -30,10 +30,14 @@ function attach_model_step!(simulation::AbstractABMSimulation,
     nothing
 end 
 
+"step a simulation"
+step!(simulation::AbstractABMSimulation,
+      n::Int=1,
+      agents_first::Bool=true) = step!(simulation,
+                                       simulation.agent_step,
+                                       simulation.model_step)
 
-"""
-Run a simulation
-"""
+"Run a simulation of an ABM"
 run!(simulation::AbstractABMSimulation) = run!(simulation, 
                                                simulation.agent_step,
                                                simulation.model_step)
