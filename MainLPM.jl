@@ -55,8 +55,8 @@ println(); println();
 simProperties = loadSimulationParameters()
 
 function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
-    #attach_agent_step!(sim,dummystep) 
-    #attach_model_step!(sim,dummystep)
+    attach_agent_step!(sim,dummystep) 
+    attach_model_step!(sim,dummystep)
     nothing 
 end
 
@@ -64,8 +64,8 @@ function setup!(sim::MABMSimulation,example::LPMUKDemography)
     #= 
     n = length(sim.simulations) 
     for i in 1:n 
-        attach_agent_step!(simulations[i],dummystep) 
-        attach_model_step!(simulations[i],dummystep)
+        attach_agent_step!(simulations[i],X) 
+        attach_model_step!(simulations[i],Y)
     end
     =# 
     nothing 
