@@ -40,7 +40,7 @@ println()
 
 # attach_model_step!(dummySimulation,population_step!) 
 
-run!(dummySimulation)
+run!(dummySimulation,verbose=true)
 
 println("Sample population after simulation")
 @show dummySimulation.model.agentsList[1:10]
