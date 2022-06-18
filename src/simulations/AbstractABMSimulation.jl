@@ -4,14 +4,17 @@
 """
 
 export AbstractABMSimulation
-export attach_agent_step!, attach_model_step!, step!, run! 
+export attach_agent_step!, attach_model_step!, setup!, step!, run! 
 
 "Abstract type for ABMs" 
 abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
 
-# "setup the simulation stepping functions"
-setup!(::AbstractABMSimulation,example::AbstractExample) = 
-      error("simulation setup not implemented") 
+"""
+    default setup the simulation stepping functions in the constructor 
+    This guarantees that the client provides proper stepping functions 
+    either by overloading this method or other explicit ways 
+"""
+setup!(::AbstractABMSimulation,::AbstractExample) = nothing  
 
 # attaching a stepping function is done via a function call, 
 # since data structure is subject to change, e.g. Vector{Function}
@@ -43,3 +46,4 @@ run!(simulation::AbstractABMSimulation;verbose::Bool=false) =
                      simulation.agent_step,
                      simulation.model_step,
                      verbose=verbose)
+
