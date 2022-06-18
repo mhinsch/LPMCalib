@@ -9,7 +9,7 @@ using SocialAgents: AbstractAgent
 using SocialABMs:   AbstractABM 
 using Utilities:    age2yearsmonths 
 
-import SocialABMs: step!, run! 
+import SocialABMs: step!
 
 export step!, run!  
 export attach_model_step!, attach_agent_step!
@@ -51,14 +51,15 @@ Run a simulation using stepping functions
 function run!(simulation::AbstractSocialSimulation,
               agent_step!,
               model_step!;
-              verbose::Bool=false) 
+              verbose::Bool=false,yearly=true) 
 
     Random.seed!(seed(simulation))
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
         if(verbose)
             (year,month) = age2yearsmonths(simulation_step) 
-            println("conducting simulation step year $(year) month $(month+1)")
+            yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
+            yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
         end
         step!(simulation,agent_step!,model_step!)
     end 
