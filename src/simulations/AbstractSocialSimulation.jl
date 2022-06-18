@@ -43,6 +43,13 @@ step!(
     agents_first::Bool=true 
 )  = step!(model(simulation),agent_step!,model_step!,n,agents_first)
 
+
+function verboseStep(simulation_step::Rational,yearly=true) 
+    (year,month) = age2yearsmonths(simulation_step) 
+    yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
+    yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
+end
+
 """
 Run a simulation using stepping functions
     - agent_step_function()
@@ -56,11 +63,7 @@ function run!(simulation::AbstractSocialSimulation,
     Random.seed!(seed(simulation))
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
-        if(verbose)
-            (year,month) = age2yearsmonths(simulation_step) 
-            yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
-            yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
-        end
+        verbose ? verboseStep(simulation_step,yearly) : nothing 
         step!(simulation,agent_step!,model_step!)
     end 
 

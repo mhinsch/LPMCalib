@@ -30,11 +30,7 @@ function run!(sim::AbstractMABMSimulation;verbose::Bool=false,yearly=true)
     Random.seed!(seed(sim))
     n = length(sim.simulations)
     for simulation_step in range(startTime(sim),finishTime(sim),step=dt(sim))
-        if(verbose)
-            (year,month) = age2yearsmonths(simulation_step) 
-            yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
-            yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
-        end
+        verbose ? verboseStep(simulation_step,yearly) : nothing 
         step!(sim) 
     end
 
