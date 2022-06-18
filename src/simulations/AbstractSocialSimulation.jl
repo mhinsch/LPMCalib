@@ -1,5 +1,5 @@
 """
-Main specification of a Social Simulation type
+Main specification of a Social Simulation type / quite similar to Agents.jl Simulation concept
 
 This file is included in SocialSimuilations module
 """

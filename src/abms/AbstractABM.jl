@@ -11,7 +11,7 @@ abstract type AbstractABM end
 
 export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
-export step!, run!, dummystep 
+export step!, dummystep, errorstep  
 
 
 #========================================
@@ -102,10 +102,16 @@ General stepping functions / imitating Agents.jl
 =###########################
 
 "dummy stepping function for arbitrary agents"
-dummystep(agent::AbstractAgent,model::AbstractABM) = nothing 
+dummystep(::AbstractAgent,::AbstractABM) = nothing 
  
 "default dummy model stepping function"
 dummystep(::AbstractABM) = nothing 
+
+"Default agent stepping function for reminding the client that it should be provided"
+errorstep(::AbstractAgent,::AbstractABM) = error("agent stepping function has not been specified")
+
+"Default model stepping function for reminding the client that it should be provided"
+errorstep(::AbstractABM) = error("model stepping function has not been specified")
 
 """
 Stepping function for a model of type AgentBasedModel with 
