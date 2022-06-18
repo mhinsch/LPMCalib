@@ -10,6 +10,7 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - V0.2.1: unnecessary code removed, additional functionalities, exception handling, Unit testing (Person & House)
   - V0.2.2: Distributing properties among smaller ABMs, Separation between declaration and initialisation, utilisation of built-in exceptions, Agent person tuning + unit tests
   - v0.2.3: re-structure of examples, improved printing 
+  - v0.2.4: simulation concept 
 
 
 ### Source code structure 
@@ -18,8 +19,6 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - /agents/*       : Examples of agents 
   - SocialABMs.jl   : Basic concept of an elementary ABM
   - /abms/*         : Examples of abms
-  - MainDummy.jl    : An example of a dummy simulation
-  - MainLPM.jl      : Initial (empty) translation of LPM
   - SocialSimulations.jl
                     : the main functionalities of execcuting an ABM
   - /simulations    : simulation functions for simulation examples 
@@ -27,6 +26,8 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - Global.jl       : Global variables and types used across the library
   - Utilities.jl    : util routines used across the library
 - /tests
+- MainDummy.jl    : An example of a dummy simulation
+- MainLPM.jl      : Initial (empty) translation of LPM
 
 
 ### Running the code
