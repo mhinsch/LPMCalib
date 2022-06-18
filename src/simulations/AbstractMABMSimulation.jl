@@ -10,7 +10,7 @@ export setup!, step!, run!
 abstract type AbstractMABMSimulation <: AbstractSocialSimulation end 
 
 "setting up the simualtion properties and stepping functions"
-setup!(::AbstractMABMSimulation,::AbstractExample) = error("Not implemented")
+setup!(::AbstractMABMSimulation,::AbstractExample) = nothing 
 
 "condcut n simulation step(s) for a given MABM"
 function step!(sim::AbstractMABMSimulation,n::Int=1,agents_first=true) 
