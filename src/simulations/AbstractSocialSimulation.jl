@@ -1,13 +1,19 @@
 """
-Main specification of a Social Simulation type
+Main specification of a Social Simulation type / quite similar to Agents.jl Simulation concept
 
 This file is included in SocialSimuilations module
 """
 
-import Random 
+using Random
+using SocialAgents: AbstractAgent 
+using SocialABMs:   AbstractABM 
+using Utilities:    age2yearsmonths 
 
-export run!, setproperty!
-using SocialABMs: step!
+import SocialABMs: step!
+
+export step!, run!  
+export attach_model_step!, attach_agent_step!
+
 
 # At the moment no need for Abstract Social Simulation! 
 abstract type AbstractSocialSimulation end 
@@ -18,17 +24,31 @@ finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
 dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
 seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
 
-"set property to a given vlaue"
-function setproperty!(sim::AbstractSocialSimulation,symbol::Symbol,val) 
-    symbol in keys(sim.properties) ? 
-         sim.properties[symbol] = val :  
-            error("$(symbol) is not a key in $(sim.properties)")
-    nothing
+
+
+# Other versions of the above function
+#    model_step! is omitted 
+#    n(model,s)::Function 
+#    agent_step! function can be a dummystep 
+
+#===
+Stepping and simulation run function 
+===# 
+
+step!(
+    simulation::AbstractSocialSimulation, 
+    agent_step!,
+    model_step!,  
+    n::Int=1,
+    agents_first::Bool=true 
+)  = step!(model(simulation),agent_step!,model_step!,n,agents_first)
+
+
+function verboseStep(simulation_step::Rational,yearly=true) 
+    (year,month) = age2yearsmonths(simulation_step) 
+    yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
+    yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
 end
-
-
-"load data needed by the simulation"
-loadData!(simulation::AbstractSocialSimulation) = error("Not implemented") 
 
 """
 Run a simulation using stepping functions
@@ -36,17 +56,16 @@ Run a simulation using stepping functions
     - model_step_function
 """
 function run!(simulation::AbstractSocialSimulation,
-              agent_step_function,
-              model_step_function) 
+              agent_step!,
+              model_step!;
+              verbose::Bool=false,yearly=true) 
 
     Random.seed!(seed(simulation))
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
-        step!(model(simulation),agent_step_function,model_step_function)
-        # Outputing result to be improved later by using agents.jl 
-        print("\n\nsample after step: $(simulation_step) :\n")
-        print("======================================== \n\n") 
-        @show model(simulation).agentsList[1:10]
+        verbose ? verboseStep(simulation_step,yearly) : nothing 
+        step!(simulation,agent_step!,model_step!)
     end 
 
 end 
+ 

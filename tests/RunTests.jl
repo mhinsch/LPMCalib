@@ -18,7 +18,7 @@ using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using Utilities: read2DArray, createTimeStampedFolder, subtract!
+using Utilities: read2DArray, createTimeStampedFolder, subtract!, age2yearsmonths
 
 using Global: Gender, male, female, unknown 
 
@@ -145,6 +145,11 @@ using Global: Gender, male, female, unknown
         parama  = [:a] - paramab
         @test issetequal(keys(parama),[:a]) 
         @test issetequal(keys(paramab),[:b])
+
+
+        @test age2yearsmonths(1059 // 12) == (88 , 3)
+        @test_throws ArgumentError   age2yearsmonths(1059 // 5)
+        @test_throws ArgumentError   age2yearsmonths(-1059 // 5)
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin

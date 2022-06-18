@@ -13,21 +13,39 @@ julia> include("this_script.jl")
 """ 
 
 
-using SocialSimulations: SocialSimulation, run! 
-using SocialABMs: SocialABM, dummystep, population_step!
+using  SocialABMs: SocialABM, population_step!,dummystep 
+using  SocialSimulations: DummyExample
+using  SocialSimulations: ABMSocialSimulation
+using  SocialSimulations: run!, attach_model_step!, attach_agent_step! 
+import SocialSimulations: setup!
+using Dummy: createPopulation 
 
-using Dummy: createPopulation, loadData!
 
+function setup!(simulation::ABMSocialSimulation,
+                ::DummyExample) 
+     attach_agent_step!(simulation,dummystep)
+     attach_model_step!(simulation,population_step!) 
+end
 
-dummySimulation = SocialSimulation(createPopulation,
-                                   Dict(:startTime=>1990,
-                                        :finishTime=>2030,
-                                        :dt=>1,
-                                        :seed=>floor(Int,time())))
+dummySimulation = ABMSocialSimulation(createPopulation,
+                                        Dict(:startTime=>1990,
+                                             :finishTime=>2030,
+                                             :dt=>1//12,
+                                             :seed=>floor(Int,time())), 
+                                        example = DummyExample())
+println("Sample of initial population")
 
-loadData!(dummySimulation)
+@show dummySimulation.model.agentsList[1:10] 
 
-run!(dummySimulation,dummystep,population_step!)
+println()
+println()
+
+# attach_model_step!(dummySimulation,population_step!) 
+
+run!(dummySimulation,verbose=true)
+
+println("Sample population after simulation")
+@show dummySimulation.model.agentsList[1:10]
  
 
 

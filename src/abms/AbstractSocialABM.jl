@@ -23,14 +23,7 @@ end
 dummyconnect(abm1::AbstractSocialABM,
              abm2::AbstractSocialABM,
              properties::Dict{Symbol}) = nothing
-             
-# Simulation 
-# ... 
-# function attachAgentStepFunction!(::AbstractSocialABM,::Function) end
-# function attachModelStepFunction!(::AbstractSocialABM,::Function) end 
-# function attachFirstModelStepFunction! ... 
-# function attachLastModelStepFunction! ... 
-# ...
+
 
 
 #=

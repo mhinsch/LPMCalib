@@ -5,7 +5,7 @@ module Utilities
 
     using CSV, Tables     # for reading 2D matrices from a file
 
-    export createTimeStampedFolder, read2DArray, subtract! 
+    export createTimeStampedFolder, read2DArray, subtract!, age2yearsmonths 
 
     """
        Subtract keys from a given dictionary
@@ -43,5 +43,14 @@ module Utilities
         #    os.makedirs(folder)
         # folder
         "" 
+    end
+
+    "convert age in rational representation to (years, months) as tuple"
+    function age2yearsmonths(age::Rational)
+        age < 0 ? throw(ArgumentError("Negative age")) : nothing 
+        12 % denominator(age) != 0 ? throw(ArgumentError("$(age) not in age format")) : nothing 
+        years  = trunc(Int, numerator(age) / denominator(age)) 
+        months = trunc(Int, numerator(age) % denominator(age) * 12 / denominator(age) )
+        (years , months)
     end
 end 
