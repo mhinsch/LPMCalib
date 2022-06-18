@@ -25,11 +25,15 @@ function step!(sim::AbstractMABMSimulation,n::Int=1,agents_first=true)
 end
 
 "Run a simulation for a given MABM"
-function run!(sim::AbstractMABMSimulation)  
+function run!(sim::AbstractMABMSimulation;verbose::Bool=false)  
 
     Random.seed!(seed(sim))
     n = length(sim.simulations)
     for simulation_step in range(startTime(sim),finishTime(sim),step=dt(sim))
+        if(verbose)
+            (year,month) = age2yearsmonths(simulation_step) 
+            println("conducting simulation step year $(year) month $(month+1)")
+        end
         step!(sim) 
     end
 

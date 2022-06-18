@@ -7,6 +7,7 @@ This file is included in SocialSimuilations module
 using Random
 using SocialAgents: AbstractAgent 
 using SocialABMs:   AbstractABM 
+using Utilities:    age2yearsmonths 
 
 import SocialABMs: step!, run! 
 
@@ -49,11 +50,16 @@ Run a simulation using stepping functions
 """
 function run!(simulation::AbstractSocialSimulation,
               agent_step!,
-              model_step!) 
+              model_step!;
+              verbose::Bool=false) 
 
     Random.seed!(seed(simulation))
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
+        if(verbose)
+            (year,month) = age2yearsmonths(simulation_step) 
+            println("conducting simulation step year $(year) month $(month+1)")
+        end
         step!(simulation,agent_step!,model_step!)
     end 
 

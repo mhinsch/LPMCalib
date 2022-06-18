@@ -38,6 +38,8 @@ step!(simulation::AbstractABMSimulation,
                                        simulation.model_step)
 
 "Run a simulation of an ABM"
-run!(simulation::AbstractABMSimulation) = run!(simulation, 
-                                               simulation.agent_step,
-                                               simulation.model_step)
+run!(simulation::AbstractABMSimulation;verbose::Bool=false) = 
+                run!(simulation, 
+                     simulation.agent_step,
+                     simulation.model_step,
+                     verbose=verbose)
