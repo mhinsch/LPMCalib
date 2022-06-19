@@ -1,8 +1,19 @@
 module SimSetup
 
+using SocialABMs: dummystep 
+using SocialSimulations: startTime, dt
+using SocialSimulations: ABMSocialSimulation, MABMSimulation
+using SocialSimulations: attach_agent_step!, attach_model_step! 
 
-export loadSimulationParameters 
+import SocialSimulations: setup!, AbstractExample
 
+export LPMUKDemography
+export loadSimulationParameters, setup!  
+
+
+# Example Name 
+
+struct LPMUKDemography <: AbstractExample end 
 
 """
 set simulation paramters @return dictionary of symbols to values
@@ -19,6 +30,26 @@ function loadSimulationParameters()
         :dt=>1//12,
         :seed=> floor(Int,time()))
 end 
+
+
+function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
+    attach_agent_step!(sim,dummystep) 
+    attach_model_step!(sim,dummystep)
+    sim.model.properties[:currstep] = startTime(sim) 
+    sim.model.properties[:dt]       = dt(sim)
+    nothing 
+end
+
+function setup!(sim::MABMSimulation,example::LPMUKDemography) 
+    #= 
+    n = length(sim.simulations) 
+    for i in 1:n 
+        attach_agent_step!(simulations[i],X) 
+        attach_model_step!(simulations[i],Y)
+    end
+    =# 
+    nothing 
+end
 
 
 end # SimSetup 
