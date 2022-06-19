@@ -6,12 +6,14 @@ Specification of an abstract ABM type as a supertype for all
 
 using SocialAgents
 
+using Utilities: age2yearsmonths
+
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
 export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
-export step!, dummystep, errorstep  
+export step!, dummystep, errorstep, defaultprestep 
 
 
 #========================================
@@ -113,6 +115,12 @@ errorstep(::AbstractAgent,::AbstractABM) = error("agent stepping function has no
 "Default model stepping function for reminding the client that it should be provided"
 errorstep(::AbstractABM) = error("model stepping function has not been specified")
 
+"Default instructions before stepping an abm"
+function defaultprestep(abm::AbstractABM) 
+    abm.properties[:currstep] =  abm.properties[:currstep] + abm.properties[:dt] 
+    # println(age2yearsmonths(abm.properties[:currstep]))
+end
+
 """
 Stepping function for a model of type AgentBasedModel with 
     agent_step!(agentObj,modelObj::AgentBasedModel) 
@@ -165,6 +173,36 @@ function step!(
                 agent_step!(agent,model)
             end
         end
+    
+    end
+
+end # step! 
+
+
+"""
+Stepping function for a model of type AgentBasedModel with 
+    pre_model_step!(modelObj::AgentBasedModel)
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+"""
+function step!(
+    model::AbstractABM,
+    pre_model_step!, 
+    agent_step!,
+    post_model_step!,  
+    n::Int=1,
+)  
+    
+    for i in range(1,n)
+        
+        pre_model_step!(model)
+    
+        for agent in model.agentsList
+            agent_step!(agent,model)
+        end
+        
+        post_model_step!(model)
     
     end
 
