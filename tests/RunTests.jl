@@ -66,7 +66,7 @@ using Global: Gender, male, female, unknown
         @test getHomeTown(person1) != nothing             
         @test getHomeTownName(person1) == "Edinbrugh"    
         
-        @test typeof(person1.age) == Rational{Int64} 
+        @test typeof(person1.info.age) == Rational{Int64} 
         
         @test isMale(person1)
         @test !isFemale(person1)

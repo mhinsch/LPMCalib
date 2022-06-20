@@ -54,6 +54,7 @@ mutable struct Kinship # <: DynamicStruct
   childern::Vector{AbstractPersonAgent}
 end 
 
+"Default Constructor"
 Kinship(;father=nothing,mother=nothing,partner=nothing,childern=Person[]) = 
       Kinship(father,mother,partner,childern)
 
@@ -71,3 +72,21 @@ function Base.show(io::IO, kinship::Kinship)
   println() 
 end
         
+
+mutable struct BasicInfo
+  age::Rational 
+  # (birthyear, birthmonth)
+  gender::Gender  
+  alive::Bool 
+  # (deathyear, deathmonth)
+end
+
+"Default constructor"
+BasicInfo(;age=0//1, gender=unknown, alive = true) = BasicInfo(age,gender,alive)
+
+"costum @show method for Agent person"
+function Base.show(io::IO,  info::BasicInfo)
+  year, month = age2yearsmonths(info.age)
+  print(" $(year) years & $(month) months, $(info.gender) ")
+  info.alive ? print(" alive ") : print(" dead ")  
+end
