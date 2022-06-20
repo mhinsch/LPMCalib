@@ -1,6 +1,6 @@
 module SimSetup
 
-using SocialABMs: dummystep, defaultprestep 
+using SocialABMs: dummystep, defaultprestep!, defaultpoststep! 
 using SocialSimulations: startTime, dt
 using SocialSimulations: ABMSocialSimulation, MABMSimulation
 using SocialSimulations: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
@@ -34,10 +34,11 @@ end
 
 function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
     attach_agent_step!(sim,dummystep) 
-    attach_pre_model_step!(sim,defaultprestep)
-    attach_post_model_step!(sim,dummystep)
+    attach_pre_model_step!(sim,defaultprestep!)
+    attach_post_model_step!(sim,defaultpoststep!)
     sim.model.properties[:currstep] = startTime(sim) 
     sim.model.properties[:dt]       = dt(sim)
+    sim.model.properties[:stepnumber] = 0 
     nothing 
 end
 
