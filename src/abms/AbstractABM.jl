@@ -13,7 +13,7 @@ abstract type AbstractABM end
 
 export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
-export step!, dummystep, errorstep, defaultprestep 
+export step!, dummystep, errorstep, defaultprestep!, defaultpoststep! 
 
 
 #========================================
@@ -116,10 +116,17 @@ errorstep(::AbstractAgent,::AbstractABM) = error("agent stepping function has no
 errorstep(::AbstractABM) = error("model stepping function has not been specified")
 
 "Default instructions before stepping an abm"
-function defaultprestep(abm::AbstractABM) 
-    abm.properties[:currstep] =  abm.properties[:currstep] + abm.properties[:dt] 
-    # println(age2yearsmonths(abm.properties[:currstep]))
+function defaultprestep!(abm::AbstractABM) 
+    abm.properties[:stepnumber] = abm.properties[:stepnumber] + 1 
+    nothing 
 end
+
+"Default instructions after stepping an abm"
+function defaultpoststep!(abm::AbstractABM) 
+    abm.properties[:currstep] =  abm.properties[:currstep] + abm.properties[:dt] 
+    nothing 
+end
+
 
 """
 Stepping function for a model of type AgentBasedModel with 
