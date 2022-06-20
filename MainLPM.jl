@@ -50,4 +50,6 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 # Execution 
 
 run!(lpmDemographySim,verbose=true)
+
+lpmDemographySim
  
