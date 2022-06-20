@@ -30,8 +30,10 @@ function createUKPopulation(properties)
     for i in 1 : properties[:initialPop]
         ageMale = rand((properties[:minStartAge]:properties[:maxStartAge]))
         ageFemale = ageMale - rand((-2:5))
-
-        ageFemale = ageFemale < 24 ? 24 : ageFemale 
+        ageFemale = ageFemale < 24 ? 24 : ageFemale
+        
+        rageMale = ageMale + rand(0:11) // 12     
+        rageFemale = ageFemale + rand(0:11) // 12 
 
         # From the old code: 
         #    the following is direct translation but it does not ok 
@@ -40,8 +42,8 @@ function createUKPopulation(properties)
         #    birthYear = properties[:startYear]  - ageMale/Female 
         #    birthMonth = rand((1:12))
 
-        newMan = Person(undefinedHouse,ageMale,gender=male)
-        newWoman = Person(undefinedHouse,ageFemale,gender=female)   
+        newMan = Person(undefinedHouse,rageMale,gender=male)
+        newWoman = Person(undefinedHouse,rageFemale,gender=female)   
         setPartner!(newMan,newWoman) 
         
         push!(population,newMan);  push!(population,newWoman) 
