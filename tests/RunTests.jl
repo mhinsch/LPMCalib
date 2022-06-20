@@ -72,16 +72,16 @@ using Global: Gender, male, female, unknown
         @test !isFemale(person1)
         
         setFather!(person1,person6) 
-        @test person1 in person6.childern
-        @test person1.father === person6 
+        @test person1 in person6.kinship.childern
+        @test person1.kinship.father === person6 
 
         setParent!(person2,person4) 
-        @test person2.mother === person4
-        @test person2 in person4.childern 
+        @test person2.kinship.mother === person4
+        @test person2 in person4.kinship.childern 
 
         setPartner!(person1,person4) 
-        @test person1.partner === person4
-        @test person4.partner === person1 
+        @test person1.kinship.partner === person4
+        @test person4.kinship.partner === person1 
 
         @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
 
