@@ -4,9 +4,9 @@ Implementation of a population as an ABM model
 This file is included with SocialABMs module. This file is subject to removal or modification
 """
 
-import SocialAgents: Person
+import SocialAgents: Person, agestep! 
 
-export population_step!
+export population_step!, agemonthstep!
 
 
 "Step function for the population"
@@ -16,6 +16,8 @@ function population_step!(population::SocialABM{Person};dt=1//12)
     end
 end 
 
+"increment age with the simulation step size"
+agestep!(person::Person,population::SocialABM{Person}) = agestep!(person,dt=population.properties[:dt])
 
 #= 
 

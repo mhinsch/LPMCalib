@@ -83,7 +83,6 @@ function agestep!(person::Person;dt=1//12)
    person.age += dt 
 end 
 
-
 function isFemale(person::Person) 
     person.gender == female
 end
