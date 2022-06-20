@@ -16,13 +16,13 @@ abstract type AbstractPersonAgent <: AbstractSocialAgent end
 
 # Interfaces / hard contract 
 
-isFemale(person::AbstractPersonAgent) = error("Not implemented")
-isMale(person::AbstractPersonAgent) = error("Not implemented")
+isFemale(::AbstractPersonAgent) = error("Not implemented")
+isMale(::AbstractPersonAgent) = error("Not implemented")
 
 "home town of a person"
-getHomeTown(person::AbstractPersonAgent) = error("Not implemented")
+getHomeTown(::AbstractPersonAgent) = error("Not implemented")
 "home town name of a person" 
-getHomeTownName(person::AbstractPersonAgent) = error("Not implemented") 
+getHomeTownName(::AbstractPersonAgent) = error("Not implemented") 
 
 # "set a new house to a person"
 # setHouse(person::AbstractPersonAgent,house::House) = error("Not implemented") 
@@ -43,5 +43,4 @@ function setParent!(child::AbstractPersonAgent,parent::AbstractPersonAgent)
 end 
 
 "set a partnership"
-setPartner!(person1::AbstractPersonAgent,
-            person2::AbstractPersonAgent) = error("Not implemented") 
+setPartner!(::AbstractPersonAgent,::AbstractPersonAgent) = error("Not implemented") 
