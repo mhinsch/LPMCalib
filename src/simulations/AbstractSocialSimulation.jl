@@ -92,7 +92,7 @@ function run!(simulation::AbstractSocialSimulation,
 
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
         verbose ? verboseStep(simulation_step,yearly) : nothing 
-        step!(simulation,pre_model_step,agent_step!,post_model_step!)
+        step!(simulation,pre_model_step!,agent_step!,post_model_step!)
     end 
 
 end 
