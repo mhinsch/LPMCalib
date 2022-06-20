@@ -13,6 +13,9 @@ This file is included in the module SocialAgents
 Type Person extends from AbstractAgent.
 """ 
 
+
+
+
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractPersonAgent
     id
@@ -26,19 +29,16 @@ mutable struct Person <: AbstractPersonAgent
     # birthYear::Int        
     # birthMonth::Int
     gender::Gender  
-    father::Union{Person,Nothing}
-    mother::Union{Person,Nothing} 
-    partner::Union{Person,Nothing}
-    childern::Vector{Person}
+    kinship::Kinship
     # self.yearMarried = []
     # self.yearDivorced = []
     # self.deadYear = 0
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos::House,age,gender,father,mother,partner,childern)
+    function Person(pos::House,age,gender,kinship)
         global IDCOUNTER = IDCOUNTER+1
-        person = new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        person = new(IDCOUNTER,pos,age,gender,kinship)
         pos != undefinedHouse ? push!(pos.occupants,person) : nothing
         person  
     end 
@@ -49,13 +49,7 @@ function Base.show(io::IO,  person::Person)
     years , months = age2yearsmonths(person.age)
     print("Person: $(person.id), $(years) years & $(months) months, $(person.gender)") 
     person.pos     == undefinedHouse ? nothing : print(" @ House id : $(person.pos.id)") 
-    person.father  == nothing        ? nothing : print(" , father    : $(person.father.id)") 
-    person.mother  == nothing        ? nothing : print(" , mother    : $(person.mother.id)") 
-    person.partner == nothing        ? nothing : print(" , partner   : $(person.partner.id)") 
-    length(person.childern) == 0      ? nothing : print(" , childern  : ")
-    for child in person.childern
-        print(" $(child.id) ") 
-    end 
+    print(person.kinship)
     println() 
 end
 
@@ -65,7 +59,7 @@ end
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,childern=Person[]) = 
-                    Person(pos,age,gender,father,mother,partner,childern)
+                    Person(pos,age,gender,Kinship(father,mother,partner,childern))
 
 
 "Constructor with default values"
@@ -73,7 +67,7 @@ Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
         partner=nothing,childern=Person[]) = 
-            Person(pos,age,gender,father,mother,partner,childern)
+            Person(pos,age,gender,Kinship(father,mother,partner,childern))
 
 
 
@@ -105,9 +99,9 @@ end
 function setFather!(child::Person,father::Person) 
     child.age < father.age  ? nothing  : throw(ArgumentError("$(child.age) >= $(father.age)")) 
     isMale(father) ?          nothing  : throw(ArgumentError("$(father) is not a male")) 
-    (child.father == nothing) ? father : throw(ArgumentError("$(child) has a father")) 
-    child.father = father 
-    push!(father.childern,child)
+    (child.kinship.father == nothing) ? father : throw(ArgumentError("$(child) has a father")) 
+    child.kinship.father = father 
+    push!(father.kinship.childern,child)
     nothing 
 end
 
@@ -115,11 +109,14 @@ end
 function setMother!(child::Person,mother::Person) 
     child.age < mother.age    ?  nothing : throw(ArgumentError("$(child.age) >= $(father.age)")) 
     isFemale(mother)          ?  nothing : throw(ArgumentError("$(mother) is not a female")) 
-    (child.mother == nothing) ?  mother  : throw(ArgumentError("$(child) has a mother")) 
-    child.mother = mother 
-    push!(mother.childern,child)
+    (child.kinship.mother == nothing) ?  mother  : throw(ArgumentError("$(child) has a mother")) 
+    child.kinship.mother = mother 
+    push!(mother.kinship.childern,child)
     nothing 
 end
+
+
+partner(person::Person) = person.kinship.partner 
 
 "set two persons to be a partner"
 function setPartner!(person1::Person,person2::Person)
@@ -127,15 +124,15 @@ function setPartner!(person1::Person,person2::Person)
         isFemale(person1) && isMale(person2)) 
 
         # resolve previous partnership 
-        if person1.partner != nothing 
-            person1.partner.partner = nothing 
+        if partner(person1) != nothing # reset 
+            person1.kinship.partner.kinship.partner = nothing 
         end 
-        if person2.partner != nothing 
-            person2.partner.partner = nothing 
+        if partner(person2) != nothing # reset 
+            person2.kinship.partner.kinship.partner = nothing 
         end 
 
-        person1.partner = person2
-        person2.partner = person1
+        person1.kinship.partner = person2
+        person2.kinship.partner = person1
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))

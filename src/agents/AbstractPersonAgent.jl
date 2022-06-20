@@ -7,7 +7,8 @@
 
 using Global: Gender, unknown, female, male
 
-export AbstractPersonAgent, isMale, isFemale
+export AbstractPersonAgent, Kinship
+export isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
 export setFather!, setMother!, setParent!, setPartner! 
 
@@ -44,3 +45,29 @@ end
 
 "set a partnership"
 setPartner!(::AbstractPersonAgent,::AbstractPersonAgent) = error("Not implemented") 
+
+
+mutable struct Kinship # <: DynamicStruct 
+  father::Union{AbstractPersonAgent,Nothing}
+  mother::Union{AbstractPersonAgent,Nothing} 
+  partner::Union{AbstractPersonAgent,Nothing}
+  childern::Vector{AbstractPersonAgent}
+end 
+
+Kinship(;father=nothing,mother=nothing,partner=nothing,childern=Person[]) = 
+      Kinship(father,mother,partner,childern)
+
+
+"costum @show method for Agent person"
+function Base.show(io::IO, kinship::Kinship)
+  father = kinship.father; mother = kinship.mother; partner = kinship.partner; childern = kinship.childern;              
+  father  == nothing        ? nothing : print(" , father    : $(father.id)") 
+  mother  == nothing        ? nothing : print(" , mother    : $(mother.id)") 
+  partner == nothing        ? nothing : print(" , partner   : $(partner.id)") 
+  length(childern) == 0      ? nothing : print(" , childern  : ")
+  for child in childern
+    print(" $(child.id) ") 
+  end 
+  println() 
+end
+        
