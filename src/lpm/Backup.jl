@@ -497,6 +497,26 @@ function loadModelParameters!(simulation::SocialSimulation)
 end
 
 
+
+#=
+"Create an empty population initially with no agents"
+function createPopulation() 
+    population = SocialABM{Person}()
+
+    # ?? Brief descriptions of the numbers within the text file needed (not directly understandable in their pure format)
+
+    # Data related to population income 
+    # addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
+    # addProperty!(population,:income_distribution,readArrayFromCSVFile("incomeDistribution.csv"))
+    # addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
+    # addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
+
+    # shifts = createShifts() 
+
+    population
+end
+=# 
+
 function initSimulationVariables(simulation::SocialSimulation) 
 
     #= not considered yet 
