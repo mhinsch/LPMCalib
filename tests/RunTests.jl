@@ -13,7 +13,7 @@ using Test
 using SocialAgents: Person, House, Town
 
 using SocialAgents: verify, isFemale, isMale
-using SocialAgents: setFather!, setParent!, setPartner!, setHouse!
+using SocialAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
 using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
@@ -72,12 +72,12 @@ using Global: Gender, male, female, unknown
         @test !isFemale(person1)
         
         setFather!(person1,person6) 
-        @test person1 in person6.kinship.childern
+        @test person1 in person6.kinship.children
         @test person1.kinship.father === person6 
 
         setParent!(person2,person4) 
         @test person2.kinship.mother === person4
-        @test person2 in person4.kinship.childern 
+        @test person2 in person4.kinship.children 
 
         setPartner!(person1,person4) 
         @test person1.kinship.partner === person4
