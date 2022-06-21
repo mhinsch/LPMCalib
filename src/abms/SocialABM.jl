@@ -6,7 +6,8 @@
     for running a social simulation. 
 """ 
 
-export SocialABM, initial_connect!
+using Utilities: read2DArray
+export SocialABM, initial_connect!, attach2DData!
 
 
 # dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
@@ -20,19 +21,20 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
     in the same way as Agents.jl 
     """ 
     properties
-
-    # >>> data::Dict{Symbol}
-    #       
+    data::Dict{Symbol}       # data structure to be improved 
 
     SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
         declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
-             new(declare(properties),copy(properties))
+             new(declare(properties),copy(properties),Dict{Symbol,Any}())
              
     # ^^^ to add an argument for data with default value empty 
 
 end # AgentBasedModel  
 
-
+""
+function attach2DData!(abm::SocialABM{AgentType}, symbol::Symbol, fname ) where AgentType 
+    abm.data[symbol] = read2DArray(fname) 
+end
 
  
 "ensure symmetry"
