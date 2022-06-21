@@ -51,22 +51,22 @@ mutable struct Kinship # <: DynamicStruct
   father::Union{AbstractPersonAgent,Nothing}
   mother::Union{AbstractPersonAgent,Nothing} 
   partner::Union{AbstractPersonAgent,Nothing}
-  childern::Vector{AbstractPersonAgent}
+  children::Vector{AbstractPersonAgent}
 end 
 
 "Default Constructor"
-Kinship(;father=nothing,mother=nothing,partner=nothing,childern=Person[]) = 
-      Kinship(father,mother,partner,childern)
+Kinship(;father=nothing,mother=nothing,partner=nothing,children=Person[]) = 
+      Kinship(father,mother,partner,children)
 
 
 "costum @show method for Agent person"
 function Base.show(io::IO, kinship::Kinship)
-  father = kinship.father; mother = kinship.mother; partner = kinship.partner; childern = kinship.childern;              
+  father = kinship.father; mother = kinship.mother; partner = kinship.partner; children = kinship.children;              
   father  == nothing        ? nothing : print(" , father    : $(father.id)") 
   mother  == nothing        ? nothing : print(" , mother    : $(mother.id)") 
   partner == nothing        ? nothing : print(" , partner   : $(partner.id)") 
-  length(childern) == 0      ? nothing : print(" , childern  : ")
-  for child in childern
+  length(children) == 0      ? nothing : print(" , children  : ")
+  for child in children
     print(" $(child.id) ") 
   end 
   println() 

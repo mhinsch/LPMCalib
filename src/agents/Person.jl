@@ -47,18 +47,18 @@ end
 "Constructor with default values"
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
-                partner=nothing,childern=Person[]) = 
+                partner=nothing,children=Person[]) = 
                     Person(pos,BasicInfo(age = age, gender = gender), 
-                    Kinship(father,mother,partner,childern))
+                    Kinship(father,mother,partner,children))
 
 
 "Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
-        partner=nothing,childern=Person[]) = 
+        partner=nothing,children=Person[]) = 
             Person(pos,BasicInfo(age=age,gender=gender), 
-                       Kinship(father,mother,partner,childern))
+                       Kinship(father,mother,partner,children))
 
 
 
@@ -92,7 +92,7 @@ function setFather!(child::Person,father::Person)
     isMale(father) ?                    nothing  : throw(ArgumentError("$(father) is not a male")) 
     (child.kinship.father == nothing) ? nothing : throw(ArgumentError("$(child) has a father")) 
     child.kinship.father = father 
-    push!(father.kinship.childern,child)
+    push!(father.kinship.children,child)
     nothing 
 end
 
@@ -102,7 +102,7 @@ function setMother!(child::Person,mother::Person)
     isFemale(mother)          ?            nothing : throw(ArgumentError("$(mother) is not a female")) 
     (child.kinship.mother == nothing) ?  nothing  : throw(ArgumentError("$(child) has a mother")) 
     child.kinship.mother = mother 
-    push!(mother.kinship.childern,child)
+    push!(mother.kinship.children,child)
     nothing 
 end
 
