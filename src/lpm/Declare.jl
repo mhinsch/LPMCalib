@@ -4,7 +4,7 @@ module Declare
 using Global: Gender, unknown, female, male
 using SocialAgents: Town, House, Person, undefinedHouse, setPartner! 
 using SocialABMs: SocialABM
-using Utilities:(-)
+using Utilities:(-), read2DArray
 
 export createUKDemography
 
@@ -65,11 +65,16 @@ function createUKDemography(properties)
     ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
     
     populationProperties = [:initialPop,:minStartAge,:maxStartAge] - properties 
+    populationProperties[:fert_data]    = read2DArray("data/babyrate.txt.csv")
+    populationProperties[:death_female] = read2DArray("data/deathrate.fem.csv")
+    populationProperties[:death_male]   = read2DArray("data/deathrate.male.csv")
+
     # Consider an argument for data 
     ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
 
     [ukTowns,ukHouses,ukPopulation]
 end 
+
 
 
 
