@@ -22,8 +22,8 @@ function doDeaths!(population::SocialABM{Person}) # agent_step / model_step?
         if curryear >= 1950 
 
             person.info.age = person.info.age > 109 ? Rational(109) : nothing 
-            rawRate = isMale(person)   ?  
-            rawRate = isFemale(person) ? 
+           # rawRate = isMale(person)   ?  
+           # rawRate = isFemale(person) ? 
 
         else # curryear < 1950 
 
