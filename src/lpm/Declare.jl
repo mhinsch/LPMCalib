@@ -65,7 +65,10 @@ function createUKDemography(properties)
     
     ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
     
-    populationProperties = [:initialPop,:minStartAge,:maxStartAge] - properties 
+    populationProperties = [:initialPop,:minStartAge,:maxStartAge,
+                            :baseDieProb,:babyDieProb,
+                            :maleAgeScaling,:maleAgeDieProb,
+                            :femaleAgeScaling,:femaleAgeDieProb,:num5YearAgeClasses] - properties 
     
     # Consider an argument for data 
     ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)

@@ -120,6 +120,15 @@ function loadUKPopulationParameters()
     # TODO this parameter does not belong here. It is a simulation parameters
     poppars[:startYear]   = 1860 
 
+    # Mortality statistics
+    poppars[:baseDieProb] = 0.0001
+    poppars[:babyDieProb] = 0.005
+    poppars[:maleAgeScaling] = 14.0
+    poppars[:maleAgeDieProb] = 0.00021
+    poppars[:femaleAgeScaling] = 15.5
+    poppars[:femaleAgeDieProb] = 0.00019
+    poppars[:num5YearAgeClasses] = 28
+
     poppars 
 end
 
