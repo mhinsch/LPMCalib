@@ -50,6 +50,14 @@ step!(
     n::Int=1,
 )  = step!(model(simulation),pre_model_step!,agent_step!,post_model_step!,n)
 
+step!(
+    simulation::AbstractSocialSimulation, 
+    pre_model_steps::Vector{Function},
+    agent_steps,
+    post_model_steps,  
+    n::Int=1,
+)  = step!(model(simulation),pre_model_steps,agent_steps,post_model_steps,n)
+
 
 function verboseStep(simulation_step::Rational,yearly=true) 
     (year,month) = age2yearsmonths(simulation_step) 
@@ -93,6 +101,26 @@ function run!(simulation::AbstractSocialSimulation,
     for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
         verbose ? verboseStep(simulation_step,yearly) : nothing 
         step!(simulation,pre_model_step!,agent_step!,post_model_step!)
+    end 
+
+end 
+ 
+"""
+Run a simulation using stepping functions
+    - agent_step_function()
+    - model_step_function
+"""
+function run!(simulation::AbstractSocialSimulation,
+              pre_model_steps::Vector{Function}, 
+              agent_steps,
+              post_model_steps;
+              verbose::Bool=false,yearly=true) 
+
+    Random.seed!(seed(simulation))
+
+    for simulation_step in range(startTime(simulation),finishTime(simulation),step=dt(simulation))
+        verbose ? verboseStep(simulation_step,yearly) : nothing 
+        step!(simulation,pre_model_steps,agent_steps,post_model_steps)
     end 
 
 end 

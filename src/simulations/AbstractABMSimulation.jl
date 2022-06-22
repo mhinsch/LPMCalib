@@ -23,37 +23,38 @@ setup!(::AbstractABMSimulation,::AbstractExample) = nothing
 "attach an agent step function to the simulation"
 function attach_agent_step!(simulation::AbstractABMSimulation,
                             agent_step::Function) 
-    simulation.agent_step = agent_step             
+    push!(simulation.agent_steps,agent_step)             
     nothing           
 end  
 
 "attach a pre model step function to the simualtion, i.e. before the executions of agent_step"
 function attach_pre_model_step!(simulation::AbstractABMSimulation,
                                 model_step::Function) 
-    simulation.pre_model_step = model_step 
+    # simulation.pre_model_step = model_step 
+    push!(simulation.pre_model_steps,model_step) 
     nothing
 end 
 
 "attach a pre model step function to the simualtion, i.e. before the executions of agent_step"
 function attach_post_model_step!(simulation::AbstractABMSimulation,
                                  model_step::Function) 
-    simulation.post_model_step = model_step 
+    push!(simulation.post_model_step,model_step)  
     nothing
 end 
 
 "step a simulation"
 step!(simulation::AbstractABMSimulation,
       n::Int=1) = step!(simulation,
-                        simulation.pre_model_step, 
-                        simulation.agent_step,
-                        simulation.post_model_step,
+                        simulation.pre_model_steps, 
+                        simulation.agent_steps,
+                        simulation.post_model_steps,
                         n)
 
 "Run a simulation of an ABM"
 run!(simulation::AbstractABMSimulation;verbose::Bool=false) = 
                 run!(simulation, 
-                     simulation.pre_model_step,
-                     simulation.agent_step,
-                     simulation.post_model_step,
+                     simulation.pre_model_steps,
+                     simulation.agent_steps,
+                     simulation.post_model_steps,
                      verbose=verbose)
 
