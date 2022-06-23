@@ -1,6 +1,6 @@
 module SimSetup
 
-using SocialABMs: agestep!
+using SocialABMs: agestep!, agestepAlivePerson!
 using SocialABMs: dummystep, defaultprestep!, defaultpoststep! 
 using SocialSimulations: startTime, dt
 using SocialSimulations: ABMSocialSimulation, MABMSimulation
@@ -34,7 +34,6 @@ end
 
 
 function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
-    
     sim.agent_steps      = [dummystep]  
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 
@@ -46,7 +45,7 @@ function setup!(sim::ABMSocialSimulation,example::LPMUKDemography)
 end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
-    attach_agent_step!(sim.simulations[3],agestep!)    
+    attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
     #= 
     n = length(sim.simulations) 

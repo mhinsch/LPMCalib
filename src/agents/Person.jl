@@ -63,10 +63,13 @@ Person(;pos=undefinedHouse,age=0,
 
 
 "increment an age for a person to be used in typical stepping functions"
-function agestep!(person::Person;dt=1//12) 
-   # person += Rational(1,12) or GlobalVariable.DT
-   person.info.age += dt 
+agestep!(person::Person; dt=1//12) = person.info.age += dt  
+
+"increment an age for a person to be used in typical stepping functions"
+function agestepAlivePerson!(person::Person;dt=1//12) 
+    person.info.age += person.info.alive ?  dt : 0  
 end 
+
 
 isFemale(person::Person) = person.info.gender == female
 
