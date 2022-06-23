@@ -7,7 +7,22 @@ using SocialABMs: SocialABM
 using SocialABMs: attach2DData!
 using Utilities:(-) 
 
+import SocialSimulations: AbstractExample
+export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography
+
+### Example Names 
+
+"Super type for all demographic models"
+abstract type Demography <: AbstractExample end 
+
+"This corresponds to direct translation of the python model"
+struct LPMUKDemography <: Demography end 
+
+"This is an attemp for improved algorthimic translation"
+struct LPMUKDemographyOpt <: Demography end 
+
+### 
 
 function createUKTowns(properties) 
 

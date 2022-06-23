@@ -9,9 +9,10 @@ using SocialABMs: MultiABM
 # dummystep 
 
 using LoneParentsModel.Loaders:    loadUKMapParameters, loadUKPopulationParameters
+using LoneParentsModel.Declare:    LPMUKDemography, LPMUKDemographyOpt 
 using LoneParentsModel.Declare:    createUKDemography 
 using LoneParentsModel.Initialize: initializeDemography!
-using LoneParentsModel.SimSetup:   loadSimulationParameters, LPMUKDemography
+using LoneParentsModel.SimSetup:   loadSimulationParameters
 
 using SocialSimulations: MABMSimulation
 using SocialSimulations: run! 
@@ -45,7 +46,7 @@ println(); println();
 simProperties = loadSimulationParameters()
 
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  example=LPMUKDemography())
+                                  example=LPMUKDemographyOpt())
 
 # Execution 
 
