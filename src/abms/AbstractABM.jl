@@ -6,12 +6,14 @@ Specification of an abstract ABM type as a supertype for all
 
 using SocialAgents
 
+using Utilities: age2yearsmonths, removefirst!
+
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
 
 export allagents, nagents
 export add_agent!, move_agent!, kill_agent!
-export step!, dummystep, errorstep  
+export step!, dummystep, errorstep, defaultprestep!, defaultpoststep! 
 
 
 #========================================
@@ -82,14 +84,12 @@ end
 
 "to a given position" 
 function move_agent!(agent,pos,model::AbstractABM)
+    error("not implemented")
     nothing 
 end 
 
 "remove an agent"
-function kill_agent!(agent,model::AbstractABM) 
-    nothing 
-end
-
+kill_agent!(agent,model::AbstractABM) = removefirst!(model.agentsList,agent) 
 
 #=
 Other potential functions 
@@ -112,6 +112,19 @@ errorstep(::AbstractAgent,::AbstractABM) = error("agent stepping function has no
 
 "Default model stepping function for reminding the client that it should be provided"
 errorstep(::AbstractABM) = error("model stepping function has not been specified")
+
+"Default instructions before stepping an abm"
+function defaultprestep!(abm::AbstractABM) 
+    abm.properties[:stepnumber] = abm.properties[:stepnumber] + 1 
+    nothing 
+end
+
+"Default instructions after stepping an abm"
+function defaultpoststep!(abm::AbstractABM) 
+    abm.properties[:currstep] =  abm.properties[:currstep] + abm.properties[:dt] 
+    nothing 
+end
+
 
 """
 Stepping function for a model of type AgentBasedModel with 
@@ -164,6 +177,71 @@ function step!(
             for agent in model.agentsList
                 agent_step!(agent,model)
             end
+        end
+    
+    end
+
+end # step! 
+
+
+"""
+Stepping function for a model of type AgentBasedModel with 
+    pre_model_step!(modelObj::AgentBasedModel)
+    agent_step!(agentObj,modelObj::AgentBasedModel) 
+    model_step!(modelObj::AgentBasedModel)
+    n::number of steps 
+"""
+function step!(
+    model::AbstractABM,
+    pre_model_step!, 
+    agent_step!,
+    post_model_step!,  
+    n::Int=1,
+)  
+    
+    for i in range(1,n)
+        
+        pre_model_step!(model)
+    
+        for agent in model.agentsList
+            agent_step!(agent,model)
+        end
+        
+        post_model_step!(model)
+    
+    end
+
+end # step! 
+
+"""
+Step an ABM given a set of independent stepping functions
+    pre_model_steps[:](modelObj::AgentBasedModel)
+    agent_steps[:](agentObj,modelObj::AgentBasedModel) 
+    model_step[:](modelObj::AgentBasedModel)
+    n::number of steps 
+"""
+function step!(
+    model::AbstractABM,
+    pre_model_steps::Vector{Function}, 
+    agent_steps::Vector{Function},
+    post_model_steps::Vector{Function},  
+    n::Int=1,
+)  
+    
+    for i in range(1,n)
+        
+        for k in 1:length(pre_model_steps)
+            pre_model_steps[k](model)
+        end
+    
+        for agent in model.agentsList
+            for k in 1:length(agent_steps)
+                agent_steps[k](agent,model)
+            end 
+        end
+        
+        for k in 1:length(post_model_steps)
+            post_model_steps[k](model)
         end
     
     end

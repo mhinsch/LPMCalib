@@ -13,12 +13,12 @@ abstract type AbstractMABMSimulation <: AbstractSocialSimulation end
 setup!(::AbstractMABMSimulation,::AbstractExample) = nothing 
 
 "condcut n simulation step(s) for a given MABM"
-function step!(sim::AbstractMABMSimulation,n::Int=1,agents_first=true) 
+function step!(sim::AbstractMABMSimulation,n::Int=1)
 
     nabm = length(sim.simulations)
     for simulation_step in 1:n 
         for j in 1:nabm
-            step!(sim.simulations[j],1,agents_first)
+            step!(sim.simulations[j],1)
         end 
     end
 
@@ -28,6 +28,7 @@ end
 function run!(sim::AbstractMABMSimulation;verbose::Bool=false,yearly=true)  
 
     Random.seed!(seed(sim))
+    
     n = length(sim.simulations)
     for simulation_step in range(startTime(sim),finishTime(sim),step=dt(sim))
         verbose ? verboseStep(simulation_step,yearly) : nothing 

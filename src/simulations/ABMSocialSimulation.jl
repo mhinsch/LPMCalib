@@ -10,13 +10,14 @@ mutable struct ABMSocialSimulation <: AbstractABMSimulation
     model::AbstractSocialABM
     properties::Dict{Symbol,Any} 
     
-    # pre_model_step::Function 
-    agent_step::Function       # agent_step::Vector{Function}
-    model_step::Function 
+
+    pre_model_steps::Vector{Function} 
+    agent_steps::Vector{Function}       
+    post_model_steps::Vector{Function} 
 
     function ABMSocialSimulation(abm::AbstractSocialABM,properties::Dict{Symbol};
-        example::AbstractExample=DummyExample()) 
-        abmsimulation = new(abm,properties,errorstep,errorstep)
+                                 example::AbstractExample=DummyExample()) 
+        abmsimulation = new(abm,properties,[errorstep],[errorstep],[errorstep])
         setup!(abmsimulation,example)
         abmsimulation 
     end
@@ -37,7 +38,7 @@ end
 # 
 
 
-# Simulation setup phasze 
+# Simulation setup phase 
 # attaching simulations  end 
 # attach_agent_step      end 
 # attach_model_step      end 

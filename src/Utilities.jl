@@ -5,7 +5,7 @@ module Utilities
 
     using CSV, Tables     # for reading 2D matrices from a file
 
-    export createTimeStampedFolder, read2DArray, subtract!, age2yearsmonths 
+    export createTimeStampedFolder, read2DArray, subtract!, age2yearsmonths, removefirst! 
 
     """
        Subtract keys from a given dictionary
@@ -20,7 +20,7 @@ module Utilities
             throw(ArgumentError("$ks ⊈  $(keys(dict))")) 
         end 
         newdict = Dict{Symbol,Any}()  
-        for key in ks 
+        for key ∈ ks 
             newdict[key] = dict[key] 
             delete!(dict,key) 
         end 
@@ -43,6 +43,13 @@ module Utilities
         #    os.makedirs(folder)
         # folder
         "" 
+    end
+
+    "remove first occurance of e in list"
+    function removefirst!(list, e)
+        e ∉ list ? throw(ArgumentError("element $(e) not in $(list)")) : nothing 
+        deleteat!(list, findfirst(x -> x == e, list)) 
+        nothing 
     end
 
     "convert age in rational representation to (years, months) as tuple"

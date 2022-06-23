@@ -4,9 +4,25 @@ module Declare
 using Global: Gender, unknown, female, male
 using SocialAgents: Town, House, Person, undefinedHouse, setPartner! 
 using SocialABMs: SocialABM
-using Utilities:(-)
+using SocialABMs: attach2DData!
+using Utilities:(-) 
 
+import SocialSimulations: AbstractExample
+export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography
+
+### Example Names 
+
+"Super type for all demographic models"
+abstract type Demography <: AbstractExample end 
+
+"This corresponds to direct translation of the python model"
+struct LPMUKDemography <: Demography end 
+
+"This is an attemp for improved algorthimic translation"
+struct LPMUKDemographyOpt <: Demography end 
+
+### 
 
 function createUKTowns(properties) 
 
@@ -30,8 +46,10 @@ function createUKPopulation(properties)
     for i in 1 : properties[:initialPop]
         ageMale = rand((properties[:minStartAge]:properties[:maxStartAge]))
         ageFemale = ageMale - rand((-2:5))
-
-        ageFemale = ageFemale < 24 ? 24 : ageFemale 
+        ageFemale = ageFemale < 24 ? 24 : ageFemale
+        
+        rageMale = ageMale + rand(0:11) // 12     
+        rageFemale = ageFemale + rand(0:11) // 12 
 
         # From the old code: 
         #    the following is direct translation but it does not ok 
@@ -40,8 +58,8 @@ function createUKPopulation(properties)
         #    birthYear = properties[:startYear]  - ageMale/Female 
         #    birthMonth = rand((1:12))
 
-        newMan = Person(undefinedHouse,ageMale,gender=male)
-        newWoman = Person(undefinedHouse,ageFemale,gender=female)   
+        newMan = Person(undefinedHouse,rageMale,gender=male)
+        newWoman = Person(undefinedHouse,rageFemale,gender=female)   
         setPartner!(newMan,newWoman) 
         
         push!(population,newMan);  push!(population,newWoman) 
@@ -62,12 +80,23 @@ function createUKDemography(properties)
     
     ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
     
-    populationProperties = [:initialPop,:minStartAge,:maxStartAge] - properties 
+    populationProperties = [:initialPop,:minStartAge,:maxStartAge,
+                            :baseDieProb,:babyDieProb,
+                            :maleAgeScaling,:maleAgeDieProb,
+                            :femaleAgeScaling,:femaleAgeDieProb,
+                            # :num5YearAgeClasses,
+                            :maleMortalityBias, :femaleMortalityBias] - properties 
+    
     # Consider an argument for data 
     ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
 
+    attach2DData!(ukPopulation,:fert,"data/babyrate.txt.csv")
+    attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")
+    attach2DData!(ukPopulation,:death_male,"data/deathrate.male.csv")
+
     [ukTowns,ukHouses,ukPopulation]
 end 
+
 
 
 

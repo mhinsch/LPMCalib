@@ -1,8 +1,9 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!
+export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
 
 using Spaces: HouseLocation
+using Utilities: removefirst!
 
 
 """
@@ -51,6 +52,12 @@ setHouse!(person::AbstractPersonAgent,house::House)  = error("Not implemented")
 "assoicate a house to a person"
 setHouse!(house::House,person::AbstractPersonAgent)  = setHouse!(person,house)
 
+"remove an occupant from a house"
+function removeOccupant!(house, person)
+    removefirst!(house.occupants, person) 
+    person.pos = undefinedHouse 
+    nothing 
+end
 
 "Costum print function for agents"
 function Base.show(io::IO, house::House)

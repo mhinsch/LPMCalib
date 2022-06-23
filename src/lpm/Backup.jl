@@ -497,6 +497,26 @@ function loadModelParameters!(simulation::SocialSimulation)
 end
 
 
+
+#=
+"Create an empty population initially with no agents"
+function createPopulation() 
+    population = SocialABM{Person}()
+
+    # ?? Brief descriptions of the numbers within the text file needed (not directly understandable in their pure format)
+
+    # Data related to population income 
+    # addProperty!(population,:unemployment_series,readArrayFromCSVFile("unemploymentrate.csv"))
+    # addProperty!(population,:income_distribution,readArrayFromCSVFile("incomeDistribution.csv"))
+    # addProperty!(population,:income_percentiles,readArrayFromCSVFile("incomePercentiles.csv"))
+    # addProperty!(population,:wealth_distribution,readArrayFromCSVFile("wealthDistribution.csv"))
+
+    # shifts = createShifts() 
+
+    population
+end
+=# 
+
 function initSimulationVariables(simulation::SocialSimulation) 
 
     #= not considered yet 
@@ -1146,4 +1166,53 @@ self.pop.livingPeople[:] = [x for x in self.pop.livingPeople if x.dead == False]
 postDeath = len(self.pop.livingPeople)
 
 print('the number of deaths is: ' + str(preDeath - postDeath))      
+=# 
+
+
+#= 
+
+def deathProb(self, baseRate, person):  ##, shareUnmetNeed, classPop):
+        
+        classRank = person.classRank
+        if person.status == 'child' or person.status == 'student':
+            classRank = person.parentsClassRank
+        
+        if person.sex == 'male':
+            mortalityBias = self.p['maleMortalityBias']
+        else:
+            mortalityBias = self.p['femaleMortalityBias']
+        
+        deathProb = baseRate
+        
+        a = 0
+        for i in range(int(self.p['numberClasses'])):
+            a += self.socialClassShares[i]*math.pow(mortalityBias, i)
+            
+        if a > 0:
+            
+            lowClassRate = baseRate/a
+            
+            classRate = lowClassRate*math.pow(mortalityBias, classRank)
+            
+            deathProb = classRate
+           
+            b = 0
+            for i in range(int(self.p['numCareLevels'])):
+                b += self.careNeedShares[classRank][i]*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - i)
+                
+            if b > 0:
+                
+                higherNeedRate = classRate/b
+               
+                deathProb = higherNeedRate*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - person.careNeedLevel) # deathProb
+            
+        # Add the effect of unmet care need on mortality rate for each care need level
+        
+        ##### Temporarily by-passing the effect of Unmet Care Need   #############
+        
+#        a = 0
+#        for x in classPop:
+#            a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
+#        higherUnmetNeed = (classRate*len(classPop))/a
+#        deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
 =# 

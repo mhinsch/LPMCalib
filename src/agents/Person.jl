@@ -1,8 +1,8 @@
-export Person, setHouse!
+export Person
+export isSingle, setHouse!, resolvePartnership!
 
 using Spaces: GridSpace
 using Utilities: age2yearsmonths
-
 
 
 """
@@ -21,24 +21,15 @@ mutable struct Person <: AbstractPersonAgent
     - (x-y coordinates of a house)
     - (town::Town, x-y location in the map)
     """ 
-    pos::House     
-    age::Rational 
-    # birthYear::Int        
-    # birthMonth::Int
-    gender::Gender  
-    father::Union{Person,Nothing}
-    mother::Union{Person,Nothing} 
-    partner::Union{Person,Nothing}
-    childern::Vector{Person}
-    # self.yearMarried = []
-    # self.yearDivorced = []
-    # self.deadYear = 0
+    pos::House    
+    info::BasicInfo     
+    kinship::Kinship
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos::House,age,gender,father,mother,partner,childern)
+    function Person(pos::House,info::BasicInfo,kinship::Kinship)
         global IDCOUNTER = IDCOUNTER+1
-        person = new(IDCOUNTER,pos,age,gender,father,mother,partner,childern)
+        person = new(IDCOUNTER,pos,info,kinship)
         pos != undefinedHouse ? push!(pos.occupants,person) : nothing
         person  
     end 
@@ -46,16 +37,9 @@ end
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
-    years , months = age2yearsmonths(person.age)
-    print("Person: $(person.id), $(years) years & $(months) months, $(person.gender)") 
+    print(person.info)
     person.pos     == undefinedHouse ? nothing : print(" @ House id : $(person.pos.id)") 
-    person.father  == nothing        ? nothing : print(" , father    : $(person.father.id)") 
-    person.mother  == nothing        ? nothing : print(" , mother    : $(person.mother.id)") 
-    person.partner == nothing        ? nothing : print(" , partner   : $(person.partner.id)") 
-    length(person.childern) == 0      ? nothing : print(" , childern  : ")
-    for child in person.childern
-        print(" $(child.id) ") 
-    end 
+    print(person.kinship)
     println() 
 end
 
@@ -64,38 +48,37 @@ end
 "Constructor with default values"
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
-                partner=nothing,childern=Person[]) = 
-                    Person(pos,age,gender,father,mother,partner,childern)
+                partner=nothing,children=Person[]) = 
+                    Person(pos,BasicInfo(age = age, gender = gender), 
+                    Kinship(father,mother,partner,children))
 
 
 "Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
-        partner=nothing,childern=Person[]) = 
-            Person(pos,age,gender,father,mother,partner,childern)
-
+        partner=nothing,children=Person[]) = 
+            Person(pos,BasicInfo(age=age,gender=gender), 
+                       Kinship(father,mother,partner,children))
 
 
 "increment an age for a person to be used in typical stepping functions"
-function agestep!(person::Person;dt=1//12) 
-   # person += Rational(1,12) or GlobalVariable.DT
-   person.age += dt 
+agestep!(person::Person; dt=1//12) = person.info.age += dt  
+
+"increment an age for a person to be used in typical stepping functions"
+function agestepAlivePerson!(person::Person;dt=1//12) 
+    person.info.age += person.info.alive ?  dt : 0  
 end 
 
 
-function isFemale(person::Person) 
-    person.gender == female
-end
+isFemale(person::Person) = person.info.gender == female
 
-function isMale(person::Person) 
-    person.gender == male
-end 
+isMale(person::Person) = person.info.gender == male
+
+isSingle(person::Person) = person.kinship.partner == nothing 
 
 "home town of a person"
-function getHomeTown(person::Person)
-    getHomeTown(person.pos) 
-end
+getHomeTown(person::Person) = getHomeTown(person.pos) 
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
@@ -104,39 +87,54 @@ end
 
 "set the father of a child"
 function setFather!(child::Person,father::Person) 
-    child.age < father.age  ? nothing  : throw(ArgumentError("$(child.age) >= $(father.age)")) 
-    isMale(father) ?          nothing  : throw(ArgumentError("$(father) is not a male")) 
-    (child.father == nothing) ? father : throw(ArgumentError("$(child) has a father")) 
-    child.father = father 
-    push!(father.childern,child)
+    child.info.age < father.info.age  ? nothing  : throw(ArgumentError("$(child.info.age) >= $(father.info.age)")) 
+    isMale(father) ?                    nothing  : throw(ArgumentError("$(father) is not a male")) 
+    (child.kinship.father == nothing) ? nothing : throw(ArgumentError("$(child) has a father")) 
+    child.kinship.father = father 
+    push!(father.kinship.children,child)
     nothing 
 end
 
 "set the mother of a child"
 function setMother!(child::Person,mother::Person) 
-    child.age < mother.age    ?  nothing : throw(ArgumentError("$(child.age) >= $(father.age)")) 
-    isFemale(mother)          ?  nothing : throw(ArgumentError("$(mother) is not a female")) 
-    (child.mother == nothing) ?  mother  : throw(ArgumentError("$(child) has a mother")) 
-    child.mother = mother 
-    push!(mother.childern,child)
+    child.info.age < mother.info.age    ?  nothing : throw(ArgumentError("$(child.info.age) >= $(father.info..age)")) 
+    isFemale(mother)          ?            nothing : throw(ArgumentError("$(mother) is not a female")) 
+    (child.kinship.mother == nothing) ?  nothing  : throw(ArgumentError("$(child) has a mother")) 
+    child.kinship.mother = mother 
+    push!(mother.kinship.children,child)
     nothing 
 end
+
+"help function"
+partner(person::Person) = person.kinship.partner 
+
+function resetPartner!(person)
+    if partner(person) != nothing # reset 
+        person.kinship.partner.kinship.partner = nothing
+        person.kinship.partner = nothing  
+    end 
+    nothing 
+end
+
+"resolving partnership"
+function resolvePartnership!(person1::Person, person2::Person)
+    if partner(person1) != person2 || partner(person2) != person1
+        throw(ArgumentError("$(person1) and $(person2) are not partners"))
+    end
+    resetPartner!(person1)
+end
+
 
 "set two persons to be a partner"
 function setPartner!(person1::Person,person2::Person)
     if (isMale(person1) && isFemale(person2) || 
         isFemale(person1) && isMale(person2)) 
 
-        # resolve previous partnership 
-        if person1.partner != nothing 
-            person1.partner.partner = nothing 
-        end 
-        if person2.partner != nothing 
-            person2.partner.partner = nothing 
-        end 
+        resetPartner!(person1) 
+        resetPartner!(person2)
 
-        person1.partner = person2
-        person2.partner = person1
+        person1.kinship.partner = person2
+        person2.kinship.partner = person1
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
