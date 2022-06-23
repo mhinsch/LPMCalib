@@ -1,20 +1,17 @@
 module SimSetup
 
-using SocialABMs: agestep!, agestepAlivePerson!
+using SocialABMs: agestep!, agestepAlivePerson!, removeDead!
 using SocialABMs: dummystep, defaultprestep!, defaultpoststep! 
 using SocialSimulations: startTime, dt
 using SocialSimulations: ABMSocialSimulation, MABMSimulation
 using SocialSimulations: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 using LoneParentsModel.Simulate: doDeaths!
-import SocialSimulations: setup!, AbstractExample
+using LoneParentsModel.Declare: Demography, LPMUKDemography, LPMUKDemographyOpt
 
-export LPMUKDemography
+import SocialSimulations: setup!
+
 export loadSimulationParameters, setup!  
 
-
-# Example Name 
-
-struct LPMUKDemography <: AbstractExample end 
 
 """
 set simulation paramters @return dictionary of symbols to values
@@ -33,7 +30,7 @@ function loadSimulationParameters()
 end 
 
 
-function setup!(sim::ABMSocialSimulation,example::LPMUKDemography) 
+function setup!(sim::ABMSocialSimulation,example::Demography) 
     sim.agent_steps      = [dummystep]  
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 
@@ -41,12 +38,17 @@ function setup!(sim::ABMSocialSimulation,example::LPMUKDemography)
     sim.model.properties[:currstep]   = Rational(startTime(sim)) 
     sim.model.properties[:dt]         = dt(sim)
     sim.model.properties[:stepnumber] = 0 
+    sim.model.properties[:example]    = example 
+
     nothing 
 end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
     attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
+
+    sim.model.properties[:example] = example 
+
     #= 
     n = length(sim.simulations) 
     for i in 1:n 
@@ -54,8 +56,25 @@ function setup!(sim::MABMSimulation,example::LPMUKDemography)
         attach_model_step!(simulations[i],Y)
     end
     =# 
+
     nothing 
 end
 
+function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt) 
+
+    # attach_init_step!(sim,someInitialization!)
+
+    attach_agent_step!(sim.simulations[3],agestepAlivePerson!)  
+    attach_agent_step!(sim.simulations[3],removeDead!)   
+    attach_pre_model_step!(sim.simulations[3],doDeaths!)
+
+    sim.model.properties[:example] = example 
+
+    # attach_post_model_step!(sim.simulations[3],someStats!)
+    # attach_post_model_step!(sim.simulations[3],writeSomeResults!)
+    # attach_final_step!(sim,someFinaliztion!) 
+
+    nothing 
+end
 
 end # SimSetup 
