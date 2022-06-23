@@ -1167,3 +1167,52 @@ postDeath = len(self.pop.livingPeople)
 
 print('the number of deaths is: ' + str(preDeath - postDeath))      
 =# 
+
+
+#= 
+
+def deathProb(self, baseRate, person):  ##, shareUnmetNeed, classPop):
+        
+        classRank = person.classRank
+        if person.status == 'child' or person.status == 'student':
+            classRank = person.parentsClassRank
+        
+        if person.sex == 'male':
+            mortalityBias = self.p['maleMortalityBias']
+        else:
+            mortalityBias = self.p['femaleMortalityBias']
+        
+        deathProb = baseRate
+        
+        a = 0
+        for i in range(int(self.p['numberClasses'])):
+            a += self.socialClassShares[i]*math.pow(mortalityBias, i)
+            
+        if a > 0:
+            
+            lowClassRate = baseRate/a
+            
+            classRate = lowClassRate*math.pow(mortalityBias, classRank)
+            
+            deathProb = classRate
+           
+            b = 0
+            for i in range(int(self.p['numCareLevels'])):
+                b += self.careNeedShares[classRank][i]*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - i)
+                
+            if b > 0:
+                
+                higherNeedRate = classRate/b
+               
+                deathProb = higherNeedRate*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - person.careNeedLevel) # deathProb
+            
+        # Add the effect of unmet care need on mortality rate for each care need level
+        
+        ##### Temporarily by-passing the effect of Unmet Care Need   #############
+        
+#        a = 0
+#        for x in classPop:
+#            a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
+#        higherUnmetNeed = (classRate*len(classPop))/a
+#        deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
+=# 
