@@ -18,7 +18,7 @@ using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using Utilities: read2DArray, createTimeStampedFolder, subtract!, age2yearsmonths
+using Utilities: read2DArray, createTimeStampedFolder, subtract!, age2yearsmonths, removefirst!
 
 using Global: Gender, male, female, unknown 
 
@@ -150,6 +150,12 @@ using Global: Gender, male, female, unknown
         @test age2yearsmonths(1059 // 12) == (88 , 3)
         @test_throws ArgumentError   age2yearsmonths(1059 // 5)
         @test_throws ArgumentError   age2yearsmonths(-1059 // 5)
+
+        arr = [person3, person2, person6] 
+        removefirst!(arr, person2)
+        @test arr[1] == person3  && arr[2] == person6 
+        @test_throws ArgumentError removefirst!(arr,person5)  
+
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin
