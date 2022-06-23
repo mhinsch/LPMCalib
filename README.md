@@ -11,6 +11,7 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - V0.2.2: Distributing properties among smaller ABMs, Separation between declaration and initialisation, utilisation of built-in exceptions, Agent person tuning + unit tests
   - v0.2.3: re-structure of examples, improved printing 
   - v0.2.4: simulation concept 
+- **V0.3** (23.06.2022): Improved simulation concep, Flexibility for simulating same example with different implementation (via type traits), Population simulation considering death probabilities 
 
 
 ### Source code structure 
@@ -21,7 +22,9 @@ An initial implementation of an ABM aiming at a social and child care simulation
   - /abms/*         : Examples of abms
   - SocialSimulations.jl
                     : the main functionalities of execcuting an ABM
-  - /simulations    : simulation functions for simulation examples 
+  - /simulations    : simulation functions for simulation examples
+  - LoneParentsModel.jl : Main modules for realizing LPM.jl 
+  - /lpm                  submodules for declaring, initializing and simulating lpm 
   - Spaces.jl       : Spaces on which ABM and its agents are operating  
   - Global.jl       : Global variables and types used across the library
   - Utilities.jl    : util routines used across the library
