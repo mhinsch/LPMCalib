@@ -23,7 +23,8 @@ is provided here
 """
 function loadSimulationParameters() 
     Dict(:numRepeats=>1,
-        :startTime=>1860,
+        :startTime=>1920,
+        #:startTime=>1860,
         :finishTime=>2040,
         :dt=>1//12,
         :seed=> floor(Int,time()))
