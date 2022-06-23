@@ -121,13 +121,15 @@ function loadUKPopulationParameters()
     poppars[:startYear]   = 1860 
 
     # Mortality statistics
-    poppars[:baseDieProb] = 0.0001
-    poppars[:babyDieProb] = 0.005
-    poppars[:maleAgeScaling] = 14.0
-    poppars[:maleAgeDieProb] = 0.00021
-    poppars[:femaleAgeScaling] = 15.5
-    poppars[:femaleAgeDieProb] = 0.00019
-    poppars[:num5YearAgeClasses] = 28
+    poppars[:baseDieProb] = 0.0001          # used 
+    poppars[:babyDieProb] = 0.005           # used           
+    poppars[:maleAgeScaling] = 14.0         # used 
+    poppars[:maleAgeDieProb] = 0.00021      # used 
+    poppars[:femaleAgeScaling] = 15.5       # used 
+    poppars[:femaleAgeDieProb] = 0.00019    # used 
+    # poppars[:num5YearAgeClasses] = 28
+    poppars[:maleMortalityBias] = 0.8       # used          
+    poppars[:femaleMortalityBias] = 0.85    # used 
 
     poppars 
 end

@@ -68,7 +68,9 @@ function createUKDemography(properties)
     populationProperties = [:initialPop,:minStartAge,:maxStartAge,
                             :baseDieProb,:babyDieProb,
                             :maleAgeScaling,:maleAgeDieProb,
-                            :femaleAgeScaling,:femaleAgeDieProb,:num5YearAgeClasses] - properties 
+                            :femaleAgeScaling,:femaleAgeDieProb,
+                            # :num5YearAgeClasses,
+                            :maleMortalityBias, :femaleMortalityBias] - properties 
     
     # Consider an argument for data 
     ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
