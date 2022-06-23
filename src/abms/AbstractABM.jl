@@ -6,7 +6,7 @@ Specification of an abstract ABM type as a supertype for all
 
 using SocialAgents
 
-using Utilities: age2yearsmonths
+using Utilities: age2yearsmonths, removefirst!
 
 "Abstract ABM resembles the ABM concept from Agents.jl"
 abstract type AbstractABM end 
@@ -84,14 +84,12 @@ end
 
 "to a given position" 
 function move_agent!(agent,pos,model::AbstractABM)
+    error("not implemented")
     nothing 
 end 
 
 "remove an agent"
-function kill_agent!(agent,model::AbstractABM) 
-    nothing 
-end
-
+kill_agent!(agent,model::AbstractABM) = removefirst!(model.agentsList,agent) 
 
 #=
 Other potential functions 
