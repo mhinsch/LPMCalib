@@ -1,4 +1,5 @@
-export Person, setHouse!, resolvePartnership!
+export Person
+export isSingle, setHouse!, resolvePartnership!
 
 using Spaces: GridSpace
 using Utilities: age2yearsmonths
@@ -70,6 +71,8 @@ end
 isFemale(person::Person) = person.info.gender == female
 
 isMale(person::Person) = person.info.gender == male
+
+isSingle(person::Person) = person.kinship.partner == nothing 
 
 "home town of a person"
 getHomeTown(person::Person) = getHomeTown(person.pos) 
