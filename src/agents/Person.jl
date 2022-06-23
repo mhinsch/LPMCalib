@@ -1,4 +1,4 @@
-export Person, setHouse!
+export Person, setHouse!, resolvePartnership!
 
 using Spaces: GridSpace
 using Utilities: age2yearsmonths
@@ -61,25 +61,18 @@ Person(;pos=undefinedHouse,age=0,
                        Kinship(father,mother,partner,children))
 
 
-
 "increment an age for a person to be used in typical stepping functions"
 function agestep!(person::Person;dt=1//12) 
    # person += Rational(1,12) or GlobalVariable.DT
    person.info.age += dt 
 end 
 
-function isFemale(person::Person) 
-    person.info.gender == female
-end
+isFemale(person::Person) = person.info.gender == female
 
-function isMale(person::Person) 
-    person.info.gender == male
-end 
+isMale(person::Person) = person.info.gender == male
 
 "home town of a person"
-function getHomeTown(person::Person)
-    getHomeTown(person.pos) 
-end
+getHomeTown(person::Person) = getHomeTown(person.pos) 
 
 "home town name of a person" 
 function getHomeTownName(person::Person) 
@@ -106,21 +99,33 @@ function setMother!(child::Person,mother::Person)
     nothing 
 end
 
-
+"help function"
 partner(person::Person) = person.kinship.partner 
+
+function resetPartner!(person)
+    if partner(person) != nothing # reset 
+        person.kinship.partner.kinship.partner = nothing
+        person.kinship.partner = nothing  
+    end 
+    nothing 
+end
+
+"resolving partnership"
+function resolvePartnership!(person1::Person, person2::Person)
+    if partner(person1) != person2 || partner(person2) != person1
+        throw(ArgumentError("$(person1) and $(person2) are not partners"))
+    end
+    resetPartner!(person1)
+end
+
 
 "set two persons to be a partner"
 function setPartner!(person1::Person,person2::Person)
     if (isMale(person1) && isFemale(person2) || 
         isFemale(person1) && isMale(person2)) 
 
-        # resolve previous partnership 
-        if partner(person1) != nothing # reset 
-            person1.kinship.partner.kinship.partner = nothing 
-        end 
-        if partner(person2) != nothing # reset 
-            person2.kinship.partner.kinship.partner = nothing 
-        end 
+        resetPartner!(person1) 
+        resetPartner!(person2)
 
         person1.kinship.partner = person2
         person2.kinship.partner = person1

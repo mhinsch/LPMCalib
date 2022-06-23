@@ -14,6 +14,7 @@ using SocialAgents: Person, House, Town
 
 using SocialAgents: verify, isFemale, isMale
 using SocialAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
+using SocialAgents: resolvePartnership!
 using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
@@ -80,14 +81,17 @@ using Global: Gender, male, female, unknown
         @test person2 in person4.kinship.children 
 
         setPartner!(person1,person4) 
-        @test person1.kinship.partner === person4
-        @test person4.kinship.partner === person1 
+        @test person1.kinship.partner === person4 && person4.kinship.partner === person1 
 
         @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
 
         @test_throws InvalidStateException setParent!(person4,person5)  # unknown gender 
         @test_throws ArgumentError setFather!(person4,person1)          # ages incompatibe / well they are also partners  
         @test_throws ArgumentError setMother!(person2,person3)          # person 2 has a mother 
+
+        resolvePartnership!(person4,person1) 
+        @test person1.kinship.partner !== person4 && person4.kinship.partner != person1
+        @test_throws ArgumentError resolvePartnership!(person1,person4) 
     end 
 
     @testset verbose=true "Type House" begin
