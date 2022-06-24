@@ -5,7 +5,7 @@ Module for defining a supertype, AbstractAgent for all Agent types
 module XAgents
 
     include("./agents/AbstractXAgent.jl")    # could implant Agents.jl 
-    include("./agents/AbstractPersonAgent.jl")
+    include("./agents/AbstractPerson.jl")
 
     include("./agents/Town.jl")
     include("./agents/House.jl")
