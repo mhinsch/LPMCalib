@@ -14,7 +14,7 @@ Type Person extends from AbstractAgent.
 """ 
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
-mutable struct Person <: AbstractPersonAgent
+mutable struct Person <: AbstractPerson
     id
     """
     location of a parson's house in a map which implicitly  
