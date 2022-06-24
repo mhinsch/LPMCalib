@@ -4,7 +4,7 @@ Specification of an abstract ABM type as a supertype for all
     from Agents.jl
 """
 
-using SocialAgents
+using XAgents
 
 using Utilities: age2yearsmonths, removefirst!
 
@@ -38,22 +38,18 @@ end
 Functionalities for agents within an ABM
 =########################################
 
-"return the id-th agent"
-function getindex(model::AbstractABM,id) 
-    nothing 
-end
+"return the id-th agent (Agents.jl)"
+getindex(model::AbstractABM,id) = error("not implemented")
+    
 
 # equivalent to operator [], i.e. model[id] 
 
-"random seed of the model"
-function seed!(model::AbstractABM,seed) 
-    nothing 
-end 
+"random seed of the model (Agents.jl)"
+seed!(model::AbstractABM,seed) = error("not implemented") 
 
 "numbe of  agents"
-function nagents(model::AbstractABM) 
-    length(model.agentsList)
-end 
+nagents(model::AbstractABM) = length(model.agentsList)
+ 
 
 #= 
 Couple of other useful functions may include:
@@ -82,11 +78,9 @@ function add_agent!(agent,pos,model::AgentBasedModel)
 end
 =# 
 
-"to a given position" 
-function move_agent!(agent,pos,model::AbstractABM)
-    error("not implemented")
-    nothing 
-end 
+"to a given position (Agents.jl)" 
+move_agent!(agent,pos,model::AbstractABM) =  error("not implemented")
+
 
 "remove an agent"
 kill_agent!(agent,model::AbstractABM) = removefirst!(model.agentsList,agent) 

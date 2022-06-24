@@ -4,8 +4,8 @@ Implementation of a population as an ABM model
 This file is included with SocialABMs module. This file is subject to removal or modification
 """
 
-using  SocialAgents: Person
-import SocialAgents: agestep!, agestepAlivePerson!, removeDead! 
+using  XAgents: Person
+import XAgents: agestep!, agestepAlivePerson!, removeDead! 
 
 export population_step!, agemonthstep!, agestepAlivePerson
 
