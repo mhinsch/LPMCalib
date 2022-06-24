@@ -13,7 +13,7 @@ export getHomeTown, getHomeTownName, agestep!
 export setFather!, setMother!, setParent!, setPartner! 
 
 
-abstract type AbstractPersonAgent <: AbstractSocialAgent end 
+abstract type AbstractPersonAgent <: AbstractXAgent end 
 
 # Interfaces / hard contract 
 

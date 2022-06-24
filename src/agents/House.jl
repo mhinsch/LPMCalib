@@ -9,11 +9,11 @@ using Utilities: removefirst!
 """
 Specification of a House Agent Type. 
 
-This file is included in the module SocialAgents 
+This file is included in the module XAgents 
 
-Type House to extend from AbstractSocialAgent.
+Type House to extend from AbstracXAgent.
 """ 
-mutable struct House <: AbstractSocialAgent
+mutable struct House <: AbstractXAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  

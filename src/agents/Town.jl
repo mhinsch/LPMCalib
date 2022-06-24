@@ -10,11 +10,11 @@ Every person in the population is an agent with a house as
 a position. Every house is an agent with assigned town as a
 position. 
 
-This file is included in the module SocialAgents 
+This file is included in the module XAgents 
 
-Type Town to extend from AbstractAgent.
+Type Town to extend from AbstractAXgent.
 """
-mutable struct Town <: AbstractSocialAgent
+mutable struct Town <: AbstractXAgent
     id
     pos::TownLocation
     name::String                            # does not look necessary

@@ -8,7 +8,7 @@ using Utilities: age2yearsmonths
 """
 Specification of a Person Agent Type. 
 
-This file is included in the module SocialAgents
+This file is included in the module XAgents
 
 Type Person extends from AbstractAgent.
 """ 
