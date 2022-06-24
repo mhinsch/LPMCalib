@@ -5,7 +5,7 @@ This file is included in SocialSimuilations module
 """
 
 using Random
-using SocialAgents: AbstractAgent 
+using XAgents: AbstractAgent 
 using SocialABMs:   AbstractABM 
 using Utilities:    age2yearsmonths 
 

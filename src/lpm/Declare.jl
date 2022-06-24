@@ -2,7 +2,7 @@ module Declare
 
 
 using Global: Gender, unknown, female, male
-using SocialAgents: Town, House, Person, undefinedHouse, setPartner! 
+using XAgents: Town, House, Person, undefinedHouse, setPartner! 
 using SocialABMs: SocialABM
 using SocialABMs: attach2DData!
 using Utilities:(-) 

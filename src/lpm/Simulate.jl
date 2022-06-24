@@ -5,9 +5,9 @@
 
 module Simulate
 
-using SocialAgents: Person  
-using SocialAgents: isMale, isFemale, isSingle
-using SocialAgents: removeOccupant!, resolvePartnership!
+using XAgents: Person  
+using XAgents: isMale, isFemale, isSingle
+using XAgents: removeOccupant!, resolvePartnership!
 using SocialABMs: SocialABM, allagents
 using Utilities: age2yearsmonths
 using LoneParentsModel.Declare: LPMUKDemographyOpt

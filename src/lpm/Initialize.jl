@@ -2,7 +2,7 @@ module Initialize
 
 
 using Random: shuffle 
-using SocialAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
+using XAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
 using SocialABMs: SocialABM, add_agent!, allagents, nagents 
 using SocialABMs: MultiABM
 import SocialABMs: initial_connect!

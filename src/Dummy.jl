@@ -6,8 +6,8 @@ functions for a dummy simulation
 module Dummy
 
     using Global: Gender, unknown, female, male
-    using SocialAgents: Town, House, Person
-    using SocialAgents: setParent!, setMother!, setPartner! 
+    using XAgents: Town, House, Person
+    using XAgents: setParent!, setMother!, setPartner! 
     using SocialABMs: SocialABM, add_agent!
 
     export createPopulation

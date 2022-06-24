@@ -10,12 +10,12 @@ julia> include("RunTests.jl")
 
 using Test
 
-using SocialAgents: Person, House, Town
+using XAgents: Person, House, Town
 
-using SocialAgents: verify, isFemale, isMale
-using SocialAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
-using SocialAgents: resolvePartnership!
-using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
+using XAgents: verify, isFemale, isMale
+using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
+using XAgents: resolvePartnership!
+using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
 using Spaces: HouseLocation
 
