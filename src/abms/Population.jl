@@ -5,7 +5,7 @@ This file is included with SocialABMs module. This file is subject to removal or
 """
 
 using  XAgents: Person
-import XAgents: agestep!, agestepAlivePerson!, removeDead! 
+import XAgents: agestep!, agestepAlivePerson!
 
 export population_step!, agemonthstep!, agestepAlivePerson
 

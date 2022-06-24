@@ -23,9 +23,10 @@ using Dummy: createPopulation
 
 function setup!(simulation::ABMSocialSimulation,
                 ::DummyExample) 
-     attach_agent_step!(simulation,dummystep)
-     attach_pre_model_step!(simulation,population_step!) 
-     attach_post_model_step!(simulation,dummystep) 
+     simulation.agent_steps = [dummystep] 
+     simulation.pre_model_steps = [population_step!]  
+     simulation.post_model_steps = [dummystep] 
+     nothing  
 end
 
 dummySimulation = ABMSocialSimulation(createPopulation,

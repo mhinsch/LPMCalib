@@ -38,7 +38,7 @@ end
 "attach a pre model step function to the simualtion, i.e. before the executions of agent_step"
 function attach_post_model_step!(simulation::AbstractABMSimulation,
                                  model_step::Function) 
-    push!(simulation.post_model_step,model_step)  
+    push!(simulation.post_model_steps,model_step)  
     nothing
 end 
 
