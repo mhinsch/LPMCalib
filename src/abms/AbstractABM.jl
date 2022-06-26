@@ -241,3 +241,33 @@ function step!(
     end
 
 end # step! 
+
+
+#=
+
+"set a symbol property to a model without overwriting"
+function setproperty!(model::AbstractSocialABM,property::Symbol,val)
+    if property in keys(model.properties)
+        error("$(property) is already available")
+    end 
+    model.properties[property] = val  
+end 
+
+
+"A dummy connection between arbitrary ABMs"
+dummyconnect(abm1::AbstractSocialABM,
+             abm2::AbstractSocialABM,
+             properties::Dict{Symbol}) = nothing
+
+
+It is thinkable to associate further attributes to SocialABMs s.a.
+
+variable(sabm::AbstractSocialABM,var::Symbol) = sabm.variable[var]
+parameter(sabm::AbstractSocialABM,par::Parameter) = sabm.parameter[par]
+data(sabm::AbstractSocialABM,symbol::Symbol)  = sabm.data[symbol]
+... 
+function addData!(sabm,symbol,csvfile) end
+function addVariable!(sabm,symbol) end 
+function deleteVariable!(sabm,symbol) end
+
+=# 

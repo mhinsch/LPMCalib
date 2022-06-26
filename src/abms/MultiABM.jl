@@ -7,13 +7,13 @@
 
 export MultiABM 
 
-abstract type AbstractMABM  end   # <: AbstractSocialABM (to think about it)
+abstract type AbstractMABM  end   # <: AbstractABM (to think about it)
 
 dummyinit(mabm::AbstractMABM) = nothing 
 
 "A MultiABM concept" 
 mutable struct MultiABM   <: AbstractMABM 
-    abms::Array{AbstractSocialABM,1} 
+    abms::Array{AbstractABM,1} 
 
     "Dictionary of model properties"
     properties::Dict{Symbol}

@@ -3,8 +3,8 @@ module Declare
 
 using Global: Gender, unknown, female, male
 using XAgents: Town, House, Person, undefinedHouse, setPartner! 
-using SocialABMs: SocialABM
-using SocialABMs: attach2DData!
+using MultiABMs: SocialABM
+using MultiABMs: attach2DData!
 using Utilities:(-) 
 
 import SocialSimulations: AbstractExample

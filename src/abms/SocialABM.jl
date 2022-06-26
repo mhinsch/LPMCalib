@@ -13,7 +13,7 @@ export SocialABM, initial_connect!, attach2DData!
 # dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
 
 "Agent based model specification for social simulations"
-mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractSocialABM
+mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractABM
     agentsList::Array{AgentType,1}
     """
     Dictionary mapping symbols (e.g. :x) to values 
@@ -40,4 +40,4 @@ end
 "ensure symmetry"
 initial_connect!(abm2::SocialABM{T2},
                  abm1::SocialABM{T1},
-                 properties::Dict{Symbol}) where {T1 <: AbstractSocialABM,T2 <: AbstractSocialABM} = initial_connect!(abm1,abm2,properties)
+                 properties::Dict{Symbol}) where {T1 <: AbstractABM,T2 <: AbstractABM} = initial_connect!(abm1,abm2,properties)

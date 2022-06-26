@@ -6,10 +6,10 @@ This file is included in SocialSimuilations module
 
 using Random
 using XAgents: AbstractAgent 
-using SocialABMs:   AbstractABM 
+using MultiABMs:   AbstractABM 
 using Utilities:    age2yearsmonths 
 
-import SocialABMs: step!
+import MultiABMs: step!
 
 export step!, run!  
 

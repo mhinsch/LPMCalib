@@ -1,11 +1,11 @@
 """
 Module for specifying a type for agent-based models with some examples
 """
-module SocialABMs 
+module MultiABMs 
     # import XAgents: AbstractAgent      
 
     include("./abms/AbstractABM.jl")      # could be replaced by Agents.ABM / require more hacks  
-    include("./abms/AbstractSocialABM.jl")
+    # include("./abms/AbstractSocialABM.jl")
 
     include("./abms/MultiABM.jl")
     

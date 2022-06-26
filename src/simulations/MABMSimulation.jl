@@ -4,7 +4,7 @@
         This file is part of  SocialSimulations module 
 """
 
-using SocialABMs: AbstractMABM 
+using  MultiABMs: AbstractMABM 
 export MABMSimulation
 
 

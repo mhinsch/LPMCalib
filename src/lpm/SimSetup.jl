@@ -1,7 +1,7 @@
 module SimSetup
 
-using SocialABMs: agestep!, agestepAlivePerson!, removeDead!
-using SocialABMs: dummystep, defaultprestep!, defaultpoststep! 
+using MultiABMs: agestep!, agestepAlivePerson!, removeDead!
+using MultiABMs: dummystep, defaultprestep!, defaultpoststep! 
 using SocialSimulations: startTime, dt
 using SocialSimulations: ABMSocialSimulation, MABMSimulation
 using SocialSimulations: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  

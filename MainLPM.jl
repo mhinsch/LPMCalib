@@ -4,7 +4,7 @@ Main simulation of the lone parent model
 under construction 
 """
 
-using SocialABMs: MultiABM
+using MultiABMs: MultiABM
 
 # dummystep 
 
