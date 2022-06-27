@@ -5,6 +5,8 @@
 """
 
 using  MultiABMs: AbstractMABM 
+using  Global:    AbstractExample, DummyExample 
+
 export MABMSimulation
 
 

@@ -7,7 +7,8 @@ using MultiABMs: ABM
 using MultiABMs: attach2DData!
 using Utilities:(-) 
 
-import Simulations: AbstractExample
+import Global: AbstractExample
+
 export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography
 

@@ -5,7 +5,6 @@ Generic interface specifying main functions for
 
 module Simulations
 
-    include("simulations/AbstractExample.jl")
     include("simulations/AbstractSimulation.jl")
     include("simulations/AbstractABMSimulation.jl")
     include("simulations/AbstractMABMSimulation.jl")

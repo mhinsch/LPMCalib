@@ -3,6 +3,8 @@
     A concept for ABM simulation 
 """
 
+using Global:    AbstractExample, DummyExample 
+
 export AbstractABMSimulation
 export attach_agent_step!, attach_pre_model_step!, attach_post_model_step!
 export setup!, step!, run! 

@@ -4,6 +4,8 @@
     This source file is part of the Simulations module 
 """ 
 
+using Global:    AbstractExample, DummyExample 
+
 export AbstractMABMSimulation 
 export setup!, step!, run! 
 
