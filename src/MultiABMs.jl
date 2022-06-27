@@ -5,10 +5,11 @@ module MultiABMs
     
     using MultiAgents: AbstractAgent 
 
-    include("./abms/AbstractABM.jl")      # could be replaced by Agents.ABM / require more hacks  
+    using MultiAgents: ABM
 
-    include("./abms/MultiABM.jl")
-    include("./abms/ABM.jl")     
+    # include("./abms/AbstractABM.jl")      # could be replaced by Agents.ABM / require more hacks  
+    # include("./abms/MultiABM.jl")
+    # include("./abms/ABM.jl")     
        
     include("./abms/Population.jl") 
 end # MultiABMs

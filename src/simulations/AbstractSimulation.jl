@@ -6,11 +6,9 @@ This file is included in Simuilations module
 
 using Random
 using XAgents:     AbstractAgent 
-using MultiABMs:   AbstractABM 
 using Utilities:   age2yearsmonths 
 
-import MultiABMs: step!
-
+import MultiAgents: step!
 export step!, run!  
 
 

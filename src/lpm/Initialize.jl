@@ -1,11 +1,14 @@
 module Initialize
 
 
-using  Random: shuffle 
-using  XAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
-using  MultiABMs: ABM, add_agent!, allagents, nagents 
-using  MultiABMs: MultiABM
-import MultiABMs: initial_connect!
+using  Random:  shuffle 
+using  XAgents: Town, House, Person
+using  XAgents: undefinedHouse, isFemale, setPartner! 
+
+using  MultiAgents: ABM, MultiABM 
+using  MultiAgents: add_agent!, allagents, nagents 
+
+import MultiAgents: initial_connect!
 
 export initializeDemography!
 

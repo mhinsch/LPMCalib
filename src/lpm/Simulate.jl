@@ -8,7 +8,9 @@ module Simulate
 using XAgents: Person  
 using XAgents: isMale, isFemale, isSingle
 using XAgents: removeOccupant!, resolvePartnership!
-using MultiABMs: ABM, allagents
+
+using MultiAgents: ABM, allagents
+
 using Utilities: age2yearsmonths
 using LoneParentsModel.Declare: LPMUKDemographyOpt
 

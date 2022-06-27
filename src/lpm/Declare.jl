@@ -3,8 +3,7 @@ module Declare
 
 using Global: Gender, unknown, female, male
 using XAgents: Town, House, Person, undefinedHouse, setPartner! 
-using MultiABMs: ABM
-using MultiABMs: attach2DData!
+using MultiAgents: ABM, attach2DData!
 using Utilities:(-) 
 
 import Global: AbstractExample

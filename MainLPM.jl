@@ -4,7 +4,7 @@ Main simulation of the lone parent model
 under construction 
 """
 
-using MultiABMs: MultiABM
+using MultiAgents: MultiABM
 
 # dummystep 
 
@@ -53,4 +53,3 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 run!(lpmDemographySim,verbose=true)
 
 lpmDemographySim
- 

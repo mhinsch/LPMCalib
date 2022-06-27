@@ -3,8 +3,9 @@ Definition of an ABM-Simulation type.
 """ 
 
 export ABMSimulation 
-using MultiABMs: AbstractABM
-using MultiABMs: errorstep 
+
+using MultiAgents: errorstep 
+
 using Global:    AbstractExample, DummyExample 
 
 mutable struct ABMSimulation <: AbstractABMSimulation  
