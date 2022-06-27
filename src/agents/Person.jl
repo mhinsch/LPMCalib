@@ -2,7 +2,6 @@ export Person
 export isSingle, setHouse!, resolvePartnership!
 
 using Spaces: GridSpace
-using Utilities: age2yearsmonths
 
 
 """

@@ -6,7 +6,7 @@ using XAgents: Town, House, Person, undefinedHouse, setPartner!
 using MultiAgents: ABM, attach2DData!
 using Utilities:(-) 
 
-import Global: AbstractExample
+import MultiAgents.Util: AbstractExample
 
 export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography

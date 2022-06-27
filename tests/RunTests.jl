@@ -20,7 +20,8 @@ using XAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using Utilities: read2DArray, createTimeStampedFolder, subtract!, age2yearsmonths, removefirst!
+using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!
+using Utilities:  createTimeStampedFolder, subtract! 
 
 using Global: Gender, male, female, unknown 
 
@@ -151,10 +152,9 @@ using Global: Gender, male, female, unknown
         @test issetequal(keys(parama),[:a]) 
         @test issetequal(keys(paramab),[:b])
 
-
-        @test age2yearsmonths(1059 // 12) == (88 , 3)
-        @test_throws ArgumentError   age2yearsmonths(1059 // 5)
-        @test_throws ArgumentError   age2yearsmonths(-1059 // 5)
+        @test date2yearsmonths(1059 // 12) == (88 , 3)
+        @test_throws ArgumentError   date2yearsmonths(1059 // 5)
+        @test_throws ArgumentError   date2yearsmonths(-1059 // 5)
 
         arr = [person3, person2, person6] 
         removefirst!(arr, person2)

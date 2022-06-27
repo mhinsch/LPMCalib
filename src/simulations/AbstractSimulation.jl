@@ -6,7 +6,7 @@ This file is included in Simuilations module
 
 using Random
 using XAgents:     AbstractAgent 
-using Utilities:   age2yearsmonths 
+using MultiAgents.Util:   date2yearsmonths 
 
 import MultiAgents: step!
 export step!, run!  
@@ -57,7 +57,7 @@ step!(
 
 
 function verboseStep(simulation_step::Rational,yearly=true) 
-    (year,month) = age2yearsmonths(simulation_step) 
+    (year,month) = date2yearsmonths(simulation_step) 
     yearly && month == 0 ? println("conducting simulation step year $(year)") : nothing 
     yearly               ? nothing : println("conducting simulation step year $(year) month $(month+1)")
 end

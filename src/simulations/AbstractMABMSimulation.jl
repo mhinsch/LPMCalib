@@ -4,7 +4,7 @@
     This source file is part of the Simulations module 
 """ 
 
-using Global:    AbstractExample, DummyExample 
+using  MultiAgents.Util:    AbstractExample, DummyExample 
 
 export AbstractMABMSimulation 
 export setup!, step!, run! 

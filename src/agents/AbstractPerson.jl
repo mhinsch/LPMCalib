@@ -5,6 +5,7 @@
     the agent types House and Person  
 """
 
+using MultiAgents.Util: date2yearsmonths
 using Global: Gender, unknown, female, male
 
 export AbstractPerson, Kinship
@@ -82,7 +83,7 @@ BasicInfo(;age=0//1, gender=unknown, alive = true) = BasicInfo(age,gender,alive)
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  info::BasicInfo)
-  year, month = age2yearsmonths(info.age)
+  year, month = date2yearsmonths(info.age)
   print(" $(year) years & $(month) months, $(info.gender) ")
   info.alive ? print(" alive ") : print(" dead ")  
 end

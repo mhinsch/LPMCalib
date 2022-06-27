@@ -16,7 +16,7 @@ julia> include("this_script.jl")
 using  MultiAgents: ABM, dummystep 
 using  MultiABMs: population_step!
 
-using  Global:    AbstractExample, DummyExample 
+using  MultiAgents.Util:    AbstractExample, DummyExample 
 using  Simulations: ABMSimulation
 using  Simulations: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
 import Simulations: setup!

@@ -11,7 +11,7 @@ using XAgents: removeOccupant!, resolvePartnership!
 
 using MultiAgents: ABM, allagents
 
-using Utilities: age2yearsmonths
+using MultiAgents.Util: date2yearsmonths
 using LoneParentsModel.Declare: LPMUKDemographyOpt
 
 export doDeaths!
@@ -76,7 +76,7 @@ function doDeaths!(population::ABM{Person};
 
     parameters = population.properties 
 
-    (curryear,currmonth) = age2yearsmonths(Rational(population.properties[:currstep]))
+    (curryear,currmonth) = date2yearsmonths(Rational(population.properties[:currstep]))
     currmonth = currmonth + 1 
 
     people = allagents(population)
@@ -133,7 +133,7 @@ function doDeaths!(population::ABM{Person};
 
         if rand() < dieProb && rand(1:12) == currmonth
             if verbose 
-                y, m = age2yearsmonths(age)
+                y, m = date2yearsmonths(age)
                 println("person $(person.id) died year $(curryear) with age of $y")
                 sleep(sleeptime) 
             end

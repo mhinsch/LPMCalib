@@ -4,7 +4,7 @@
         This file is part of  Simulations module 
 """
 
-using  Global:    AbstractExample, DummyExample 
+using  MultiAgents.Util:    AbstractExample, DummyExample 
 
 export MABMSimulation
 

@@ -1,16 +1,14 @@
 """
     Set of all global variables and types shared among modules 
-
 """
 
 module Global
 
     # Types 
     export Gender 
-    export AbstractExample, DummyExample
 
     # Constants 
-    export USEAGENTSJL, SimulationFolderPrefix
+    export SimulationFolderPrefix
 
     # list of types 
 
@@ -33,17 +31,6 @@ module Global
             # implementation, e.g. setup stepping functions 
         end 
     """
-
-    "A super type for all simulation examples"
-    abstract type AbstractExample end 
-
-    "Default dummy example type"
-    struct DummyExample <: AbstractExample end 
-
-    # list of global variables
-
-    "whether the package Agents.jl shall be used" 
-    const USEAGENTSJL = false      # Still not employed / implemented 
 
     "Folder in which simulation results are stored"
     const SimulationFolderPrefix = "Simulations_Folder"

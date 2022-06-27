@@ -3,8 +3,7 @@ export  House
 export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
 
 using Spaces: HouseLocation
-using Utilities: removefirst!
-
+using MultiAgents.Util: removefirst!
 
 """
 Specification of a House Agent Type. 
@@ -20,7 +19,6 @@ mutable struct House <: AbstractXAgent
     occupants::Vector{AbstractPerson}                           
 
     House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
-    
 end # House 
 
 House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
@@ -41,7 +39,6 @@ end
 function getHouseLocation(house::House)
     house.pos[2]
 end 
-
 
 "associate a house to a person"
 setHouse!(person::AbstractPerson,house::House)  = error("Not implemented")

@@ -6,7 +6,7 @@ export ABMSimulation
 
 using MultiAgents: errorstep 
 
-using Global:    AbstractExample, DummyExample 
+using MultiAgents.Util:    AbstractExample, DummyExample 
 
 mutable struct ABMSimulation <: AbstractABMSimulation  
     model::AbstractABM
