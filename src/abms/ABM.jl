@@ -1,19 +1,18 @@
 """
     An Agent Based Model concept based on AbstractAgent type 
     similar to Agents.jl. 
-    A new abstract ABM type called SocialABM is realized. 
     It specifies further functionalities needed (as a contract)
-    for running a social simulation. 
+    for running an ABM simulation. (An imitation of Agents.jl) 
 """ 
 
 using Utilities: read2DArray
-export SocialABM, initial_connect!, attach2DData!
+export ABM, initial_connect!, attach2DData!
 
 
 # dummydeclare(dict::Dict{Symbol}=Dict{Symbol}()) = nothing 
 
 "Agent based model specification for social simulations"
-mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractABM
+mutable struct ABM{AgentType <: AbstractAgent} <: AbstractABM
     agentsList::Array{AgentType,1}
     """
     Dictionary mapping symbols (e.g. :x) to values 
@@ -23,7 +22,7 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractABM
     properties
     data::Dict{Symbol}       # data structure to be improved 
 
-    SocialABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
+    ABM{AgentType}(properties::Dict{Symbol} = Dict{Symbol,Any}(); 
         declare::Function = dict::Dict{Symbol} -> AgentType[]) where AgentType <: AbstractAgent = 
              new(declare(properties),copy(properties),Dict{Symbol,Any}())
              
@@ -32,12 +31,12 @@ mutable struct SocialABM{AgentType <: AbstractAgent} <: AbstractABM
 end # AgentBasedModel  
 
 ""
-function attach2DData!(abm::SocialABM{AgentType}, symbol::Symbol, fname ) where AgentType 
+function attach2DData!(abm::ABM{AgentType}, symbol::Symbol, fname ) where AgentType 
     abm.data[symbol] = read2DArray(fname) 
 end
 
  
 "ensure symmetry"
-initial_connect!(abm2::SocialABM{T2},
-                 abm1::SocialABM{T1},
+initial_connect!(abm2::ABM{T2},
+                 abm1::ABM{T1},
                  properties::Dict{Symbol}) where {T1 <: AbstractABM,T2 <: AbstractABM} = initial_connect!(abm1,abm2,properties)

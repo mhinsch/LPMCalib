@@ -8,7 +8,7 @@ module Simulate
 using XAgents: Person  
 using XAgents: isMale, isFemale, isSingle
 using XAgents: removeOccupant!, resolvePartnership!
-using MultiABMs: SocialABM, allagents
+using MultiABMs: ABM, allagents
 using Utilities: age2yearsmonths
 using LoneParentsModel.Declare: LPMUKDemographyOpt
 
@@ -69,7 +69,7 @@ function deathProbability(baseRate,person,parameters)
 end # function deathProb
 
 
-function doDeaths!(population::SocialABM{Person};
+function doDeaths!(population::ABM{Person};
                    verbose = true, sleeptime=0) 
 
     parameters = population.properties 

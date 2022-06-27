@@ -8,14 +8,14 @@ module Dummy
     using Global: Gender, unknown, female, male
     using XAgents: Town, House, Person
     using XAgents: setParent!, setMother!, setPartner! 
-    using MultiABMs: SocialABM, add_agent!
+    using MultiABMs: ABM, add_agent!
 
     export createPopulation
 
     "Establish a dummy population"
     function initPopulation(houses::Array{House,1})
     
-        population = SocialABM{Person}()
+        population = ABM{Person}()
 
         for house in houses
             mother   = Person(house,rand(25:55) + rand(0:11) // 12 , gender=female)

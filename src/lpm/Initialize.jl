@@ -3,14 +3,14 @@ module Initialize
 
 using  Random: shuffle 
 using  XAgents: Town, House, Person, undefinedHouse, isFemale, setPartner! 
-using  MultiABMs: SocialABM, add_agent!, allagents, nagents 
+using  MultiABMs: ABM, add_agent!, allagents, nagents 
 using  MultiABMs: MultiABM
 import MultiABMs: initial_connect!
 
 export initializeDemography!
 
 "initialize an abm of houses through an abm of towns"
-function initial_connect!(abmhouses::SocialABM{House},abmtowns::SocialABM{Town},properties) 
+function initial_connect!(abmhouses::ABM{House},abmtowns::ABM{Town},properties) 
 
     # create houses within towns 
     towns = allagents(abmtowns)  
@@ -35,14 +35,14 @@ function initial_connect!(abmhouses::SocialABM{House},abmtowns::SocialABM{Town},
 end
 
 # Connection is symmetric 
-initial_connect!(abmtowns::SocialABM{Town},abmhouses::SocialABM{House},properties) = initial_connect!(abmhouses,abmtowns,properties)
+initial_connect!(abmtowns::ABM{Town},abmhouses::ABM{House},properties) = initial_connect!(abmhouses,abmtowns,properties)
 
 
 """ 
     initialize an abm of houses through an abm of towns
     a set of houses are chosen randomly and assigned to couples 
 """
-function initial_connect!(abmpopulation::SocialABM{Person},abmhouses::SocialABM{House},properties) 
+function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{House},properties) 
     
     numberOfMens        = trunc(Int,nagents(abmpopulation) / 2)       # it is assumed that half of the population is men
     randomHousesIndices = shuffle(1:nagents(abmhouses))    

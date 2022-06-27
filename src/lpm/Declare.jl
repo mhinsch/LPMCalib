@@ -3,7 +3,7 @@ module Declare
 
 using Global: Gender, unknown, female, male
 using XAgents: Town, House, Person, undefinedHouse, setPartner! 
-using MultiABMs: SocialABM
+using MultiABMs: ABM
 using MultiABMs: attach2DData!
 using Utilities:(-) 
 
@@ -75,10 +75,10 @@ end # createUKPopulation
 function createUKDemography(properties) 
     #TODO distribute properties among ambs and MABM  
     mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
-    ukTowns  = SocialABM{Town}(mapProperties,
+    ukTowns  = ABM{Town}(mapProperties,
                                declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
-    ukHouses = SocialABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
+    ukHouses = ABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
     
     populationProperties = [:initialPop,:minStartAge,:maxStartAge,
                             :baseDieProb,:babyDieProb,
@@ -88,7 +88,7 @@ function createUKDemography(properties)
                             :maleMortalityBias, :femaleMortalityBias] - properties 
     
     # Consider an argument for data 
-    ukPopulation = SocialABM{Person}(populationProperties, declare=createUKPopulation)
+    ukPopulation = ABM{Person}(populationProperties, declare=createUKPopulation)
 
     attach2DData!(ukPopulation,:fert,"data/babyrate.txt.csv")
     attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")

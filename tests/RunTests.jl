@@ -117,7 +117,7 @@ using Global: Gender, male, female, unknown
     # detect_ambiguities(AgentTypes)
 
     #=
-        testing SocialABMs TODO 
+        testing ABMs TODO 
 
         @test (pop = Population()) != nothing                           # Population means something 
         @test household = Household() != nothing                        # a household instance is something 
@@ -126,7 +126,7 @@ using Global: Gender, male, female, unknown
         @test town = Town()                          skip=true  
     =# 
 
-    # TODO testing SocialABMs once designed
+    # TODO testing ABMs once designed
 
     # TODO testing stepping functions once design is fixed 
 

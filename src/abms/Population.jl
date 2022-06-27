@@ -1,7 +1,7 @@
 """
 Implementation of a population as an ABM model 
 
-This file is included with SocialABMs module. This file is subject to removal or modification
+This file is included with MultiABMs module. This file is subject to removal or modification
 """
 
 using  XAgents: Person
@@ -11,23 +11,23 @@ export population_step!, agemonthstep!, agestepAlivePerson
 
 
 "Step function for the population"
-function population_step!(population::SocialABM{Person};dt=1//12)
+function population_step!(population::ABM{Person};dt=1//12)
     for agent in population.agentsList
         agestep!(agent,dt=dt)
     end
 end 
 
 "remove dead persons" 
-function removeDead!(person::Person, population::SocialABM{Person}) 
+function removeDead!(person::Person, population::ABM{Person}) 
     person.info.alive ? nothing : kill_agent!(person, population) 
     nothing 
 end
 
 "increment age with the simulation step size"
-agestep!(person::Person,population::SocialABM{Person}) = agestep!(person,dt=population.properties[:dt])
+agestep!(person::Person,population::ABM{Person}) = agestep!(person,dt=population.properties[:dt])
 
 "increment age with the simulation step size"
-agestepAlivePerson!(person::Person,population::SocialABM{Person}) = agestepAlivePerson!(person,dt=population.properties[:dt])
+agestepAlivePerson!(person::Person,population::ABM{Person}) = agestepAlivePerson!(person,dt=population.properties[:dt])
 
 #= 
 

@@ -2,10 +2,10 @@
     A concept for multi ABMs for orchestering a set of 
         elemantary ABMs.
 
-    This file is included in the module SocialABMs. 
+    This file is included in the module MultiABMs. 
 """ 
 
-export MultiABM 
+export AbstractMABM, MultiABM 
 
 abstract type AbstractMABM  end   # <: AbstractABM (to think about it)
 
