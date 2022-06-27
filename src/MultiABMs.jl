@@ -2,7 +2,8 @@
 Module for specifying a type for agent-based models with some examples
 """
 module MultiABMs 
-    # import XAgents: AbstractAgent      
+    
+    using MultiAgents: AbstractAgent 
 
     include("./abms/AbstractABM.jl")      # could be replaced by Agents.ABM / require more hacks  
 
