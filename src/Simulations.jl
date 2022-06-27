@@ -1,15 +1,15 @@
 """
 Generic interface specifying main functions for
-    executing a social simulation. 
+    executing an ABM / MABM simulation. 
 """
 
-module SocialSimulations
+module Simulations
 
     include("simulations/AbstractExample.jl")
-    include("simulations/AbstractSocialSimulation.jl")
+    include("simulations/AbstractSimulation.jl")
     include("simulations/AbstractABMSimulation.jl")
     include("simulations/AbstractMABMSimulation.jl")
-    include("simulations/ABMSocialSimulation.jl")
+    include("simulations/ABMSimulation.jl")
     include("simulations/MABMSimulation.jl") 
 
-end # Socialimulations 
+end # Simulations 

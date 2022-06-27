@@ -10,4 +10,4 @@ module MultiABMs
     include("./abms/ABM.jl")     
        
     include("./abms/Population.jl") 
-end # Social ABMs
+end # MultiABMs

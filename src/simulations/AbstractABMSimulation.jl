@@ -8,7 +8,7 @@ export attach_agent_step!, attach_pre_model_step!, attach_post_model_step!
 export setup!, step!, run! 
 
 "Abstract type for ABMs" 
-abstract type AbstractABMSimulation <: AbstractSocialSimulation end 
+abstract type AbstractABMSimulation <: AbstractSimulation end 
 
 """
     default setup the simulation stepping functions in the constructor 

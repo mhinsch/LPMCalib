@@ -1,7 +1,7 @@
 """
     Definition of a multi ABM simulation based on MultiABM concept/ 
 
-        This file is part of  SocialSimulations module 
+        This file is part of  Simulations module 
 """
 
 using  MultiABMs: AbstractMABM 
@@ -11,7 +11,7 @@ export MABMSimulation
 mutable struct MABMSimulation <: AbstractMABMSimulation 
 
     model::AbstractMABM 
-    simulations::Array{ABMSocialSimulation,1}
+    simulations::Array{ABMSimulation,1}
     properties::Dict{Symbol,Any}    # Simualtion propoerties    
     
     #mabm_step::Function 
@@ -21,7 +21,7 @@ mutable struct MABMSimulation <: AbstractMABMSimulation
         n = length(mabm.abms)
         simulations = AbstractABMSimulation[] 
         for i in 1:n 
-            abmsim = ABMSocialSimulation(mabm.abms[i],properties,example=example)
+            abmsim = ABMSimulation(mabm.abms[i],properties,example=example)
             push!(simulations,abmsim)
         end 
         sim = new(mabm,simulations,properties)

@@ -8,7 +8,7 @@
 
     struct ExampleName <: AbstractExample end
 
-    import SocialSimulations: setup!
+    import Simulations: setup!
 
     function setup!(sim::SimulationType;example::ExampleName) 
         # implementation, e.g. setup stepping functions 

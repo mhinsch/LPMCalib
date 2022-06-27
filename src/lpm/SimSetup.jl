@@ -2,13 +2,13 @@ module SimSetup
 
 using MultiABMs: agestep!, agestepAlivePerson!, removeDead!
 using MultiABMs: dummystep, defaultprestep!, defaultpoststep! 
-using SocialSimulations: startTime, dt
-using SocialSimulations: ABMSocialSimulation, MABMSimulation
-using SocialSimulations: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
+using Simulations: startTime, dt
+using Simulations: ABMSimulation, MABMSimulation
+using Simulations: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 using LoneParentsModel.Simulate: doDeaths!
 using LoneParentsModel.Declare: Demography, LPMUKDemography, LPMUKDemographyOpt
 
-import SocialSimulations: setup!
+import Simulations: setup!
 
 export loadSimulationParameters, setup!  
 
@@ -16,7 +16,7 @@ export loadSimulationParameters, setup!
 """
 set simulation paramters @return dictionary of symbols to values
 
-All information needed by the generic SocialSimulations.run! function
+All information needed by the generic Simulations.run! function
 is provided here
 
 @return dictionary of required simulation parameters 
@@ -31,7 +31,7 @@ function loadSimulationParameters()
 end 
 
 
-function setup!(sim::ABMSocialSimulation,example::Demography) 
+function setup!(sim::ABMSimulation,example::Demography) 
     sim.agent_steps      = [dummystep]  
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 

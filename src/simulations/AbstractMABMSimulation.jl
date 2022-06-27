@@ -1,13 +1,13 @@
 """
     An Agents.jl-like concept for simulating a MABM 
 
-    This source file is part of the SocialSimulations module 
+    This source file is part of the Simulations module 
 """ 
 
 export AbstractMABMSimulation 
 export setup!, step!, run! 
 
-abstract type AbstractMABMSimulation <: AbstractSocialSimulation end 
+abstract type AbstractMABMSimulation <: AbstractSimulation end 
 
 "setting up the simualtion properties and stepping functions"
 setup!(::AbstractMABMSimulation,::AbstractExample) = nothing 

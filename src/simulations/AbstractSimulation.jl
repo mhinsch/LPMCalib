@@ -1,27 +1,26 @@
 """
-Main specification of a Social Simulation type / quite similar to Agents.jl Simulation concept
+Main specification of a Simulation type / quite similar to Agents.jl Simulation concept
 
-This file is included in SocialSimuilations module
+This file is included in Simuilations module
 """
 
 using Random
-using XAgents: AbstractAgent 
+using XAgents:     AbstractAgent 
 using MultiABMs:   AbstractABM 
-using Utilities:    age2yearsmonths 
+using Utilities:   age2yearsmonths 
 
 import MultiABMs: step!
 
 export step!, run!  
 
 
-# At the moment no need for Abstract Social Simulation! 
-abstract type AbstractSocialSimulation end 
+abstract type AbstractSimulation end 
 
-model(sim::AbstractSocialSimulation)      = sim.model 
-startTime(sim::AbstractSocialSimulation)  = sim.properties[:startTime]
-finishTime(sim::AbstractSocialSimulation) = sim.properties[:finishTime]
-dt(sim::AbstractSocialSimulation)         = sim.properties[:dt]
-seed(sim::AbstractSocialSimulation)       = sim.properties[:seed]
+model(sim::AbstractSimulation)      = sim.model 
+startTime(sim::AbstractSimulation)  = sim.properties[:startTime]
+finishTime(sim::AbstractSimulation) = sim.properties[:finishTime]
+dt(sim::AbstractSimulation)         = sim.properties[:dt]
+seed(sim::AbstractSimulation)       = sim.properties[:seed]
 
 
 
@@ -35,7 +34,7 @@ Stepping and simulation run function
 ===# 
 
 step!(
-    simulation::AbstractSocialSimulation, 
+    simulation::AbstractSimulation, 
     agent_step!,
     model_step!,  
     n::Int=1,
@@ -43,7 +42,7 @@ step!(
 )  = step!(model(simulation),agent_step!,model_step!,n,agents_first)
 
 step!(
-    simulation::AbstractSocialSimulation, 
+    simulation::AbstractSimulation, 
     pre_model_step!,
     agent_step!,
     post_model_step!,  
@@ -51,7 +50,7 @@ step!(
 )  = step!(model(simulation),pre_model_step!,agent_step!,post_model_step!,n)
 
 step!(
-    simulation::AbstractSocialSimulation, 
+    simulation::AbstractSimulation, 
     pre_model_steps::Vector{Function},
     agent_steps,
     post_model_steps,  
@@ -70,7 +69,7 @@ Run a simulation using stepping functions
     - agent_step_function()
     - model_step_function
 """
-function run!(simulation::AbstractSocialSimulation,
+function run!(simulation::AbstractSimulation,
               agent_step!,
               model_step!;
               verbose::Bool=false,yearly=true) 
@@ -90,7 +89,7 @@ Run a simulation using stepping functions
     - agent_step_function()
     - model_step_function
 """
-function run!(simulation::AbstractSocialSimulation,
+function run!(simulation::AbstractSimulation,
               pre_model_step!, 
               agent_step!,
               post_model_step!;
@@ -110,7 +109,7 @@ Run a simulation using stepping functions
     - agent_step_function()
     - model_step_function
 """
-function run!(simulation::AbstractSocialSimulation,
+function run!(simulation::AbstractSimulation,
               pre_model_steps::Vector{Function}, 
               agent_steps,
               post_model_steps;
