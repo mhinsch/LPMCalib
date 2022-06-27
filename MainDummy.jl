@@ -14,14 +14,14 @@ julia> include("this_script.jl")
 
 
 using  MultiABMs: ABM, population_step!,dummystep 
-using  SocialSimulations: DummyExample
-using  SocialSimulations: ABMSocialSimulation
-using  SocialSimulations: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
-import SocialSimulations: setup!
+using  Simulations: DummyExample
+using  Simulations: ABMSimulation
+using  Simulations: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
+import Simulations: setup!
 using Dummy: createPopulation 
 
 
-function setup!(simulation::ABMSocialSimulation,
+function setup!(simulation::ABMSimulation,
                 ::DummyExample) 
      simulation.agent_steps = [dummystep] 
      simulation.pre_model_steps = [population_step!]  
@@ -29,7 +29,7 @@ function setup!(simulation::ABMSocialSimulation,
      nothing  
 end
 
-dummySimulation = ABMSocialSimulation(createPopulation,
+dummySimulation = ABMSimulation(createPopulation,
                                         Dict(:startTime=>1990,
                                              :finishTime=>2030,
                                              :dt=>1//12,

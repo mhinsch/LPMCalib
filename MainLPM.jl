@@ -14,8 +14,8 @@ using LoneParentsModel.Declare:    createUKDemography
 using LoneParentsModel.Initialize: initializeDemography!
 using LoneParentsModel.SimSetup:   loadSimulationParameters
 
-using SocialSimulations: MABMSimulation
-using SocialSimulations: run! 
+using Simulations: MABMSimulation
+using Simulations: run! 
 
 # Model parameters 
 
