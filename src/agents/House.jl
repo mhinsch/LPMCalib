@@ -19,10 +19,7 @@ mutable struct House <: AbstractXAgent
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{AbstractPerson}                           
 
-    function House(pos)#s;occupants=[]) 
-        global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,AbstractPerson[]) 
-    end 
+    House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
     
 end # House 
 

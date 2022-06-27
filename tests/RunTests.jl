@@ -12,7 +12,8 @@ using Test
 
 using XAgents: Person, House, Town
 
-using XAgents: verify, isFemale, isMale
+using MultiAgents: verify 
+using XAgents: isFemale, isMale
 using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
 using XAgents: resolvePartnership!
 using XAgents: getHomeTown, getHomeTownName, getHouseLocation 

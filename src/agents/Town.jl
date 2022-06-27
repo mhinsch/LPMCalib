@@ -24,8 +24,10 @@ mutable struct Town <: AbstractXAgent
 
     ""
     function Town(pos::TownLocation,name::String,density) 
-        global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,name,density)
+        #global IDCOUNTER = IDCOUNTER + 1
+        # idcounter = getIDCOUNTER() 
+        # new(IDCOUNTER,pos,name,density)
+        new(getIDCOUNTER(),pos,name,density)
     end 
 
 end  # Town 
