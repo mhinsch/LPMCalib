@@ -1,4 +1,4 @@
-include("../src/MiniSimObserve.jl")
+include("../src/MiniObserve.jl")
 using .MiniSimObserve
 
 using Test

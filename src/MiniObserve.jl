@@ -1,4 +1,4 @@
-module MiniSimObserve
+module MiniObserve
 
 using Reexport
 
