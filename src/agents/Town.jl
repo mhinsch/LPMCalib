@@ -1,7 +1,7 @@
 export Town, undefinedTown
 # export show
 
-using Spaces: TownLocation
+using Utilities: TownLocation
 
 """
 Specification of a Town agent type.

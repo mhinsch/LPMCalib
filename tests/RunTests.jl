@@ -18,7 +18,7 @@ using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
 using XAgents: resolvePartnership!
 using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
-using Spaces: HouseLocation
+using Utilities: HouseLocation
 
 using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!, subtract! 
 using Utilities:  createTimeStampedFolder

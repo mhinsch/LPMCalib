@@ -2,7 +2,7 @@ export  House
 
 export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
 
-using Spaces: HouseLocation
+using Utilities: HouseLocation
 using MultiAgents.Util: removefirst!
 
 """

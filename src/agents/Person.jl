@@ -1,9 +1,6 @@
 export Person
 export isSingle, setHouse!, resolvePartnership!
 
-using Spaces: GridSpace
-
-
 """
 Specification of a Person Agent Type. 
 

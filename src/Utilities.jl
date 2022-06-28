@@ -5,6 +5,7 @@ module Utilities
 
     # Types 
     export Gender 
+    export Map4DLocation, TownLocation, HouseLocation 
 
     # Constants 
     export SimulationFolderPrefix
@@ -12,11 +13,16 @@ module Utilities
     # Functions
     export createTimeStampedFolder
 
-
     # list of types 
 
     "Gender type enumeration"
     @enum Gender unknown female male 
+
+    const Map4DLocation = NTuple{4,Int}
+
+    const TownLocation  = NTuple{2,Int}
+
+    const HouseLocation  = NTuple{2,Int}
 
 
     # constants 
