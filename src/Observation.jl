@@ -209,7 +209,7 @@ end
 
 """ 
 
-	@observe(statstype, model, declarations)
+@observe(statstype, model [, user_arg1...], declarations)
 
 Generate a full analysis suite for a model.
 
@@ -224,8 +224,6 @@ Given a declaration
 	    @stat("capital", MaxMinAcc{Float64}) <| ind.capital
 		@stat("n_alone", CountAcc)           <| has_neighbours(ind)
 	end
-
-	@record "p_alone"    @self.n_alone.n / @self.N
 end
 ```
 
@@ -237,14 +235,13 @@ struct Data
 	N :: Int
 	capital :: @NamedTuple{max :: Float64, min :: Float64}
 	n_alone :: @NamedTuple{N :: Int}
-	p_alone :: Float64
 end
 ```
 
-The macro will also create a method for `analyse(::Type{Data), model)` that will perform the required calculations and returns a `Data` object. 
+The macro will also create a method for `observe(::Type{Data), model...)` that will perform the required calculations and returns a `Data` object. 
 """
 macro observe(tname, model, args_and_decl...)
-	observe_syntax = "@observe <type name> <model> [<user args>, ...] <declaration block>"
+	observe_syntax = "@observe <type name> <model> [<user args> ...] <declaration block>"
 
 	if typeof(tname) != Symbol
 		error("usage: $observe_syntax")
