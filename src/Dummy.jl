@@ -5,7 +5,7 @@ functions for a dummy simulation
 
 module Dummy
 
-    using Global: Gender, unknown, female, male
+    using Utilities: Gender, unknown, female, male
     using XAgents: Town, House, Person
     using XAgents: setParent!, setMother!, setPartner! 
     using MultiAgents: ABM, add_agent!

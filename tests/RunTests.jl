@@ -20,10 +20,10 @@ using XAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Spaces: HouseLocation
 
-using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!
-using Utilities:  createTimeStampedFolder, subtract! 
+using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!, subtract! 
+using Utilities:  createTimeStampedFolder
 
-using Global: Gender, male, female, unknown 
+using Utilities: Gender, male, female, unknown 
 
 @testset "Lone Parent Model Components Testing" begin 
 

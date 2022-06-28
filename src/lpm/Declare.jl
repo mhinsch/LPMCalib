@@ -1,10 +1,10 @@
 module Declare
 
 
-using Global: Gender, unknown, female, male
+using Utilities: Gender, unknown, female, male
 using XAgents: Town, House, Person, undefinedHouse, setPartner! 
 using MultiAgents: ABM, attach2DData!
-using Utilities:(-) 
+using MultiAgents.Util:(-) 
 
 import MultiAgents.Util: AbstractExample
 

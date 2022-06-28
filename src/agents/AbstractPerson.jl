@@ -6,7 +6,7 @@
 """
 
 using MultiAgents.Util: date2yearsmonths
-using Global: Gender, unknown, female, male
+using Utilities: Gender, unknown, female, male
 
 export AbstractPerson, Kinship
 export isMale, isFemale

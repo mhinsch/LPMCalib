@@ -3,29 +3,28 @@ Diverse useful functions and types
 """
 module Utilities
 
-    export createTimeStampedFolder, subtract!
+    # Types 
+    export Gender 
 
-    """
-       Subtract keys from a given dictionary
-       @argument dict : input dictionary 
-       @argument ks   : input keys
-       @throws  ArgumentError if a key in keys not available in dict  
-       @return a new dictionary with exactly the specified keys 
-    """ 
-    function  subtract!(ks::Vector{Symbol},dict::Dict) 
-        if  ks ⊈  keys(dict) 
-            throw(ArgumentError("$ks ⊈  $(keys(dict))")) 
-        end 
-        newdict = Dict{Symbol,Any}()  
-        for key ∈ ks 
-            newdict[key] = dict[key] 
-            delete!(dict,key) 
-        end 
-        newdict 
-    end 
+    # Constants 
+    export SimulationFolderPrefix
 
-    "" 
-    Base.:(-)(ks::Vector{Symbol},dict::Dict) = subtract!(ks,dict) 
+    # Functions
+    export createTimeStampedFolder
+
+
+    # list of types 
+
+    "Gender type enumeration"
+    @enum Gender unknown female male 
+
+
+    # constants 
+
+    "Folder in which simulation results are stored"
+    const SimulationFolderPrefix = "Simulations_Folder"
+    
+    # timeStamp ... 
 
     "create a folder in which simulation results are stored"
     function createTimeStampedFolder() 
