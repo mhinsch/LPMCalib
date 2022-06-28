@@ -1,5 +1,5 @@
 include("../src/MiniObserve.jl")
-using .MiniSimObserve
+using .MiniObserve
 
 using Test
 
@@ -60,6 +60,23 @@ end
 
 	@record "user"		user1
 end
+
+
+@testset "Output" begin
+
+m = Model()
+result = observe(Data, m)
+
+io = IOBuffer()
+
+print_header(io, Data)
+@test String(take!(io)) == "time\tN\tcapital_max\tcapital_min\tn_alone_n\n"
+
+log_results(io, result)
+@test String(take!(io)) == "10.0\t3\t2.0\t0.0\t1\n"
+
+end
+
 
 @testset "User data" begin
 
