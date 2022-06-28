@@ -131,7 +131,7 @@ function doDeaths!(population::ABM{Person};
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
         =# 
 
-        if rand() < dieProb && rand(1:12) == currmonth
+        if rand() < dieProb && rand(1:12) == currmonth && person.info.alive 
             if verbose 
                 y, m = date2yearsmonths(age)
                 println("person $(person.id) died year $(curryear) with age of $y")
