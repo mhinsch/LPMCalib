@@ -1,20 +1,16 @@
 export Person
 export isSingle, setHouse!, resolvePartnership!
 
-using Spaces: GridSpace
-using Utilities: age2yearsmonths
-
-
 """
 Specification of a Person Agent Type. 
 
-This file is included in the module SocialAgents
+This file is included in the module XAgents
 
 Type Person extends from AbstractAgent.
 """ 
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
-mutable struct Person <: AbstractPersonAgent
+mutable struct Person <: AbstractPerson
     id
     """
     location of a parson's house in a map which implicitly  
@@ -28,8 +24,7 @@ mutable struct Person <: AbstractPersonAgent
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
     function Person(pos::House,info::BasicInfo,kinship::Kinship)
-        global IDCOUNTER = IDCOUNTER+1
-        person = new(IDCOUNTER,pos,info,kinship)
+        person = new(getIDCOUNTER(),pos,info,kinship)
         pos != undefinedHouse ? push!(pos.occupants,person) : nothing
         person  
     end 

@@ -2,28 +2,23 @@ export  House
 
 export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
 
-using Spaces: HouseLocation
-using Utilities: removefirst!
-
+using Utilities: HouseLocation
+using MultiAgents.Util: removefirst!
 
 """
 Specification of a House Agent Type. 
 
-This file is included in the module SocialAgents 
+This file is included in the module XAgents 
 
-Type House to extend from AbstractSocialAgent.
+Type House to extend from AbstracXAgent.
 """ 
-mutable struct House <: AbstractSocialAgent
+mutable struct House <: AbstractXAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
-    occupants::Vector{AbstractPersonAgent}                           
+    occupants::Vector{AbstractPerson}                           
 
-    function House(pos)#s;occupants=[]) 
-        global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,AbstractPersonAgent[]) 
-    end 
-    
+    House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
 end # House 
 
 House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
@@ -45,12 +40,11 @@ function getHouseLocation(house::House)
     house.pos[2]
 end 
 
-
 "associate a house to a person"
-setHouse!(person::AbstractPersonAgent,house::House)  = error("Not implemented")
+setHouse!(person::AbstractPerson,house::House)  = error("Not implemented")
 
 "assoicate a house to a person"
-setHouse!(house::House,person::AbstractPersonAgent)  = setHouse!(person,house)
+setHouse!(house::House,person::AbstractPerson)  = setHouse!(person,house)
 
 "remove an occupant from a house"
 function removeOccupant!(house, person)

@@ -5,35 +5,32 @@
     the agent types House and Person  
 """
 
-using Global: Gender, unknown, female, male
+using MultiAgents.Util: date2yearsmonths
+using Utilities: Gender, unknown, female, male
 
-export AbstractPersonAgent, Kinship
+export AbstractPerson, Kinship
 export isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
 export setFather!, setMother!, setParent!, setPartner! 
 
-
-abstract type AbstractPersonAgent <: AbstractSocialAgent end 
+abstract type AbstractPerson <: AbstractXAgent end 
 
 # Interfaces / hard contract 
-
-isFemale(::AbstractPersonAgent) = error("Not implemented")
-isMale(::AbstractPersonAgent) = error("Not implemented")
+isFemale(::AbstractPerson) = error("Not implemented")
+isMale(::AbstractPerson) = error("Not implemented")
 
 "home town of a person"
-getHomeTown(::AbstractPersonAgent) = error("Not implemented")
+getHomeTown(::AbstractPerson) = error("Not implemented")
 "home town name of a person" 
-getHomeTownName(::AbstractPersonAgent) = error("Not implemented") 
+getHomeTownName(::AbstractPerson) = error("Not implemented") 
 
-# "set a new house to a person"
-# setHouse(person::AbstractPersonAgent,house::House) = error("Not implemented") 
 "set the father of child"
-setFather!(child::AbstractPersonAgent,father::AbstractPersonAgent) = error("Not implemented") 
+setFather!(child::AbstractPerson,father::AbstractPerson) = error("Not implemented") 
 "set the mother of child"
-setMother!(child::AbstractPersonAgent,mother::AbstractPersonAgent) = error("Not implemented")
+setMother!(child::AbstractPerson,mother::AbstractPerson) = error("Not implemented")
 
 "set child of a parent" 
-function setParent!(child::AbstractPersonAgent,parent::AbstractPersonAgent) 
+function setParent!(child::AbstractPerson,parent::AbstractPerson) 
   if isFemale(parent) 
     setMother!(child,parent)
   elseif isMale(parent) 
@@ -44,14 +41,14 @@ function setParent!(child::AbstractPersonAgent,parent::AbstractPersonAgent)
 end 
 
 "set a partnership"
-setPartner!(::AbstractPersonAgent,::AbstractPersonAgent) = error("Not implemented") 
+setPartner!(::AbstractPerson,::AbstractPerson) = error("Not implemented") 
 
 
 mutable struct Kinship # <: DynamicStruct 
-  father::Union{AbstractPersonAgent,Nothing}
-  mother::Union{AbstractPersonAgent,Nothing} 
-  partner::Union{AbstractPersonAgent,Nothing}
-  children::Vector{AbstractPersonAgent}
+  father::Union{AbstractPerson,Nothing}
+  mother::Union{AbstractPerson,Nothing} 
+  partner::Union{AbstractPerson,Nothing}
+  children::Vector{AbstractPerson}
 end 
 
 "Default Constructor"
@@ -86,7 +83,7 @@ BasicInfo(;age=0//1, gender=unknown, alive = true) = BasicInfo(age,gender,alive)
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  info::BasicInfo)
-  year, month = age2yearsmonths(info.age)
+  year, month = date2yearsmonths(info.age)
   print(" $(year) years & $(month) months, $(info.gender) ")
   info.alive ? print(" alive ") : print(" dead ")  
 end

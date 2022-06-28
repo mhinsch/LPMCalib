@@ -5,11 +5,13 @@
 
 module Simulate
 
-using SocialAgents: Person  
-using SocialAgents: isMale, isFemale, isSingle
-using SocialAgents: removeOccupant!, resolvePartnership!
-using SocialABMs: SocialABM, allagents
-using Utilities: age2yearsmonths
+using XAgents: Person  
+using XAgents: isMale, isFemale, isSingle
+using XAgents: removeOccupant!, resolvePartnership!
+
+using MultiAgents: ABM, allagents
+
+using MultiAgents.Util: date2yearsmonths
 using LoneParentsModel.Declare: LPMUKDemographyOpt
 
 export doDeaths!
@@ -69,12 +71,12 @@ function deathProbability(baseRate,person,parameters)
 end # function deathProb
 
 
-function doDeaths!(population::SocialABM{Person};
+function doDeaths!(population::ABM{Person};
                    verbose = true, sleeptime=0) 
 
     parameters = population.properties 
 
-    (curryear,currmonth) = age2yearsmonths(Rational(population.properties[:currstep]))
+    (curryear,currmonth) = date2yearsmonths(Rational(population.properties[:currstep]))
     currmonth = currmonth + 1 
 
     people = allagents(population)
@@ -129,9 +131,9 @@ function doDeaths!(population::SocialABM{Person};
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
         =# 
 
-        if rand() < dieProb && rand(1:12) == currmonth
+        if rand() < dieProb && rand(1:12) == currmonth && person.info.alive 
             if verbose 
-                y, m = age2yearsmonths(age)
+                y, m = date2yearsmonths(age)
                 println("person $(person.id) died year $(curryear) with age of $y")
                 sleep(sleeptime) 
             end

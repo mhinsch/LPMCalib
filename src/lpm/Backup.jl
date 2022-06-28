@@ -501,7 +501,7 @@ end
 #=
 "Create an empty population initially with no agents"
 function createPopulation() 
-    population = SocialABM{Person}()
+    population = ABM{Person}()
 
     # ?? Brief descriptions of the numbers within the text file needed (not directly understandable in their pure format)
 

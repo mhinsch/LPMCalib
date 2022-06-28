@@ -1,7 +1,7 @@
 export Town, undefinedTown
 # export show
 
-using Spaces: TownLocation
+using Utilities: TownLocation
 
 """
 Specification of a Town agent type.
@@ -10,11 +10,11 @@ Every person in the population is an agent with a house as
 a position. Every house is an agent with assigned town as a
 position. 
 
-This file is included in the module SocialAgents 
+This file is included in the module XAgents 
 
-Type Town to extend from AbstractAgent.
+Type Town to extend from AbstractAXgent.
 """
-mutable struct Town <: AbstractSocialAgent
+mutable struct Town <: AbstractXAgent
     id
     pos::TownLocation
     name::String                            # does not look necessary
@@ -24,8 +24,10 @@ mutable struct Town <: AbstractSocialAgent
 
     ""
     function Town(pos::TownLocation,name::String,density) 
-        global IDCOUNTER = IDCOUNTER + 1
-        new(IDCOUNTER,pos,name,density)
+        #global IDCOUNTER = IDCOUNTER + 1
+        # idcounter = getIDCOUNTER() 
+        # new(IDCOUNTER,pos,name,density)
+        new(getIDCOUNTER(),pos,name,density)
     end 
 
 end  # Town 

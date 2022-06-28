@@ -10,18 +10,20 @@ julia> include("RunTests.jl")
 
 using Test
 
-using SocialAgents: Person, House, Town
+using XAgents: Person, House, Town
 
-using SocialAgents: verify, isFemale, isMale
-using SocialAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
-using SocialAgents: resolvePartnership!
-using SocialAgents: getHomeTown, getHomeTownName, getHouseLocation 
+using MultiAgents: verify 
+using XAgents: isFemale, isMale
+using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
+using XAgents: resolvePartnership!
+using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
-using Spaces: HouseLocation
+using Utilities: HouseLocation
 
-using Utilities: read2DArray, createTimeStampedFolder, subtract!, age2yearsmonths, removefirst!
+using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!, subtract! 
+using Utilities:  createTimeStampedFolder
 
-using Global: Gender, male, female, unknown 
+using Utilities: Gender, male, female, unknown 
 
 @testset "Lone Parent Model Components Testing" begin 
 
@@ -117,7 +119,7 @@ using Global: Gender, male, female, unknown
     # detect_ambiguities(AgentTypes)
 
     #=
-        testing SocialABMs TODO 
+        testing ABMs TODO 
 
         @test (pop = Population()) != nothing                           # Population means something 
         @test household = Household() != nothing                        # a household instance is something 
@@ -126,7 +128,7 @@ using Global: Gender, male, female, unknown
         @test town = Town()                          skip=true  
     =# 
 
-    # TODO testing SocialABMs once designed
+    # TODO testing ABMs once designed
 
     # TODO testing stepping functions once design is fixed 
 
@@ -150,10 +152,9 @@ using Global: Gender, male, female, unknown
         @test issetequal(keys(parama),[:a]) 
         @test issetequal(keys(paramab),[:b])
 
-
-        @test age2yearsmonths(1059 // 12) == (88 , 3)
-        @test_throws ArgumentError   age2yearsmonths(1059 // 5)
-        @test_throws ArgumentError   age2yearsmonths(-1059 // 5)
+        @test date2yearsmonths(1059 // 12) == (88 , 3)
+        @test_throws ArgumentError   date2yearsmonths(1059 // 5)
+        @test_throws ArgumentError   date2yearsmonths(-1059 // 5)
 
         arr = [person3, person2, person6] 
         removefirst!(arr, person2)
