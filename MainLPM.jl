@@ -14,8 +14,8 @@ using LoneParentsModel.Declare:    createUKDemography
 using LoneParentsModel.Initialize: initializeDemography!
 using LoneParentsModel.SimSetup:   loadSimulationParameters
 
-using Simulations: MABMSimulation
-using Simulations: run! 
+using MultiAgents: MABMSimulation
+using MultiAgents: run! 
 
 # Model parameters 
 

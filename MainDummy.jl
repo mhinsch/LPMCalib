@@ -17,9 +17,9 @@ using  MultiAgents: ABM, dummystep
 using  MultiABMs: population_step!
 
 using  MultiAgents.Util:    AbstractExample, DummyExample 
-using  Simulations: ABMSimulation
-using  Simulations: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
-import Simulations: setup!
+using  MultiAgents: ABMSimulation
+using  MultiAgents: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
+import MultiAgents: setup!
 using Dummy: createPopulation 
 
 
