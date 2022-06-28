@@ -1,106 +1,199 @@
 module Observation
 
-export prefixes, @observe, printable
+export print_header, @observe, log_results
 
 using MacroTools
 
+"obtain a named tuple type with the same field types and names as `struct_T`"
+tuple_type(struct_T) = NamedTuple{fieldnames(struct_T), Tuple{fieldtypes(struct_T)...}}
 
-import Base.print
+"construct a named tuple from `x`"
+@generated function to_named_tuple(x)
+	if x <: NamedTuple
+		return :x
+	end
+
+	# constructor call
+	tuptyp = Expr(:quote, tuple_type(x))
+	
+	# constructor arguments
+	tup = Expr(:tuple)
+	for i in 1:fieldcount(x)
+		push!(tup.args, :(getfield(x, $i)) )
+	end
+	
+	# both put together
+	:($tuptyp($tup))
+end
 
 
-prefixes(::Type{T}) where {T} = fieldnames(result_type(T))
-printable(x, FS) = join(x, FS)
+"translate accumulator types into prefixes for the header (e.g. min, max, etc.)"
+stat_names(::Type{T}) where {T} = fieldnames(result_type(T))
 
+# We could make this a generated function as well, but since the header
+# is only printed once at the beginning, the additional time needed for
+# runtime introspection is worth the reduction in complexity.
+"Print a header for an observation object `stats` to `output`."
+function print_header(output, stats; FS="\t", NS="_", LS="\n")
+	fn = fieldnames(typeof(stats))
+	ft = fieldtypes(typeof(stats))
 
-function print_header(output, stats)
+	for (i, (name, typ)) in enumerate(zip(fn, ft))
+		if typ <: NamedTuple
+			# aggregate stat
+			header(output, string(name), string.(fieldnames(typ)), FS, NS)
+		else
+			# single stat
+			print(output, string(name))
+		end
+
+		if i < length(fn)
+			print(output, FS)
+		end
+	end
+
+	print(output, LS)
+end
+
+# print header for aggregate stat
+function header(out, stat_name, stat_names, FS, NS)
+	@assert length(stat_names) > 0
+
+	print(out, join((stat_name * NS) .* stat_names, FS))
+end
+
+# It's quite possibly overkill to make this a generated function, but we
+# don't want anybody accusing us of wasting CPU cycles.
+"print results stored in `stats` to `output`"
+@generated function log_results(out, stats; FS="\t", LS="\n")
 	fn = fieldnames(stats)
 	ft = fieldtypes(stats)
 
-	for i in eachindex(fn)
-		n = fn[i]
-		if n == :FS || n == :NS || n == :LS
-			continue
-		end
+	fn_body = Expr(:block)
 
-		t = ft[i]
-		if t <: NamedTuple
-			header(output, t.names[2:end], stats.FS, stats.NS)
+	# all fields of stats
+	for (i, (name, typ)) in enumerate(zip(fn, ft))
+		# aggregate stats
+		if typ <: NamedTuple
+			# go through all elements of stats.name
+			for (j, tname) in enumerate(fieldnames(typ))
+				push!(fn_body.args, :(print(out, stats.$name.$tname)))
+				if j < length(fieldnames(typ))
+					push!(fn_body.args, :(print(out, FS)))
+				end
+			end
+		# single values
 		else
-			header(output, string(n), stats.FS, stats.NS)
+			push!(fn_body.args, :(print(out, stats.$name)))
+		end
+
+		if i < length(fn)
+			push!(fn_body.args, :(print(out, FS)))
 		end
 	end
+
+	push!(fn_body.args, :(print(out, LS)))
+
+	fn_body
 end
 
 
-function header(out, stat_type, name, sep = "\t", name_sep = "_")
-	pref = prefixes(stat_type)
-	n = length(pref)
-
-	if n == 0
-		print(out, name * sep)
-		return
+# process a single stats declaration (@record)	
+function process_single(name, typ, expr)
+	# no type specified, default to float
+	if typ == nothing
+		typ = :Float64
 	end
 
-	for p in pref
-		print(out, p * name_sep * name * sep)
+	tmp_name = gensym("tmp")
+	:($tmp_name = $(esc(expr)))
+
+	[:($name :: $(esc(typ)))],	# type
+		[:($tmp_name = $(esc(expr)))],	# body
+		[:($tmp_name)]					# constructor
+end
+
+# it would be much nicer to use a generated function for this, but
+# unfortunately we are already operating on types
+"concatenate named tuple and/or struct types into one single named tuple"
+function joined_named_tuple_T(types...)
+	ns = Expr(:tuple)
+	ts = Expr(:curly)
+	push!(ts.args, :Tuple)
+	
+	for t in types
+		fnames = fieldnames(t)
+		ftypes = fieldtypes(t)
+
+		append!(ns.args, QuoteNode.(fnames))
+		append!(ts.args, ftypes)
 	end
+	
+	ret = :(NamedTuple{})
+	push!(ret.args, ns)
+	push!(ret.args, ts)
+
+	eval(ret)
 end
 
 
-function process_single!(name, expr, header_body, log_body, last)
-	if last 
-		push!(header_body, :(header(output, Nothing, $(esc(name)), "")))
-		push!(log_body, :(print(output, printable($(esc(expr)), FS)...)))
-	else
-		push!(header_body, :(header(output, Nothing, $(esc(name)), FS)))
-		push!(log_body, :(print(output, printable($(esc(expr)), FS)..., FS)))
-	end
-end
+# process an aggregate stats declaration (@for)
+function process_aggregate(var, collection, decls)
+	stat_type_code = []
+	body_code = []
+	res_code = []
 
-
-function process_aggregate!(var, collection, stats, header_body, log_body, islast)
 	decl_code = []
 	loop_code = []
-	output_code = []
 
-	lines = filter(l->typeof(l)!=LineNumberNode, stats.args)
+	lines = rmlines(decls).args
 
-	for i in eachindex(lines)
-		line = lines[i]
-		last = islast && i == length(lines)
-
+	for (i, line) in enumerate(lines)
 		@capture(line, @stat(statname_String, stattypes__) <| expr_) ||
 			error("expected:@stat(<NAME>, <STAT> {, <STAT>}) <| <EXPR>")
 
+		# code to declare stat property in stats struct
+		# creates a single named tuple type from all result types of all stats
+		sname = Symbol(statname)
+		prop_code = :($sname :: joined_named_tuple_T())
+		for t in stattypes
+			push!(prop_code.args[2].args, :($(esc(:result_type))($(esc(t)))))
+		end
+
+		push!(stat_type_code, prop_code)
+
+		# code to store result of user code (to be fed into stats objects)
+		# (inside loop)
 		tmp_name = gensym("tmp")
 		push!(loop_code, :($tmp_name = $(esc(expr))))
 
-		for j in eachindex(stattypes)
-			last2 = last && j == length(stattypes)
-			stattype = stattypes[j] 
+		# expression that merges all results for this stat into single named tuple
+		res_expr = length(stattypes) > 1 ? :(merge()) : :(identity())
 
-			if last2
-				push!(header_body, :(header(output, $(esc(stattype)), $(esc(statname)), "")))
-			else
-				push!(header_body, :(header(output, $(esc(stattype)), $(esc(statname)), FS)))
-			end
+		# add to constructor call for results struct
 
+		# all stats for this specific term
+		for (j, stattype) in enumerate(stattypes)
+			# declaration of accumulator
 			vname = gensym("stat")
-			push!(decl_code, :($(esc(vname)) = $(esc(stattype))()))
+			# goes into main body (outside of loop)
+			push!(body_code, :($(esc(vname)) = $(esc(stattype))()))
 
+			# add value to accumulator
 			push!(loop_code, :($(esc(:add!))($(esc(vname)), $tmp_name)))
-
-			if last2
-				push!(output_code, :(print(output, printable($(esc(vname)), FS)...)))
-			else
-				push!(output_code, :(print(output, printable($(esc(vname)), FS)..., FS)))
-			end
+			# add to named tuple argument of constructor call
+			push!(res_expr.args, :(to_named_tuple($(esc(:results))($(esc(vname))))))
 		end
+		
+		# another argument for the main constructor call
+		push!(res_code, res_expr)
+
 	end
 
-	append!(log_body, decl_code)
-	push!(log_body, :(for $(esc(var)) in $(esc(collection)); $(loop_code...); end))
-	append!(log_body, output_code)
+	# add the loop to the main body
+	push!(body_code, :(for $(esc(var)) in $(esc(collection)); $(loop_code...); end))
+
+	stat_type_code, body_code, res_code
 end
 
 # struct ObsName
@@ -114,66 +207,121 @@ end
 # obs.cap.mean
 # obs.cap.accumulator[1]
 
+""" 
 
-macro observe(fname, model, decl)
-	if typeof(fname) != Symbol
-		error("@observe expects a function name as 1st argument")
+	@observe(statstype, model, declarations)
+
+Generate a full analysis suite for a model.
+
+Given a declaration
+
+```Julia
+@observe Data model begin
+	@record "time"      model.time
+	@record "N"     Int length(model.population)
+
+	@for ind in model.population begin
+	    @stat("capital", MaxMinAcc{Float64}) <| ind.capital
+		@stat("n_alone", CountAcc)           <| has_neighbours(ind)
 	end
 
-	if typeof(model) != Symbol
-		error("@observe expects a model name as 2nd argument")
+	@record "p_alone"    @self.n_alone.n / @self.N
+end
+```
+
+a type Data will be generated that provides (at least) the following members:
+
+```Julia
+struct Data
+	time :: Float64
+	N :: Int
+	capital :: @NamedTuple{max :: Float64, min :: Float64}
+	n_alone :: @NamedTuple{N :: Int}
+	p_alone :: Float64
+end
+```
+
+The macro will also create a method for `analyse(::Type{Data), model)` that will perform the required calculations and returns a `Data` object. 
+"""
+macro observe(tname, model, args_and_decl...)
+	observe_syntax = "@observe <type name> <model> [<user args>, ...] <declaration block>"
+
+	if typeof(tname) != Symbol
+		error("usage: $observe_syntax")
 	end
+
+	if length(args_and_decl) < 1
+		error("usage: $observe_syntax")
+	end
+
+	decl = args_and_decl[end]
 
 	if typeof(decl) != Expr || decl.head != :block
-		error("@observe expects a declaration block as 3rd argument")
+		error("usage: $observe_syntax")
 	end
 
+	ana_func = if length(args_and_decl) == 1
+		:(function $(esc(:observe))(::$(esc(:Type)){$(esc(tname))}, $(esc(model))); end)
+	else
+		:(function $(esc(:observe))(::$(esc(:Type)){$(esc(tname))}, $(esc(model)), 
+			$(esc(args_and_decl[1:end-1]...))); end)
+	end
 
-	header_func_name = Symbol("print_header_" * String(fname))
-	# use : in order to avoid additional block
-	header_func = :(function $(esc(header_func_name))(output; FS="\t", LS="\n")
-		end)
-	header_body = header_func.args[2].args
+	ana_body = ana_func.args[2].args
 
-	log_func_name = Symbol("print_stats_" * String(fname))
-	log_func = :(function $(esc(log_func_name))(output, $(esc(model)); FS="\t", LS="\n", $(esc(:args))...)
-		end)
-	log_body = log_func.args[2].args
+	stats_type = :(struct $(esc(tname)); end)
 
+	stats_constr = :($(esc(tname))())
 
 	syntax = "single or population stats declaration expected:\n" *
-		"\t@for <NAME> in <EXPR> <BLOCK>" *
-		"\t@show <NAME> <EXPR>"
+		"\t@for <NAME> in <EXPR> <BLOCK> |" *
+		"\t@record <NAME> <EXPR> |" *
+		"\t@record <NAME> <TYPE> <EXPR>"
 	
-	lines = filter(l->typeof(l)!=LineNumberNode, decl.args)
-	for i in eachindex(lines)
-		line = lines[i]
-		last = i == length(lines)
-
+	# go through declaration expression by expression
+	# each expression is translated into three bits of code:
+	# * additional fields for the stats type
+	# * additional code to run during the analysis
+	# * additional arguments for the stats object constructor call
+	lines = rmlines(decl).args
+	for (i, line) in enumerate(lines)
 		if typeof(line) != Expr || line.head != :macrocall
+			dump(line)
 			error(syntax)
 		end
+		
+		# single stat
+		if line.args[1] == Symbol("@record")
+			typ = nothing
+			@capture(line, @record(name_String, expr_)) || 
+				@capture(line, @record(name_String, typ_, expr_)) ||
+				error("expecting: @record <NAME> [<TYPE>] <EXPR>")
+			stats_type_c, ana_body_c, stats_constr_c = 
+				process_single(Symbol(name), typ, expr)
 
-		if line.args[1] == Symbol("@show")
-			@capture(line, @show(name_String, expr_)) ||
-				error("expecting: @show <NAME> <EXPR>")
-			process_single!(name, expr, header_body, log_body, last)
+		# aggregate stat
 		elseif line.args[1] == Symbol("@for")
 			@capture(line, @for var_Symbol in expr_ begin block_ end) ||
 				error("expecting: @for <NAME> in <EXPR> <BLOCK>")
-			process_aggregate!(var, expr, block, header_body, log_body, last)
+			stats_type_c, ana_body_c, stats_constr_c = 
+				process_aggregate(var, expr, block)
+
 		else
 			error(syntax)
 		end
+
+		# add code to respective bits
+		append!(ana_func.args[2].args, ana_body_c)
+		append!(stats_type.args[3].args, stats_type_c)
+		append!(stats_constr.args, stats_constr_c)
 	end
 
-	push!(header_body, :(print(output, LS)))
-	push!(log_body, :(print(output, LS)))
-	push!(log_body, :(flush(output)))
+	# add constructor call as last line of analysis function
+	push!(ana_func.args[2].args, stats_constr)
 
 	ret = Expr(:block)
-	push!(ret.args, header_func)
-	push!(ret.args, log_func)
+	push!(ret.args, stats_type)
+	push!(ret.args, ana_func)
 
 	ret
 end

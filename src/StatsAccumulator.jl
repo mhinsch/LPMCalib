@@ -3,20 +3,14 @@ module StatsAccumulator
 export CountAcc, MeanVarAcc, MeanVarAcc2, add!, results, result_type, MaxMinAcc, AccList
 
 
-tuple_type(struct_T) = NamedTuple{fieldnames(struct_T), Tuple{fieldtypes(struct_T)}}
 
-@generated function to_named_tuple(x)
-	tuptyp = Expr(:quote, tuple_type(x))
-	tup = Expr(:tuple)
-	for i in 1:fieldcount(x)
-		push!(tup.args, :(getfield(x, $i)) )
-	end
-	return :($tuptyp($tup))
-end
+# per default the struct itself is assumed to contain the results (see e.g. min/max)
 
-result_type(::Type{T}) where {T} = tuple_type(T)
+"type of results of accumulator `T`, overload as needed"
+result_type(::Type{T}) where {T} = T
 
-results(t :: T) where {T} = to_named_tuple(t)
+"results, overload as needed"
+results(t :: T) where {T} = t
 
 
 ### CountAcc
