@@ -34,9 +34,9 @@ stat_names(::Type{T}) where {T} = fieldnames(result_type(T))
 # is only printed once at the beginning, the additional time needed for
 # runtime introspection is worth the reduction in complexity.
 "Print a header for an observation object `stats` to `output`."
-function print_header(output, stats; FS="\t", NS="_", LS="\n")
-	fn = fieldnames(typeof(stats))
-	ft = fieldtypes(typeof(stats))
+function print_header(output, stats_t; FS="\t", NS="_", LS="\n")
+	fn = fieldnames(stats_t)
+	ft = fieldtypes(stats_t)
 
 	for (i, (name, typ)) in enumerate(zip(fn, ft))
 		if typ <: NamedTuple
