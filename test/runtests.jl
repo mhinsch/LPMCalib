@@ -49,19 +49,6 @@ result = observe(Data, m)
 end
 
 
-@observe Data2 model user1 begin
-	@record "time"      model.time
-	@record "N"     Int length(model.population)
-
-	@for ind in model.population begin
-	    @stat("capital", MaxMinAcc{Float64}) <| ind.capital
-		@stat("n_alone", CountAcc)           <| !has_neighbours(ind)
-	end
-
-	@record "user"		user1
-end
-
-
 @testset "Output" begin
 
 m = Model()
@@ -75,6 +62,19 @@ print_header(io, Data)
 log_results(io, result)
 @test String(take!(io)) == "10.0\t3\t2.0\t0.0\t1\n"
 
+end
+
+
+@observe Data2 model user1 begin
+	@record "time"      model.time
+	@record "N"     Int length(model.population)
+
+	@for ind in model.population begin
+	    @stat("capital", MaxMinAcc{Float64}) <| ind.capital
+		@stat("n_alone", CountAcc)           <| !has_neighbours(ind)
+	end
+
+	@record "user"		user1
 end
 
 
