@@ -5,7 +5,7 @@ Given a complex object `MiniObserve` lets you generate functions to extract and 
 
 Using MiniObserve has several advantages over hand-written analysis code:
 * a concise declarative interface that puts all information in one place
-* output variables are declared once and output is automatically formatted correctly
+* output variables are declared once and output is automatically formatted correctly => adding and removing output variables becomes much less error-prone
 * a lot of tedious, repetitive and thus brittle code can be avoided
 
 ## Usage
