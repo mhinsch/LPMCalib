@@ -33,7 +33,7 @@ stat_names(::Type{T}) where {T} = fieldnames(result_type(T))
 # We could make this a generated function as well, but since the header
 # is only printed once at the beginning, the additional time needed for
 # runtime introspection is worth the reduction in complexity.
-"Print a header for an observation object `stats` to `output`."
+"Print a header for an observation type `stats_t` to `output` using field separator `FS`, name separator `NS` and line separator `LS`."
 function print_header(output, stats_t; FS="\t", NS="_", LS="\n")
 	fn = fieldnames(stats_t)
 	ft = fieldtypes(stats_t)
@@ -64,7 +64,7 @@ end
 
 # It's quite possibly overkill to make this a generated function, but we
 # don't want anybody accusing us of wasting CPU cycles.
-"print results stored in `stats` to `output`"
+"Print results stored in `stats` to `output` using field separator `FS` and line separator `LS`."
 @generated function log_results(out, stats; FS="\t", LS="\n")
 	fn = fieldnames(stats)
 	ft = fieldtypes(stats)
@@ -170,8 +170,6 @@ function process_aggregate(var, collection, decls)
 		# expression that merges all results for this stat into single named tuple
 		res_expr = length(stattypes) > 1 ? :(merge()) : :(identity())
 
-		# add to constructor call for results struct
-
 		# all stats for this specific term
 		for (j, stattype) in enumerate(stattypes)
 			# declaration of accumulator
@@ -196,16 +194,6 @@ function process_aggregate(var, collection, decls)
 	stat_type_code, body_code, res_code
 end
 
-# struct ObsName
-#	FS :: String
-#	NS :: String
-#	LS :: String
-#	cap :: @NamedTuple{accumulator:Tuple{MM, MV}, min::Float64, max::Float64, mean::Float64, var::Float64}
-#	n_migrants :: Int
-# end
-#
-# obs.cap.mean
-# obs.cap.accumulator[1]
 
 """ 
 
@@ -216,14 +204,17 @@ Generate a full analysis suite for a model.
 Given a declaration
 
 ```Julia
-@observe Data model begin
+@observe Data model user1 user2 begin
 	@record "time"      model.time
 	@record "N"     Int length(model.population)
 
 	@for ind in model.population begin
-	    @stat("capital", MaxMinAcc{Float64}) <| ind.capital
+		@stat("capital", MaxMinAcc{Float64}, MeanVarAcc{FloatT}) <| ind.capital
 		@stat("n_alone", CountAcc)           <| has_neighbours(ind)
 	end
+
+	@record u1			user1
+	@record u2			user1 * user2
 end
 ```
 
@@ -233,12 +224,14 @@ a type Data will be generated that provides (at least) the following members:
 struct Data
 	time :: Float64
 	N :: Int
-	capital :: @NamedTuple{max :: Float64, min :: Float64}
+	capital :: @NamedTuple{max :: Float64, min :: Float64, mean :: Float64, var :: Float64}
 	n_alone :: @NamedTuple{N :: Int}
+	u1 :: Float64
+	u2 :: Float64
 end
 ```
 
-The macro will also create a method for `observe(::Type{Data), model...)` that will perform the required calculations and returns a `Data` object. 
+The macro will also create a method for `observe(::Type{Data), model...)` that will perform the required calculations and returns a `Data` object. Use `print_header` to print a header for the generated type to an output and `log_results` to print the content of a data object.
 """
 macro observe(tname, model, args_and_decl...)
 	observe_syntax = "@observe <type name> <model> [<user args> ...] <declaration block>"
