@@ -9,7 +9,7 @@ using MultiAgents: startTime, dt
 using MultiAgents: ABMSimulation, MABMSimulation
 using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 using LoneParentsModel.Simulate: doDeaths!
-using LoneParentsModel.Declare: Demography, LPMUKDemography, LPMUKDemographyOpt
+using LoneParentsModel.Create: Demography, LPMUKDemography, LPMUKDemographyOpt
 
 import MultiAgents: setup!
 
