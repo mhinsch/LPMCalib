@@ -11,7 +11,7 @@ using Utilities: Gender, unknown, female, male
 export AbstractPerson, Kinship
 export isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
-export setFather!, setMother!, setParent!, setPartner! 
+export setFather!, setMother!, setParent!, setPartner!, agestepAlivePerson!
 
 abstract type AbstractPerson <: AbstractXAgent end 
 
@@ -28,6 +28,8 @@ getHomeTownName(::AbstractPerson) = error("Not implemented")
 setFather!(child::AbstractPerson,father::AbstractPerson) = error("Not implemented") 
 "set the mother of child"
 setMother!(child::AbstractPerson,mother::AbstractPerson) = error("Not implemented")
+
+agestepAlivePerson!(::AbstractPerson;dt) = error("not implemented") 
 
 "set child of a parent" 
 function setParent!(child::AbstractPerson,parent::AbstractPerson) 
