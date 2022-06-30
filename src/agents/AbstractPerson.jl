@@ -46,11 +46,11 @@ end
 setPartner!(::AbstractPerson,::AbstractPerson) = error("Not implemented") 
 
 
-mutable struct Kinship # <: DynamicStruct 
-  father::Union{AbstractPerson,Nothing}
-  mother::Union{AbstractPerson,Nothing} 
-  partner::Union{AbstractPerson,Nothing}
-  children::Vector{AbstractPerson}
+mutable struct Kinship{P <: AbstractPerson} # <: DynamicStruct 
+  father::Union{P,Nothing}
+  mother::Union{P,Nothing} 
+  partner::Union{P,Nothing}
+  children::Vector{P}
 end 
 
 "Default Constructor"
