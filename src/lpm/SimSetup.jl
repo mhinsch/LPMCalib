@@ -1,7 +1,6 @@
 module SimSetup
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
-using MultiABMs: agestep!, agestepAlivePerson!, removeDead! 
 
 using MultiAgents: startTime, dt
 using MultiAgents: ABMSimulation, MABMSimulation
