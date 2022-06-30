@@ -11,7 +11,7 @@ using Utilities: Gender, unknown, female, male
 export AbstractPerson, Kinship
 export isMale, isFemale
 export getHomeTown, getHomeTownName, agestep!
-export setFather!, setMother!, setParent!, setPartner! 
+export setFather!, setMother!, setParent!, setPartner!, agestepAlivePerson!
 
 abstract type AbstractPerson <: AbstractXAgent end 
 
@@ -29,6 +29,8 @@ setFather!(child::AbstractPerson,father::AbstractPerson) = error("Not implemente
 "set the mother of child"
 setMother!(child::AbstractPerson,mother::AbstractPerson) = error("Not implemented")
 
+agestepAlivePerson!(::AbstractPerson;dt) = error("not implemented") 
+
 "set child of a parent" 
 function setParent!(child::AbstractPerson,parent::AbstractPerson) 
   if isFemale(parent) 
@@ -44,11 +46,11 @@ end
 setPartner!(::AbstractPerson,::AbstractPerson) = error("Not implemented") 
 
 
-mutable struct Kinship # <: DynamicStruct 
-  father::Union{AbstractPerson,Nothing}
-  mother::Union{AbstractPerson,Nothing} 
-  partner::Union{AbstractPerson,Nothing}
-  children::Vector{AbstractPerson}
+mutable struct Kinship{P <: AbstractPerson} # <: DynamicStruct 
+  father::Union{P,Nothing}
+  mother::Union{P,Nothing} 
+  partner::Union{P,Nothing}
+  children::Vector{P}
 end 
 
 "Default Constructor"
