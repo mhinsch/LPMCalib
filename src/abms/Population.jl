@@ -5,7 +5,7 @@ This file is included with MultiABMs module. This file is subject to removal or 
 """
 
 using  XAgents: Person
-using  MultiAgents: ABM, MultiABM 
+using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
 import XAgents: agestep!, agestepAlivePerson!
