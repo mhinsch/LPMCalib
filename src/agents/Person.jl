@@ -19,7 +19,7 @@ mutable struct Person <: AbstractPerson
     """ 
     pos::House    
     info::BasicInfo     
-    kinship::Kinship
+    kinship::Kinship{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
