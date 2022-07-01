@@ -20,7 +20,6 @@ using XAgents: getHomeTown, getHomeTownName, getHouseLocation
 
 using Utilities: HouseLocation
 
-using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!, subtract! 
 using Utilities:  createTimeStampedFolder
 
 using Utilities: Gender, male, female, unknown 
@@ -136,31 +135,6 @@ using Utilities: Gender, male, female, unknown
         simfolder = createTimeStampedFolder()
         @test !isempty(simfolder)                            
         @test isdir(simfolder)
-
-        # reading matrix from file 
-        T = read2DArray("../data/test23.csv")         
-        @test size(T) == (2,3)
-        @test  0.3434 - eps() < T[2,2] < .3434 + eps()
-
-        # dictionary subtraction 
-        param = Dict(:a=>1,:b=>[1,2],:c=>3.1,:s=>"msg") 
-        paramab = subtract!([:a,:b],param) 
-        @test issetequal(keys(paramab),[:a,:b])   
-        @test issetequal(keys(param),[:s,:c])          
-        @test_throws ArgumentError subtract!([:c,:d],param)
-        parama  = [:a] - paramab
-        @test issetequal(keys(parama),[:a]) 
-        @test issetequal(keys(paramab),[:b])
-
-        @test date2yearsmonths(1059 // 12) == (88 , 3)
-        @test_throws ArgumentError   date2yearsmonths(1059 // 5)
-        @test_throws ArgumentError   date2yearsmonths(-1059 // 5)
-
-        arr = [person3, person2, person6] 
-        removefirst!(arr, person2)
-        @test arr[1] == person3  && arr[2] == person6 
-        @test_throws ArgumentError removefirst!(arr,person5)  
-
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin
