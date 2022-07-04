@@ -12,11 +12,11 @@ This file is included in the module XAgents
 
 Type House to extend from AbstracXAgent.
 """ 
-mutable struct House <: AbstractXAgent
+mutable struct House{P} <: AbstractXAgent
     id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
-    occupants::Vector{AbstractPerson}                           
+    occupants::Vector{P}                           
 
     House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
 end # House 
@@ -40,16 +40,17 @@ function getHouseLocation(house::House)
     house.pos[2]
 end 
 
-"associate a house to a person"
-setHouse!(person::AbstractPerson,house::House)  = error("Not implemented")
-
-"assoicate a house to a person"
-setHouse!(house::House,person::AbstractPerson)  = setHouse!(person,house)
+"add an occupant to a house"
+function addOccupant!(house, person)
+	push!(house.occupants, person)
+	nothing
+end
 
 "remove an occupant from a house"
 function removeOccupant!(house, person)
     removefirst!(house.occupants, person) 
-    person.pos = undefinedHouse 
+	# we can't assume anything about the layout of typeof(person)
+	#person.pos = undefinedHouse 
     nothing 
 end
 
