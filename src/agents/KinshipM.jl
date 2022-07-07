@@ -1,5 +1,11 @@
+module KinshipM
 
 using MultiAgents.Util: date2yearsmonths
+
+export Kinship
+export father, mother, setFather!, setMother!, setParent!, addChild!
+export partner, isSingle, setPartner!
+
 
 mutable struct Kinship{P} 
   father::Union{P,Nothing}
@@ -9,7 +15,7 @@ mutable struct Kinship{P}
 end 
 
 "Default Constructor"
-Kinship(;father=nothing,mother=nothing,partner=nothing,children=[]) = 
+Kinship{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) where {P} = 
       Kinship(father,mother,partner,children)
 
 father(child) = child.father
@@ -38,7 +44,7 @@ isSingle(person::Kinship) = person.partner == nothing
 partner(person::Kinship) = person.partner
 
 "set a partnership"
-function setPartner!(person1::Kinship{P}, person2::P) where {P}
+function setPartner!(person1::Kinship{P}, person2) where {P}
 	person1.partner = person2
 end
 
@@ -56,3 +62,6 @@ function Base.show(io::IO, kinship::Kinship)
   end 
   println() 
 end
+
+
+end # Kinship

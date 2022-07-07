@@ -1,6 +1,13 @@
+module BasicInfoM
+
 using MultiAgents.Util: date2yearsmonths
 using Utilities: Gender, unknown, female, male
 
+export BasicInfo
+export isFemale, isMale, agestep!, agestepAlive!, age
+
+
+# TODO think about whether to make this immutable
 mutable struct BasicInfo
   age::Rational 
   # (birthyear, birthmonth)
@@ -12,7 +19,7 @@ end
 BasicInfo(;age=0//1, gender=unknown, alive = true) = BasicInfo(age,gender,alive)
 
 isFemale(person) = person.gender == female
-isMale(person) = person.gender == male
+isMale(person::BasicInfo) = person.gender == male
 
 
 "costum @show method for Agent person"
@@ -22,11 +29,14 @@ function Base.show(io::IO,  info::BasicInfo)
   info.alive ? print(" alive ") : print(" dead ")  
 end
 
+age(person) = person.age
 
 "increment an age for a person to be used in typical stepping functions"
 agestep!(person::BasicInfo; dt=1//12) = person.age += dt  
 
 "increment an age for a person to be used in typical stepping functions"
-function agestepAlive!(person::BasicInfo;dt=1//12) 
+function agestepAlive!(person::BasicInfo, dt=1//12) 
     person.age += person.alive ? dt : 0  
 end 
+
+end # BasicInfo

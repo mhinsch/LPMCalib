@@ -1,16 +1,21 @@
-export Person
-export isSingle, setHouse!, resolvePartnership!
-
-export AbstractPerson, Kinship
-export isMale, isFemale
-export getHomeTown, getHomeTownName, agestep!
-export setFather!, setMother!, setParent!, setPartner! 
-
-
 using TypedDelegation
 
-include("kinship.jl")
-include("basicinfo.jl")
+# enable using/import from local directory
+push!(LOAD_PATH, @__DIR__)
+
+import KinshipM: Kinship, 
+    isSingle, partner, father, mother, setParent!, addChild!, setPartner!
+import BasicInfoM: BasicInfo, isFemale, isMale, age, agestep!, agestepAlive!
+
+export Person
+export PersonHouse, undefinedHouse
+export isSingle, setHouse!, resolvePartnership!
+
+#export Kinship
+export isMale, isFemale
+export getHomeTown, getHomeTownName, agestep!, agestepAlive!
+export setFather!, setMother!, setParent!, setPartner!, setAsPartners! 
+
 
 
 """
@@ -19,6 +24,8 @@ Specification of a Person Agent Type.
 This file is included in the module XAgents
 
 Type Person extends from AbstractAgent.
+
+Person ties various agent modules into one compound agent type.
 """ 
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
@@ -29,15 +36,17 @@ mutable struct Person <: AbstractXAgent
     - (x-y coordinates of a house)
     - (town::Town, x-y location in the map)
     """ 
-	pos::House{Person}
+    pos::House{Person}
     info::BasicInfo     
-	kinship::Kinship{Person}
+    kinship::Kinship{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
     function Person(pos, info, kinship)
         person = new(getIDCOUNTER(),pos,info,kinship)
-        pos != undefinedHouse ? addOccupant(house,person) : nothing
+        if !undefined(pos)
+            addOccupant!(pos, person)
+        end
         person  
     end 
 end
@@ -51,7 +60,7 @@ end
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
     print(person.info)
-    person.pos     == undefinedHouse ? nothing : print(" @ House id : $(person.pos.id)") 
+    undefined(person.pos) ? nothing : print(" @ House id : $(person.pos.id)") 
     print(person.kinship)
     println() 
 end
@@ -74,6 +83,8 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,BasicInfo(;age,gender), 
                        Kinship(father,mother,partner,children))
 
+const PersonHouse = House{Person}
+const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
 
 "home town of a person"
 getHomeTown(person::Person) = getHomeTown(person.pos) 
@@ -84,31 +95,32 @@ function getHomeTownName(person::Person)
 end
 
 "associate a house to a person"
-function setHouse!(person::Person,house::House)
-    try 
-        deleteat!(person.pos.occupants, findfirst(x->x==person,person.pos.occupants))
-    catch 
-        throw(InvalidStateException("inconsistancy $person is not within $(person.pos.occupants)",:inconsistant))
-    end 
+function setHouse!(person::Person,house)
+    if undefined(person.pos) 
+        removeOccupant!(house, person)
+    end
+
     person.pos = house
-	addOccupant!(house, person)
+    addOccupant!(house, person)
 end
 
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
-	@assert age(child) < age(parent)
-	@assert (isMale(parent) && father(child) == nothing) ||
-		(isFemale(parent) && mother(child) == nothing)
-	addChild!(parent, child)
-	setParent!(child, father) 
+    @assert age(child) < age(parent)
+    @assert (isMale(parent) && father(child) == nothing) ||
+        (isFemale(parent) && mother(child) == nothing)
+    addChild!(parent, child)
+    setParent!(child, father) 
     nothing 
 end
 
 function resetPartner!(person)
-	other = partner(person)
-	setPartner!(person, nothing)
-	setPartner!(other, nothing)
+    other = partner(person)
+    setPartner!(person, nothing)
+    if other != nothing 
+        setPartner!(other, nothing)
+    end
     nothing 
 end
 
@@ -129,8 +141,8 @@ function setAsPartners!(person1::Person,person2::Person)
         resetPartner!(person1) 
         resetPartner!(person2)
 
-		setPartner!(person1, person2)
-		setPartner!(person2, person1)
+        setPartner!(person1, person2)
+        setPartner!(person2, person1)
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
