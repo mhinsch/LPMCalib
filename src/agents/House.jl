@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
+export getHomeTown, getHouseLocation, setHouse!, removeOccupant!, undefined
 
 using Utilities: HouseLocation
 using MultiAgents.Util: removefirst!
@@ -13,17 +13,18 @@ This file is included in the module XAgents
 Type House to extend from AbstracXAgent.
 """ 
 mutable struct House{P} <: AbstractXAgent
-    id
+    id	# TODO type?
+	# TODO make these type parameters?
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
 
-    House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
+    House{P}(pos) where {P} = new(getIDCOUNTER(),pos,P[])
 end # House 
 
-House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
+House{P}(town::Town,locationInTown::HouseLocation) where {P} = House{P}((town,locationInTown))
 
-const undefinedHouse = House(undefinedTown,(-1,-1))
+undefined(house) = house.pos == (undefinedTown,(-1,-1))
 
 "town associated with house"
 function getHomeTown(house::House)

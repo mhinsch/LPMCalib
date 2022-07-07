@@ -4,6 +4,9 @@ Main simulation of the lone parent model
 under construction 
 """
 
+push!(LOAD_PATH, "../MultiAgents.jl")
+push!(LOAD_PATH, "src")
+
 using MultiAgents: MultiABM
 
 # dummystep 
