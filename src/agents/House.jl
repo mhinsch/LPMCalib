@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
+export getHomeTown, getHouseLocation, setHouse!, removeOccupant!, undefined
 
 using Utilities: HouseLocation
 using MultiAgents.Util: removefirst!
@@ -12,18 +12,19 @@ This file is included in the module XAgents
 
 Type House to extend from AbstracXAgent.
 """ 
-mutable struct House <: AbstractXAgent
-    id
+mutable struct House{P} <: AbstractXAgent
+    id	# TODO type?
+	# TODO make these type parameters?
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
-    occupants::Vector{AbstractPerson}                           
+    occupants::Vector{P}                           
 
-    House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
+    House{P}(pos) where {P} = new(getIDCOUNTER(),pos,P[])
 end # House 
 
-House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
+House{P}(town::Town,locationInTown::HouseLocation) where {P} = House{P}((town,locationInTown))
 
-const undefinedHouse = House(undefinedTown,(-1,-1))
+undefined(house) = house.pos == (undefinedTown,(-1,-1))
 
 "town associated with house"
 function getHomeTown(house::House)
@@ -40,16 +41,17 @@ function getHouseLocation(house::House)
     house.pos[2]
 end 
 
-"associate a house to a person"
-setHouse!(person::AbstractPerson,house::House)  = error("Not implemented")
-
-"assoicate a house to a person"
-setHouse!(house::House,person::AbstractPerson)  = setHouse!(person,house)
+"add an occupant to a house"
+function addOccupant!(house::House{P}, person::P) where {P}
+	push!(house.occupants, person)
+	nothing
+end
 
 "remove an occupant from a house"
-function removeOccupant!(house, person)
+function removeOccupant!(house::House{P}, person::P) where {P}
     removefirst!(house.occupants, person) 
-    person.pos = undefinedHouse 
+	# we can't assume anything about the layout of typeof(person)
+	#person.pos = undefinedHouse 
     nothing 
 end
 

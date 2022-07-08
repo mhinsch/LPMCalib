@@ -8,9 +8,9 @@ using  XAgents: AbstractPerson
 using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
-import XAgents: agestep!, agestepAlivePerson!
+import XAgents: agestep!, agestepAlive!
 
-export population_step!, agestepAlivePerson!, removeDead!
+export population_step!, agestepAlive!, removeDead!
 
 
 "Step function for the population"
@@ -30,7 +30,7 @@ end
 agestep!(person::P,population::ABM{P}) where P <: AbstractPerson = agestep!(person,dt=population.properties[:dt])
 
 "increment age with the simulation step size"
-agestepAlivePerson!(person::P,population::ABM{P}) where P <: AbstractPerson = agestepAlivePerson!(person,dt=population.properties[:dt])
+agestepAlivePerson!(person::Person,population::ABM{Person}) = agestepAlive!(person, population.properties[:dt])
 
 #= 
 
