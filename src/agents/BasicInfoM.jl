@@ -18,7 +18,7 @@ end
 "Default constructor"
 BasicInfo(;age=0//1, gender=unknown, alive = true) = BasicInfo(age,gender,alive)
 
-isFemale(person) = person.gender == female
+isFemale(person::BasicInfo) = person.gender == female
 isMale(person::BasicInfo) = person.gender == male
 
 
@@ -29,7 +29,7 @@ function Base.show(io::IO,  info::BasicInfo)
   info.alive ? print(" alive ") : print(" dead ")  
 end
 
-age(person) = person.age
+age(person::BasicInfo) = person.age
 
 "increment an age for a person to be used in typical stepping functions"
 agestep!(person::BasicInfo; dt=1//12) = person.age += dt  

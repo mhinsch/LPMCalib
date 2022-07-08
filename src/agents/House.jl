@@ -42,13 +42,13 @@ function getHouseLocation(house::House)
 end 
 
 "add an occupant to a house"
-function addOccupant!(house, person)
+function addOccupant!(house::House{P}, person::P) where {P}
 	push!(house.occupants, person)
 	nothing
 end
 
 "remove an occupant from a house"
-function removeOccupant!(house, person)
+function removeOccupant!(house::House{P}, person::P) where {P}
     removefirst!(house.occupants, person) 
 	# we can't assume anything about the layout of typeof(person)
 	#person.pos = undefinedHouse 
