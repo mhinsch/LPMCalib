@@ -96,7 +96,7 @@ end
 
 "associate a house to a person"
 function setHouse!(person::Person,house)
-    if undefined(person.pos) 
+    if ! undefined(person.pos) 
         removeOccupant!(house, person)
     end
 
@@ -117,8 +117,8 @@ end
 
 function resetPartner!(person)
     other = partner(person)
-    setPartner!(person, nothing)
     if other != nothing 
+        setPartner!(person, nothing)
         setPartner!(other, nothing)
     end
     nothing 

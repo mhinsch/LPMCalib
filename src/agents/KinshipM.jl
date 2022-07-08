@@ -18,8 +18,8 @@ end
 Kinship{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) where {P} = 
       Kinship(father,mother,partner,children)
 
-father(child) = child.father
-mother(child) = child.mother
+father(child::Kinship) = child.father
+mother(child::Kinship) = child.mother
 
 "set the father of child"
 setFather!(child::Kinship{P},father::P) where {P} = child.father = father
