@@ -4,7 +4,6 @@ Implementation of a population as an ABM model
 This file is included with MultiABMs module. This file is subject to removal or modification
 """
 
-using  XAgents: AbstractPerson 
 using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
@@ -14,23 +13,23 @@ export population_step!, agestepAlive!, removeDead!
 
 
 "Step function for the population"
-function population_step!(population::ABM{P};dt=1//12) where P <: AbstractPerson
+function population_step!(population::ABM{PersonType};dt=1//12) where {PersonType} 
     for agent in population.agentsList
         agestep!(agent,dt=dt)
     end
 end 
 
 "remove dead persons" 
-function removeDead!(person::P, population::ABM{P}) where P <: AbstractPerson 
+function removeDead!(person::PersonType, population::ABM{PersonType}) where {PersonType} 
     person.info.alive ? nothing : kill_agent!(person, population) 
     nothing 
 end
 
 "increment age with the simulation step size"
-agestep!(person::P,population::ABM{P}) where P <: AbstractPerson = agestep!(person,dt=population.properties[:dt])
+agestep!(person::PersonType,population::ABM{PersonType}) where {PersonType} = agestep!(person,dt=population.properties[:dt])
 
 "increment age with the simulation step size"
-agestepAlivePerson!(person::Person,population::ABM{Person}) = agestepAlive!(person, population.properties[:dt])
+agestepAlivePerson!(person::PersonType,population::ABM{PersonType}) where {PersonType} = agestepAlive!(person, population.properties[:dt])
 
 #= 
 
