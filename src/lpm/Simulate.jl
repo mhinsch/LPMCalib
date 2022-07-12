@@ -82,34 +82,35 @@ function doDeaths!(population::ABM{Person};
     people = allagents(population)
 
     livingPeople = typeof(population.properties[:example]) == LPMUKDemographyOpt ? 
-        people : [person for person in people if person.info.alive]
+        people : [person for person in people if alive(person)]
 
     @assert length(livingPeople) > 0 ? 
-        typeof(livingPeople[1].info.age) == Rational{Int64} :
+        typeof(age(livingPeople[1])) == Rational{Int64} :
         true  # Assumption
 
     for person in livingPeople
 
         @assert isMale(person) || isFemale(person) # Assumption 
-        age = person.info.age 
+        age = age(person) 
         dieProb = 0
         lifeExpectancy = 0  # From the code but does not play and rule?
 
         if curryear >= 1950 
 
-           age = age > 109 ? Rational(109) : person.info.age 
-           ageindex = trunc(Int,age)
-           rawRate = isMale(person) ? population.data[:death_male][ageindex+1,curryear-1950+1] : 
-                                      population.data[:death_female][ageindex+1,curryear-1950+1]
+            age = age > 109 ? Rational(109) : age
+            ageindex = trunc(Int,age)
+            rawRate = isMale(person) ? 
+                population.data[:death_male][ageindex+1,curryear-1950+1] : 
+                population.data[:death_female][ageindex+1,curryear-1950+1]
            
-           lifeExpectancy = max(90 - age, 3 // 1)  ## ??? 
+            lifeExpectancy = max(90 - age, 3 // 1)  ## ??? 
            
         else # curryear < 1950 / made-up probabilities 
 
             babyDieProb = age < 1 ? parameters[:babyDieProb] : 0.0 
             ageDieProb  = isMale(person) ? 
-                            exp(age / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
-                            exp(age / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
+                exp(age / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
+                exp(age / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
             rawRate = parameters[:baseDieProb] + babyDieProb + ageDieProb
             
             lifeExpectancy = max(90 - age, 5 // 1)  ## ??? 
@@ -131,21 +132,21 @@ function doDeaths!(population::ABM{Person};
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
         =# 
 
-        if rand() < dieProb && rand(1:12) == currmonth && person.info.alive 
+        if rand() < dieProb && rand(1:12) == currmonth && alive(person)
             if verbose 
                 y, m = date2yearsmonths(age)
                 println("person $(person.id) died year $(curryear) with age of $y")
                 sleep(sleeptime) 
             end
-            person.info.alive = false 
+            setDead!(person) 
             # person.deadYear = self.year  # to be moved to agent_step!
             # deaths[person.classRank] += 1
             false ? population.variables[:numberDeaths] += 1 : nothing # Temporarily this way till realized 
             removeOccupant!(person.pos,person)
-            isSingle(person) ?
-                nothing :  
-                resolvePartnership!(person.kinship.partner,person)
-            end # rand
+            if ! isSingle(person)
+                resolvePartnership!(person, partner(person))
+            end
+        end # rand
 
     end # for livingPeople
     

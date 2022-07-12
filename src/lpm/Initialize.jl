@@ -56,9 +56,9 @@ function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{PersonHouse}
         isFemale(man) ? continue : nothing 
 
         house  = pop!(randomhouses) 
-        man.pos = man.kinship.partner.pos = house 
+        man.pos = partner(man).pos = house 
 
-        append!(house.occupants, [man, man.kinship.partner])
+        append!(house.occupants, [man, partner(man)])
 
     end # for person     
     

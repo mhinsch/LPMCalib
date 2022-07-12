@@ -4,7 +4,6 @@ Implementation of a population as an ABM model
 This file is included with MultiABMs module. This file is subject to removal or modification
 """
 
-using  XAgents: AbstractPerson 
 using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
@@ -22,7 +21,7 @@ end
 
 "remove dead persons" 
 function removeDead!(person::P, population::ABM{P}) where P <: AbstractPerson 
-    person.info.alive ? nothing : kill_agent!(person, population) 
+    alive(person) ? nothing : kill_agent!(person, population) 
     nothing 
 end
 
