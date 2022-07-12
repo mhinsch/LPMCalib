@@ -3,7 +3,7 @@ module Initialize
 
 using  Random:  shuffle 
 using  XAgents: Town, PersonHouse, Person
-using  XAgents: undefined, isFemale, setPartner! 
+using  XAgents: undefined, isFemale, partner, setPartner! 
 
 using  MultiAgents: ABM, MultiABM 
 using  MultiAgents: add_agent!, allagents, nagents 

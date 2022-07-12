@@ -6,8 +6,8 @@
 module Simulate
 
 using XAgents: Person  
-using XAgents: isMale, isFemale, isSingle
-using XAgents: removeOccupant!, resolvePartnership!
+using XAgents: isMale, isFemale, isSingle, age, alive, setDead!
+using XAgents: removeOccupant!, resolvePartnership!, partner
 
 using MultiAgents: ABM, allagents
 
@@ -91,29 +91,29 @@ function doDeaths!(population::ABM{Person};
     for person in livingPeople
 
         @assert isMale(person) || isFemale(person) # Assumption 
-        age = age(person) 
+        curAge = age(person) 
         dieProb = 0
         lifeExpectancy = 0  # From the code but does not play and rule?
 
         if curryear >= 1950 
 
-            age = age > 109 ? Rational(109) : age
-            ageindex = trunc(Int,age)
+            curAge = curAge > 109 ? Rational(109) : curAge
+            ageindex = trunc(Int,curAge)
             rawRate = isMale(person) ? 
                 population.data[:death_male][ageindex+1,curryear-1950+1] : 
                 population.data[:death_female][ageindex+1,curryear-1950+1]
            
-            lifeExpectancy = max(90 - age, 3 // 1)  ## ??? 
+            lifeExpectancy = max(90 - curAge, 3 // 1)  ## ??? 
            
         else # curryear < 1950 / made-up probabilities 
 
-            babyDieProb = age < 1 ? parameters[:babyDieProb] : 0.0 
+            babyDieProb = curAge < 1 ? parameters[:babyDieProb] : 0.0 
             ageDieProb  = isMale(person) ? 
-                exp(age / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
-                exp(age / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
+                exp(curAge / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
+                exp(curAge / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
             rawRate = parameters[:baseDieProb] + babyDieProb + ageDieProb
             
-            lifeExpectancy = max(90 - age, 5 // 1)  ## ??? 
+            lifeExpectancy = max(90 - curAge, 5 // 1)  ## ??? 
 
         end # currYear < 1950 
 
@@ -134,7 +134,7 @@ function doDeaths!(population::ABM{Person};
 
         if rand() < dieProb && rand(1:12) == currmonth && alive(person)
             if verbose 
-                y, m = date2yearsmonths(age)
+                y, m = date2yearsmonths(curAge)
                 println("person $(person.id) died year $(curryear) with age of $y")
                 sleep(sleeptime) 
             end

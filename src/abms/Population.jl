@@ -7,7 +7,7 @@ This file is included with MultiABMs module. This file is subject to removal or 
 using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
-import XAgents: agestep!, agestepAlive!
+import XAgents: agestep!, agestepAlive!, alive
 
 export population_step!, agestepAlive!, removeDead!
 

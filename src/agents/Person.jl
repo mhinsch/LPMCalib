@@ -5,16 +5,16 @@ push!(LOAD_PATH, @__DIR__)
 
 import KinshipM: Kinship, 
     isSingle, partner, father, mother, setParent!, addChild!, setPartner!
-import BasicInfoM: BasicInfo, isFemale, isMale, age, agestep!, agestepAlive!
+import BasicInfoM: BasicInfo, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
 
 export Person
 export PersonHouse, undefinedHouse
 export isSingle, setHouse!, resolvePartnership!
 
 #export Kinship
-export isMale, isFemale
-export getHomeTown, getHomeTownName, agestep!, agestepAlive!
-export setFather!, setMother!, setParent!, setPartner!, setAsPartners! 
+export isMale, isFemale, age
+export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
+export setFather!, setMother!, setParent!, setPartner!, setAsPartners!, partner 
 
 
 
@@ -53,7 +53,7 @@ end
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!]
+@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
 @delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, setPartner!]
 
 
