@@ -7,7 +7,7 @@ This file is included with MultiABMs module. This file is subject to removal or 
 using  MultiAgents: ABM
 using  MultiAgents: kill_agent!
 
-import XAgents: agestep!, agestepAlive!
+import XAgents: agestep!, agestepAlive!, alive
 
 export population_step!, agestepAlive!, removeDead!
 
@@ -21,7 +21,7 @@ end
 
 "remove dead persons" 
 function removeDead!(person::PersonType, population::ABM{PersonType}) where {PersonType} 
-    person.info.alive ? nothing : kill_agent!(person, population) 
+    alive(person) ? nothing : kill_agent!(person, population) 
     nothing 
 end
 
