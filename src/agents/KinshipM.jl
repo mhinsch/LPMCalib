@@ -1,6 +1,6 @@
 module KinshipM
 
-using MultiAgents.Util: date2yearsmonths
+using SomeUtil: date2yearsmonths
 
 export Kinship
 export father, mother, setFather!, setMother!, setParent!, addChild!

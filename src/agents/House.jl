@@ -3,7 +3,7 @@ export  House
 export getHomeTown, getHouseLocation, setHouse!, removeOccupant!, undefined
 
 using Utilities: HouseLocation
-using MultiAgents.Util: removefirst!
+using SomeUtil: removefirst!
 
 """
 Specification of a House Agent Type. 
