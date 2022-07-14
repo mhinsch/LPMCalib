@@ -14,7 +14,7 @@ export isSingle, setHouse!, resolvePartnership!
 #export Kinship
 export isMale, isFemale, age
 export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
-export setFather!, setMother!, setParent!, setPartner!, setAsPartners!, partner 
+export setAsParentChild!, setPartner!, setAsPartners!, partner 
 
 
 
