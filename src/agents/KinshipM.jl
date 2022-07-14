@@ -1,6 +1,6 @@
 module KinshipM
 
-using SomeUtil: date2yearsmonths
+using  SomeUtil: date2yearsmonths
 
 export Kinship
 export father, mother, setFather!, setMother!, setParent!, addChild!
