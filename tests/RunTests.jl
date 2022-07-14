@@ -14,7 +14,7 @@ using XAgents: Person, House, Town
 
 using MultiAgents: verify 
 using XAgents: isFemale, isMale
-using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
+using XAgents: setAsParentChild!, setAsPartners!, setHouse!
 using XAgents: resolvePartnership!
 using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
 
@@ -33,9 +33,9 @@ using Utilities: Gender, male, female, unknown
     aberdeen  = Town((20,12),name="Aberdeen")
 
     # List of houses 
-    house1 = House(edinbrugh,(1,2)::HouseLocation) 
-    house2 = House(aberdeen,(5,10)::HouseLocation) 
-    house3 = House(glasgow,(2,3)::HouseLocation) 
+    house1 = House{Person}(edinbrugh,(1,2)::HouseLocation) 
+    house2 = House{Person}(aberdeen,(5,10)::HouseLocation) 
+    house3 = House{Person}(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
     person1 = Person(house1,25,gender=male) 
@@ -73,7 +73,7 @@ using Utilities: Gender, male, female, unknown
         @test isMale(person1)
         @test !isFemale(person1)
         
-        setFather!(person1,person6) 
+        setAsParentChild!(person1,person6) 
         @test person1 in person6.kinship.children
         @test person1.kinship.father === person6 
 
@@ -87,8 +87,8 @@ using Utilities: Gender, male, female, unknown
         @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
 
         @test_throws InvalidStateException setParent!(person4,person5)  # unknown gender 
-        @test_throws ArgumentError setFather!(person4,person1)          # ages incompatibe / well they are also partners  
-        @test_throws ArgumentError setMother!(person2,person3)          # person 2 has a mother 
+        @test_throws ArgumentError setAsParentChild!(person4,person1)          # ages incompatibe / well they are also partners  
+        @test_throws ArgumentError setAsParentChild!(person2,person3)          # person 2 has a mother 
 
         resolvePartnership!(person4,person1) 
         @test person1.kinship.partner !== person4 && person4.kinship.partner != person1
