@@ -112,7 +112,7 @@ function setAsParentChild!(child::Person,parent::Person)
     @assert (isMale(parent) && father(child) == nothing) ||
         (isFemale(parent) && mother(child) == nothing)
     addChild!(parent, child)
-    setParent!(child, father) 
+    setParent!(child, parent) 
     nothing 
 end
 
