@@ -108,9 +108,10 @@ end
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
-    @assert age(child) < age(parent)
-    @assert (isMale(parent) && father(child) == nothing) ||
-        (isFemale(parent) && mother(child) == nothing)
+    age(child) <  age(parent) ? nothing : throw(ArgumentError("child's age $(age(child)) >= parent's age $(age(parent))")) 
+    (isMale(parent) && father(child) == nothing) ||
+        (isFemale(parent) && mother(child) == nothing) ? nothing : 
+            throw(ArgumentError("$(child) has a parent"))
     addChild!(parent, child)
     setParent!(child, parent) 
     nothing 
