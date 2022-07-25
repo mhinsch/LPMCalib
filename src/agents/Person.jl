@@ -98,7 +98,7 @@ end
 "associate a house to a person"
 function setHouse!(person::Person,house)
     if ! undefined(person.pos) 
-        removeOccupant!(house, person)
+        removeOccupant!(person.pos, person)
     end
 
     person.pos = house
