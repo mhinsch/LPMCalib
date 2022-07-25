@@ -108,6 +108,7 @@ end
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
+    isMale(parent) || isFemale(parent) ? nothing : throw(InvalidStateException("$(parent) has unknown gender",:undefined))
     age(child) <  age(parent) ? nothing : throw(ArgumentError("child's age $(age(child)) >= parent's age $(age(parent))")) 
     (isMale(parent) && father(child) == nothing) ||
         (isFemale(parent) && mother(child) == nothing) ? nothing : 
