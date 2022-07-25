@@ -1,6 +1,8 @@
 module KinshipM
 
 using  SomeUtil: date2yearsmonths
+using  BasicInfoM: isFemale, isMale      # Otherwise, unit test for setAsParentChild! fails
+
 
 export Kinship
 export father, mother, setFather!, setMother!, setParent!, addChild!
