@@ -77,16 +77,16 @@ using Utilities: Gender, male, female, unknown
         @test person1 in person6.kinship.children
         @test person1.kinship.father === person6 
 
-        setParent!(person2,person4) 
+        setAsParentChild!(person2,person4) 
         @test person2.kinship.mother === person4
         @test person2 in person4.kinship.children 
 
-        setPartner!(person1,person4) 
+        setAsPartners!(person1,person4) 
         @test person1.kinship.partner === person4 && person4.kinship.partner === person1 
 
-        @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
+        @test_throws InvalidStateException setAsPartners!(person3,person4) # same gender 
 
-        @test_throws InvalidStateException setParent!(person4,person5)  # unknown gender 
+        @test_throws InvalidStateException setAsParentChild!(person4,person5)  # unknown gender 
         @test_throws ArgumentError setAsParentChild!(person4,person1)          # ages incompatibe / well they are also partners  
         @test_throws ArgumentError setAsParentChild!(person2,person3)          # person 2 has a mother 
 
@@ -106,11 +106,11 @@ using Utilities: Gender, male, female, unknown
         @test getHomeTown(person1) === aberdeen   
         @test person1 in house2.occupants   
         
-        setHouse!(house2,person4)
+        setHouse!(person4,house2)
         @test getHomeTown(person4) === aberdeen    
 
         person1.pos = house1 
-        @test_throws InvalidStateException setHouse!(person1,house3)
+        @test_throws ArgumentError setHouse!(person1,house3)
         person1.pos = house2
 
     end # House functionalities 
