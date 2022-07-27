@@ -1,11 +1,11 @@
 using TypedDelegation
 
 # enable using/import from local directory
-push!(LOAD_PATH, @__DIR__)
+push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import KinshipM: Kinship, 
+import Kinship: KinshipBlock, 
     isSingle, partner, father, mother, setParent!, addChild!, setPartner!
-import BasicInfoM: BasicInfo, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
+import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
 
 export Person
 export PersonHouse, undefinedHouse
@@ -38,8 +38,8 @@ mutable struct Person <: AbstractXAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House{Person}
-    info::BasicInfo     
-    kinship::Kinship{Person}
+    info::BasicInfoBlock     
+    kinship::KinshipBlock{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
@@ -72,8 +72,8 @@ end
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
-                    Person(pos,BasicInfo(;age, gender), 
-                    Kinship(father,mother,partner,children))
+                    Person(pos,BasicInfoBlock(;age, gender), 
+                    KinshipBlock(father,mother,partner,children))
 
 
 "Constructor with default values"
@@ -81,8 +81,8 @@ Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfo(;age,gender), 
-                       Kinship(father,mother,partner,children))
+            Person(pos,BasicInfoBlock(;age,gender), 
+                       KinshipBlock(father,mother,partner,children))
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
