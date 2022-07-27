@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!, removeOccupant!, undefined
+export getHomeTown, getHouseLocation, setHouse!,  undefined
 
 using Utilities: HouseLocation
 using SomeUtil: removefirst!
@@ -43,7 +43,7 @@ end
 
 "add an occupant to a house"
 function addOccupant!(house::House{P}, person::P) where {P}
-	push!(house.occupants, person)
+	push!(house.occupants, person) 
 	nothing
 end
 
