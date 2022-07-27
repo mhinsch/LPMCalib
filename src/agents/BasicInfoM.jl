@@ -36,7 +36,7 @@ alive(person::BasicInfo) = person.alive
 setDead!(person::BasicInfo) = person.alive = false
 
 "increment an age for a person to be used in typical stepping functions"
-agestep!(person::BasicInfo; dt=1//12) = person.age += dt  
+agestep!(person::BasicInfo, dt=1//12) = person.age += dt  
 
 "increment an age for a person to be used in typical stepping functions"
 function agestepAlive!(person::BasicInfo, dt=1//12) 
