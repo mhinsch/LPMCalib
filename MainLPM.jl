@@ -2,15 +2,19 @@
 Main simulation of the lone parent model 
 
 under construction 
+
+from REPL execute it using > include("MainLPM.jl")
 """
+
+include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
 
 # dummystep 
 
 using LoneParentsModel.Loaders:    loadUKMapParameters, loadUKPopulationParameters
-using LoneParentsModel.Declare:    LPMUKDemography, LPMUKDemographyOpt 
-using LoneParentsModel.Declare:    createUKDemography 
+using LoneParentsModel.Create:    LPMUKDemography, LPMUKDemographyOpt 
+using LoneParentsModel.Create:    createUKDemography 
 using LoneParentsModel.Initialize: initializeDemography!
 using LoneParentsModel.SimSetup:   loadSimulationParameters
 
