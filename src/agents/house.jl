@@ -1,9 +1,9 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!, removeOccupant!, undefined
+export getHomeTown, getHouseLocation, setHouse!,  undefined
 
 using Utilities: HouseLocation
-using MultiAgents.Util: removefirst!
+using SomeUtil: removefirst!
 
 """
 Specification of a House Agent Type. 
@@ -43,7 +43,7 @@ end
 
 "add an occupant to a house"
 function addOccupant!(house::House{P}, person::P) where {P}
-	push!(house.occupants, person)
+	push!(house.occupants, person) 
 	nothing
 end
 
