@@ -4,9 +4,9 @@ module Create
 using Utilities: Gender, unknown, female, male
 using XAgents: Town, PersonHouse, Person, undefinedHouse, setAsPartners! 
 using MultiAgents: ABM, attach2DData!
-using MultiAgents.Util:(-) 
+using SomeUtil:(-) 
 
-import MultiAgents.Util: AbstractExample
+import SomeUtil: AbstractExample
 
 export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography

@@ -1,11 +1,11 @@
 using TypedDelegation
 
 # enable using/import from local directory
-push!(LOAD_PATH, @__DIR__)
+push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import KinshipM: Kinship, 
+import Kinship: KinshipBlock, 
     isSingle, partner, father, mother, setParent!, addChild!, setPartner!
-import BasicInfoM: BasicInfo, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
+import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
 
 export Person
 export PersonHouse, undefinedHouse
@@ -14,7 +14,8 @@ export isSingle, setHouse!, resolvePartnership!
 #export Kinship
 export isMale, isFemale, age
 export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
-export setFather!, setMother!, setParent!, setPartner!, setAsPartners!, partner 
+export setAsParentChild!, setPartner!, setAsPartners!, partner 
+export isFemale, isMale
 
 
 
@@ -37,8 +38,8 @@ mutable struct Person <: AbstractXAgent
     - (town::Town, x-y location in the map)
     """ 
     pos::House{Person}
-    info::BasicInfo     
-    kinship::Kinship{Person}
+    info::BasicInfoBlock     
+    kinship::KinshipBlock{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
@@ -71,8 +72,8 @@ end
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
-                    Person(pos,BasicInfo(;age, gender), 
-                    Kinship(father,mother,partner,children))
+                    Person(pos,BasicInfoBlock(;age, gender), 
+                    KinshipBlock(father,mother,partner,children))
 
 
 "Constructor with default values"
@@ -80,8 +81,8 @@ Person(;pos=undefinedHouse,age=0,
         gender=unknown,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfo(;age,gender), 
-                       Kinship(father,mother,partner,children))
+            Person(pos,BasicInfoBlock(;age,gender), 
+                       KinshipBlock(father,mother,partner,children))
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
@@ -97,7 +98,7 @@ end
 "associate a house to a person"
 function setHouse!(person::Person,house)
     if ! undefined(person.pos) 
-        removeOccupant!(house, person)
+        removeOccupant!(person.pos, person)
     end
 
     person.pos = house
@@ -107,11 +108,13 @@ end
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
-    @assert age(child) < age(parent)
-    @assert (isMale(parent) && father(child) == nothing) ||
-        (isFemale(parent) && mother(child) == nothing)
+    isMale(parent) || isFemale(parent) ? nothing : throw(InvalidStateException("$(parent) has unknown gender",:undefined))
+    age(child) <  age(parent) ? nothing : throw(ArgumentError("child's age $(age(child)) >= parent's age $(age(parent))")) 
+    (isMale(parent) && father(child) == nothing) ||
+        (isFemale(parent) && mother(child) == nothing) ? nothing : 
+            throw(ArgumentError("$(child) has a parent"))
     addChild!(parent, child)
-    setParent!(child, father) 
+    setParent!(child, parent) 
     nothing 
 end
 
