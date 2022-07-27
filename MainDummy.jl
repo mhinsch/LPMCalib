@@ -12,6 +12,7 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModel.jl/src")
 julia> include("this_script.jl")
 """ 
 
+include("./loadLibsPath.jl")
 
 using  MultiAgents: ABM, dummystep 
 using  MultiABMs: population_step!

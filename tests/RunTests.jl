@@ -5,8 +5,10 @@ Run this script from shell as
 or within REPL
 
 julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
-julia> include("RunTests.jl")
+julia> include("tests/RunTests.jl")
 """
+
+include("../loadLibsPath.jl")
 
 using Test
 

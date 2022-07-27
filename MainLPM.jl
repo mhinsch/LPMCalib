@@ -2,10 +2,11 @@
 Main simulation of the lone parent model 
 
 under construction 
+
+from REPL execute it using > include("MainLPM.jl")
 """
 
-push!(LOAD_PATH, "../MultiAgents.jl")
-push!(LOAD_PATH, "src")
+include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
 
