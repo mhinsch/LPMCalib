@@ -7,13 +7,13 @@ module Dummy
 
     using Utilities: Gender, unknown, female, male
     using XAgents: Town, House, Person
-    using XAgents: setParent!, setMother!, setPartner! 
+    using XAgents: setAsParentChild!, setAsPartners! 
     using MultiAgents: ABM, add_agent!
 
     export createPopulation
 
     "Establish a dummy population"
-    function initPopulation(houses::Array{House,1})
+    function initPopulation(houses::Array{House{Person},1})
     
         population = ABM{Person}()
 
@@ -23,12 +23,12 @@ module Dummy
             son      = Person(house,rand(1:15)  + rand(0:11) // 12 , gender=male)
             daughter = Person(house,rand(1:15)  + rand(0:11) // 12 , gender=female)
     
-            setPartner!(mother,father) 
+            setAsPartners!(mother,father) 
 
-            setParent!(son,father)
-            setParent!(daughter,father)
-            setMother!(son,mother)
-            setParent!(daughter,mother)
+            setAsParentChild!(son,father)
+            setAsParentChild!(daughter,father)
+            setAsParentChild!(son,mother)
+            setAsParentChild!(daughter,mother)
 
             add_agent!(mother,population)
             add_agent!(father,population)
@@ -52,12 +52,12 @@ module Dummy
         numberOfHouses = 100 
         # sizes = ["small","medium","big"]
 
-        houses = House[] 
+        houses = House{Person}[] 
         for index in range(1,numberOfHouses)
             town = rand(towns)
             # sz   = rand(sizes) 
             x,y  = rand(1:10),rand(1:10)
-            push!(houses,House(town,(x,y)))#,size=sz))
+            push!(houses,House{Person}(town,(x,y)))#,size=sz))
         end
     
         print("sample houses: \n ")
