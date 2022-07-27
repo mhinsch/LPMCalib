@@ -13,10 +13,17 @@ using Test
 using XAgents: Person, House, Town
 
 using MultiAgents: verify 
+
+# BasicInfo module 
+using XAgents: alive, setDead!, age, agestep!, agestepAlive!
 using XAgents: isFemale, isMale
-using XAgents: setAsParentChild!, setAsPartners!, setHouse!
-using XAgents: resolvePartnership!
-using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
+
+# Kinship Module 
+using XAgents: father, mother, partner, isSingle 
+using XAgents: setAsParentChild!, setAsPartners!, resolvePartnership!, resetPartner!
+
+# Person type 
+using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation 
 
 using Utilities: HouseLocation
 
@@ -64,25 +71,38 @@ using Utilities: Gender, male, female, unknown
         @test person1 === person2 
     end 
 
-    @testset verbose=true "Type Person" begin
-        @test getHomeTown(person1) != nothing             
-        @test getHomeTownName(person1) == "Edinbrugh"    
-        
-        @test typeof(person1.info.age) == Rational{Int64} 
-        
+    @testset verbose=true "BasicInfo Module" begin 
+
+        @test typeof(age(person1)) == Rational{Int64} 
         @test isMale(person1)
         @test !isFemale(person1)
+        @test alive(person1) 
+        
+        person7 = Person(house1,25,gender=male) 
+        setDead!(person7)
+        @test !alive(person7)
+
+        agestepAlive!(person7)
+        @test age(person7) < 25.01 
+        agestep!(person7) 
+        @test age(person7) > 25
+
+    end
+
+    @testset verbose=true "Kinship Module" begin 
         
         setAsParentChild!(person1,person6) 
         @test person1 in person6.kinship.children
-        @test person1.kinship.father === person6 
+        @test father(person1) === person6 
 
         setAsParentChild!(person2,person4) 
-        @test person2.kinship.mother === person4
+        @test mother(person2) === person4
         @test person2 in person4.kinship.children 
 
-        setAsPartners!(person1,person4) 
-        @test person1.kinship.partner === person4 && person4.kinship.partner === person1 
+        @test isSingle(person1)
+        setAsPartners!(person1,person4)
+        @test !isSingle(person4) 
+        @test partner(person1) === person4 && partner(person4) === person1 
 
         @test_throws InvalidStateException setAsPartners!(person3,person4) # same gender 
 
@@ -91,8 +111,23 @@ using Utilities: Gender, male, female, unknown
         @test_throws ArgumentError setAsParentChild!(person2,person3)          # person 2 has a mother 
 
         resolvePartnership!(person4,person1) 
-        @test person1.kinship.partner !== person4 && person4.kinship.partner != person1
+        @test isSingle(person4)
+        @test partner(person1) !== person4 && partner(person4) != person1
         @test_throws ArgumentError resolvePartnership!(person1,person4) 
+
+    end
+
+    @testset verbose=true "Type Person" begin
+        @test getHomeTown(person1) != nothing             
+        @test getHomeTownName(person1) == "Edinbrugh"    
+
+        setAsPartners!(person4,person6) 
+        @test !isSingle(person6)
+        @test !isSingle(person4)
+        
+        resetPartner!(person4) 
+        @test isSingle(person6)
+        @test isSingle(person4)
     end 
 
     @testset verbose=true "Type House" begin
@@ -130,7 +165,7 @@ using Utilities: Gender, male, female, unknown
     # TODO testing ABMs once designed
 
     # TODO testing stepping functions once design is fixed 
-
+    
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
         @test !isempty(simfolder)                            
