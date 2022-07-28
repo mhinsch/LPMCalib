@@ -1,12 +1,12 @@
-module Declare
+module Create
 
 
 using Utilities: Gender, unknown, female, male
-using XAgents: Town, House, Person, undefinedHouse, setPartner! 
+using XAgents: Town, PersonHouse, Person, undefinedHouse, setAsPartners! 
 using MultiAgents: ABM, attach2DData!
-using MultiAgents.Util:(-) 
+using SomeUtil:(-) 
 
-import MultiAgents.Util: AbstractExample
+import SomeUtil: AbstractExample
 
 export Demography, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography
@@ -60,7 +60,7 @@ function createUKPopulation(properties)
 
         newMan = Person(undefinedHouse,rageMale,gender=male)
         newWoman = Person(undefinedHouse,rageFemale,gender=female)   
-        setPartner!(newMan,newWoman) 
+        setAsPartners!(newMan,newWoman) 
         
         push!(population,newMan);  push!(population,newWoman) 
 
@@ -78,7 +78,7 @@ function createUKDemography(properties)
     ukTowns  = ABM{Town}(mapProperties,
                                declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
-    ukHouses = ABM{House}() # (declare = dict::Dict{Symbol} -> House[])              
+    ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
     
     populationProperties = [:initialPop,:minStartAge,:maxStartAge,
                             :baseDieProb,:babyDieProb,
@@ -100,4 +100,4 @@ end
 
 
 
-end # Declare 
+end # Create

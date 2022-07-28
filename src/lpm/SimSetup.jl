@@ -1,13 +1,15 @@
 module SimSetup
 
-using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
-using MultiABMs: agestep!, agestepAlivePerson!, removeDead! 
+# using XAgents: agestepAlivePerson!
+using MultiABMs: agestepAlivePerson!, removeDead!
 
+using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
+
 using MultiAgents: ABMSimulation, MABMSimulation
 using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 using LoneParentsModel.Simulate: doDeaths!
-using LoneParentsModel.Declare: Demography, LPMUKDemography, LPMUKDemographyOpt
+using LoneParentsModel.Create: Demography, LPMUKDemography, LPMUKDemographyOpt
 
 import MultiAgents: setup!
 
