@@ -1,10 +1,9 @@
 """
 Run this script from shell as 
-# JULIA_LOAD_PATH="/path/to/LoneParentsModel.jl/src:\$JULIA_LOAD_PATH" julia RunTests.jl
+# julia tests/RunTests.jl
 
 or within REPL
 
-julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("tests/RunTests.jl")
 """
 
