@@ -24,7 +24,7 @@ using XAgents: father, mother, partner, isSingle
 using XAgents: setAsParentChild!, setAsPartners!, resolvePartnership!, resetPartner!
 
 # Person type 
-using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation 
+using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation, resetHouse!, undefined 
 
 using Utilities: HouseLocation
 
@@ -148,6 +148,9 @@ using Utilities: Gender, male, female, unknown
         person1.pos = house1 
         @test_throws ArgumentError setHouse!(person1,house3)
         person1.pos = house2
+
+        resetHouse!(person4)
+        @test undefined(person4.pos)
 
     end # House functionalities 
 
