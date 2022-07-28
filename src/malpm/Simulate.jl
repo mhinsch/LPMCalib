@@ -12,7 +12,7 @@ using XAgents: removeOccupant!, resolvePartnership!, partner
 using MultiAgents: ABM, allagents
 
 using SomeUtil: date2yearsmonths
-using LoneParentsModel.Create: LPMUKDemographyOpt
+using MALPM.Create: LPMUKDemographyOpt
 
 export doDeaths!
 
