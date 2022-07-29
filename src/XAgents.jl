@@ -6,9 +6,11 @@ module XAgents
 
     using MultiAgents: AbstractAgent, AbstractXAgent, getIDCOUNTER
 
-    include("./agents/town.jl")
-    include("./agents/house.jl")
-    include("./agents/person.jl")
+    include("./agents/AbstractPerson.jl")
+
+    include("./agents/Town.jl")
+    include("./agents/House.jl")
+    include("./agents/Person.jl")
     
 end  # XAgents 
 

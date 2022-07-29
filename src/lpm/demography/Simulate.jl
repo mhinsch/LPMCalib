@@ -1,21 +1,13 @@
 """
-    Main simulation functions for the demographic aspect of LPM. 
-""" 
-
+Functions used for demography simulation 
+"""
 
 module Simulate
 
-using XAgents: Person  
-using XAgents: isMale, isFemale, isSingle, age, alive, setDead!
-using XAgents: removeOccupant!, resolvePartnership!, partner
-
-using MultiAgents: ABM, allagents
-
 using SomeUtil: date2yearsmonths
-using LoneParentsModel.Create: LPMUKDemographyOpt
+using XAgents: isMale, isFemale, removeOccupant!, isSingle, resolvePartnership!
 
 export doDeaths!
-
 
 function deathProbability(baseRate,person,parameters) 
     #=
@@ -59,61 +51,53 @@ function deathProbability(baseRate,person,parameters)
 
         ##### Temporarily by-passing the effect of Unmet Care Need   #############
         
-#        The following code is already commented in the python code 
-#        a = 0
-#        for x in classPop:
-#            a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
-#        higherUnmetNeed = (classRate*len(classPop))/a
-#        deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
+    #   The following code is already commented in the python code 
+    #   a = 0
+    #   for x in classPop:
+    #   a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
+    #   higherUnmetNeed = (classRate*len(classPop))/a
+    #   deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
      
 
     deathProb 
 end # function deathProb
 
+""
+function doDeaths!(;people,parameters,data,verbose=true,sleeptime=0)
 
-function doDeaths!(population::ABM{Person};
-                   verbose = true, sleeptime=0) 
-
-    parameters = population.properties 
-
-    (curryear,currmonth) = date2yearsmonths(Rational(population.properties[:currstep]))
+    (curryear,currmonth) = date2yearsmonths(Rational(parameters[:currstep]))
     currmonth = currmonth + 1 
+    numDeaths = 0
 
-    people = allagents(population)
+    for person in people 
 
-    livingPeople = typeof(population.properties[:example]) == LPMUKDemographyOpt ? 
-        people : [person for person in people if alive(person)]
-
-    @assert length(livingPeople) > 0 ? 
-        typeof(age(livingPeople[1])) == Rational{Int64} :
-        true  # Assumption
-
-    for person in livingPeople
-
+        false ? isAlive(person) : nothing 
+        # @assert person.info.alive      
         @assert isMale(person) || isFemale(person) # Assumption 
-        curAge = age(person) 
+        
+        age = false ? age(person) : person.info.age            
+        @assert typeof(age) == Rational{Int64}
         dieProb = 0
         lifeExpectancy = 0  # From the code but does not play and rule?
 
         if curryear >= 1950 
 
-            curAge = curAge > 109 ? Rational(109) : curAge
-            ageindex = trunc(Int,curAge)
-            rawRate = isMale(person) ? 
-                population.data[:death_male][ageindex+1,curryear-1950+1] : 
-                population.data[:death_female][ageindex+1,curryear-1950+1]
+            age = age > 109 ? Rational(109) : age 
+            ageindex = trunc(Int,age)
+            rawRate = isMale(person) ? data[:death_male][ageindex+1,curryear-1950+1] : 
+                                       data[:death_female][ageindex+1,curryear-1950+1]
            
-            lifeExpectancy = max(90 - curAge, 3 // 1)  ## ??? 
-           
+            lifeExpectancy = max(90 - age, 3 // 1)  # ??? This is a direct translation 
+
         else # curryear < 1950 / made-up probabilities 
 
-            babyDieProb = curAge < 1 ? parameters[:babyDieProb] : 0.0 
+            babyDieProb = age < 1 ? parameters[:babyDieProb] : 0.0 
             ageDieProb  = isMale(person) ? 
-                exp(curAge / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
-                exp(curAge / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
+                            exp(age / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
+                            exp(age / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
             rawRate = parameters[:baseDieProb] + babyDieProb + ageDieProb
             
-            lifeExpectancy = max(90 - curAge, 5 // 1)  ## ??? 
+            lifeExpectancy = max(90 - age, 5 // 1)  # ??? Does not currently play any role
 
         end # currYear < 1950 
 
@@ -131,32 +115,33 @@ function doDeaths!(population::ABM{Person};
         #### Temporarily by-passing the effect of unmet care need   ######
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
         =# 
-
-        if rand() < dieProb && rand(1:12) == currmonth && alive(person)
+        false ? isAlive(person) : nothing 
+        if rand() < dieProb && rand(1:12) == currmonth && person.info.alive   
             if verbose 
-                y, m = date2yearsmonths(curAge)
+                y, m = date2yearsmonths(age)
                 println("person $(person.id) died year $(curryear) with age of $y")
                 sleep(sleeptime) 
             end
-            setDead!(person) 
-            # person.deadYear = self.year  # to be moved to agent_step!
+            false ? setDead!(person) : nothing 
+            person.info.alive = false 
+            # person.deadYear = self.year  
             # deaths[person.classRank] += 1
-            false ? population.variables[:numberDeaths] += 1 : nothing # Temporarily this way till realized 
+            numDeaths += 1 
             removeOccupant!(person.pos,person)
-            if ! isSingle(person)
-                resolvePartnership!(person, partner(person))
-            end
-        end # rand
+            isSingle(person) ?
+                nothing :  
+                resolvePartnership!(person.kinship.partner,person)
+         end # rand
 
     end # for livingPeople
     
     if verbose
-        println("number of living people : $(length(livingPeople)) from $(length(people))") 
+        println("# living people : $(length(people)) , # people died in curr iteration : $(numDeaths)") 
         sleep(sleeptime)
     end 
 
-end # function doDeaths!
+    (numberDeaths = numDeaths)   
+end
 
 
-
-end # Simulate 
+end # module Simulate 

@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!,  undefined
+export getHomeTown, getHouseLocation, setHouse!, removeOccupant!
 
 using Utilities: HouseLocation
 using SomeUtil: removefirst!
@@ -12,19 +12,18 @@ This file is included in the module XAgents
 
 Type House to extend from AbstracXAgent.
 """ 
-mutable struct House{P} <: AbstractXAgent
-    id	# TODO type?
-	# TODO make these type parameters?
+mutable struct House <: AbstractXAgent
+    id
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
-    occupants::Vector{P}                           
+    occupants::Vector{AbstractPerson}                           
 
-    House{P}(pos) where {P} = new(getIDCOUNTER(),pos,P[])
+    House(pos) = new(getIDCOUNTER(),pos,AbstractPerson[]) 
 end # House 
 
-House{P}(town::Town,locationInTown::HouseLocation) where {P} = House{P}((town,locationInTown))
+House(town::Town,locationInTown::HouseLocation) = House((town,locationInTown))
 
-undefined(house) = house.pos == (undefinedTown,(-1,-1))
+const undefinedHouse = House(undefinedTown,(-1,-1))
 
 "town associated with house"
 function getHomeTown(house::House)
@@ -41,17 +40,16 @@ function getHouseLocation(house::House)
     house.pos[2]
 end 
 
-"add an occupant to a house"
-function addOccupant!(house::House{P}, person::P) where {P}
-	push!(house.occupants, person) 
-	nothing
-end
+"associate a house to a person"
+setHouse!(person::AbstractPerson,house::House)  = error("Not implemented")
+
+"assoicate a house to a person"
+setHouse!(house::House,person::AbstractPerson)  = setHouse!(person,house)
 
 "remove an occupant from a house"
-function removeOccupant!(house::House{P}, person::P) where {P}
+function removeOccupant!(house, person)
     removefirst!(house.occupants, person) 
-	# we can't assume anything about the layout of typeof(person)
-	#person.pos = undefinedHouse 
+    person.pos = undefinedHouse 
     nothing 
 end
 

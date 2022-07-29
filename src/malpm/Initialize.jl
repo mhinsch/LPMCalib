@@ -2,8 +2,8 @@ module Initialize
 
 
 using  Random:  shuffle 
-using  XAgents: Town, PersonHouse, Person
-using  XAgents: undefined, isFemale, partner, setPartner! 
+using  XAgents: Town, House, Person
+using  XAgents: undefinedHouse, isFemale, setPartner! 
 
 using  MultiAgents: ABM, MultiABM 
 using  MultiAgents: add_agent!, allagents, nagents 
@@ -13,7 +13,7 @@ import MultiAgents: initial_connect!
 export initializeDemography!
 
 "initialize an abm of houses through an abm of towns"
-function initial_connect!(abmhouses::ABM{PersonHouse},abmtowns::ABM{Town},properties) 
+function initial_connect!(abmhouses::ABM{House},abmtowns::ABM{Town},properties) 
 
     # create houses within towns 
     towns = allagents(abmtowns)  
@@ -25,7 +25,7 @@ function initial_connect!(abmhouses::ABM{PersonHouse},abmtowns::ABM{Town},proper
                 for hy in 1:abmtowns.properties[:townGridDimension] 
     
                     if(rand() < adjustedDensity)
-                        house = PersonHouse(town,(hx,hy))
+                        house = House(town,(hx,hy))
                         add_agent!(house,abmhouses)
                     end
     
@@ -38,14 +38,14 @@ function initial_connect!(abmhouses::ABM{PersonHouse},abmtowns::ABM{Town},proper
 end
 
 # Connection is symmetric 
-initial_connect!(abmtowns::ABM{Town},abmhouses::ABM{PersonHouse},properties) = initial_connect!(abmhouses,abmtowns,properties)
+initial_connect!(abmtowns::ABM{Town},abmhouses::ABM{House},properties) = initial_connect!(abmhouses,abmtowns,properties)
 
 
 """ 
     initialize an abm of houses through an abm of towns
     a set of houses are chosen randomly and assigned to couples 
 """
-function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{PersonHouse},properties) 
+function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{House},properties) 
     
     numberOfMens        = trunc(Int,nagents(abmpopulation) / 2)       # it is assumed that half of the population is men
     randomHousesIndices = shuffle(1:nagents(abmhouses))    
@@ -56,9 +56,9 @@ function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{PersonHouse}
         isFemale(man) ? continue : nothing 
 
         house  = pop!(randomhouses) 
-        man.pos = partner(man).pos = house 
+        man.pos = man.kinship.partner.pos = house 
 
-        append!(house.occupants, [man, partner(man)])
+        append!(house.occupants, [man, man.kinship.partner])
 
     end # for person     
     
