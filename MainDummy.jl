@@ -12,6 +12,7 @@ julia> push!(LOAD_PATH,"/path/to/LoneParentsModel.jl/src")
 julia> include("this_script.jl")
 """ 
 
+include("./loadLibsPath.jl")
 
 using  MultiAgents: ABM, dummystep 
 using  MultiABMs: population_step!
@@ -20,7 +21,7 @@ using  SomeUtil:    AbstractExample, DummyExample
 using  MultiAgents: ABMSimulation
 using  MultiAgents: run!, attach_pre_model_step!, attach_post_model_step!, attach_agent_step! 
 import MultiAgents: setup!
-using Dummy: createPopulation 
+using  Dummy: createPopulation 
 
 
 function setup!(simulation::ABMSimulation,

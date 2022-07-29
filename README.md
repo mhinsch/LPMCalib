@@ -14,6 +14,7 @@ An initial implementation of an ABM aiming at a social and child care simulation
 - **V0.3** (23.06.2022): Improved simulation concep, Flexibility for simulating same example with different implementation (via type traits), Population
 simulation considering death probabilities 
   - v0.3.1: The abstract conceptual part of the code moved to MultiAgents.jl 
+  - v0.3.2: Kinship & BasicInfo modules for the type Person 
 
 
 ### Source code structure 
@@ -28,6 +29,7 @@ simulation considering death probabilities
 - /tests
 - MainDummy.jl    : An example of a dummy simulation
 - MainLPM.jl      : Initial (empty) translation of LPM
+- loadLibsPath    : load paths to internal libraries
 
 
 ### Running the code
