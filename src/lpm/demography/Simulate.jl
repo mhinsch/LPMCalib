@@ -19,8 +19,8 @@ function deathProbability(baseRate,person,parameters)
     =# 
 
     @assert isMale(person) || isFemale(person) # Assumption  
-    mortalityBias = isMale(person) ? parameters[:maleMortalityBias] : 
-                                     parameters[:femaleMortalityBias] 
+    mortalityBias = isMale(person) ? parameters.maleMortalityBias : 
+                                     parameters.femaleMortalityBias 
 
     #= 
     To be integrated in class modules 
@@ -65,7 +65,8 @@ end # function deathProb
 ""
 function doDeaths!(;people,parameters,data,verbose=true,sleeptime=0)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(parameters[:currstep]))
+    println(parameters)
+    (curryear,currmonth) = date2yearsmonths(Rational(parameters.currstep))
     currmonth = currmonth + 1 
     numDeaths = 0
 
@@ -83,18 +84,18 @@ function doDeaths!(;people,parameters,data,verbose=true,sleeptime=0)
 
             agep = agep > 109 ? Rational(109) : agep 
             ageindex = trunc(Int,agep)
-            rawRate = isMale(person) ? data[:death_male][ageindex+1,curryear-1950+1] : 
-                                       data[:death_female][ageindex+1,curryear-1950+1]
+            rawRate = isMale(person) ? data.death_male[ageindex+1,curryear-1950+1] : 
+                                       data.death_female[ageindex+1,curryear-1950+1]
            
             lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
 
         else # curryear < 1950 / made-up probabilities 
 
-            babyDieProb = agep < 1 ? parameters[:babyDieProb] : 0.0 
+            babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 
             ageDieProb  = isMale(person) ? 
-                            exp(agep / parameters[:maleAgeScaling])  * parameters[:maleAgeDieProb] : 
-                            exp(agep / parameters[:femaleAgeScaling]) * parameters[:femaleAgeDieProb]
-            rawRate = parameters[:baseDieProb] + babyDieProb + ageDieProb
+                            exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
+                            exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
+            rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
             
             lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
 
