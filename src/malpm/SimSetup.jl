@@ -1,7 +1,7 @@
 module SimSetup
 
 # using XAgents: agestepAlivePerson!
-using MAMultiABMs.Population: agestepAlivePerson!, removeDead!
+using MALPM.Population: agestepAlivePerson!, removeDead!
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
