@@ -12,14 +12,16 @@ using MultiAgents: ABM, allagents
 
 using MALPM.Create: LPMUKDemographyOpt
 
-using LPM
+using  LPM
 import LPM.Demography.Simulate: doDeaths!
 export doDeaths!
+
+using SomeUtil: getproperty
 
 
 function doDeaths!(population::ABM{Person};
                    verbose = true, 
-                   sleeptime=0) 
+                   sleeptime = 0) 
 
     pars = population.properties 
     data = population.data
