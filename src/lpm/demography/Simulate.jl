@@ -65,7 +65,6 @@ end # function deathProb
 ""
 function doDeaths!(;people,parameters,data,verbose=true,sleeptime=0)
 
-    println(parameters)
     (curryear,currmonth) = date2yearsmonths(Rational(parameters.currstep))
     currmonth = currmonth + 1 
     numDeaths = 0
