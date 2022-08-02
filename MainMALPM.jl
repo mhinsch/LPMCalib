@@ -16,7 +16,9 @@ using MultiAgents: MultiABM
 
 # dummystep 
 
-using MALPM.Loaders:    loadUKMapParameters, loadUKPopulationParameters
+using LPM.Loaders:    loadUKMapPars, loadUKPopulationPars
+using LPM.Loaders:    UKMapPars, UKPopulationPars 
+
 using MALPM.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Initialize: initializeDemography!
 using MALPM.SimSetup:   loadSimulationParameters
@@ -26,10 +28,18 @@ using MultiAgents: run!
 
 # Model parameters 
 
-ukmapParameters = loadUKMapParameters()
-ukpopParameters = loadUKPopulationParameters() 
-ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
+ukmapPars = loadUKMapPars()
+ukpopPars = loadUKPopulationPars() 
 
+struct UKDemographyPars 
+    mappars::UKMapPars
+    poppars::UKPopulationPars
+end 
+
+# ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
+ukDemographyPars = UKDemographyPars(ukmapPars,ukpopPars)
+
+#=
 # Declaration and initialization of a MABM for a demography model of UK 
 
 ukDemography = MultiABM(ukDemographyParameters,
@@ -60,3 +70,4 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 run!(lpmDemographySim,verbose=true)
 
 lpmDemographySim
+=#

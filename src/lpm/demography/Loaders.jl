@@ -1,33 +1,45 @@
 module Loaders 
 
-export loadUKMapParameters, loadUKPopulationParameters
+export UKMapPars, UKPopulationPars
 
+export loadUKMapPars, loadUKPopulationPars
 
-function loadUKMapParameters()
-    mappars = Dict(:dummy=>any,:mapGridXDimension=>8)::Dict{Symbol,Any} 
+mutable struct UKMapPars 
+    mapDensityModifier::Float     # for allocating houses in towns 
+    mapGridXDimension::Int
+    townGridDimension::Int 
+    ukMap::Array{Int,2}           # Relative population density of UK.  
+                                  #   A density of 1.0 corresponds to 
+                                  #   the cell with the highest density 
 
-    # mappars[:mapGridXDimension] = 8
-    mappars[:mapGridYDimension] = 12    
-    mappars[:townGridDimension] = 25    
+    UKMapPars() = new()
+end 
 
-        # Relative population density of UK.  A density of 1.0 corresponds to 
+function loadUKMapPars()
+
+    mappars = UKMapPars() 
+
+    mappars.mapGridYDimension = 12
+    mappars.townGridDimension = 25
+
+    mappars.ukMap = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+                     0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
+                     0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
+                     0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
+                     0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
+                     0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
+                     0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
+                     0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
+                     0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
+                     0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
+                     0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
+                     0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
+    
+
+    # Relative population density of UK.  A density of 1.0 corresponds to 
     #   the cell with the highest density   
    
-    mappars[:ukMap] = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
-                       0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
-                       0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
-                       0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
-                       0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
-                       0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
-                       0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
-                       0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
-                       0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
-                       0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
-                       0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
-                       0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
-
-
-     #= not considered yet 
+    #= not considered yet 
     # ?? looks like deviation from the average 
     meta[:ukClassBias] = [0.0  -0.05 -0.05 -0.05  0.0   0.0  0.0  0.0;
                           -0.05 -0.05  0.0   0.0   0.0   0.0  0.0  0.0;
@@ -101,40 +113,51 @@ function loadUKMapParameters()
     
     =# 
 
-    mappars[:mapDensityModifier] = 0.6                          # for allocating houses in towns 
-
-    mappars
+    mappars.mapDensityModifier = 0.6                         
+    
+    return mappars    
 end
 
 
-function loadUKPopulationParameters() 
-    # TODO this is going to change after identifying a better 
-    # data structure for parameters 
-    poppars = Dict(:dummy=>any,:initialPop=>500)  # Population parameters  
-
+mutable struct UKPopulationPars
+    baseDieProb::Float
+    babyDieProb::Float
+    femaleAgeDieProb::Float  
+    femaleAgeScaling::Float 
+    femaleMortalityBias::Float 
+    initialPop::Int                # Number of females or males  in the initial population
+    maleAgeDieProp::Float  
+    maleAgeScaling::Float 
+    maleMortalityBias::Float
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
-    poppars[:minStartAge] = 24                  
-    poppars[:maxStartAge] = 45    
+    maxStartAge::Int 
+    minStartAge::Int 
 
-    # TODO this parameter does not belong here. It is a simulation parameters
-    poppars[:startYear]   = 1860 
+    UKPopulationPars = new() 
+end # UKPopulationPars 
+
+function loadUKPopulationPars() 
+    
+    poppars = UKPopulationPars() 
+
+    poppars.initialPop=500                 
+    poppars.minStartAge = 24                  
+    poppars.maxStartAge = 45    
 
     # Mortality statistics
-    poppars[:baseDieProb] = 0.0001          # used 
-    poppars[:babyDieProb] = 0.005           # used           
-    poppars[:maleAgeScaling] = 14.0         # used 
-    poppars[:maleAgeDieProb] = 0.00021      # used 
-    poppars[:femaleAgeScaling] = 15.5       # used 
-    poppars[:femaleAgeDieProb] = 0.00019    # used 
+    poppars.baseDieProb         = 0.0001      # used 
+    poppars.babyDieProb         = 0.005       # used           
+    poppars.maleAgeScaling      = 14.0        # used 
+    poppars.maleAgeDieProb      = 0.00021     # used 
+    poppars.femaleAgeScaling    = 15.5        # used 
+    poppars.femaleAgeDieProb    = 0.00019     # used 
     # poppars[:num5YearAgeClasses] = 28
-    poppars[:maleMortalityBias] = 0.8       # used          
-    poppars[:femaleMortalityBias] = 0.85    # used 
+    poppars.maleMortalityBias   = 0.8         # used          
+    poppars.femaleMortalityBias = 0.85        # used 
 
     poppars 
 end
-
-
 
 
 

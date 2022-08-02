@@ -5,7 +5,7 @@ module MALPM
 
     include("./malpm/demography/Population.jl") 
 
-    include("./malpm/Loaders.jl")
+    # include("./malpm/Loaders.jl")
     include("./malpm/Create.jl")
     include("./malpm/Initialize.jl")
     include("./malpm/Simulate.jl")
