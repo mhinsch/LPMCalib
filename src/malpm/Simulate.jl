@@ -19,23 +19,22 @@ export doDeaths!
 using SomeUtil: getproperty
 
 
-function doDeaths!(population::ABM{Person};
-                   verbose = true, 
-                   sleeptime = 0) 
+function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
 
     pars = population.properties 
     data = population.data
 
     people = allagents(population)
 
-    livingPeople = typeof(pars[:example]) == LPMUKDemographyOpt ? 
+    livingPeople = typeof(pars.example) == LPMUKDemographyOpt ? 
         people : [person for person in people if alive(person)]
 
     @assert length(livingPeople) > 0 ? 
         typeof(age(livingPeople[1])) == Rational{Int64} :
         true  # Assumption
 
-    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,verbose=verbose,sleeptime=sleeptime) 
+    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,
+                                                       verbose=pars.verbose,sleeptime=pars.sleeptime) 
 
     false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
 

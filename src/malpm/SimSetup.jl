@@ -31,7 +31,9 @@ function loadSimulationParameters()
         #:startTime=>1860,
         :finishTime=>2040,
         :dt=>1//12,
-        :seed=> floor(Int,time()))
+        :seed=> floor(Int,time()),
+        :verbose=>true,
+        :sleeptime=>0)
 end 
 
 
@@ -43,7 +45,10 @@ function setup!(sim::ABMSimulation,example::Demography)
     sim.model.properties[:currstep]   = Rational(startTime(sim)) 
     sim.model.properties[:dt]         = dt(sim)
     sim.model.properties[:stepnumber] = 0 
-    sim.model.properties[:example]    = example 
+    sim.model.properties[:example]    = example
+
+    sim.model.properties[:verbose]    = sim.properties[:verbose]
+    sim.model.properties[:sleeptime]  = sim.properties[:sleeptime]
 
     nothing 
 end
