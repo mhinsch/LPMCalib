@@ -13,11 +13,9 @@ from REPL execute it using
 include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
-
-# dummystep 
-
-using LPM.Loaders:    loadUKMapPars, loadUKPopulationPars
-using LPM.Loaders:    UKMapPars, UKPopulationPars 
+ 
+using LPM.Demography.Loaders:    loadUKMapPars, loadUKPopulationPars
+using LPM.Demography.Loaders:    UKMapPars, UKPopulationPars 
 
 using MALPM.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Initialize: initializeDemography!

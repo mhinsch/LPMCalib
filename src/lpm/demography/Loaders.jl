@@ -5,10 +5,10 @@ export UKMapPars, UKPopulationPars
 export loadUKMapPars, loadUKPopulationPars
 
 mutable struct UKMapPars 
-    mapDensityModifier::Float     # for allocating houses in towns 
-    mapGridXDimension::Int
+    mapDensityModifier::Float64     # for allocating houses in towns 
+    mapGridYDimension::Int
     townGridDimension::Int 
-    ukMap::Array{Int,2}           # Relative population density of UK.  
+    ukMap::Array{Float64,2}           # Relative population density of UK.  
                                   #   A density of 1.0 corresponds to 
                                   #   the cell with the highest density 
 
@@ -120,21 +120,21 @@ end
 
 
 mutable struct UKPopulationPars
-    baseDieProb::Float
-    babyDieProb::Float
-    femaleAgeDieProb::Float  
-    femaleAgeScaling::Float 
-    femaleMortalityBias::Float 
+    baseDieProb::Float64
+    babyDieProb::Float64
+    femaleAgeDieProb::Float64  
+    femaleAgeScaling::Float64 
+    femaleMortalityBias::Float64 
     initialPop::Int                # Number of females or males  in the initial population
-    maleAgeDieProp::Float  
-    maleAgeScaling::Float 
-    maleMortalityBias::Float
+    maleAgeDieProb::Float64  
+    maleAgeScaling::Float64 
+    maleMortalityBias::Float64
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
     maxStartAge::Int 
     minStartAge::Int 
 
-    UKPopulationPars = new() 
+    UKPopulationPars() = new() 
 end # UKPopulationPars 
 
 function loadUKPopulationPars() 
