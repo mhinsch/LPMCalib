@@ -4,7 +4,6 @@ module Create
 using Utilities: Gender, unknown, female, male
 using XAgents: Town, PersonHouse, Person, undefinedHouse, setAsPartners! 
 using MultiAgents: ABM, attach2DData!
-using SomeUtil:(-) 
 
 import SomeUtil: AbstractExample
 
@@ -24,27 +23,26 @@ struct LPMUKDemographyOpt <: Demography end
 
 ### 
 
-function createUKTowns(properties) 
+function createUKTowns(pars) 
 
     uktowns = Town[] 
     
-    for y in 1:properties[:mapGridYDimension]
-        for x in 1:properties[:mapGridXDimension] 
-            town = Town((x,y),density=properties[:ukMap][y,x])
+    for y in 1:pars.mapGridYDimension
+        for x in 1:pars.mapGridXDimension 
+            town = Town((x,y),density=pars.ukMap[y,x])
             push!(uktowns,town)
         end
     end
 
     uktowns
-end 
+end
 
-
-function createUKPopulation(properties) 
+function createUKPopulation(pars) 
 
     population = Person[] 
 
-    for i in 1 : properties[:initialPop]
-        ageMale = rand((properties[:minStartAge]:properties[:maxStartAge]))
+    for i in 1 : pars.initialPop
+        ageMale = rand((pars.minStartAge:pars.maxStartAge))
         ageFemale = ageMale - rand((-2:5))
         ageFemale = ageFemale < 24 ? 24 : ageFemale
         
@@ -74,19 +72,23 @@ end # createUKPopulation
 "create UK demography"
 function createUKDemography(properties) 
     #TODO distribute properties among ambs and MABM  
-    mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
+    # mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
+    mapProperties = properties.mappars 
     ukTowns  = ABM{Town}(mapProperties,
-                               declare=createUKTowns) # TODO delevir only the requird properties and substract them 
+                        declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
     ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
     
+    #= 
     populationProperties = [:initialPop,:minStartAge,:maxStartAge,
                             :baseDieProb,:babyDieProb,
                             :maleAgeScaling,:maleAgeDieProb,
                             :femaleAgeScaling,:femaleAgeDieProb,
                             # :num5YearAgeClasses,
                             :maleMortalityBias, :femaleMortalityBias] - properties 
-    
+    =# 
+    populationProperties = properties.poppars
+
     # Consider an argument for data 
     ukPopulation = ABM{Person}(populationProperties, declare=createUKPopulation)
 
