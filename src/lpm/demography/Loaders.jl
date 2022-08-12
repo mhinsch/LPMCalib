@@ -6,6 +6,7 @@ export loadUKMapPars, loadUKPopulationPars
 
 mutable struct UKMapPars 
     mapDensityModifier::Float64     # for allocating houses in towns 
+    mapGridXDimension::Int
     mapGridYDimension::Int
     townGridDimension::Int 
     ukMap::Array{Float64,2}           # Relative population density of UK.  
@@ -19,6 +20,7 @@ function loadUKMapPars()
 
     mappars = UKMapPars() 
 
+    mappars.mapGridXDimension = 8
     mappars.mapGridYDimension = 12
     mappars.townGridDimension = 25
 
