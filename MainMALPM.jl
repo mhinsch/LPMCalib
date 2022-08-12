@@ -37,10 +37,10 @@ end
 # ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
 ukDemographyPars = UKDemographyPars(ukmapPars,ukpopPars)
 
-#=
+
 # Declaration and initialization of a MABM for a demography model of UK 
 
-ukDemography = MultiABM(ukDemographyParameters,
+ukDemography = MultiABM(ukDemographyPars,
                         declare=createUKDemography,
                         initialize=initializeDemography!)
 
@@ -56,6 +56,7 @@ println(); println();
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
 
+#=
 # Declaration of a simulation 
 
 simProperties = loadSimulationParameters()
