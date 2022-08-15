@@ -23,22 +23,12 @@ struct LPMUKDemographyOpt <: Demography end
 
 "create UK demography"
 function createUKDemography(properties) 
-    #TODO distribute properties among ambs and MABM  
-    # mapProperties = [:townGridDimension,:mapGridXDimension,:mapGridYDimension,:ukMap] - properties
     mapProperties = properties.mappars 
     ukTowns  = ABM{Town}(mapProperties,
                         declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
     ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
     
-    #= 
-    populationProperties = [:initialPop,:minStartAge,:maxStartAge,
-                            :baseDieProb,:babyDieProb,
-                            :maleAgeScaling,:maleAgeDieProb,
-                            :femaleAgeScaling,:femaleAgeDieProb,
-                            # :num5YearAgeClasses,
-                            :maleMortalityBias, :femaleMortalityBias] - properties 
-    =# 
     populationProperties = properties.poppars
 
     # Consider an argument for data 
