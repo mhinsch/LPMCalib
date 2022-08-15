@@ -23,12 +23,10 @@ using MALPM.SimSetup:   loadSimulationParameters
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
 
-
-
 ukDemographyPars = loadUKDemographyPars() 
 
-
 # Declaration and initialization of a MABM for a demography model of UK 
+
 
 ukDemography = MultiABM(ukDemographyPars,
                         declare=createUKDemography,

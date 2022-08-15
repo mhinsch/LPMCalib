@@ -1,12 +1,11 @@
 module Initialize
 
-
-using  Random:  shuffle 
-using  XAgents: Town, PersonHouse, Person
-using  XAgents: undefined, isFemale, partner, setPartner! 
+using  XAgents:  Person, PersonHouse, Town
+using  LPM.Demography.Initialize: initializeHousesInTowns,
+                                  assignCouplesToHouses!
 
 using  MultiAgents: ABM, MultiABM 
-using  MultiAgents: add_agent!, allagents, nagents 
+using  MultiAgents: add_agent!, allagents
 
 import MultiAgents: initial_connect!
 
@@ -14,56 +13,31 @@ export initializeDemography!
 
 "initialize an abm of houses through an abm of towns"
 function initial_connect!(abmhouses::ABM{PersonHouse},abmtowns::ABM{Town},pars) 
-
-    # create houses within towns 
     towns = allagents(abmtowns)  
-    for town in towns
-        if town.density > 0 
-            adjustedDensity = town.density * pars.mapDensityModifier
-    
-            for hx in 1:abmtowns.properties.townGridDimension  
-                for hy in 1:abmtowns.properties.townGridDimension 
-    
-                    if(rand() < adjustedDensity)
-                        house = PersonHouse(town,(hx,hy))
-                        add_agent!(house,abmhouses)
-                    end
-    
-                end # for hy 
-            end # for hx 
-        end # if town.density 
-    end # for town 
+    houses = initializeHousesInTowns(towns,pars) 
 
+    for house in houses 
+        add_agent!(house,abmhouses)
+    end
+    
     nothing 
-end
+end # initial_connect! houses with towns 
 
 # Connection is symmetric 
-initial_connect!(abmtowns::ABM{Town},abmhouses::ABM{PersonHouse},pars) = initial_connect!(abmhouses,abmtowns,pars)
+#initial_connect!(abmtowns::ABM{Town},abmhouses::ABM{PersonHouse},pars) = initial_connect!(abmhouses,abmtowns,pars)
 
 
 """ 
-    initialize an abm of houses through an abm of towns
     a set of houses are chosen randomly and assigned to couples 
 """
 function initial_connect!(abmpopulation::ABM{Person},abmhouses::ABM{PersonHouse},pars) 
     
-    numberOfMens        = trunc(Int,nagents(abmpopulation) / 2)       # it is assumed that half of the population is men
-    randomHousesIndices = shuffle(1:nagents(abmhouses))    
-    randomhouses        = allagents(abmhouses)[randomHousesIndices[1:numberOfMens]] 
-    population          = allagents(abmpopulation) 
+    population = allagents(abmpopulation) 
+    houses     = allagents(abmhouses) 
 
-    for man in population
-        isFemale(man) ? continue : nothing 
+    assignCouplesToHouses!(population,houses)
 
-        house  = pop!(randomhouses) 
-        man.pos = partner(man).pos = house 
-
-        append!(house.occupants, [man, partner(man)])
-
-    end # for person     
-    
-    length(randomhouses) > 0 ? error("random houses for occupation has length $(length(randomhouses)) > 0") : nothing 
-end 
+end  # initial_connect assign population to houses 
 
 
 "Establish town houses and assign population to them"
@@ -75,8 +49,6 @@ function  initializeDemography!(demography::MultiABM)
 
     initial_connect!(ukHouses,ukTowns,demography.properties.mappars)
     initial_connect!(ukPopulation,ukHouses,nothing)
-
-
 
 end 
 
