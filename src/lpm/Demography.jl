@@ -1,7 +1,7 @@
 module Demography
 
     include("./demography/Loaders.jl")
-    include("./demography/Create.jl")
-    include("./demography/Simulate.jl")   # This does not has to be that name?
+    include("./demography/Create.jl")   
+    include("./demography/Simulate.jl")   
 
 end # Demography
