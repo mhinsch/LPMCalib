@@ -14,8 +14,7 @@ include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
  
-using LPM.Demography.Loaders:    loadUKMapPars, loadUKPopulationPars
-using LPM.Demography.Loaders:    UKMapPars, UKPopulationPars 
+using LPM.Demography.Loaders:    loadUKDemographyPars
 
 using MALPM.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Initialize: initializeDemography!
@@ -24,18 +23,9 @@ using MALPM.SimSetup:   loadSimulationParameters
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
 
-# Model parameters 
 
-ukmapPars = loadUKMapPars()
-ukpopPars = loadUKPopulationPars() 
 
-struct UKDemographyPars 
-    mappars::UKMapPars
-    poppars::UKPopulationPars
-end 
-
-# ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
-ukDemographyPars = UKDemographyPars(ukmapPars,ukpopPars)
+ukDemographyPars = loadUKDemographyPars() 
 
 
 # Declaration and initialization of a MABM for a demography model of UK 

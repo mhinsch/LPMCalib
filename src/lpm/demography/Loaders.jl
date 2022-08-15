@@ -1,8 +1,7 @@
 module Loaders 
 
-export UKMapPars, UKPopulationPars
-
-export loadUKMapPars, loadUKPopulationPars
+export UKMapPars, UKPopulationPars, UKDemographyPars
+export loadUKMapPars, loadUKPopulationPars, loadUKDemographyPars
 
 mutable struct UKMapPars 
     mapDensityModifier::Float64     # for allocating houses in towns 
@@ -162,5 +161,18 @@ function loadUKPopulationPars()
 end
 
 
+
+mutable struct UKDemographyPars 
+    mappars::UKMapPars
+    poppars::UKPopulationPars
+end 
+
+function loadUKDemographyPars() 
+    # Model parameters 
+    ukmapPars = loadUKMapPars()
+    ukpopPars = loadUKPopulationPars() 
+
+    UKDemographyPars(ukmapPars,ukpopPars)
+end 
 
 end # Loaders 
