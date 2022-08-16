@@ -2,7 +2,7 @@ module Initialize
 
 using Random:  shuffle 
 using XAgents: Town, Person, PersonHouse  
-using XAgents: isFemale, partner
+using XAgents: isFemale, isMale, partner
 
 export initializeHousesInTowns, assignCouplesToHouses!
 
@@ -35,10 +35,14 @@ function initializeHousesInTowns(towns::Array{Town,1}, pars)
 end  # function initializeHousesInTwons 
 
 
-""
+"Randomly assign a population of couples to non-inhebted set of houses"
 function  assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
 
-    false ? @assert(numberOfMens == numberOfFemales) : nothing 
+    numberOfMens   = length([ man   for man   in population if isMale(man) ])  
+    numberOfWomens = length([ woman for woman in population if isFemale(woman) ])  
+
+    @assert(numberOfMens == numberOfWomens) 
+    @assert(length(houses) >= numberOfMens)
     
     numberOfMens = trunc(Int,length(population) / 2) 
 
