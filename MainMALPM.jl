@@ -16,9 +16,9 @@ using MultiAgents: MultiABM
  
 using LPM.Demography.Loaders:    loadUKDemographyPars
 
-using MALPM.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
-using MALPM.Initialize: initializeDemography!
-using MALPM.SimSetup:   loadSimulationParameters
+using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
+using MALPM.Demography.Initialize: initializeDemography!
+using MALPM.Demography.SimSetup:   loadSimulationParameters
 
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 

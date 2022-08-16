@@ -5,18 +5,18 @@
 
 module Simulate
 
+using SomeUtil: getproperty
+
 using XAgents: Person  
 using XAgents: alive, age
 
 using MultiAgents: ABM, allagents
 
-using MALPM.Create: LPMUKDemographyOpt
+using MALPM.Demography.Create: LPMUKDemographyOpt
 
-using  LPM
 import LPM.Demography.Simulate: doDeaths!
 export doDeaths!
 
-using SomeUtil: getproperty
 
 
 function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 

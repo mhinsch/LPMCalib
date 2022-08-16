@@ -7,19 +7,19 @@ using LPM.Demography.Create: createUKTowns, createUKPopulation
 
 import SomeUtil: AbstractExample
 
-export Demography, LPMUKDemography, LPMUKDemographyOpt
+export DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemography
 
 ### Example Names 
 
 "Super type for all demographic models"
-abstract type Demography <: AbstractExample end 
+abstract type DemographyExample <: AbstractExample end 
 
 "This corresponds to direct translation of the python model"
-struct LPMUKDemography <: Demography end 
+struct LPMUKDemography <: DemographyExample end 
 
 "This is an attemp for improved algorthimic translation"
-struct LPMUKDemographyOpt <: Demography end 
+struct LPMUKDemographyOpt <: DemographyExample end 
 
 "create UK demography"
 function createUKDemography(properties) 

@@ -9,8 +9,8 @@ using MultiAgents: startTime, dt
 using MultiAgents: ABMSimulation, MABMSimulation
 using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 
-using MALPM.Simulate: doDeaths!
-using MALPM.Create: Demography, LPMUKDemography, LPMUKDemographyOpt
+using MALPM.Demography.Simulate: doDeaths!
+using MALPM.Demography.Create: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
 import MultiAgents: setup!
 
@@ -37,7 +37,7 @@ function loadSimulationParameters()
 end 
 
 
-function setup!(sim::ABMSimulation,example::Demography) 
+function setup!(sim::ABMSimulation,example::DemographyExample) 
     sim.agent_steps      = [dummystep]  
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 
