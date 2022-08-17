@@ -42,6 +42,8 @@ function setup!(sim::ABMSimulation,example::DemographyExample)
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 
 
+    # Why is simulation propertoes, properties of the model?
+    #=
     sim.model.properties[:currstep]   = Rational(startTime(sim)) 
     sim.model.properties[:dt]         = dt(sim)
     sim.model.properties[:stepnumber] = 0 
@@ -49,6 +51,7 @@ function setup!(sim::ABMSimulation,example::DemographyExample)
 
     sim.model.properties[:verbose]    = sim.properties[:verbose]
     sim.model.properties[:sleeptime]  = sim.properties[:sleeptime]
+    =# 
 
     nothing 
 end
@@ -78,8 +81,10 @@ function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt)
     attach_agent_step!(sim.simulations[3],removeDead!)   
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
 
+    #=
     sim.model.properties[:example] = example 
-
+    =# 
+    
     # attach_post_model_step!(sim.simulations[3],someStats!)
     # attach_post_model_step!(sim.simulations[3],writeSomeResults!)
     # attach_final_step!(sim,someFinaliztion!) 
