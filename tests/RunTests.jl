@@ -13,7 +13,7 @@ using Test
 
 using XAgents: Person, House, Town
 
-using MultiAgents: verify 
+using MultiAgents: verifyAgentsJLContract 
 
 # BasicInfo module 
 using XAgents: alive, setDead!, age, agestep!, agestepAlive!
@@ -56,9 +56,9 @@ using Utilities: Gender, male, female, unknown
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
         
-        @test verify(glasgow) 
-        @test verify(house1)
-        @test verify(person1)
+        @test verifyAgentsJLContract(glasgow) 
+        @test verifyAgentsJLContract(house1)
+        @test verifyAgentsJLContract(person1)
 
         # Testing that every agent should have a unique ID 
         @test person1.id > 0                        
