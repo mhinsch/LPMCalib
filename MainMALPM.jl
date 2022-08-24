@@ -44,7 +44,7 @@ println(); println();
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
 
-
+#=
 # Declaration of a simulation 
 
 simProperties = loadSimulationParameters()
@@ -57,3 +57,4 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 run!(lpmDemographySim,verbose=true)
 
 lpmDemographySim
+=# 
