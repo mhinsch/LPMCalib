@@ -1,10 +1,9 @@
 """
 Run this script from shell as 
-# JULIA_LOAD_PATH="/path/to/LoneParentsModel.jl/src:\$JULIA_LOAD_PATH" julia RunTests.jl
+# julia tests/RunTests.jl
 
 or within REPL
 
-julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
 julia> include("tests/RunTests.jl")
 """
 
@@ -14,7 +13,7 @@ using Test
 
 using XAgents: Person, House, Town
 
-using MultiAgents: verify 
+using MultiAgents: verifyAgentsJLContract 
 
 # BasicInfo module 
 using XAgents: alive, setDead!, age, agestep!, agestepAlive!
@@ -25,7 +24,7 @@ using XAgents: father, mother, partner, isSingle
 using XAgents: setAsParentChild!, setAsPartners!, resolvePartnership!, resetPartner!
 
 # Person type 
-using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation 
+using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation, resetHouse!, undefined 
 
 using Utilities: HouseLocation
 
@@ -57,9 +56,9 @@ using Utilities: Gender, male, female, unknown
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
         
-        @test verify(glasgow) 
-        @test verify(house1)
-        @test verify(person1)
+        @test verifyAgentsJLContract(glasgow) 
+        @test verifyAgentsJLContract(house1)
+        @test verifyAgentsJLContract(person1)
 
         # Testing that every agent should have a unique ID 
         @test person1.id > 0                        
@@ -149,6 +148,9 @@ using Utilities: Gender, male, female, unknown
         person1.pos = house1 
         @test_throws ArgumentError setHouse!(person1,house3)
         person1.pos = house2
+
+        resetHouse!(person4)
+        @test undefined(person4.pos)
 
     end # House functionalities 
 
