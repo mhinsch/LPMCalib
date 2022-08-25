@@ -5,10 +5,11 @@ The ABM model corresponds to a population of agents.
 Some agents are living together in a house.
 They are currently ageing together. 
 
-to run this script, LoneParentsModel.jl package has to
-be in the load path. Within REPL, execute:
+Run this script from shell as 
+# julia MainDummy.jl
 
-julia> push!(LOAD_PATH,"/path/to/LoneParentsModel.jl/src")
+to run this script within REPL, execute:
+
 julia> include("this_script.jl")
 """ 
 

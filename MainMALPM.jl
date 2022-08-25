@@ -3,33 +3,32 @@ Main simulation of the lone parent model
 
 under construction 
 
-from REPL execute it using > include("MainLPM.jl")
+Run this script from shell as 
+# julia MainMALPM.jl
+
+from REPL execute it using 
+> include("MainMALPM.jl")
 """
 
 include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
+ 
+using LPM.Parameters.Loaders:    loadUKDemographyPars
 
-# dummystep 
-
-using LoneParentsModel.Loaders:    loadUKMapParameters, loadUKPopulationParameters
-using LoneParentsModel.Create:    LPMUKDemography, LPMUKDemographyOpt 
-using LoneParentsModel.Create:    createUKDemography 
-using LoneParentsModel.Initialize: initializeDemography!
-using LoneParentsModel.SimSetup:   loadSimulationParameters
+using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
+using MALPM.Demography.Initialize: initializeDemography!
+using MALPM.Demography.SimSetup:   loadSimulationParameters
 
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
 
-# Model parameters 
-
-ukmapParameters = loadUKMapParameters()
-ukpopParameters = loadUKPopulationParameters() 
-ukDemographyParameters = merge(ukmapParameters,ukpopParameters)
+ukDemographyPars = loadUKDemographyPars() 
 
 # Declaration and initialization of a MABM for a demography model of UK 
 
-ukDemography = MultiABM(ukDemographyParameters,
+
+ukDemography = MultiABM(ukDemographyPars,
                         declare=createUKDemography,
                         initialize=initializeDemography!)
 
@@ -45,15 +44,16 @@ println(); println();
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
 
+
 # Declaration of a simulation 
 
 simProperties = loadSimulationParameters()
-
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
                                   example=LPMUKDemographyOpt())
+
 
 # Execution 
 
 run!(lpmDemographySim,verbose=true)
 
-lpmDemographySim
+lpmDemographySim 
