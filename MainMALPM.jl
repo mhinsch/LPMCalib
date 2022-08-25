@@ -14,7 +14,7 @@ include("./loadLibsPath.jl")
 
 using MultiAgents: MultiABM
  
-using LPM.Demography.Loaders:    loadUKDemographyPars
+using LPM.Parameters.Loaders:    loadUKDemographyPars
 
 using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Demography.Initialize: initializeDemography!
@@ -44,7 +44,7 @@ println(); println();
 @show ukDemography.abms[3].agentsList[1:10]
 println(); println(); 
 
-#=
+
 # Declaration of a simulation 
 
 simProperties = loadSimulationParameters()
@@ -52,6 +52,7 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
                                   example=LPMUKDemographyOpt())
 
 
+#=
 # Execution 
 
 run!(lpmDemographySim,verbose=true)
