@@ -63,9 +63,9 @@ function deathProbability(baseRate,person,parameters)
 end # function deathProb
 
 ""
-function doDeaths!(;people,parameters,data,verbose=true,sleeptime=0)
+function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(parameters.currstep))
+    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
     currmonth = currmonth + 1 
     numDeaths = 0
 
