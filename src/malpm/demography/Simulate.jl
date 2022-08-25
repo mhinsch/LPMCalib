@@ -14,6 +14,7 @@ using MultiAgents: ABM, allagents
 
 using MALPM.Demography.Create: LPMUKDemographyOpt
 
+using LPM
 import LPM.Demography.Simulate: doDeaths!
 export doDeaths!
 
@@ -21,20 +22,21 @@ export doDeaths!
 
 function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
 
-    pars = population.properties 
+    pars = population.parameters
     data = population.data
+    properties = population.properties
 
     people = allagents(population)
 
-    livingPeople = typeof(pars.example) == LPMUKDemographyOpt ? 
+    livingPeople = typeof(properties.example) == LPMUKDemographyOpt ? 
         people : [person for person in people if alive(person)]
 
     @assert length(livingPeople) > 0 ? 
         typeof(age(livingPeople[1])) == Rational{Int64} :
         true  # Assumption
 
-    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,
-                                                       verbose=pars.verbose,sleeptime=pars.sleeptime) 
+    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,currstep=properties.currstep,
+                                                       verbose=properties.verbose,sleeptime=properties.sleeptime) 
 
     false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
 
