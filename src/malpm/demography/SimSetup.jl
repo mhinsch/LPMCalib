@@ -2,6 +2,7 @@ module SimSetup
 
 # using XAgents: agestepAlivePerson!
 using MALPM.Population: agestepAlivePerson!, removeDead!
+using LPM.Parameters: loadDefaultSimPars
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
@@ -26,14 +27,16 @@ is provided here
 @return dictionary of required simulation parameters 
 """
 function loadSimulationParameters() 
-    Dict(:numRepeats=>1,
-        :startTime=>1920,
-        #:startTime=>1860,
-        :finishTime=>2040,
-        :dt=>1//12,
-        :seed=> floor(Int,time()),
-        :verbose=>true,
-        :sleeptime=>0)
+
+    simpars = loadDefaultSimPars()
+
+    Dict(:numRepeats=>simpars.numRepeats,
+        :startTime=>simpars.startTime,
+        :finishTime=>simpars.finishTime,
+        :dt=>simpars.dt,
+        :seed=> simpars.seed,
+        :verbose=> simpars.verbose,
+        :sleeptime=> simpars.sleeptime)
 end 
 
 
