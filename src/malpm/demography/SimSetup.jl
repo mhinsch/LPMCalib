@@ -30,17 +30,25 @@ function loadSimulationParameters()
 
     simpars = loadDefaultSimPars()
 
+    # The following moight be modified as parameters struct rather than dictionary
+
     Dict(:numRepeats=>simpars.numRepeats,
         :startTime=>simpars.startTime,
         :finishTime=>simpars.finishTime,
         :dt=>simpars.dt,
         :seed=> simpars.seed,
+        :stepnumber=> 0,
+        :currstep=> simpars.startTime,
         :verbose=> simpars.verbose,
         :sleeptime=> simpars.sleeptime)
 end 
 
 
 function setup!(sim::ABMSimulation,example::DemographyExample) 
+
+    # initDefaultProb!(sim.model,sim.properties)
+    sim.model.properties = deepcopy(sim.properties)
+
     sim.agent_steps      = [dummystep]  
     sim.pre_model_steps  = [defaultprestep!]
     sim.post_model_steps = [defaultpoststep!] 
@@ -63,7 +71,7 @@ function setup!(sim::MABMSimulation,example::LPMUKDemography)
     attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
 
-    sim.model.properties[:example] = example 
+    # sim.model.properties[:example] = example 
 
     #= 
     n = length(sim.simulations) 
@@ -84,9 +92,11 @@ function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt)
     attach_agent_step!(sim.simulations[3],removeDead!)   
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
 
-    #=
-    sim.model.properties[:example] = example 
-    =# 
+    # to simplify the following ... 
+
+    sim.model.abms[1].properties[:example] = example  
+    sim.model.abms[2].properties[:example] = example  
+    sim.model.abms[3].properties[:example] = example  
     
     # attach_post_model_step!(sim.simulations[3],someStats!)
     # attach_post_model_step!(sim.simulations[3],writeSomeResults!)
