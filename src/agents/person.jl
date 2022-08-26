@@ -9,7 +9,7 @@ import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!
 
 export Person
 export PersonHouse, undefinedHouse
-export isSingle, setHouse!, resolvePartnership!
+export isSingle, setHouse!, resetHouse!, resolvePartnership!
 
 #export Kinship
 export isMale, isFemale, age
@@ -104,6 +104,16 @@ function setHouse!(person::Person,house)
     person.pos = house
     addOccupant!(house, person)
 end
+
+"reset house of a person (e.g. became dead)"
+function resetHouse!(person::Person) 
+    if ! undefined(person.pos) 
+        removeOccupant!(person.pos, person)
+    end
+
+    person.pos = undefinedHouse
+    nothing 
+end 
 
 
 "set the father of a child"
