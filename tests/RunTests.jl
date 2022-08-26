@@ -1,26 +1,33 @@
 """
 Run this script from shell as 
-# JULIA_LOAD_PATH="/path/to/LoneParentsModel.jl/src:\$JULIA_LOAD_PATH" julia RunTests.jl
+# julia tests/RunTests.jl
 
 or within REPL
 
-julia> push!(LOAD_PATH,"/path/to/LoneParentsModels.jl/src")
-julia> include("RunTests.jl")
+julia> include("tests/RunTests.jl")
 """
+
+include("../loadLibsPath.jl")
 
 using Test
 
 using XAgents: Person, House, Town
 
-using MultiAgents: verify 
+using MultiAgents: verifyAgentsJLContract 
+
+# BasicInfo module 
+using XAgents: alive, setDead!, age, agestep!, agestepAlive!
 using XAgents: isFemale, isMale
-using XAgents: setFather!, setParent!, setPartner!, setHouse!, setMother!
-using XAgents: resolvePartnership!
-using XAgents: getHomeTown, getHomeTownName, getHouseLocation 
+
+# Kinship Module 
+using XAgents: father, mother, partner, isSingle 
+using XAgents: setAsParentChild!, setAsPartners!, resolvePartnership!, resetPartner!
+
+# Person type 
+using XAgents: setHouse!, getHomeTown, getHomeTownName, getHouseLocation, resetHouse!, undefined 
 
 using Utilities: HouseLocation
 
-using MultiAgents.Util: read2DArray, date2yearsmonths, removefirst!, subtract! 
 using Utilities:  createTimeStampedFolder
 
 using Utilities: Gender, male, female, unknown 
@@ -34,9 +41,9 @@ using Utilities: Gender, male, female, unknown
     aberdeen  = Town((20,12),name="Aberdeen")
 
     # List of houses 
-    house1 = House(edinbrugh,(1,2)::HouseLocation) 
-    house2 = House(aberdeen,(5,10)::HouseLocation) 
-    house3 = House(glasgow,(2,3)::HouseLocation) 
+    house1 = House{Person}(edinbrugh,(1,2)::HouseLocation) 
+    house2 = House{Person}(aberdeen,(5,10)::HouseLocation) 
+    house3 = House{Person}(glasgow,(2,3)::HouseLocation) 
 
     # List of persons 
     person1 = Person(house1,25,gender=male) 
@@ -49,9 +56,9 @@ using Utilities: Gender, male, female, unknown
     @testset verbose=true "Basic declaration" begin
         @test_throws MethodError person4 = Person(1,house1,22)         # Default constructor is disallowed
         
-        @test verify(glasgow) 
-        @test verify(house1)
-        @test verify(person1)
+        @test verifyAgentsJLContract(glasgow) 
+        @test verifyAgentsJLContract(house1)
+        @test verifyAgentsJLContract(person1)
 
         # Testing that every agent should have a unique ID 
         @test person1.id > 0                        
@@ -65,35 +72,63 @@ using Utilities: Gender, male, female, unknown
         @test person1 === person2 
     end 
 
+    @testset verbose=true "BasicInfo Module" begin 
+
+        @test typeof(age(person1)) == Rational{Int64} 
+        @test isMale(person1)
+        @test !isFemale(person1)
+        @test alive(person1) 
+        
+        person7 = Person(house1,25,gender=male) 
+        setDead!(person7)
+        @test !alive(person7)
+
+        agestepAlive!(person7)
+        @test age(person7) < 25.01 
+        agestep!(person7) 
+        @test age(person7) > 25
+
+    end
+
+    @testset verbose=true "Kinship Module" begin 
+        
+        setAsParentChild!(person1,person6) 
+        @test person1 in person6.kinship.children
+        @test father(person1) === person6 
+
+        setAsParentChild!(person2,person4) 
+        @test mother(person2) === person4
+        @test person2 in person4.kinship.children 
+
+        @test isSingle(person1)
+        setAsPartners!(person1,person4)
+        @test !isSingle(person4) 
+        @test partner(person1) === person4 && partner(person4) === person1 
+
+        @test_throws InvalidStateException setAsPartners!(person3,person4) # same gender 
+
+        @test_throws InvalidStateException setAsParentChild!(person4,person5)  # unknown gender 
+        @test_throws ArgumentError setAsParentChild!(person4,person1)          # ages incompatibe / well they are also partners  
+        @test_throws ArgumentError setAsParentChild!(person2,person3)          # person 2 has a mother 
+
+        resolvePartnership!(person4,person1) 
+        @test isSingle(person4)
+        @test partner(person1) !== person4 && partner(person4) != person1
+        @test_throws ArgumentError resolvePartnership!(person1,person4) 
+
+    end
+
     @testset verbose=true "Type Person" begin
         @test getHomeTown(person1) != nothing             
         @test getHomeTownName(person1) == "Edinbrugh"    
+
+        setAsPartners!(person4,person6) 
+        @test !isSingle(person6)
+        @test !isSingle(person4)
         
-        @test typeof(person1.info.age) == Rational{Int64} 
-        
-        @test isMale(person1)
-        @test !isFemale(person1)
-        
-        setFather!(person1,person6) 
-        @test person1 in person6.kinship.children
-        @test person1.kinship.father === person6 
-
-        setParent!(person2,person4) 
-        @test person2.kinship.mother === person4
-        @test person2 in person4.kinship.children 
-
-        setPartner!(person1,person4) 
-        @test person1.kinship.partner === person4 && person4.kinship.partner === person1 
-
-        @test_throws InvalidStateException setPartner!(person3,person4) # same gender 
-
-        @test_throws InvalidStateException setParent!(person4,person5)  # unknown gender 
-        @test_throws ArgumentError setFather!(person4,person1)          # ages incompatibe / well they are also partners  
-        @test_throws ArgumentError setMother!(person2,person3)          # person 2 has a mother 
-
-        resolvePartnership!(person4,person1) 
-        @test person1.kinship.partner !== person4 && person4.kinship.partner != person1
-        @test_throws ArgumentError resolvePartnership!(person1,person4) 
+        resetPartner!(person4) 
+        @test isSingle(person6)
+        @test isSingle(person4)
     end 
 
     @testset verbose=true "Type House" begin
@@ -107,12 +142,15 @@ using Utilities: Gender, male, female, unknown
         @test getHomeTown(person1) === aberdeen   
         @test person1 in house2.occupants   
         
-        setHouse!(house2,person4)
+        setHouse!(person4,house2)
         @test getHomeTown(person4) === aberdeen    
 
         person1.pos = house1 
-        @test_throws InvalidStateException setHouse!(person1,house3)
+        @test_throws ArgumentError setHouse!(person1,house3)
         person1.pos = house2
+
+        resetHouse!(person4)
+        @test undefined(person4.pos)
 
     end # House functionalities 
 
@@ -131,36 +169,11 @@ using Utilities: Gender, male, female, unknown
     # TODO testing ABMs once designed
 
     # TODO testing stepping functions once design is fixed 
-
+    
     @testset verbose=true "Utilities" begin
         simfolder = createTimeStampedFolder()
         @test !isempty(simfolder)                            
         @test isdir(simfolder)
-
-        # reading matrix from file 
-        T = read2DArray("../data/test23.csv")         
-        @test size(T) == (2,3)
-        @test  0.3434 - eps() < T[2,2] < .3434 + eps()
-
-        # dictionary subtraction 
-        param = Dict(:a=>1,:b=>[1,2],:c=>3.1,:s=>"msg") 
-        paramab = subtract!([:a,:b],param) 
-        @test issetequal(keys(paramab),[:a,:b])   
-        @test issetequal(keys(param),[:s,:c])          
-        @test_throws ArgumentError subtract!([:c,:d],param)
-        parama  = [:a] - paramab
-        @test issetequal(keys(parama),[:a]) 
-        @test issetequal(keys(paramab),[:b])
-
-        @test date2yearsmonths(1059 // 12) == (88 , 3)
-        @test_throws ArgumentError   date2yearsmonths(1059 // 5)
-        @test_throws ArgumentError   date2yearsmonths(-1059 // 5)
-
-        arr = [person3, person2, person6] 
-        removefirst!(arr, person2)
-        @test arr[1] == person3  && arr[2] == person6 
-        @test_throws ArgumentError removefirst!(arr,person5)  
-
     end
 
     @testset verbose=true "Lone Parent Model Simulation" begin
