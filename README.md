@@ -15,6 +15,7 @@ An initial implementation of an ABM aiming at a social and child care simulation
 simulation considering death probabilities 
   - v0.3.1: The abstract conceptual part of the code moved to MultiAgents.jl 
   - v0.3.2: Kinship & BasicInfo modules for the type Person 
+- **V0.4** (25.08.2022): A new module LPM containing generic implementation. In contrary, MALPM makes use of LPM & MultiAgents.jl  
 
 
 ### Source code structure 
