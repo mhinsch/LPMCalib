@@ -73,6 +73,10 @@ function setup!(sim::MABMSimulation,example::LPMUKDemography)
 
     # sim.model.properties[:example] = example 
 
+    sim.model.abms[1].properties[:example] = example  
+    sim.model.abms[2].properties[:example] = example  
+    sim.model.abms[3].properties[:example] = example  
+    
     #= 
     n = length(sim.simulations) 
     for i in 1:n 
