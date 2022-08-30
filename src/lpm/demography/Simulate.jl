@@ -141,44 +141,84 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
     (numberDeaths = numDeaths)   
 end  # function doDeaths! 
 
-"evaluate births events in a population"
-function doBirths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
+"""
+    Accept a population and evaluates the birth rate upon computing
+    - the population of married fertile women according to 
+      fixed parameters (minPregnenacyAge, maxPregnenacyAge) and 
+    - the birth probability data (fertility bias and growth rates) 
+
+    Class rankes and shares are temporarily ignored.
+
+"""
+function doBirths!(;people,parameters,data,currstep,
+                    verbose=true,sleeptime=0,checkassumption=true)
 
     (curryear,currmonth) = date2yearsmonths(Rational(currstep))
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
     numBirths = 0
 
-#=
+    # TODO Assumptions 
+    if checkassumption
+        for person in people  
+            @assert alive(person) 
+        end
+    end 
 
- preBirth = len(self.pop.livingPeople)
-        
-        marriedLadies = 0
-        adultLadies = 0
-        births = [0, 0, 0, 0, 0]
-        marriedPercentage = []
-        
-        allFemales = [x for x in self.pop.livingPeople if x.sex == 'female']
-        adultWomen = [x for x in self.pop.livingPeople if x.sex == 'female' and x.age >= self.p['minPregnancyAge']]
-        notFertiledWomen = [x for x in adultWomen if x.age > self.p['maxPregnancyAge']]
-        
-        print 'Number of adult women: ' + str(len(allFemales))
-        print 'Number of adult women: ' + str(len(adultWomen))
-        print 'Not fertile women: ' + str(len(notFertiledWomen))
-        
-        womenOfReproductiveAgeButNotMarried = [x for x in self.pop.livingPeople
-                                  if x.sex == 'female'
-                                  and x.age >= self.p['minPregnancyAge']
-                                  and x.age <= self.p['maxPregnancyAge']
-                                  and x.partner == None]
-        
-        print 'Not married fertile women: ' + str(len(womenOfReproductiveAgeButNotMarried))
-        
-        womenOfReproductiveAge = [x for x in self.pop.livingPeople
-                                  if x.sex == 'female'
-                                  and x.age >= self.p['minPregnancyAge']
-                                  and x.age <= self.p['maxPregnancyAge']
-                                  and x.partner != None]
-        
+    preBirth = length(people)
+    births =  0    # instead of [0, 0, 0, 0, 0]
+    marriedPercentage = -1  # []
+
+    # TODO The following could be collapsed into one loop / not sure if it is more efficient 
+    #      there is also a potential to save alot of re-computation in each iteration by 
+    #      storing the intermediate results and modifying the computation.
+    #      However, it could be also the case that Julia compiler does something efficient any way? 
+
+    allFemals = [ female for female in people if isFemale(female) ]
+    adultWomen = [ aWomen for aWomen in allFemales if age(aWomen) >= parameters.minPregnancyAge ]
+    notFertiledWomen = [ nfWoman for nfWomen in adultWomen if age(nfWoman) > parameters.maxPregnancyAge ]
+
+    womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if age(rWoman) <= parameters.maxPregnancyAge ]
+    womenOfReproductiveAgeButNotMarried = [ rnmWoman for rnmWoman in womenOfReproductiveAge if isSingle(rnmWoman) ]
+
+    # TODO @assumption 
+    if checkassumption
+        nonadultFemale = allFemales - adultWomen
+        for female in nonadultFemale
+            @asset( isSingle(female))   
+        end
+    end
+
+    #        for person in self.pop.livingPeople:
+    #           
+    #            if person.sex == 'female' and person.age >= self.p['minPregnancyAge']:
+    #                adultLadies += 1
+    #                if person.partner != None:
+    #                    marriedLadies += 1
+    #        marriedPercentage = float(marriedLadies)/float(adultLadies)
+
+    numMarriedLadies = length(womenOfReproductiveAge) - length(womenOfReproductiveAgeButNotMarried) 
+    marriedPercentage = numMarriedLadies / length(adultLadies)
+
+    if verbose
+
+        # To do this generic print msg to be placed in a top function 
+        println("In iteration $curryear , month $currmonth :")
+
+        println("# allFemales    : $(length(allFemales))") 
+        println("# adult women   : $(length(adultWomen))") 
+        println("# NotFertile    : $(length(notFertiledWomen))")
+
+        println("# fertile women : $(length(womenOfReproductiveAge))")
+        println("# non-married fertile women : $(length(womenOfReproductiveAgeButNotMarried))")
+
+        println("marriedPercentage : $marriedPercentage")
+
+        sleep(sleeptime)
+
+    end # verbose 
+
+
+    #=      
         adultLadies_1 = [x for x in adultWomen if x.classRank == 0]   
         marriedLadies_1 = len([x for x in adultLadies_1 if x.partner != None])
         if len(adultLadies_1) > 0:
@@ -209,24 +249,20 @@ function doBirths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
             marriedPercentage.append(marriedLadies_5/float(len(adultLadies_5)))
         else:
             marriedPercentage.append(0)
+    =#
         
-        # print(marriedPercentage)
-        
-#        for person in self.pop.livingPeople:
-#           
-#            if person.sex == 'female' and person.age >= self.p['minPregnancyAge']:
-#                adultLadies += 1
-#                if person.partner != None:
-#                    marriedLadies += 1
-#        marriedPercentage = float(marriedLadies)/float(adultLadies)
-        
-        print 'Number of reproductive women: ' + str(len(womenOfReproductiveAge))
-        
+    for woman in womenOfReproductiveAge:
+
+        # womanClassRank = woman.classRank
+        #   if woman.status == 'student':
+        #       womanClassRank = woman.parentsClassRank
+
+    end
+    
+    #=    
         for woman in womenOfReproductiveAge:
             
-            womanClassRank = woman.classRank
-            if woman.status == 'student':
-                womanClassRank = woman.parentsClassRank
+            
 
             if self.year < 1951:
                 rawRate = self.p['growingPopBirthProb']
@@ -279,7 +315,7 @@ function doBirths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
         print 'The number of births is: ' + str(numberBirths)
 
 
-=# 
+    =# 
 
 
 end  # function doBirths! 
