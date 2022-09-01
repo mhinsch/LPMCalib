@@ -11,7 +11,7 @@ module Utilities
     export SimulationFolderPrefix
 
     # Functions
-    export createTimeStampedFolder
+    export createTimeStampedFolder, p_yearly2monthly
 
     # list of types 
 
@@ -24,6 +24,7 @@ module Utilities
 
     const HouseLocation  = NTuple{2,Int}
 
+    p_yearly2monthly(p) = 1 - (1-p)^(1/12)
 
     # constants 
 
