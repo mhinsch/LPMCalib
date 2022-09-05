@@ -4,6 +4,10 @@ Functions used for demography simulation
 
 module Simulate
 
+# we want the lazy version of filter
+using Iterators as I
+using Distributions: Normal, LogNormal
+
 using SomeUtil: date2yearsmonths
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: isMale, isFemale, isSingle, age, partner, alive
@@ -285,5 +289,187 @@ function doBirths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
 end  # function doBirths! 
 
 
+function doAgeTransitions(people, step, pars)
+    
+    (year,month) = date2yearsmonths(step)
+    month += 1 # adjusting 0:11 => 1:12 
+
+    for person in people
+
+        @assert alive(person)
+
+        if isInMaternity(person)
+            # count maternity months
+            maternityStep!(person)
+
+            # end of maternity leave
+            if maternityDuration(person) >= pars.maternityLeaveDuration
+                resetMaternity!(person)
+            end
+        end
+
+        agestep!(person)
+
+        # TODO part of location module, TBD
+        #if hasBirthday(person, month)
+        #    person.movedThisYear = false
+        #    person.yearInTown += 1
+        #end
+    end # person in people
+
+    for person in I.filter(p -> !retired(p), people)
+        # only process those born in the current month
+        if ! hasBirthday(person, month)
+            continue
+        end
+
+        if age(person) == pars.ageTeenagers
+            setStatus!(person, teenager)
+            continue
+        end
+
+        if age(person) == pars.ageOfAdulthood
+            setStatus!(person, student)
+            setClass!(person, 0)
+
+            if rand() < pars.probOutOfTownStudent
+                person.outOfTownStudent = true
+            end
+
+            continue
+        end
+
+        if age(person) == pars.ageOfRetirement
+            setStatus!(person, retired)
+            setEmptyJobSchedule!(person)
+            setWage!(person, 0)
+
+            shareWorkingTime = workingPeriods(person) / pars.minContributionPeriods
+
+            dK = rand(Normal(0, pars.wageVar))
+            setPension!(person, shareWorkingTime * exp(dK))
+        end
+    end # for person in non-retired
+
+end
+
+
+# class sensitive versions
+# TODO 
+# * move to separate, optional module
+# * replace with non-class version here
+initialIncomeLevel(person, pars) = pars.incomeInitialLevels[classRank(person)]
+
+workingAge(person, pars) = pars.workingAge[classRank(p)]
+
+function incomeDist(person, pars)
+    if classRank(person) == 0
+        LogNormal(2.5, 0.25)
+    elseif classRank(person) == 1
+        LogNormal(2.8, 0.3)
+    elseif classRank(person) == 2
+        LogNormal(3.2, 0.35)
+    elseif classRank(person) == 3
+        LogNormal(3.7, 0.4)
+    elseif classRank(person) == 4
+        LogNormal(4.5, 0.5)
+    else
+        error("unknown class rank!")
+    end
+end
+
+function studyClassFactor(person, model, pars)
+    if classRank(person) == 0 
+        return socialClassShares(model, 0) > 0.2 ?  1/0.9 : 0.85
+    end
+
+    if classRank(person) == 1 && socialClassShares(model, 1) > 0.35
+        return 1/0.8
+    end
+
+    if classRank(person) == 2 && socialClassShares(model, 2) > 0.25
+        return 1/0.85
+    end
+
+    1.0
+end
+
+doneStudying(person, pars) = classRank(person) >= 4
+
+# move newly adult agents into study or work
+function doSocialTransition(people, year, model, pars)
+    (year,month) = date2yearsmonths(step)
+    month += 1 # adjusting 0:11 => 1:12 
+
+    # newly adult people
+    newAdults = I.filter(people) do p
+        hasBirthday(p, month) && 
+        age(p) == workingAge(person, pars) &&
+        status(p) == student
+    end
+
+    for person in newAdults
+        probStudy = doneStudying(person, pars)  ?  
+            0.0 : startStudyProb(person, model, pars)
+
+        if rand() < probStudy
+            startStudying!(person, pars)
+        else
+            startWorking!(person)
+            addToWorkforce!(person, model)
+        end
+    end
+end
+
+# probability to start studying instead of working
+function startStudyProb(person, model, pars)
+    if !alive(father(person)) && !alive(mother(person))
+        return 0.0
+    end
+
+    perCapitaDisposableIncome = disposableIncomePerCapita(person)
+
+    if perCapitaDisposableIncome <= 0
+        return 0.0
+    end
+
+    forgoneSalary = initialIncome(person, pars) * 
+        pars.weeklyHours[careNeedLevel(person)]
+    relCost = forgoneSalary / perCapitaDisposableIncome
+    incomeEffect = (pars.constantIncomeParam+1) / 
+        (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
+
+    # TODO class
+    targetEL = max(classRank(father(person)), classRank(mother(person)))
+    dE = targetEL - classRank(person)
+    expEdu = exp(pars.eduRankSensitivity * dE)
+    educationEffect = expEdu / (expEdu + pars.constantEduParam)
+
+    careEffect = 1/exp(pars.careEducationParam * (socialWork(person) + childWork(person)))
+
+    pStudy = incomeEffect * educationEffect * careEffect
+
+    pStudy *= studyClassFactor(person, model, pars)
+
+    return max(0.0, pStudy)
+end
+
+function startStudying!(person, pars)
+    addClassRank!(person, 1) 
+end
+
+function startWorking!(person, pars)
+
+    # TODO think about how to do this
+    # part of the model logic, so should be e.g. in person 
+    resetWork!(person)
+
+    dKi = rand(Normal(0, pars.wageVar))
+    setInitialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))
+
+    dist = incomeDist(person, pars)
+
+    setFinalIncome!(person, rand(dist))
+end
 
 end # module Simulate 

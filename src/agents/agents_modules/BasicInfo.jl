@@ -4,7 +4,7 @@ using SomeUtil: date2yearsmonths
 using Utilities: Gender, unknown, female, male
 
 export BasicInfoBlock 
-export isFemale, isMale, agestep!, agestepAlive!, age
+export isFemale, isMale, agestep!, agestepAlive!, age, hasBirthday
 
 
 # TODO think about whether to make this immutable
@@ -42,5 +42,7 @@ agestep!(person::BasicInfoBlock, dt=1//12) = person.age += dt
 function agestepAlive!(person::BasicInfoBlock, dt=1//12) 
     person.age += person.alive ? dt : 0  
 end 
+
+hasBirthday(person, month) = rem(age(person), 1) == month // 12
 
 end # BasicInfo
