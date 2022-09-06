@@ -3,8 +3,8 @@ using TypedDelegation
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import Kinship: KinshipBlock, 
-    isSingle, partner, father, mother, setParent!, addChild!, setPartner!
+import Kinship: KinshipBlock, isSingle, 
+    partner, father, mother, children, setParent!, addChild!, setPartner!
 import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
 
 export Person
@@ -48,6 +48,19 @@ mutable struct Person <: AbstractXAgent
         if !undefined(pos)
             addOccupant!(pos, person)
         end
+
+        kinship.father != nothing ? addChild!(kinship.father,person) : nothing
+        kinship.mother != nothing ? addChild!(kinship.mother,person) : nothing  
+        if kinship.partner != nothing
+            resetPartner!(kinship.partner)
+            partner.partner = person 
+        end 
+        if length(kinship.children) > 0
+            for child in kinship.children
+                setAsParentChild!(person,child)
+            end
+        end 
+
         person  
     end 
 end
@@ -55,7 +68,7 @@ end
 # delegate functions to components
 
 @delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
-@delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, setPartner!]
+@delegate_onefield Person kinship [isSingle, partner, father, mother, children, setParent!, addChild!, setPartner!]
 
 
 "costum @show method for Agent person"
@@ -72,17 +85,21 @@ end
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
-                    Person(pos,BasicInfoBlock(;age, gender), 
-                    KinshipBlock(father,mother,partner,children))
+            Person(pos,
+                 BasicInfoBlock(;age, gender), 
+                 KinshipBlock(father,mother,partner,children))
+
 
 
 "Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
-        gender=unknown,
-        father=nothing,mother=nothing,
-        partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfoBlock(;age,gender), 
-                       KinshipBlock(father,mother,partner,children))
+                 gender=unknown,
+                 father=nothing,mother=nothing,
+                 partner=nothing,children=Person[]) = 
+            Person(pos,
+                   BasicInfoBlock(;age,gender), 
+                   KinshipBlock(father,mother,partner,children))
+
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))

@@ -5,7 +5,8 @@ using  BasicInfo: isFemale, isMale      # Otherwise, unit test for setAsParentCh
 
 
 export KinshipBlock
-export father, mother, setFather!, setMother!, setParent!, addChild!
+export father, mother, children
+export setFather!, setMother!, setParent!, addChild!
 export partner, isSingle, setPartner!
 
 
@@ -22,6 +23,7 @@ KinshipBlock{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) whe
 
 father(child::KinshipBlock) = child.father
 mother(child::KinshipBlock) = child.mother
+children(person::KinshipBlock) = person.children
 
 "set the father of child"
 setFather!(child::KinshipBlock{P},father::P) where {P} = child.father = father
