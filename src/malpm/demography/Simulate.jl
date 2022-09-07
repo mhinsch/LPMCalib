@@ -42,4 +42,20 @@ function doDeaths!(population::ABM{Person}) # argument simulation or simulation 
 
 end # function doDeaths!
 
+
+function doBirths!(population::ABM{Person}) 
+    pars = population.parameters
+    data = population.data
+    properties = population.properties
+
+    people = allagents(population)
+
+    # @todo check assumptions 
+    (numberBirths) = LPM.Demography.Simulate.doBirths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
+                                                       verbose=properties.verbose,sleeptime=properties.sleeptime) 
+
+    false ? population.variables[:numBirths] += numberDeaths : nothing # Temporarily this way till realized 
+
+end
+
 end # Simulate 
