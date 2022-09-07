@@ -7,7 +7,6 @@ module Simulate
 using SomeUtil: date2yearsmonths
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: isMale, isFemale, isSingle, age, partner, alive
-using XAgents: setAsParentChild
 
 export doDeaths!
 
@@ -165,10 +164,10 @@ function comoputeBirthProb(;rWoman,parameters,data,currstep,
     =#
 
     if curryear < 1951
-        rawRate = parameter.growingPopBirthProb
+        rawRate = parameters.growingPopBirthProb
     else
         (yearold,tmp) = date2yearsmonths(age(rWoman)) 
-        rawRate = data.fertility[curryear - yearold -16, self.year-1950]
+        rawRate = data.fertility[curryear-yearold-16,curryear-1950]
     end 
 
     #=
@@ -227,7 +226,7 @@ function doBirths!(;people,parameters,data,currstep,
     if checkassumption
         nonadultFemale = allFemales - adultWomen
         for female in nonadultFemale
-            @asset( isSingle(female))   
+            @assert(isSingle(female))   
         end
     end
 
@@ -319,10 +318,7 @@ function doBirths!(;people,parameters,data,currstep,
             # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
             #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
 
-            baby = Person(woman.pos,BasicInfo(),Kinship(father=partner(woman),woman))
-            # TODO the following two statements look redundant, Kinchep constructor can be improved
-            setAsParentChild(baby,woman)
-            setAsParentChild(baby,partner(woman)) 
+            baby = Person(pos=woman.pos,father=partner(woman),mother=woman)
             people.append(baby) 
             # woman.maternityStatus = True
 
