@@ -13,7 +13,7 @@ from REPL execute it using
 include("./loadLibsPath.jl")
 
 if !occursin("multiagents",LOAD_PATH)
-    push!(LOAD_PATH, "src/multiAgents") 
+    push!(LOAD_PATH, "src/multiagents") 
 end
 
 using MultiAgents: MultiABM
