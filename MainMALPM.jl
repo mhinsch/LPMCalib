@@ -12,6 +12,10 @@ from REPL execute it using
 
 include("./loadLibsPath.jl")
 
+if !occursin("multiagents",LOAD_PATH)
+    push!(LOAD_PATH, "src/multiAgents") 
+end
+
 using MultiAgents: MultiABM
  
 using LPM.Parameters.Loaders:    loadUKDemographyPars
