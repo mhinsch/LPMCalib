@@ -14,6 +14,7 @@ mutable struct SimulationPars
     seed               
     verbose::Bool    # whether significant intermediate info shallo be printed 
     sleeptime        # how long simulation is suspended after printing info 
+    checkassumption::Bool  # whether assumptions in unit functions should be checked
 
     SimulationPars() = new() 
 end 
@@ -30,6 +31,7 @@ function loadDefaultSimPars()
     simpars.seed       = floor(Int,time()) 
     simpars.verbose    = true 
     simpars.sleeptime  = 0
+    simpars.checkassumption = true
     
     simpars 
 end

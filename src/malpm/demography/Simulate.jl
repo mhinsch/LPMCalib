@@ -34,8 +34,12 @@ function doDeaths!(population::ABM{Person}) # argument simulation or simulation 
         typeof(age(people[1])) == Rational{Int64} :
         true  # Assumption
 
-    (deadpeople) = LPM.Demography.Simulate.doDeaths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
-                                                       verbose=properties.verbose,sleeptime=properties.sleeptime) 
+    (deadpeople) = LPM.Demography.Simulate.doDeaths!(
+            people=people,parameters=pars,data=data,
+            currstep=properties.currstep,
+            verbose=properties.verbose,
+            sleeptime=properties.sleeptime,
+            checkassumption=properties.checkassumption) 
 
     for deadperson in deadpeople
         removeDead!(deadperson,population)
@@ -54,8 +58,12 @@ function doBirths!(population::ABM{Person})
     people = allagents(population)
 
     # @todo check assumptions 
-    newbabies = LPM.Demography.Simulate.doBirths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
-                                                       verbose=properties.verbose,sleeptime=properties.sleeptime) 
+    newbabies = LPM.Demography.Simulate.doBirths!(
+                        people=people,parameters=pars,data=data,
+                        currstep=properties.currstep,
+                        verbose=properties.verbose,
+                        sleeptime=properties.sleeptime,
+                        checkassumption=properties.checkassumption) 
 
     false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
     

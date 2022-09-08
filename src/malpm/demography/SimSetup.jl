@@ -40,7 +40,8 @@ function loadSimulationParameters()
         :stepnumber=> 0,
         :currstep=> simpars.startTime,
         :verbose=> simpars.verbose,
-        :sleeptime=> simpars.sleeptime)
+        :sleeptime=> simpars.sleeptime,
+        :checkassumption=> simpars.checkassumption)
 end 
 
 
@@ -56,7 +57,7 @@ end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
     #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
-        
+
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
     attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
