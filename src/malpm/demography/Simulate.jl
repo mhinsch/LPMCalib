@@ -16,13 +16,14 @@ using MALPM.Demography.Create: LPMUKDemographyOpt
 
 using LPM
 import LPM.Demography.Simulate: doDeaths!
-export doDeaths!
+import LPM.Demography.Simulate: doBirths!
+export doDeaths!,doBirths!
 
 
 
 function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
 
-    pars = population.parameters
+    pars = population.parameters.poppars
     data = population.data
     properties = population.properties
 
@@ -44,7 +45,7 @@ end # function doDeaths!
 
 
 function doBirths!(population::ABM{Person}) 
-    pars = population.parameters
+    pars = population.parameters.birthpars
     data = population.data
     properties = population.properties
 

@@ -10,7 +10,7 @@ using MultiAgents: startTime, dt
 using MultiAgents: ABMSimulation, MABMSimulation
 using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 
-using MALPM.Demography.Simulate: doDeaths!
+using MALPM.Demography.Simulate: doDeaths!,doBirths!
 using MALPM.Demography.Create: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
 import MultiAgents: setup!
@@ -57,6 +57,7 @@ end
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
     #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
+    attach_pre_model_step!(sim.simulations[3],removeDead!)
     attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
 

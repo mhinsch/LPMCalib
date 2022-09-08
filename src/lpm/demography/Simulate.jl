@@ -5,10 +5,12 @@ Functions used for demography simulation
 module Simulate
 
 using SomeUtil: date2yearsmonths
+using Utilities: Gender, unknown, female, male
+using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: isMale, isFemale, isSingle, age, partner, alive
 
-export doDeaths!
+export doDeaths!,doBirths!
 
 function deathProbability(baseRate,person,parameters) 
     #=
@@ -141,9 +143,9 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
     (numberDeaths = numDeaths)   
 end  # function doDeaths! 
 
-
-function comoputeBirthProb(;rWoman,parameters,data,currstep,
-                            verbose=true,sleeptime=0,checkassumption=true)
+         
+function computeBirthProb(rWoman,parameters,data,currstep,
+                          verbose=true,sleeptime=0,checkassumption=true)
     
     if checkassumption 
         @assert isFemale(rWoman) && 
@@ -208,7 +210,6 @@ function doBirths!(;people,parameters,data,currstep,
 
     preBirth = length(people)
     numBirths =  0    # instead of [0, 0, 0, 0, 0]
-    marriedPercentage = -1  # []
 
     # TODO The following could be collapsed into one loop / not sure if it is more efficient 
     #      there is also a potential to save alot of re-computation in each iteration by 
@@ -216,15 +217,15 @@ function doBirths!(;people,parameters,data,currstep,
     #      However, it could be also the case that Julia compiler does something efficient any way? 
 
     allFemales = [ female for female in people if isFemale(female) ]
-    adultWomen = [ aWomen for aWomen in allFemales if age(aWomen) >= parameters.minPregnancyAge ]
-    notFertiledWomen = [ nfWoman for nfWomen in adultWomen if age(nfWoman) > parameters.maxPregnancyAge ]
+    adultWomen = [ aWomen for aWomen in allFemales if age(aWomen) >= parameters.minPregnancyAge ] 
+    notFertiledWomen = [ nfWoman for nfWoman in adultWomen if age(nfWoman) > parameters.maxPregnancyAge ]
 
     womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if age(rWoman) <= parameters.maxPregnancyAge ]
     womenOfReproductiveAgeButNotMarried = [ rnmWoman for rnmWoman in womenOfReproductiveAge if isSingle(rnmWoman) ]
 
     # TODO @assumption 
     if checkassumption
-        nonadultFemale = allFemales - adultWomen
+        nonadultFemale = setdiff(Set(allFemales),Set(adultWomen)) 
         for female in nonadultFemale
             @assert(isSingle(female))   
         end
@@ -238,8 +239,8 @@ function doBirths!(;people,parameters,data,currstep,
     #                    marriedLadies += 1
     #        marriedPercentage = float(marriedLadies)/float(adultLadies)
 
-    numMarriedLadies = length(womenOfReproductiveAge) - length(womenOfReproductiveAgeButNotMarried) 
-    marriedPercentage = numMarriedLadies / length(adultLadies)
+    numMarriedRepLadies = length(womenOfReproductiveAge) - length(womenOfReproductiveAgeButNotMarried) 
+    repMarriedPercentage = numMarriedRepLadies / length(adultWomen)
 
     if verbose
 
@@ -249,11 +250,9 @@ function doBirths!(;people,parameters,data,currstep,
         println("# allFemales    : $(length(allFemales))") 
         println("# adult women   : $(length(adultWomen))") 
         println("# NotFertile    : $(length(notFertiledWomen))")
-
         println("# fertile women : $(length(womenOfReproductiveAge))")
         println("# non-married fertile women : $(length(womenOfReproductiveAgeButNotMarried))")
-
-        println("marriedPercentage : $marriedPercentage")
+        println("married reproductive percentage : $repMarriedPercentage")
 
         sleep(sleeptime)
 
@@ -298,7 +297,7 @@ function doBirths!(;people,parameters,data,currstep,
         # womanClassRank = woman.classRank
         # if woman.status == 'student':
         #     womanClassRank = woman.parentsClassRank
-
+        
         birthProb = computeBirthProb(woman, parameters, data, currstep,
                                      verbose, sleeptime, checkassumption)
 
@@ -312,14 +311,14 @@ function doBirths!(;people,parameters,data,currstep,
         #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
         =#
 
-        if rand() < dieProb && rand(1:12) == currmonth 
+        if rand() < birthProb && rand(1:12) == currmonth 
 
             # parentsClassRank = max([woman.classRank, woman.partner.classRank])
             # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
             #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
 
-            baby = Person(pos=woman.pos,father=partner(woman),mother=woman)
-            people.append(baby) 
+            baby = Person(pos=woman.pos,father=partner(woman),mother=woman,gender=rand([male,female]))
+            push!(people,baby) 
             # woman.maternityStatus = True
 
             #=
@@ -337,10 +336,11 @@ function doBirths!(;people,parameters,data,currstep,
         end # if rand()
     end # for woman 
 
-    postBirth = len(self.pop.livingPeople)
+    postBirth = length(people)
     numBirths = postBirth - preBirth
     if verbose
         println("number of births : $numBirths")
+        sleep(sleeptime)
     end
 
     return (numberBirths=numBirths)
