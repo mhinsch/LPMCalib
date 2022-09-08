@@ -163,7 +163,7 @@ end
 
 mutable struct UKBirthPars
     fertilityBias::Float64 
-    growingPopBirthPop::Float64  
+    growingPopBirthProb::Float64  
     maxPregnancyAge::Int 
     minPregnancyAge::Int 
 
@@ -174,10 +174,10 @@ end
 function loadUKBirthPars() 
     birthpars = UKBirthPars() 
 
-    birthpars.fertilityBias      =  0.9
-    birthpars.growingPopBirthPop =  0.215
-    birthpars.maxPregnancyAge    =  42
-    birthpars.minPregnancyAge    =  17
+    birthpars.fertilityBias       =  0.9
+    birthpars.growingPopBirthProb =  0.215
+    birthpars.maxPregnancyAge     =  42
+    birthpars.minPregnancyAge     =  17
 
     birthpars 
 end
