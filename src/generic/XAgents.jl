@@ -12,9 +12,9 @@ module XAgents
 
     getIDCOUNTER() = 0
 
-    include("./agents/town.jl")
-    include("./agents/house.jl")
-    include("./agents/person.jl")
+    include("../agents/town.jl")
+    include("../agents/house.jl")
+    include("../agents/person.jl")
     
 end  # XAgents 
 
