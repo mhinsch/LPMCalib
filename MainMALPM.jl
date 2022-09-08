@@ -49,7 +49,7 @@ println(); println();
 
 simProperties = loadSimulationParameters()
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  example=LPMUKDemographyOpt())
+                                  example=LPMUKDemography())
 
 
 # Execution 
