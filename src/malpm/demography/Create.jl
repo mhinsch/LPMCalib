@@ -32,7 +32,7 @@ function createUKDemography(pars)
     # Consider an argument for data 
     ukPopulation = ABM{Person}(pars, declare=createUKPopulation)
 
-    attach2DData!(ukPopulation,:fert,"data/babyrate.txt.csv")
+    attach2DData!(ukPopulation,:fertility,"data/babyrate.txt.csv")
     attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")
     attach2DData!(ukPopulation,:death_male,"data/deathrate.male.csv")
 
