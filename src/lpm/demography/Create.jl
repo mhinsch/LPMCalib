@@ -24,8 +24,9 @@ function createUKTowns(pars)
     uktowns
 end
 
-function createUKPopulation(pars) 
+function createUKPopulation(parameters) 
 
+    pars = parameters.poppars
     population = Person[] 
 
     for i in 1 : pars.initialPop

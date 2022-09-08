@@ -30,7 +30,7 @@ function createUKDemography(pars)
     ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
 
     # Consider an argument for data 
-    ukPopulation = ABM{Person}(pars.poppars, declare=createUKPopulation)
+    ukPopulation = ABM{Person}(pars, declare=createUKPopulation)
 
     attach2DData!(ukPopulation,:fert,"data/babyrate.txt.csv")
     attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")
