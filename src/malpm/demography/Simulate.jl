@@ -10,7 +10,8 @@ using SomeUtil: getproperty
 using XAgents: Person  
 using XAgents: alive, age
 
-using MultiAgents: ABM, allagents
+using MultiAgents: ABM, allagents, add_agent!
+using MALPM.Population: removeDead!
 
 using MALPM.Demography.Create: LPMUKDemographyOpt
 
@@ -29,15 +30,16 @@ function doDeaths!(population::ABM{Person}) # argument simulation or simulation 
 
     people = allagents(population)
 
-    livingPeople = typeof(properties.example) == LPMUKDemographyOpt ? 
-        people : [person for person in people if alive(person)]
-
-    @assert length(livingPeople) > 0 ? 
-        typeof(age(livingPeople[1])) == Rational{Int64} :
+    @assert length(people) > 0 ? 
+        typeof(age(people[1])) == Rational{Int64} :
         true  # Assumption
 
-    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,currstep=properties.currstep,
+    (deadpeople) = LPM.Demography.Simulate.doDeaths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
                                                        verbose=properties.verbose,sleeptime=properties.sleeptime) 
+
+    for deadperson in deadpeople
+        removeDead!(deadperson,population)
+    end
 
     false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
 
@@ -52,11 +54,16 @@ function doBirths!(population::ABM{Person})
     people = allagents(population)
 
     # @todo check assumptions 
-    (numberBirths) = LPM.Demography.Simulate.doBirths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
+    newbabies = LPM.Demography.Simulate.doBirths!(people=people,parameters=pars,data=data,currstep=properties.currstep,
                                                        verbose=properties.verbose,sleeptime=properties.sleeptime) 
 
-    false ? population.variables[:numBirths] += numberDeaths : nothing # Temporarily this way till realized 
+    false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
+    
+    for baby in newbabies
+        add_agent!(population,baby)
+    end
 
+    nothing 
 end
 
 end # Simulate 

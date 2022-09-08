@@ -65,11 +65,12 @@ function deathProbability(baseRate,person,parameters)
 end # function deathProb
 
 "evaluate death events in a population"
-function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
+function doDeaths!(;people,parameters,data,currstep,
+                    verbose=true,sleeptime=0,checkassumption=true)
 
     (curryear,currmonth) = date2yearsmonths(Rational(currstep))
     currmonth = currmonth + 1 # adjusting 0:11 => 1:12 
-    numDeaths = 0
+    deads = Person[] 
 
     for person in people 
 
@@ -124,9 +125,9 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
                 sleep(sleeptime) 
             end
             setDead!(person) 
+            push!(deads,person)
             # person.deadYear = self.year  
             # deaths[person.classRank] += 1
-            numDeaths += 1 
             resetHouse!(person)
             isSingle(person) ?
                 nothing :  
@@ -136,11 +137,11 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
     end # for livingPeople
     
     if verbose
-        println("# living people : $(length(people)) , # people died in curr iteration : $(numDeaths)") 
+        println("# living people : $(length(people)) , # people died in curr iteration : $(length(deads))") 
         sleep(sleeptime)
     end 
 
-    (numberDeaths = numDeaths)   
+    (deadpeople = deads)   
 end  # function doDeaths! 
 
          
@@ -209,7 +210,7 @@ function doBirths!(;people,parameters,data,currstep,
         end
     end 
 
-    preBirth = length(people)
+    babies = Person[] 
     numBirths =  0    # instead of [0, 0, 0, 0, 0]
 
     # TODO The following could be collapsed into one loop / not sure if it is more efficient 
@@ -326,7 +327,7 @@ function doBirths!(;people,parameters,data,currstep,
             #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
 
             baby = Person(pos=woman.pos,father=partner(woman),mother=woman,gender=rand([male,female]))
-            push!(people,baby) 
+            push!(babies,baby) 
             # woman.maternityStatus = True
 
             #=
@@ -344,14 +345,12 @@ function doBirths!(;people,parameters,data,currstep,
         end # if rand()
     end # for woman 
 
-    postBirth = length(people)
-    numBirths = postBirth - preBirth
     if verbose
-        println("number of births : $numBirths")
+        println("number of births : $length(babies)")
         sleep(sleeptime)
     end
 
-    return (numberBirths=numBirths)
+    return (newbabies=babies)
 
 end  # function doBirths! 
 
