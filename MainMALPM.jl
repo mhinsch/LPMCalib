@@ -12,7 +12,7 @@ from REPL execute it using
 
 include("./loadLibsPath.jl")
 
-using MultiAgents: MultiABM
+using MultiAgents: MultiABM, initMultiAgents
  
 using LPM.Parameters.Loaders:    loadUKDemographyPars
 
@@ -22,6 +22,8 @@ using MALPM.Demography.SimSetup:   loadSimulationParameters
 
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
+
+initMultiAgents()     # reset agents counter
 
 ukDemographyPars = loadUKDemographyPars() 
 
