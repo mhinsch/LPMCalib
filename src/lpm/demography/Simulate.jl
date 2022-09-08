@@ -165,11 +165,12 @@ function computeBirthProb(rWoman,parameters,data,currstep,
     womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 4])/float(len(womenOfReproductiveAge)))
     =#
 
+
     if curryear < 1951
         rawRate = parameters.growingPopBirthProb
     else
         (yearold,tmp) = date2yearsmonths(age(rWoman)) 
-        rawRate = data.fertility[curryear-yearold-16,curryear-1950]
+        rawRate = data.fertility[yearold-16,curryear-1950]
     end 
 
     #=
@@ -217,11 +218,18 @@ function doBirths!(;people,parameters,data,currstep,
     #      However, it could be also the case that Julia compiler does something efficient any way? 
 
     allFemales = [ female for female in people if isFemale(female) ]
-    adultWomen = [ aWomen for aWomen in allFemales if age(aWomen) >= parameters.minPregnancyAge ] 
-    notFertiledWomen = [ nfWoman for nfWoman in adultWomen if age(nfWoman) > parameters.maxPregnancyAge ]
-
-    womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if age(rWoman) <= parameters.maxPregnancyAge ]
-    womenOfReproductiveAgeButNotMarried = [ rnmWoman for rnmWoman in womenOfReproductiveAge if isSingle(rnmWoman) ]
+    adultWomen = [ aWomen for aWomen in allFemales if 
+                        age(aWomen) >= parameters.minPregnancyAge ] 
+    notFertiledWomen = [ nfWoman for nfWoman in adultWomen if 
+                            age(nfWoman) > parameters.maxPregnancyAge ]
+    womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if 
+                                age(rWoman) <= parameters.maxPregnancyAge ]
+    marriedWomenOfReproductiveAge = 
+                            [ rmWoman for rmWoman in womenOfReproductiveAge if 
+                                !isSingle(rmWoman) ]
+    womenOfReproductiveAgeButNotMarried = 
+                            [ rnmWoman for rnmWoman in womenOfReproductiveAge if 
+                                isSingle(rnmWoman) ]
 
     # TODO @assumption 
     if checkassumption
@@ -292,7 +300,7 @@ function doBirths!(;people,parameters,data,currstep,
             marriedPercentage.append(0)
     =#
         
-    for woman in womenOfReproductiveAge
+    for woman in marriedWomenOfReproductiveAge
 
         # womanClassRank = woman.classRank
         # if woman.status == 'student':
