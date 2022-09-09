@@ -12,6 +12,7 @@ module Utilities
 
     # Functions
     export createTimeStampedFolder, p_yearly2monthly
+    export @decl_setters, @decl_getters, @decl_getsetters
 
     # list of types 
 
@@ -43,4 +44,26 @@ module Utilities
         "" 
     end
  
+    function setter(field, type) 
+        name = Symbol(String(field) * "!")
+        :($(esc(name))(x::$type, value) = (x.$field = value))
+    end
+
+    function getter(field, type) 
+        :($(esc(field))(x::$type) = x.$field)
+    end
+
+    macro decl_setters(type, fields...)
+        Expr(:Block, [setter(f, type) for f in fields])
+    end
+
+    macro decl_getters(type, fields...)
+        Expr(:Block, [setter(f, type) for f in fields])
+    end
+
+    macro decl_getsetters(type, fields...)
+        Expr(:block, 
+             [[setter(f, type) for f in fields] ;
+              [getter(f, type) for f in fields]]...)
+    end
 end 
