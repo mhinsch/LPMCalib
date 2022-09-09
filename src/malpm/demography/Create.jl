@@ -24,7 +24,7 @@ struct LPMUKDemographyOpt <: DemographyExample end
 "create UK demography"
 function createUKDemography(pars) 
      
-    ukTowns  = ABM{Town}(pars.mappars,
+    ukTowns  = ABM{Town}(pars,
                         declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
     ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              

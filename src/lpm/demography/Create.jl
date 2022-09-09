@@ -10,8 +10,9 @@ using XAgents: undefinedHouse, setAsPartners!
 
 ### 
 
-function createUKTowns(pars) 
+function createUKTowns(parameters) 
 
+    pars = parameters.mappars
     uktowns = Town[] 
     
     for y in 1:pars.mapGridYDimension

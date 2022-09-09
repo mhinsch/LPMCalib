@@ -42,7 +42,7 @@ end
 
 
 function createUKDemography!(pars)
-    ukTowns = createUKTowns(pars.mappars)
+    ukTowns = createUKTowns(pars)
 
     ukHouses = Vector{PersonHouse}()
 
