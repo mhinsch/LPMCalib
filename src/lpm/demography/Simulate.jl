@@ -141,7 +141,8 @@ function doDeaths!(;people,parameters,data,currstep,
     end # for livingPeople
     
     if verbose
-        println("# living people : $(length(people)) , # people died in curr iteration : $(length(deads))") 
+        numDeaths = length(deads)
+        println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
         sleep(sleeptime)
     end 
 
