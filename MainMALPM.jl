@@ -55,6 +55,7 @@ println(); println();
 # Declaration of a simulation 
 
 simProperties = loadSimulationParameters()
+simProperties[:seed] = floor(Int, time())
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
                                   example=LPMUKDemography())
 
