@@ -161,18 +161,43 @@ function loadUKPopulationPars()
 end
 
 
+mutable struct UKBirthPars
+    fertilityBias::Float64 
+    growingPopBirthProb::Float64  
+    maxPregnancyAge::Int 
+    minPregnancyAge::Int 
+
+    UKBirthPars() = new() 
+end 
+
+
+function loadUKBirthPars() 
+    birthpars = UKBirthPars() 
+
+    birthpars.fertilityBias       =  0.9
+    birthpars.growingPopBirthProb =  0.215
+    birthpars.maxPregnancyAge     =  42
+    birthpars.minPregnancyAge     =  17
+
+    birthpars 
+end
+
 
 mutable struct UKDemographyPars 
     mappars::UKMapPars
     poppars::UKPopulationPars
+    birthpars::UKBirthPars
 end 
 
 function loadUKDemographyPars() 
     # Model parameters 
-    ukmapPars = loadUKMapPars()
-    ukpopPars = loadUKPopulationPars() 
+    ukmapPars   = loadUKMapPars()
+    ukpopPars   = loadUKPopulationPars() 
+    ukbirthPars = loadUKBirthPars() 
 
-    UKDemographyPars(ukmapPars,ukpopPars)
+    UKDemographyPars(ukmapPars,ukpopPars,ukbirthPars)
 end 
+
+
 
 end # Loaders 
