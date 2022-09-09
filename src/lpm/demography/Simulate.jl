@@ -304,7 +304,7 @@ function doAgeTransitions(people, step, pars)
 
         if isInMaternity(person)
             # count maternity months
-            maternityStep!(person)
+            stepMaternity!(person)
 
             # end of maternity leave
             if maternityDuration(person) >= pars.maternityLeaveDuration
@@ -321,12 +321,12 @@ function doAgeTransitions(people, step, pars)
         #end
     end # person in people
 
-    for person in I.filter(p -> !retired(p), people)
-        # only process those born in the current month
-        if ! hasBirthday(person, month)
-            continue
-        end
+    # only process those not retired and born in the current month
+    relevant = I.filter(people) do p
+        status(p) != retired && hasBirthday(person, month)
+    end
 
+    for person in relevant
         if age(person) == pars.ageTeenagers
             setStatus!(person, teenager)
             continue

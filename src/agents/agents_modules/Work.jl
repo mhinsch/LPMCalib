@@ -7,6 +7,7 @@ export setStatus!, setWage!, setEmptyJobSchedule!, setPension!
 
 mutable struct WorkBlock
     status :: WorkStatus
+    outOfTownStudent :: Bool
     newEntrant :: Bool
     wage :: Float64
     income :: Float64
@@ -21,16 +22,25 @@ function setStatus!(work, status)
     work.status = status
 end
 
+status(work) = work.status
+
 function setWage!(work, wage)
     work.wage = wage
 end
 
+wage(work) = work.wage
+
+
 function setEmptyJobSchedule!(work)
 end
+
 
 function setPension!(work, pension)
     work.pension = pension
 end
 
+pension(work) = work.pension
+
+workingPeriods(person) = work.workingPeriods
 
 end Work

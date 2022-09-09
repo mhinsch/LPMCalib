@@ -25,4 +25,4 @@ function resetMaternity!(mat)
     mat.monthsSinceBirth = 0
 end
 
-end
+end # Maternity

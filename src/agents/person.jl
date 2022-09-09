@@ -7,6 +7,8 @@ import Kinship: KinshipBlock,
     isSingle, partner, father, mother, setParent!, addChild!, setPartner!
 import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
 
+import Maternity: giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
+
 export Person
 export PersonHouse, undefinedHouse
 export isSingle, setHouse!, resetHouse!, resolvePartnership!
@@ -40,6 +42,7 @@ mutable struct Person <: AbstractXAgent
     pos::House{Person}
     info::BasicInfoBlock     
     kinship::KinshipBlock{Person}
+    maternity :: MaternityBlock
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
@@ -56,6 +59,7 @@ end
 
 @delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
 @delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, setPartner!]
+@delegate_onefield Person maternity [giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration]
 
 
 "costum @show method for Agent person"
@@ -70,10 +74,11 @@ end
 
 "Constructor with default values"
 Person(pos,age; gender=unknown,
-                father=nothing,mother=nothing,
-                partner=nothing,children=Person[]) = 
-                    Person(pos,BasicInfoBlock(;age, gender), 
-                    KinshipBlock(father,mother,partner,children))
+    father=nothing,mother=nothing,
+    partner=nothing,children=Person[]) = 
+        Person(pos,BasicInfoBlock(;age, gender), 
+            KinshipBlock(father,mother,partner,children), 
+            MaternityBlock(false, 0))
 
 
 "Constructor with default values"
@@ -82,7 +87,8 @@ Person(;pos=undefinedHouse,age=0,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
             Person(pos,BasicInfoBlock(;age,gender), 
-                       KinshipBlock(father,mother,partner,children))
+                       KinshipBlock(father,mother,partner,children),
+                       MaternityBlock(false, 0))
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
