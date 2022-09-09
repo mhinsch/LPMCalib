@@ -16,7 +16,7 @@ if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
-using MultiAgents: MultiABM
+using MultiAgents: MultiABM, initMultiAgents, MAVERSION
  
 using LPM.Parameters.Loaders:    loadUKDemographyPars
 
