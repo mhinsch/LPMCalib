@@ -7,13 +7,13 @@ export loadDefaultSimPars
 include("./demography/Loaders.jl")
 
 mutable struct SimulationPars 
-    numRepeats::Int  # how many time
-    startTime
-    finishTime
-    dt               # step size 
-    seed               
-    verbose::Bool    # whether significant intermediate info shallo be printed 
-    sleeptime        # how long simulation is suspended after printing info 
+    numRepeats::Int         # how many time
+    startTime :: Int
+    finishTime :: Int
+    dt :: Rational          # step size 
+    seed :: Int              
+    verbose::Bool           # whether significant intermediate info shallo be printed 
+    sleeptime :: Float64    # how long simulation is suspended after printing info 
 
     SimulationPars() = new() 
 end 
@@ -27,7 +27,7 @@ function loadDefaultSimPars()
     simpars.startTime  = 1920 
     simpars.finishTime = 2040
     simpars.dt         = 1 // 12 
-    simpars.seed       = floor(Int,time()) 
+    simpars.seed       = 42     # not a good idea: floor(Int,time()) 
     simpars.verbose    = true 
     simpars.sleeptime  = 0
     
