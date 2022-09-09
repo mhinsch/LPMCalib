@@ -130,10 +130,6 @@ function doDeaths!(;people,parameters,data,currstep,
             push!(deads,person)
             # person.deadYear = self.year  
             # deaths[person.classRank] += 1
-            resetHouse!(person)
-            isSingle(person) ?
-                nothing :  
-                resolvePartnership!(partner(person),person)
         else # person survived
             count += 1
         end # rand
