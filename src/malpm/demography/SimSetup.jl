@@ -2,7 +2,7 @@ module SimSetup
 
 # using XAgents: agestepAlivePerson!
 using MALPM.Population: removeDead!, population_step!
-using LPM.Parameters: loadDefaultSimPars
+using LPM.ParamTypes: SimulationPars
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
@@ -28,7 +28,7 @@ is provided here
 """
 function loadSimulationParameters() 
 
-    simpars = loadDefaultSimPars()
+    simpars = SimulationPars()
 
     # The following moight be modified as parameters struct rather than dictionary
 
