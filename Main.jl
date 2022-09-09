@@ -20,8 +20,8 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 
-using LPM.Parameters.Loaders:    loadUKDemographyPars
-using LPM.Parameters: loadDefaultSimPars
+using LPM.ParamVals.Loaders:    loadUKDemographyPars
+using LPM.ParamVals: SimulationPars
 
 using XAgents: Person, Town, PersonHouse, alive, agestep!
 
@@ -119,7 +119,7 @@ println(); println();
 
 # Declaration of a simulation 
 
-const simPars = loadDefaultSimPars()
+const simPars = SimulationPars()
 
 
 # Execution 
