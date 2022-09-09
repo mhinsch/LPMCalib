@@ -2,7 +2,7 @@ module SimSetup
 
 # using XAgents: agestepAlivePerson!
 using MALPM.Population: removeDead!, population_step!
-using LPM.ParamVals: SimulationPars
+using LPM.ParamTypes: SimulationPars
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
