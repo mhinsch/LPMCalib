@@ -18,7 +18,7 @@ end
 
 using MultiAgents: MultiABM, initMultiAgents, MAVERSION
  
-using LPM.ParamVals.Loaders:    loadUKDemographyPars
+using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
 using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Demography.Initialize: initializeDemography!

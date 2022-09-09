@@ -20,8 +20,8 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 
-using LPM.ParamVals.Loaders:    loadUKDemographyPars
-using LPM.ParamVals: SimulationPars
+using LPM.ParamTypes.Loaders:    loadUKDemographyPars
+using LPM.ParamTypes: SimulationPars
 
 using XAgents: Person, Town, PersonHouse, alive, agestep!
 

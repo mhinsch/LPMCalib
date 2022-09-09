@@ -1,5 +1,5 @@
 
-module ParamVals 
+module ParamTypes
 
 using Parameters
 export SimulationPars
@@ -18,4 +18,4 @@ include("./demography/Loaders.jl")
     checkassumption :: Bool = true # whether assumptions in unit functions should be checked
 end 
 
-end # ParmVals
+end # ParamTypes
