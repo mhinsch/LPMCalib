@@ -73,6 +73,8 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
     currmonth = currmonth + 1 # adjusting 0:11 => 1:12 
     numDeaths = 0
 
+    count = 0
+
     for person in people 
 
         @assert alive(person)       
@@ -133,12 +135,14 @@ function doDeaths!(;people,parameters,data,currstep,verbose=true,sleeptime=0)
             isSingle(person) ?
                 nothing :  
                 resolvePartnership!(partner(person),person)
-         end # rand
+        else # person survived
+            count += 1
+        end # rand
 
     end # for livingPeople
     
     if verbose
-        println("# living people : $(length(people)) , # people died in curr iteration : $(numDeaths)") 
+        println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
         sleep(sleeptime)
     end 
 

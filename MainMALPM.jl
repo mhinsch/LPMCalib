@@ -12,6 +12,10 @@ from REPL execute it using
 
 include("./loadLibsPath.jl")
 
+if !occursin("multiagents",LOAD_PATH)
+    push!(LOAD_PATH, "src/multiagents") 
+end
+
 using MultiAgents: MultiABM
  
 using LPM.Parameters.Loaders:    loadUKDemographyPars
@@ -54,6 +58,6 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 
 # Execution 
 
-run!(lpmDemographySim,verbose=true)
+@time run!(lpmDemographySim,verbose=true)
 
 lpmDemographySim 
