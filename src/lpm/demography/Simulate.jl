@@ -359,6 +359,7 @@ function doBirths!(;people,parameters,data,currstep,
 
 end  # function doBirths! 
 
-
+"This function is supposed to implement the suggested model, TODO"
+function doBirthsOpt() end
 
 end # module Simulate 
