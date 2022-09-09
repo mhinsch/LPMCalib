@@ -72,6 +72,8 @@ function doDeaths!(;people,parameters,data,currstep,
     currmonth = currmonth + 1 # adjusting 0:11 => 1:12 
     deads = Person[] 
 
+    count = 0
+
     for person in people 
 
         @assert alive(person)       
@@ -132,7 +134,9 @@ function doDeaths!(;people,parameters,data,currstep,
             isSingle(person) ?
                 nothing :  
                 resolvePartnership!(partner(person),person)
-         end # rand
+        else # person survived
+            count += 1
+        end # rand
 
     end # for livingPeople
     
