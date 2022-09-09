@@ -42,11 +42,11 @@ end
 
 
 function createUKDemography!(pars)
-    ukTowns = createUKTowns(pars)
+    ukTowns = createUKTowns(pars.mappars)
 
     ukHouses = Vector{PersonHouse}()
 
-    ukPopulation = createUKPopulation(pars)
+    ukPopulation = createUKPopulation(pars.poppars)
 
     fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
     death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix

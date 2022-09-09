@@ -8,6 +8,7 @@ using LPM.Demography.Create: createUKTowns, createUKPopulation
 import SomeUtil: AbstractExample
 
 export DemographyExample, LPMUKDemography, LPMUKDemographyOpt
+export createUKDemographDash, createUKTownsDash
 export createUKDemography
 
 ### Example Names 
@@ -21,16 +22,21 @@ struct LPMUKDemography <: DemographyExample end
 "This is an attemp for improved algorthimic translation"
 struct LPMUKDemographyOpt <: DemographyExample end 
 
+createUKPopulationDash(pars) = createUKPopulation(pars.poppars)
+
 "create UK demography"
 function createUKDemography(pars) 
      
-    ukTowns  = ABM{Town}(pars,
+    println(fieldnames(typeof(pars)))
+    
+
+    ukTowns  = ABM{Town}(pars.mappars,
                         declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
     ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
 
     # Consider an argument for data 
-    ukPopulation = ABM{Person}(pars, declare=createUKPopulation)
+    ukPopulation = ABM{Person}(pars, declare=createUKPopulationDash)
 
     attach2DData!(ukPopulation,:fertility,"data/babyrate.txt.csv")
     attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")
