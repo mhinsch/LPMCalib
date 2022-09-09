@@ -5,11 +5,11 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 import Kinship: KinshipBlock, isSingle, 
     partner, father, mother, children, setParent!, addChild!, setPartner!
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
+import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
 
 export Person
 export PersonHouse, undefinedHouse
-export isSingle, setHouse!, resetHouse!, resolvePartnership!
+export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
 
 #export Kinship
 export isMale, isFemale, age
@@ -48,9 +48,12 @@ mutable struct Person <: AbstractXAgent
         if !undefined(pos)
             addOccupant!(pos, person)
         end
-
-        kinship.father != nothing ? addChild!(kinship.father,person) : nothing
-        kinship.mother != nothing ? addChild!(kinship.mother,person) : nothing  
+        if kinship.father != nothing 
+            addChild!(kinship.father,person) 
+        end 
+        if kinship.mother != nothing 
+            addChild!(kinship.mother,person) 
+        end 
         if kinship.partner != nothing
             resetPartner!(kinship.partner)
             partner.partner = person 
@@ -60,14 +63,13 @@ mutable struct Person <: AbstractXAgent
                 setAsParentChild!(person,child)
             end
         end 
-
         person  
-    end 
-end
+    end # Person Cor
+end # struct Person 
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
+@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
 @delegate_onefield Person kinship [isSingle, partner, father, mother, children, setParent!, addChild!, setPartner!]
 
 
@@ -179,3 +181,11 @@ function setAsPartners!(person1::Person,person2::Person)
 end
 
 
+function setDead!(person::Person) 
+    person.info.alive = false
+    resetHouse!(person)
+    if !isSingle(person) 
+        resolvePartnership!(partner(person),person)
+    end
+    nothing
+end 
