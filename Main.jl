@@ -28,7 +28,7 @@ using XAgents: Person, Town, PersonHouse, alive, agestep!
 using LPM.Demography.Create:     createUKTowns, createUKPopulation
 using LPM.Demography.Initialize: initializeHousesInTowns,
                                   assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!
+using LPM.Demography.Simulate: doDeaths!, doBirths!
 
 mutable struct Model
     towns :: Vector{Town}
@@ -73,11 +73,7 @@ end
 
 
 function populationStep!(pop, simPars, pars)
-    for agent in pop
-        if !alive(agent)
-            continue
-        end
-
+    for agent in Iterators.filter(a->alive(a), model.pop)
         agestep!(agent, simPars.dt)
     end
 end
@@ -89,9 +85,12 @@ function run!(model, simPars, pars)
     while time < simPars.finishTime
         
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-                  parameters = pars, data = model, currstep = time)
+                  parameters = pars.poppars, data = model, currstep = time)
 
-        populationStep!(model.pop, simPars, pars)
+        doBirths!(people = people = Iterators.filter(a->alive(a), model.pop), 
+                  parameters = pars.birthpars, data = model, currstep = time)
+
+        populationStep!(model.pop, simPars, pars.poppars)
 
         time += simPars.dt
     end
@@ -124,6 +123,6 @@ const simPars = SimulationPars()
 
 # Execution 
 
-@time run!(model, simPars, pars.poppars)
+@time run!(model, simPars, pars)
 
 model

@@ -5,7 +5,6 @@ Functions used for demography simulation
 module Simulate
 
 # we want the lazy version of filter
-using Iterators as I
 using Distributions: Normal, LogNormal
 
 using SomeUtil: date2yearsmonths
@@ -16,6 +15,9 @@ using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren
 using XAgents: ageYoungestAliveChild
 
 export doDeaths!,doBirths!
+
+const I = Iterators
+
 
 function deathProbability(baseRate,person,parameters) 
     #=
