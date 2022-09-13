@@ -4,7 +4,7 @@ using TypedDelegation
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 import Kinship: KinshipBlock, isSingle, 
-    partner, father, mother, children, setParent!, addChild!, setPartner!
+    partner, father, mother, children, hasChildren, setParent!, addChild!, setPartner!
 import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
 
 export Person
@@ -15,7 +15,9 @@ export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
 export isMale, isFemale, age
 export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
 export setAsParentChild!, setPartner!, setAsPartners!, partner 
-export isFemale, isMale
+export hasAliveChild, ageYoungestAliveChild
+
+
 
 
 
@@ -70,7 +72,7 @@ end # struct Person
 # delegate functions to components
 
 @delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
-@delegate_onefield Person kinship [isSingle, partner, father, mother, children, setParent!, addChild!, setPartner!]
+@delegate_onefield Person kinship [isSingle, partner, father, mother, children, hasChildren, setParent!, addChild!, setPartner!]
 
 
 "costum @show method for Agent person"
@@ -187,5 +189,24 @@ function setDead!(person::Person)
     if !isSingle(person) 
         resolvePartnership!(partner(person),person)
     end
+    # no need to resolve parents / childern relationship
     nothing
 end 
+
+
+function hasAliveChild(person::KinshipBlock)
+    for child in children(person) 
+        if alive(child) return true end 
+    end
+    false 
+end
+
+function ageYoungestAliveChild(person::Person) 
+    youngest = Rational(Inf)  
+    for child in children(person) 
+        if alive(child) 
+            youngest = min(youngest,age(child))
+        end 
+    end
+    youngest 
+end

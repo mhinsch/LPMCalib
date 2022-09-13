@@ -8,7 +8,8 @@ using SomeUtil: date2yearsmonths
 using Utilities: Gender, unknown, female, male
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
-using XAgents: isMale, isFemale, isSingle, age, partner, alive
+using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren
+using XAgents: ageYoungestAliveChild
 
 export doDeaths!,doBirths!
 
@@ -229,6 +230,10 @@ function doBirths!(;people,parameters,data,currstep,
     marriedWomenOfReproductiveAge = 
                             [ rmWoman for rmWoman in womenOfReproductiveAge if 
                                 !isSingle(rmWoman) ]
+    womenWithRecentChild = [rcWoman for rcWoman in adultWomen if 
+                                ageYoungestAliveChild(rcWoman) <= 1 ]
+    reproductiveWomen = [rWoman for rWoman in marriedWomenOfReproductiveAge if 
+                                ageYoungestAliveChild(rWoman) > 1 ] 
     womenOfReproductiveAgeButNotMarried = 
                             [ rnmWoman for rnmWoman in womenOfReproductiveAge if 
                                 isSingle(rnmWoman) ]
@@ -238,6 +243,16 @@ function doBirths!(;people,parameters,data,currstep,
         nonadultFemale = setdiff(Set(allFemales),Set(adultWomen)) 
         for female in nonadultFemale
             @assert(isSingle(female))   
+            @assert !hasChildren(female) 
+        end
+
+        for female in allFemales 
+            if female ∉ reproductiveWomen
+                @assert isSingle(female) || 
+                        age(female) < parameters.minPregnancyAge ||
+                        age(female) > parameters.maxPregnancyAge  ||
+                        ageYoungestAliveChild(female) <= 1
+            end
         end
     end
 
@@ -251,6 +266,7 @@ function doBirths!(;people,parameters,data,currstep,
 
     numMarriedRepLadies = length(womenOfReproductiveAge) - length(womenOfReproductiveAgeButNotMarried) 
     repMarriedPercentage = numMarriedRepLadies / length(adultWomen)
+    womenWithRecentChildPercentage = length(womenWithRecentChild) / numMarriedRepLadies
 
     if verbose
 
@@ -262,7 +278,9 @@ function doBirths!(;people,parameters,data,currstep,
         println("# NotFertile    : $(length(notFertiledWomen))")
         println("# fertile women : $(length(womenOfReproductiveAge))")
         println("# non-married fertile women : $(length(womenOfReproductiveAgeButNotMarried))")
+        println("# of women with recent child: $(length(womenWithRecentChild))")
         println("married reproductive percentage : $repMarriedPercentage")
+        println("  out of which had a recent child : $womenWithRecentChildPercentage ")
 
         sleep(sleeptime)
 
@@ -302,7 +320,14 @@ function doBirths!(;people,parameters,data,currstep,
             marriedPercentage.append(0)
     =#
         
-    for woman in marriedWomenOfReproductiveAge
+    for woman in reproductiveWomen 
+
+        if checkassumption
+            @assert ageYoungestAliveChild(woman) > 1 
+            @assert !isSingle(woman)
+            @assert age(woman) >= parameters.minPregnancyAge 
+            @assert age(woman) <= parameters.maxPregnancyAge 
+        end
 
         # womanClassRank = woman.classRank
         # if woman.status == 'student':
