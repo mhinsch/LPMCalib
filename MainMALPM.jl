@@ -16,9 +16,9 @@ if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
-using MultiAgents: MultiABM
+using MultiAgents: MultiABM, initMultiAgents, MAVERSION
  
-using LPM.Parameters.Loaders:    loadUKDemographyPars
+using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
 using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Demography.Initialize: initializeDemography!
@@ -26,6 +26,9 @@ using MALPM.Demography.SimSetup:   loadSimulationParameters
 
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
+
+initMultiAgents()                 # reset agents counter
+@assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
 
 ukDemographyPars = loadUKDemographyPars() 
 
@@ -54,11 +57,11 @@ println(); println();
 simProperties = loadSimulationParameters()
 simProperties[:seed] = floor(Int, time())
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  example=LPMUKDemographyOpt())
+                                  example=LPMUKDemography())
 
 
 # Execution 
 
-@time run!(lpmDemographySim,verbose=true)
+@time run!(lpmDemographySim)
 
 lpmDemographySim 

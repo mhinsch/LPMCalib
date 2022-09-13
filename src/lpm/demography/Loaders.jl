@@ -1,44 +1,30 @@
 module Loaders 
 
+using  Parameters
 export UKMapPars, UKPopulationPars, UKDemographyPars
-export loadUKMapPars, loadUKPopulationPars, loadUKDemographyPars
+export loadUKDemographyPars
 
-mutable struct UKMapPars 
-    mapDensityModifier::Float64     # for allocating houses in towns 
-    mapGridXDimension::Int
-    mapGridYDimension::Int
-    townGridDimension::Int 
-    ukMap::Array{Float64,2}           # Relative population density of UK.  
-                                  #   A density of 1.0 corresponds to 
-                                  #   the cell with the highest density 
-
-    UKMapPars() = new()
-end 
-
-function loadUKMapPars()
-
-    mappars = UKMapPars() 
-
-    mappars.mapGridXDimension = 8
-    mappars.mapGridYDimension = 12
-    mappars.townGridDimension = 25
-
-    mappars.ukMap = [0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
-                     0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
-                     0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
-                     0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
-                     0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
-                     0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
-                     0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
-                     0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
-                     0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
-                     0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
-                     0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
-                     0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0] 
-    
-
-    # Relative population density of UK.  A density of 1.0 corresponds to 
-    #   the cell with the highest density   
+@with_kw mutable struct UKMapPars 
+    mapDensityModifier::Float64 = 0.6   # for allocating houses in towns 
+    mapGridXDimension::Int      = 8
+    mapGridYDimension::Int      = 12
+    townGridDimension::Int      = 25
+    ukMap::Array{Float64,2}     = [ 0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+                                    0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
+                                    0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
+                                    0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
+                                    0.4 0.0 0.2 0.2 0.4 0.0 0.0 0.0;
+                                    0.6 0.0 0.0 0.3 0.8 0.2 0.0 0.0;
+                                    0.0 0.0 0.0 0.6 0.8 0.4 0.0 0.0;
+                                    0.0 0.0 0.2 1.0 0.8 0.6 0.1 0.0;
+                                    0.0 0.0 0.1 0.2 1.0 0.6 0.3 0.4;
+                                    0.0 0.0 0.5 0.7 0.5 1.0 1.0 0.0;
+                                    0.0 0.0 0.2 0.4 0.6 1.0 1.0 0.0;
+                                    0.0 0.2 0.3 0.0 0.0 0.0 0.0 0.0]         
+                                    # Relative population density of UK.  
+                                    #   A density of 1.0 corresponds to 
+                                    #   the cell with the highest density 
+end # UKMapPars
    
     #= not considered yet 
     # ?? looks like deviation from the average 
@@ -112,67 +98,46 @@ function loadUKMapPars()
                      0.0    0.0    218.63 200.09 242.40 429.53 322.15 0.0;
                      0.0    185.29 182.45 0.0    0.0    0.0    0.0    0.0]
     
-    =# 
-
-    mappars.mapDensityModifier = 0.6                         
+    =#                   
     
-    return mappars    
-end
-
-
-mutable struct UKPopulationPars
-    baseDieProb::Float64
-    babyDieProb::Float64
-    femaleAgeDieProb::Float64  
-    femaleAgeScaling::Float64 
-    femaleMortalityBias::Float64 
-    initialPop::Int                # Number of females or males  in the initial population
-    maleAgeDieProb::Float64  
-    maleAgeScaling::Float64 
-    maleMortalityBias::Float64
+@with_kw mutable struct UKPopulationPars
+    baseDieProb::Float64            = 0.0001 
+    babyDieProb::Float64            = 0.005 
+    femaleAgeDieProb::Float64       = 0.00019   
+    femaleAgeScaling::Float64       = 15.5 
+    femaleMortalityBias::Float64    = 0.85  
+    initialPop::Int                 = 500    # Number of females or males  in the initial population
+    maleAgeDieProb::Float64         = 0.00021 
+    maleAgeScaling::Float64         = 14.0 
+    maleMortalityBias::Float64      = 0.8 
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
-    maxStartAge::Int 
-    minStartAge::Int 
-
-    UKPopulationPars() = new() 
+    maxStartAge::Int                = 45  
+    minStartAge::Int                = 25  
 end # UKPopulationPars 
 
-function loadUKPopulationPars() 
-    
-    poppars = UKPopulationPars() 
-
-    poppars.initialPop=500                 
-    poppars.minStartAge = 24                  
-    poppars.maxStartAge = 45    
-
-    # Mortality statistics
-    poppars.baseDieProb         = 0.0001      # used 
-    poppars.babyDieProb         = 0.005       # used           
-    poppars.maleAgeScaling      = 14.0        # used 
-    poppars.maleAgeDieProb      = 0.00021     # used 
-    poppars.femaleAgeScaling    = 15.5        # used 
-    poppars.femaleAgeDieProb    = 0.00019     # used 
-    # poppars[:num5YearAgeClasses] = 28
-    poppars.maleMortalityBias   = 0.8         # used          
-    poppars.femaleMortalityBias = 0.85        # used 
-
-    poppars 
-end
-
-
+@with_kw mutable struct UKBirthPars
+    fertilityBias::Float64          =  0.9
+    growingPopBirthProb::Float64    =  0.215
+    maxPregnancyAge::Int            =  42
+    minPregnancyAge::Int            =  17
+end 
 
 mutable struct UKDemographyPars 
     mappars::UKMapPars
     poppars::UKPopulationPars
+    birthpars::UKBirthPars
 end 
 
 function loadUKDemographyPars() 
     # Model parameters 
-    ukmapPars = loadUKMapPars()
-    ukpopPars = loadUKPopulationPars() 
+    ukmapPars   = UKMapPars()
+    ukpopPars   = UKPopulationPars() 
+    ukbirthPars = UKBirthPars() 
 
-    UKDemographyPars(ukmapPars,ukpopPars)
+    UKDemographyPars(ukmapPars,ukpopPars,ukbirthPars)
 end 
+
+
 
 end # Loaders 

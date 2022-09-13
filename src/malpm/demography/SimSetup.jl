@@ -2,7 +2,7 @@ module SimSetup
 
 # using XAgents: agestepAlivePerson!
 using MALPM.Population: removeDead!, population_step!
-using LPM.Parameters: loadDefaultSimPars
+using LPM.ParamTypes: SimulationPars
 
 using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
 using MultiAgents: startTime, dt
@@ -10,7 +10,7 @@ using MultiAgents: startTime, dt
 using MultiAgents: ABMSimulation, MABMSimulation
 using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
 
-using MALPM.Demography.Simulate: doDeaths!
+using MALPM.Demography.Simulate: doDeaths!,doBirths!
 using MALPM.Demography.Create: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
 import MultiAgents: setup!
@@ -28,7 +28,7 @@ is provided here
 """
 function loadSimulationParameters() 
 
-    simpars = loadDefaultSimPars()
+    simpars = SimulationPars()
 
     # The following moight be modified as parameters struct rather than dictionary
 
@@ -40,7 +40,8 @@ function loadSimulationParameters()
         :stepnumber=> 0,
         :currstep=> simpars.startTime,
         :verbose=> simpars.verbose,
-        :sleeptime=> simpars.sleeptime)
+        :sleeptime=> simpars.sleeptime,
+        :checkassumption=> simpars.checkassumption)
 end 
 
 
@@ -55,8 +56,10 @@ function setup!(sim::ABMSimulation,example::DemographyExample)
 end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
-    #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
+    #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
+
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
+    attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
 
     #= 
@@ -72,6 +75,7 @@ end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt) 
 
+    @assert false  # To be updated
     # attach_init_step!(sim,someInitialization!)
 
     #attach_agent_step!(sim.simulations[3],removeDead!) 
