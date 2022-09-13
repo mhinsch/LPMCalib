@@ -328,30 +328,30 @@ function doAgeTransitions(people, step, pars)
 
     for person in relevant
         if age(person) == pars.ageTeenagers
-            setStatus!(person, teenager)
+            status!(person, teenager)
             continue
         end
 
         if age(person) == pars.ageOfAdulthood
-            setStatus!(person, student)
-            setClass!(person, 0)
+            status!(person, student)
+            class!(person, 0)
 
             if rand() < pars.probOutOfTownStudent
-                person.outOfTownStudent = true
+                outOfTownStudent!(person, true)
             end
 
             continue
         end
 
         if age(person) == pars.ageOfRetirement
-            setStatus!(person, retired)
+            status!(person, retired)
             setEmptyJobSchedule!(person)
-            setWage!(person, 0)
+            wage!(person, 0)
 
             shareWorkingTime = workingPeriods(person) / pars.minContributionPeriods
 
             dK = rand(Normal(0, pars.wageVar))
-            setPension!(person, shareWorkingTime * exp(dK))
+            pension!(person, shareWorkingTime * exp(dK))
         end
     end # for person in non-retired
 

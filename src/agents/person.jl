@@ -9,6 +9,11 @@ import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!
 
 import Maternity: giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
 
+import Work: status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, 
+    workingHours, workingPeriods, pension
+import Work: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
+    workingHours!, workingPeriods!, pension!
+
 export Person
 export PersonHouse, undefinedHouse
 export isSingle, setHouse!, resetHouse!, resolvePartnership!
@@ -19,6 +24,14 @@ export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
 export setAsParentChild!, setPartner!, setAsPartners!, partner 
 export isFemale, isMale
 
+# export Maternity
+export giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
+
+# export Work
+export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
+    workingPeriods, pension
+export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
+    workingHours!, workingPeriods!, pension!
 
 
 """
@@ -43,11 +56,12 @@ mutable struct Person <: AbstractXAgent
     info::BasicInfoBlock     
     kinship::KinshipBlock{Person}
     maternity :: MaternityBlock
+    work :: WorkBlock
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos, info, kinship)
-        person = new(getIDCOUNTER(),pos,info,kinship)
+    function Person(pos, info, kinship, maternity, work)
+        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -57,9 +71,19 @@ end
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
-@delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, setPartner!]
-@delegate_onefield Person maternity [giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration]
+@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, 
+    setDead!]
+
+@delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, 
+    setPartner!]
+
+@delegate_onefield Person maternity [giveBirth!, stepMaternity!, resetMaternity!, 
+    isInMaternity, maternityDuration]
+
+@delegate_onefield Person work [status, outOfTownStudent, newEntrant, wage, income, jobTenure,
+    schedule, workingHours, workingPeriods, pension]
+@delegate_onefield Person work [status!, outOfTownStudent!, newEntrant!, wage!, income!, 
+    jobTenure!, schedule!, workingHours!, workingPeriods!, pension!]
 
 
 "costum @show method for Agent person"
@@ -78,7 +102,8 @@ Person(pos,age; gender=unknown,
     partner=nothing,children=Person[]) = 
         Person(pos,BasicInfoBlock(;age, gender), 
             KinshipBlock(father,mother,partner,children), 
-            MaternityBlock(false, 0))
+            MaternityBlock(false, 0),
+            WorkBlock(child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 "Constructor with default values"
@@ -87,8 +112,9 @@ Person(;pos=undefinedHouse,age=0,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
             Person(pos,BasicInfoBlock(;age,gender), 
-                       KinshipBlock(father,mother,partner,children),
-                       MaternityBlock(false, 0))
+                KinshipBlock(father,mother,partner,children),
+                MaternityBlock(false, 0),
+                WorkBlock(child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))

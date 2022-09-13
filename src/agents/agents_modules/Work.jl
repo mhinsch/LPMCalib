@@ -1,9 +1,14 @@
 module Work
 
-export WorkBlock
-export setStatus!, setWage!, setEmptyJobSchedule!, setPension!
+using Utilities: @decl_setters, @decl_getters, @decl_getsetters
 
-@enum WorkStatus teenager student retired unemployed
+export WorkBlock
+export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
+    workingPeriods, pension
+export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
+    workingHours!, workingPeriods!, pension!
+
+@enum WorkStatus child teenager student retired unemployed
 
 mutable struct WorkBlock
     status :: WorkStatus
@@ -18,29 +23,13 @@ mutable struct WorkBlock
     pension :: Float64
 end
 
-function setStatus!(work, status)
-    work.status = status
-end
-
-status(work) = work.status
-
-function setWage!(work, wage)
-    work.wage = wage
-end
-
-wage(work) = work.wage
+@decl_getsetters WorkBlock status outOfTownStudent newEntrant wage income jobTenure 
+@decl_getsetters WorkBlock schedule workingHours workingPeriods pension
 
 
 function setEmptyJobSchedule!(work)
+    work.schedule = zeros(Int, 7, 24)
 end
 
-
-function setPension!(work, pension)
-    work.pension = pension
-end
-
-pension(work) = work.pension
-
-workingPeriods(person) = work.workingPeriods
 
 end Work
