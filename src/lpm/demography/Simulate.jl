@@ -9,7 +9,7 @@ using Utilities: Gender, unknown, female, male
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren
-using XAgents: youngestAliveChild
+using XAgents: ageYoungestAliveChild
 
 export doDeaths!,doBirths!
 
@@ -231,9 +231,9 @@ function doBirths!(;people,parameters,data,currstep,
                             [ rmWoman for rmWoman in womenOfReproductiveAge if 
                                 !isSingle(rmWoman) ]
     womenWithRecentChild = [rcWoman for rcWoman in adultWomen if 
-                                youngestAliveChild(rcWoman) <= 1 ]
+                                ageYoungestAliveChild(rcWoman) <= 1 ]
     reproductiveWomen = [rWoman for rWoman in marriedWomenOfReproductiveAge if 
-                                youngestAliveChild(rWoman) > 1 ] 
+                                ageYoungestAliveChild(rWoman) > 1 ] 
     womenOfReproductiveAgeButNotMarried = 
                             [ rnmWoman for rnmWoman in womenOfReproductiveAge if 
                                 isSingle(rnmWoman) ]
@@ -251,7 +251,7 @@ function doBirths!(;people,parameters,data,currstep,
                 @assert isSingle(female) || 
                         age(female) < parameters.minPregnancyAge ||
                         age(female) > parameters.maxPregnancyAge  ||
-                        youngestAliveChild(female) <= 1
+                        ageYoungestAliveChild(female) <= 1
             end
         end
     end
@@ -323,7 +323,7 @@ function doBirths!(;people,parameters,data,currstep,
     for woman in reproductiveWomen 
 
         if checkassumption
-            @assert youngestAliveChild(woman) > 1 
+            @assert ageYoungestAliveChild(woman) > 1 
             @assert !isSingle(woman)
             @assert age(woman) >= parameters.minPregnancyAge 
             @assert age(woman) <= parameters.maxPregnancyAge 

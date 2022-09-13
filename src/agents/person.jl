@@ -15,7 +15,7 @@ export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
 export isMale, isFemale, age
 export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
 export setAsParentChild!, setPartner!, setAsPartners!, partner 
-export hasAliveChild, youngestAliveChild
+export hasAliveChild, ageYoungestAliveChild
 
 
 
@@ -201,7 +201,7 @@ function hasAliveChild(person::KinshipBlock)
     false 
 end
 
-function youngestAliveChild(person::Person) 
+function ageYoungestAliveChild(person::Person) 
     youngest = Rational(Inf)  
     for child in children(person) 
         if alive(child) 
