@@ -33,7 +33,7 @@ age(person::BasicInfoBlock) = person.age
 
 alive(person::BasicInfoBlock) = person.alive
 
-setDead!(person::BasicInfoBlock) = person.alive = false
+# setDead!(person::BasicInfoBlock) = person.alive = false
 
 "increment an age for a person to be used in typical stepping functions"
 agestep!(person::BasicInfoBlock, dt=1//12) = person.age += dt  
