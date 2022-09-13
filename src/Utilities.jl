@@ -46,19 +46,19 @@ module Utilities
  
     function setter(field, type) 
         name = Symbol(String(field) * "!")
-        :($(esc(name))(x::$type, value) = (x.$field = value))
+        :($(esc(name))(x::$(esc(type)), value) = (x.$field = value))
     end
 
     function getter(field, type) 
-        :($(esc(field))(x::$type) = x.$field)
+        :($(esc(field))(x::$(esc(type))) = x.$field)
     end
 
     macro decl_setters(type, fields...)
-        Expr(:Block, [setter(f, type) for f in fields])
+        Expr(:block, [setter(f, type) for f in fields]...)
     end
 
     macro decl_getters(type, fields...)
-        Expr(:Block, [setter(f, type) for f in fields])
+        Expr(:block, [getter(f, type) for f in fields]...)
     end
 
     macro decl_getsetters(type, fields...)
