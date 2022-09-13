@@ -3,14 +3,16 @@ using TypedDelegation
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import Kinship: KinshipBlock, isSingle, 
-    partner, father, mother, children, hasChildren, setParent!, addChild!, setPartner!
+import Kinship: KinshipBlock, isSingle, partner, father, mother, children, hasChildren, 
+    setParent!, addChild!, setPartner!
+
 import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
 
-import Maternity: giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
+import Maternity: MaternityBlock, giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, 
+    maternityDuration
 
-import Work: status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, 
-    workingHours, workingPeriods, pension
+import Work: Work, WorkBlock, status, outOfTownStudent, newEntrant, wage, income, 
+    jobTenure, schedule, workingHours, workingPeriods, pension
 import Work: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
     workingHours!, workingPeriods!, pension!
 
@@ -119,7 +121,7 @@ Person(pos,age; gender=unknown,
         Person(pos,BasicInfoBlock(;age, gender), 
             KinshipBlock(father,mother,partner,children), 
             MaternityBlock(false, 0),
-            WorkBlock(child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+            WorkBlock(Work.child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 "Constructor with default values"
@@ -130,7 +132,7 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,BasicInfoBlock(;age,gender), 
                 KinshipBlock(father,mother,partner,children),
                 MaternityBlock(false, 0),
-                WorkBlock(child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+                WorkBlock(Work.child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 const PersonHouse = House{Person}

@@ -3,6 +3,7 @@ module Work
 using Utilities: @decl_setters, @decl_getters, @decl_getsetters
 
 export WorkBlock
+export WorkStatus
 export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
     workingPeriods, pension
 export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
@@ -32,4 +33,4 @@ function setEmptyJobSchedule!(work)
 end
 
 
-end Work
+end # Work
