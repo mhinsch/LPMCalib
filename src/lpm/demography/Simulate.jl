@@ -14,7 +14,7 @@ using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren, agestep!
 using XAgents: hasBirthday, ageYoungestAliveChild
 
-using XAgents: giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, 
+using XAgents: startMaternity!, stepMaternity!, endMaternity!, isInMaternity, 
     maternityDuration
 
 using XAgents: Work, status, outOfTownStudent, newEntrant, wage, income, 
@@ -204,6 +204,16 @@ function computeBirthProb(rWoman,parameters,data,currstep,
     return birthProb
 end
 
+
+function effectsOfMaternity!(woman, pars)
+    startMaternity!(woman)
+    
+    workingHours!(woman, 0)
+    income!(woman, 0)
+end
+    
+    
+
 """
     Accept a population and evaluates the birth rate upon computing
     - the population of married fertile women according to 
@@ -368,19 +378,18 @@ function doBirths!(;people,parameters,data,currstep,
 
             baby = Person(pos=woman.pos,father=partner(woman),mother=woman,gender=rand([male,female]))
             push!(babies,baby) 
-            # woman.maternityStatus = True
+
+            effectsOfMaternity!(woman)
 
             #=
              # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
                woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
-               woman.workingHours = 0
                woman.maxWeeklySupplies = [0, 0, 0, 0]
                woman.residualDailySupplies = [0]*7
                woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
                woman.residualWorkingHours = 0
                woman.availableWorkingHours = 0
                woman.potentialIncome = 0
-               woman.income = 0
             =# 
         end # if rand()
     end # for woman 
@@ -410,7 +419,7 @@ function doAgeTransitions!(people, step, pars)
 
             # end of maternity leave
             if maternityDuration(person) >= pars.maternityLeaveDuration
-                resetMaternity!(person)
+                endMaternity!(person)
             end
         end
 

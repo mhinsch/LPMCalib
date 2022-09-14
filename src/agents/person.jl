@@ -9,8 +9,8 @@ import Kinship: KinshipBlock, isSingle, partner, father, mother, children, hasCh
 import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive,
     hasBirthday
 
-import Maternity: MaternityBlock, giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, 
-    maternityDuration
+import Maternity: MaternityBlock, startMaternity!, stepMaternity!, endMaternity!, 
+    isInMaternity, maternityDuration
 
 import Work: Work, WorkBlock, status, outOfTownStudent, newEntrant, wage, income, 
     jobTenure, schedule, workingHours, workingPeriods, pension
@@ -30,7 +30,7 @@ export hasAliveChild, ageYoungestAliveChild, hasBirthday
 
 
 # export Maternity
-export giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
+export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
 
 # export Work
 export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
