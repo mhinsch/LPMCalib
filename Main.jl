@@ -80,10 +80,12 @@ function run!(model, simPars, pars)
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
                   parameters = pars.poppars, data = model, currstep = time)
 
-        doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
+        babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
                   parameters = pars.birthpars, data = model, currstep = time)
 
         doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
+
+        append!(model.pop, babies)
 
         time += simPars.dt
     end

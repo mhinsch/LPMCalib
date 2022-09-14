@@ -22,7 +22,7 @@ using XAgents: Work, status, outOfTownStudent, newEntrant, wage, income,
 using XAgents: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
     workingHours!, workingPeriods!, pension!
 
-export doDeaths!, doBirths!, doAgeTransitions!
+export doDeaths!, doBirths!, doAgeTransitions!, doSocialTransitions!
 
 const I = Iterators
 
@@ -504,7 +504,7 @@ end
 doneStudying(person, pars) = classRank(person) >= 4
 
 # move newly adult agents into study or work
-function doSocialTransition(people, year, model, pars)
+function doSocialTransitions!(people, year, model, pars)
     (year,month) = date2yearsmonths(step)
     month += 1 # adjusting 0:11 => 1:12 
 
@@ -546,7 +546,7 @@ function startStudyProb(person, model, pars)
     incomeEffect = (pars.constantIncomeParam+1) / 
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
-    # TODO class
+    # TODO factor out class
     targetEL = max(classRank(father(person)), classRank(mother(person)))
     dE = targetEL - classRank(person)
     expEdu = exp(pars.eduRankSensitivity * dE)
