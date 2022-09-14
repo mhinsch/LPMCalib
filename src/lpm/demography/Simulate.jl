@@ -11,10 +11,18 @@ using SomeUtil: date2yearsmonths
 using Utilities: Gender, unknown, female, male
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
-using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren
-using XAgents: ageYoungestAliveChild
+using XAgents: isMale, isFemale, isSingle, age, partner, alive, hasChildren, agestep!
+using XAgents: hasBirthday, ageYoungestAliveChild
 
-export doDeaths!,doBirths!
+using XAgents: giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, 
+    maternityDuration
+
+using XAgents: Work, status, outOfTownStudent, newEntrant, wage, income, 
+    jobTenure, schedule, workingHours, workingPeriods, pension
+using XAgents: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
+    workingHours!, workingPeriods!, pension!
+
+export doDeaths!, doBirths!, doAgeTransitions!
 
 const I = Iterators
 
@@ -387,7 +395,7 @@ function doBirths!(;people,parameters,data,currstep,
 end  # function doBirths! 
 
 
-function doAgeTransitions(people, step, pars)
+function doAgeTransitions!(people, step, pars)
     
     (year,month) = date2yearsmonths(step)
     month += 1 # adjusting 0:11 => 1:12 
@@ -417,17 +425,17 @@ function doAgeTransitions(people, step, pars)
 
     # only process those not retired and born in the current month
     relevant = I.filter(people) do p
-        status(p) != retired && hasBirthday(person, month)
+        status(p) != Work.retired && hasBirthday(p, month)
     end
 
     for person in relevant
         if age(person) == pars.ageTeenagers
-            status!(person, teenager)
+            status!(person, Work.teenager)
             continue
         end
 
         if age(person) == pars.ageOfAdulthood
-            status!(person, student)
+            status!(person, Work.student)
             class!(person, 0)
 
             if rand() < pars.probOutOfTownStudent
@@ -438,7 +446,7 @@ function doAgeTransitions(people, step, pars)
         end
 
         if age(person) == pars.ageOfRetirement
-            status!(person, retired)
+            status!(person, Work.retired)
             setEmptyJobSchedule!(person)
             wage!(person, 0)
 

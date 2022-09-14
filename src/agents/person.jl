@@ -6,7 +6,8 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 import Kinship: KinshipBlock, isSingle, partner, father, mother, children, hasChildren, 
     setParent!, addChild!, setPartner!
 
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
+import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive,
+    hasBirthday
 
 import Maternity: MaternityBlock, giveBirth!, stepMaternity!, resetMaternity!, isInMaternity, 
     maternityDuration
@@ -24,7 +25,7 @@ export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
 export isMale, isFemale, age
 export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
 export setAsParentChild!, setPartner!, setAsPartners!, partner 
-export hasAliveChild, ageYoungestAliveChild
+export hasAliveChild, ageYoungestAliveChild, hasBirthday
 
 
 

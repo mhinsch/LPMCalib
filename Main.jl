@@ -23,12 +23,12 @@ end
 using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 using LPM.ParamTypes: SimulationPars
 
-using XAgents: Person, Town, PersonHouse, alive, agestep!
+using XAgents: Person, Town, PersonHouse, alive
 
 using LPM.Demography.Create:     createUKTowns, createUKPopulation
 using LPM.Demography.Initialize: initializeHousesInTowns,
                                   assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!, doBirths!
+using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!
 
 mutable struct Model
     towns :: Vector{Town}
@@ -72,13 +72,6 @@ function initializeDemography!(towns, houses, pop, pars)
 end
 
 
-function populationStep!(pop, simPars, pars)
-    for agent in Iterators.filter(a->alive(a), model.pop)
-        agestep!(agent, simPars.dt)
-    end
-end
-
-
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
@@ -87,10 +80,10 @@ function run!(model, simPars, pars)
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
                   parameters = pars.poppars, data = model, currstep = time)
 
-        doBirths!(people = people = Iterators.filter(a->alive(a), model.pop), 
+        doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
                   parameters = pars.birthpars, data = model, currstep = time)
 
-        populationStep!(model.pop, simPars, pars.poppars)
+        doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
 
         time += simPars.dt
     end
