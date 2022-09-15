@@ -9,8 +9,8 @@ using XAgents: partner, age, ageYoungestAliveChild
 
 export doBirths!
 
-function computeBirthProb(rWoman,parameters,data,currstep,
-                          verbose=true,sleeptime=0,checkassumption=true)
+function computeBirthProb(rWoman,parameters,data,currstep;
+                          verbose,sleeptime,checkassumption)
 
     if checkassumption 
         @assert isFemale(rWoman) && 
@@ -53,6 +53,69 @@ function computeBirthProb(rWoman,parameters,data,currstep,
 end # computeBirthProb
 
 
+function womanSubjectToBirth!(woman,parameters,data,currstep; 
+                                verbose,sleeptime,checkassumption)
+
+    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    currmonth += 1   # adjusting 0:11 => 1:12 
+                            
+    if checkassumption
+        @assert ageYoungestAliveChild(woman) > 1 
+        @assert !isSingle(woman)
+        @assert age(woman) >= parameters.minPregnancyAge 
+        @assert age(woman) <= parameters.maxPregnancyAge 
+    end
+                        
+    # womanClassRank = woman.classRank
+    # if woman.status == 'student':
+    #     womanClassRank = woman.parentsClassRank
+                        
+    birthProb = computeBirthProb(woman, parameters, data, currstep,
+                                verbose = verbose, 
+                                sleeptime = sleeptime, 
+                                checkassumption = checkassumption)
+                        
+    birthProb <= 0 ? error("birth probabiliy : $birthProb is negative ") : nothing 
+                        
+    #=
+    The following code is commented in the python code: 
+    #baseRate = self.baseRate(self.socialClassShares, self.p['fertilityBias'], rawRate)
+    #fertilityCorrector = (self.socialClassShares[woman.classRank] - self.p['initialClassShares'][woman.classRank])/self.p['initialClassShares'][woman.classRank]
+    #baseRate *= 1/math.exp(self.p['fertilityCorrector']*fertilityCorrector)
+    #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
+    =#
+                        
+    if rand() < birthProb && rand(1:12) == currmonth 
+                        
+        # parentsClassRank = max([woman.classRank, woman.partner.classRank])
+        # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
+        #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
+                        
+        baby = Person(pos=woman.pos,
+                        father=partner(woman),mother=woman,
+                        gender=rand([male,female]))
+        
+        return baby
+        # woman.maternityStatus = True
+                        
+        #=
+        # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
+        woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
+        woman.workingHours = 0
+        woman.maxWeeklySupplies = [0, 0, 0, 0]
+        woman.residualDailySupplies = [0]*7
+        woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
+        woman.residualWorkingHours = 0
+        woman.availableWorkingHours = 0
+        woman.potentialIncome = 0
+        woman.income = 0
+        =# 
+    end # if rand()
+
+    nothing 
+end
+
+
 """
 Accept a population and evaluates the birth rate upon computing
 - the population of married fertile women according to 
@@ -64,9 +127,6 @@ Class rankes and shares are temporarily ignored.
 
 function doBirths!(;people,parameters,data,currstep,
                     verbose=true,sleeptime=0,checkassumption=true)
-
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
-    currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
     # TODO Assumptions 
     if checkassumption
@@ -185,53 +245,14 @@ function doBirths!(;people,parameters,data,currstep,
 
     for woman in reproductiveWomen 
 
-        if checkassumption
-            @assert ageYoungestAliveChild(woman) > 1 
-            @assert !isSingle(woman)
-            @assert age(woman) >= parameters.minPregnancyAge 
-            @assert age(woman) <= parameters.maxPregnancyAge 
-        end
-
-        # womanClassRank = woman.classRank
-        # if woman.status == 'student':
-        #     womanClassRank = woman.parentsClassRank
-
-        birthProb = computeBirthProb(woman, parameters, data, currstep,
-                                     verbose, sleeptime, checkassumption)
-
-        birthProb <= 0 ? error("birth probabiliy : $birthProb is negative ") : nothing 
-
-        #=
-        The following code is commented in the python code: 
-        #baseRate = self.baseRate(self.socialClassShares, self.p['fertilityBias'], rawRate)
-        #fertilityCorrector = (self.socialClassShares[woman.classRank] - self.p['initialClassShares'][woman.classRank])/self.p['initialClassShares'][woman.classRank]
-        #baseRate *= 1/math.exp(self.p['fertilityCorrector']*fertilityCorrector)
-        #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
-        =#
-
-        if rand() < birthProb && rand(1:12) == currmonth 
-
-            # parentsClassRank = max([woman.classRank, woman.partner.classRank])
-            # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
-            #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
-
-            baby = Person(pos=woman.pos,father=partner(woman),mother=woman,gender=rand([male,female]))
-            push!(babies,baby) 
-            # woman.maternityStatus = True
-
-            #=
-            # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
-            woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
-            woman.workingHours = 0
-            woman.maxWeeklySupplies = [0, 0, 0, 0]
-            woman.residualDailySupplies = [0]*7
-            woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
-            woman.residualWorkingHours = 0
-            woman.availableWorkingHours = 0
-            woman.potentialIncome = 0
-            woman.income = 0
-            =# 
-        end # if rand()
+        baby = womanSubjectToBirth!(woman,parameters,data,currstep,
+                            verbose=verbose,
+                            sleeptime=sleeptime,
+                            checkassumption=checkassumption)
+        if baby != nothing 
+            push!(babies,baby)
+        end 
+       
     end # for woman 
 
     if verbose

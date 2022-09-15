@@ -14,7 +14,6 @@ function deathProbability(baseRate,person,parameters)
             classRank = person.parentsClassRank
     =# 
 
-    @assert isMale(person) || isFemale(person) # Assumption  
     mortalityBias = isMale(person) ? parameters.maleMortalityBias : 
                                      parameters.femaleMortalityBias 
 
@@ -58,76 +57,88 @@ function deathProbability(baseRate,person,parameters)
     deathProb 
 end # function deathProb
 
+function personSubjectToDeath!(person,parameters,data,currstep,
+                               ;verbose,sleeptime,checkassumption)
+
+    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    currmonth += 1 # adjusting 0:11 => 1:12 
+
+    agep = age(person)             
+
+    if checkassumption
+        @assert alive(person)       
+        @assert isMale(person) || isFemale(person) # Assumption 
+        @assert typeof(agep) == Rational{Int64}
+    end
+ 
+    if curryear >= 1950 
+                        
+        agep = agep > 109 ? Rational(109) : agep 
+        ageindex = trunc(Int,agep)
+        rawRate = isMale(person) ?  data.death_male[ageindex+1,curryear-1950+1] : 
+                                    data.death_female[ageindex+1,curryear-1950+1]
+                                   
+        # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
+                        
+    else # curryear < 1950 / made-up probabilities 
+                        
+        babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 # does not play any role in the code
+
+        ageDieProb  = isMale(person) ? 
+                        exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
+                        exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
+                        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
+                                    
+        # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
+                        
+    end # currYear < 1950 
+                        
+    #=
+        Not realized yet 
+        classPop = [x for x in self.pop.livingPeople 
+                        if x.careNeedLevel == person.careNeedLevel]
+        Classes to be considered in a different module 
+    =#
+                        
+    deathProb =  deathProbability(rawRate,person,parameters)
+                        
+    #=
+        The following is uncommented code in the original code < 1950
+        #### Temporarily by-passing the effect of unmet care need   ######
+        # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
+    =# 
+                                
+    if rand() < deathProb && rand(1:12) == currmonth 
+        if verbose 
+            y, m = date2yearsmonths(agep)
+            println("person $(person.id) died year $(curryear) with age of $y")
+            sleep(sleeptime) 
+        end
+        setDead!(person) 
+        return true 
+        # person.deadYear = self.year  
+        # deaths[person.classRank] += 1
+    end # rand
+
+    false
+end 
+
 "evaluate death events in a population"
 function doDeaths!(;people,parameters,data,currstep,
                     verbose=true,sleeptime=0,checkassumption=true)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
-    currmonth = currmonth + 1 # adjusting 0:11 => 1:12 
     deads = Person[] 
-
-    count = 0
+    count = 0     # number of survived 
 
     for person in people 
-
-        @assert alive(person)       
-        @assert isMale(person) || isFemale(person) # Assumption 
-        
-        agep = age(person)             
-        @assert typeof(agep) == Rational{Int64}
-        dieProb = 0
-        lifeExpectancy = 0  # From the code but does not play and rule?
-
-        if curryear >= 1950 
-
-            agep = agep > 109 ? Rational(109) : agep 
-            ageindex = trunc(Int,agep)
-            rawRate = isMale(person) ? data.death_male[ageindex+1,curryear-1950+1] : 
-                                       data.death_female[ageindex+1,curryear-1950+1]
-           
-            lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
-
-        else # curryear < 1950 / made-up probabilities 
-
-            babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 
-            ageDieProb  = isMale(person) ? 
-                            exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
-                            exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
-            rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
-            
-            lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
-
-        end # currYear < 1950 
-
-        #=
-        Not realized yet 
-        classPop = [x for x in self.pop.livingPeople 
-                      if x.careNeedLevel == person.careNeedLevel]
-        Classes to be considered in a different module 
-        =#
-
-        dieProb =  deathProbability(rawRate,person,parameters)
-
-        #=
-        The following is uncommented code in the original code < 1950
-        #### Temporarily by-passing the effect of unmet care need   ######
-        # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
-        =# 
-        
-        if rand() < dieProb && rand(1:12) == currmonth 
-            if verbose 
-                y, m = date2yearsmonths(agep)
-                println("person $(person.id) died year $(curryear) with age of $y")
-                sleep(sleeptime) 
-            end
-            setDead!(person) 
+        if personSubjectToDeath!(person,parameters,data,currstep,
+                                verbose=verbose,
+                                sleeptime=sleeptime,
+                                checkassumption=checkassumption) 
             push!(deads,person)
-            # person.deadYear = self.year  
-            # deaths[person.classRank] += 1
-        else # person survived
+        else
             count += 1
-        end # rand
-
+        end 
     end # for livingPeople
     
     if verbose
