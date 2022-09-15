@@ -89,7 +89,9 @@ function run!(model, simPars, pars)
     while time < simPars.finishTime
         
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-                  parameters = pars, data = model, currstep = time)
+                  parameters = pars, data = model, currstep = time, 
+                  verbose = simPars.verbose, 
+                  checkassumption = simPars.checkassumption)
 
         populationStep!(model.pop, simPars, pars)
 
@@ -126,4 +128,6 @@ const simPars = SimulationPars()
 
 @time run!(model, simPars, pars.poppars)
 
-model
+if simPars.verbose
+    model
+end
