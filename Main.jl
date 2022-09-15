@@ -12,6 +12,7 @@ from REPL execute it using
 
 using CSV
 using Tables
+using Random: seed!
 
 include("./loadLibsPath.jl")
 
@@ -121,13 +122,14 @@ println(); println();
 
 # Declaration of a simulation 
 
-const simPars = SimulationPars()
-
+const simPars = SimulationPars(false)
+seed!(simPars.seed)
 
 # Execution 
 
 @time run!(model, simPars, pars.poppars)
 
+nothing 
 if simPars.verbose
     model
 end
