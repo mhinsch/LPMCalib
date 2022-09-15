@@ -194,6 +194,9 @@ function doBirths!(;people,parameters,data,currstep,
 
     if verbose
 
+        (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+        currmonth += 1   # adjusting 0:11 => 1:12 
+                                
         # TODO this generic print msg to be placed in a top function 
         println("In iteration $curryear , month $currmonth :")
         println("# allFemales    : $(length(allFemales))") 
