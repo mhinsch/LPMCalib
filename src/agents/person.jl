@@ -15,7 +15,7 @@ import Maternity: MaternityBlock, startMaternity!, stepMaternity!, endMaternity!
 import Work: Work, WorkBlock, status, outOfTownStudent, newEntrant, wage, income, 
     jobTenure, schedule, workingHours, workingPeriods, pension
 import Work: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
-    workingHours!, workingPeriods!, pension!
+    workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
 
 export Person
 export PersonHouse, undefinedHouse
@@ -36,7 +36,7 @@ export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityD
 export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
     workingPeriods, pension
 export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
-    workingHours!, workingPeriods!, pension!
+    workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
 
 
 """

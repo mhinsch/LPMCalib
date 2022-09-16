@@ -6,6 +6,7 @@ using XAgents: isFemale, isSingle, hasChildren, alive
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: partner, age, ageYoungestAliveChild
+using XAgents: startMaternity!, workingHours!, income!
 
 export doBirths!
 

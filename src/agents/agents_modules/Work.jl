@@ -7,7 +7,7 @@ export WorkStatus
 export status, outOfTownStudent, newEntrant, wage, initialIncome, finalIncome, income, 
        jobTenure, schedule, workingHours, workingPeriods, pension
 export status!, outOfTownStudent!, newEntrant!, wage!, initialIncome!, finalIncome!, income!, 
-       jobTenure!, schedule!, workingHours!, workingPeriods!, pension!
+       jobTenure!, schedule!, workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
 
 @enum WorkStatus child teenager student retired unemployed
 
