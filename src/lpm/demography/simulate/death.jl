@@ -83,11 +83,10 @@ function personSubjectToDeath!(person,parameters,data,currstep,
     else # curryear < 1950 / made-up probabilities 
                         
         babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 # does not play any role in the code
-
         ageDieProb  = isMale(person) ? 
                         exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
                         exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
-                        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
+        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
                                     
         # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
                         
