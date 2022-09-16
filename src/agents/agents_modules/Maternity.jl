@@ -1,7 +1,7 @@
 module Maternity
 
 export MaternityBlock
-export startMaternity!, stepMaternity!, resetMaternity!, isInMaternity, maternityDuration
+export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
 
 mutable struct MaternityBlock
     maternityStatus :: Bool
@@ -20,7 +20,7 @@ function stepMaternity!(mat)
     mat.monthsSinceBirth += 1
 end
 
-function resetMaternity!(mat)
+function endMaternity!(mat)
     mat.maternityStatus = false
     mat.monthsSinceBirth = 0
 end

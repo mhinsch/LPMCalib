@@ -28,7 +28,7 @@ using XAgents: Person, Town, PersonHouse, alive
 using LPM.Demography.Create:     createUKTowns, createUKPopulation
 using LPM.Demography.Initialize: initializeHousesInTowns,
                                   assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!
+using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!, doSocialTransitions!
 
 mutable struct Model
     towns :: Vector{Town}
@@ -84,6 +84,10 @@ function run!(model, simPars, pars)
                   parameters = pars.birthpars, data = model, currstep = time)
 
         doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
+
+        # TODO
+        #doSocialTransitions!(Iterators.filter(a->alive(a), model.pop), time, model, 
+        #                     pars.workpars)
 
         append!(model.pop, babies)
 

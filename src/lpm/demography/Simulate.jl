@@ -379,7 +379,7 @@ function doBirths!(;people,parameters,data,currstep,
             baby = Person(pos=woman.pos,father=partner(woman),mother=woman,gender=rand([male,female]))
             push!(babies,baby) 
 
-            effectsOfMaternity!(woman)
+            effectsOfMaternity!(woman, parameters)
 
             #=
              # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
@@ -512,16 +512,25 @@ end
 
 doneStudying(person, pars) = classRank(person) >= 4
 
+# TODO
+function addToWorkForce!(person, model)
+end
+
+
 # move newly adult agents into study or work
-function doSocialTransitions!(people, year, model, pars)
-    (year,month) = date2yearsmonths(step)
+function doSocialTransitions!(people, time, model, pars, verbose=true)
+    (year,month) = date2yearsmonths(time)
     month += 1 # adjusting 0:11 => 1:12 
 
     # newly adult people
     newAdults = I.filter(people) do p
         hasBirthday(p, month) && 
-        age(p) == workingAge(person, pars) &&
+        age(p) == workingAge(p, pars) &&
         status(p) == student
+    end
+
+    if verbose
+        println(count(x->true, newAdults), " new adults")
     end
 
     for person in newAdults
@@ -543,13 +552,14 @@ function startStudyProb(person, model, pars)
         return 0.0
     end
 
+    # TODO
     perCapitaDisposableIncome = disposableIncomePerCapita(person)
 
     if perCapitaDisposableIncome <= 0
         return 0.0
     end
 
-    forgoneSalary = initialIncome(person, pars) * 
+    forgoneSalary = initialIncomeLevels(person, pars) * 
         pars.weeklyHours[careNeedLevel(person)]
     relCost = forgoneSalary / perCapitaDisposableIncome
     incomeEffect = (pars.constantIncomeParam+1) / 
@@ -574,18 +584,29 @@ function startStudying!(person, pars)
     addClassRank!(person, 1) 
 end
 
+# TODO here for now, maybe not the best place
+function resetWork!(person, pars)
+    status!(person, Work.unemployed)
+    newEntrant!(person, true)
+    workingHours!(person, 0)
+    income!(person, 0)
+    jobTenure!(person, 0)
+    # monthHired
+    # jobShift
+    schedule!(person, zeros(Int, 7, 24))
+    outOfTownStudent!(person, true)
+end
+
 function startWorking!(person, pars)
 
-    # TODO think about how to do this
-    # part of the model logic, so should be e.g. in person 
     resetWork!(person)
 
     dKi = rand(Normal(0, pars.wageVar))
-    setInitialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))
+    initialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))
 
     dist = incomeDist(person, pars)
 
-    setFinalIncome!(person, rand(dist))
+    finalIncome!(person, rand(dist))
 end
 
 

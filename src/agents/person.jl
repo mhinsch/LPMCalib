@@ -96,7 +96,7 @@ end # struct Person
 @delegate_onefield Person kinship [isSingle, partner, father, mother, children, hasChildren, 
     setParent!, addChild!, setPartner!]
 
-@delegate_onefield Person maternity [giveBirth!, stepMaternity!, resetMaternity!, 
+@delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
 
 @delegate_onefield Person work [status, outOfTownStudent, newEntrant, wage, income, jobTenure,
@@ -122,7 +122,7 @@ Person(pos,age; gender=unknown,
         Person(pos,BasicInfoBlock(;age, gender), 
             KinshipBlock(father,mother,partner,children), 
             MaternityBlock(false, 0),
-            WorkBlock(Work.child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+            WorkBlock(Work.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 "Constructor with default values"
@@ -133,7 +133,7 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,BasicInfoBlock(;age,gender), 
                 KinshipBlock(father,mother,partner,children),
                 MaternityBlock(false, 0),
-                WorkBlock(Work.child, false, false, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+                WorkBlock(Work.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 const PersonHouse = House{Person}
