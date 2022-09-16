@@ -89,7 +89,9 @@ function run!(model, simPars, pars)
     while time < simPars.finishTime
         
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-                  parameters = pars, data = model, currstep = time)
+                  parameters = pars, data = model, currstep = time, 
+                  verbose = simPars.verbose, 
+                  checkassumption = simPars.checkassumption)
 
         populationStep!(model.pop, simPars, pars)
 
@@ -97,6 +99,7 @@ function run!(model, simPars, pars)
     end
 end
 
+const simPars = SimulationPars(false)
 
 const pars = loadUKDemographyPars() 
 
@@ -116,14 +119,6 @@ println(); println();
 @show model.pop[1:10]
 println(); println(); 
 
-
-# Declaration of a simulation 
-
-const simPars = SimulationPars()
-
-
 # Execution 
 
 @time run!(model, simPars, pars.poppars)
-
-model
