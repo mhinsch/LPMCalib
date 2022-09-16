@@ -127,7 +127,6 @@ function doDeaths!(;people,parameters,data,currstep,
                     verbose=true,sleeptime=0,checkassumption=true)
 
     deads = Person[] 
-    count = 0     # number of survived 
 
     for person in people 
         if personSubjectToDeath!(person,parameters,data,currstep,
@@ -135,12 +134,11 @@ function doDeaths!(;people,parameters,data,currstep,
                                 sleeptime=sleeptime,
                                 checkassumption=checkassumption) 
             push!(deads,person)
-        else
-            count += 1
         end 
     end # for livingPeople
     
     if verbose
+        count = length([person for person in people if alive(person)] )
         numDeaths = length(deads)
         println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
         sleep(sleeptime)
