@@ -2,6 +2,8 @@
 module ParamTypes
 
 using Parameters
+using Random: seed!
+
 export SimulationPars
 
 include("./demography/Loaders.jl")
@@ -12,10 +14,10 @@ include("./demography/Loaders.jl")
     finishTime :: Int = 2040 
     dt :: Rational    = 1//12      # step size 
     seed :: Int       = 42 ;   @assert seed >= 0 # 0 is random      
-    verbose::Bool     = false       # whether significant intermediate info shallo be printed 
+    verbose::Bool     = true       # whether significant intermediate info shallo be printed 
     sleeptime :: Float64  = 0; @assert sleeptime >= 0
                                    # how long simulation is suspended after printing info 
-    checkassumption :: Bool = false # whether assumptions in unit functions should be checked
+    checkassumption :: Bool = true # whether assumptions in unit functions should be checked
 end 
 
 function SimulationPars(randomSeed::Bool)
@@ -23,6 +25,7 @@ function SimulationPars(randomSeed::Bool)
     if randomSeed || pars.seed == 0
         pars.seed = floor(Int, time())
     end 
+    seed!(pars.seed)
     pars
 end 
 

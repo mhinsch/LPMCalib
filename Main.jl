@@ -12,7 +12,6 @@ from REPL execute it using
 
 using CSV
 using Tables
-using Random: seed!
 
 include("./loadLibsPath.jl")
 
@@ -100,6 +99,7 @@ function run!(model, simPars, pars)
     end
 end
 
+const simPars = SimulationPars(false)
 
 const pars = loadUKDemographyPars() 
 
@@ -119,17 +119,6 @@ println(); println();
 @show model.pop[1:10]
 println(); println(); 
 
-
-# Declaration of a simulation 
-
-const simPars = SimulationPars(false)
-seed!(simPars.seed)
-
 # Execution 
 
 @time run!(model, simPars, pars.poppars)
-
-nothing 
-if simPars.verbose
-    model
-end
