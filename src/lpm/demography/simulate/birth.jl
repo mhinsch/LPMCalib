@@ -59,13 +59,6 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
     (curryear,currmonth) = date2yearsmonths(Rational(currstep))
     currmonth += 1   # adjusting 0:11 => 1:12 
                             
-    if checkassumption
-        @assert ageYoungestAliveChild(woman) > 1 
-        @assert !isSingle(woman)
-        @assert age(woman) >= parameters.minPregnancyAge 
-        @assert age(woman) <= parameters.maxPregnancyAge 
-    end
-                        
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
@@ -75,7 +68,13 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
                                 sleeptime = sleeptime, 
                                 checkassumption = checkassumption)
                         
-    birthProb <= 0 ? error("birth probabiliy : $birthProb is negative ") : nothing 
+    if checkassumption
+        @assert ageYoungestAliveChild(woman) > 1 
+        @assert !isSingle(woman)
+        @assert age(woman) >= parameters.minPregnancyAge 
+        @assert age(woman) <= parameters.maxPregnancyAge
+        @assert birthProb >= 0 
+    end
                         
     #=
     The following code is commented in the python code: 
@@ -115,7 +114,50 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
     nothing 
 end
 
+function verboseBirthCounting(people,parameters) 
 
+    allFemales = [ woman for woman in people if isFemale(woman) ]
+    adultWomen = [ aWoman for aWoman in allFemales if 
+                                age(aWoman) >= parameters.minPregnancyAge ] 
+    notFertiledWomen = [ nfWoman for nfWoman in adultWomen if 
+                                age(nfWoman) > parameters.maxPregnancyAge ]
+    womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if 
+                                age(rWoman) <= parameters.maxPregnancyAge ]
+    marriedWomenOfReproductiveAge = 
+                    [ rmWoman for rmWoman in womenOfReproductiveAge if 
+                                !isSingle(rmWoman) ]
+    womenWithRecentChild = [ rcWoman for rcWoman in adultWomen if 
+                                ageYoungestAliveChild(rcWoman) <= 1 ]
+    reproductiveWomen = [ rWoman for rWoman in marriedWomenOfReproductiveAge if 
+                                ageYoungestAliveChild(rWoman) > 1 ] 
+    womenOfReproductiveAgeButNotMarried = 
+                    [ rnmWoman for rnmWoman in womenOfReproductiveAge if 
+                                isSingle(rnmWoman) ]
+
+        #   for person in self.pop.livingPeople:
+    #           
+    #      if person.sex == 'female' and person.age >= self.p['minPregnancyAge']:
+    #                adultLadies += 1
+    #                if person.partner != None:
+    #                    marriedLadies += 1
+    #        marriedPercentage = float(marriedLadies)/float(adultLadies)
+
+    numMarriedRepLadies = length(womenOfReproductiveAge) - 
+                            length(womenOfReproductiveAgeButNotMarried) 
+    repMarriedPercentage = numMarriedRepLadies / length(adultWomen)
+    womenWithRecentChildPercentage = length(womenWithRecentChild) / numMarriedRepLadies
+
+    println("# allFemales    : $(length(allFemales))") 
+    println("# adult women   : $(length(adultWomen))") 
+    println("# NotFertile    : $(length(notFertiledWomen))")
+    println("# fertile women : $(length(womenOfReproductiveAge))")
+    println("# non-married fertile women : $(length(womenOfReproductiveAgeButNotMarried))")
+    println("# of women with recent child: $(length(womenWithRecentChild))")
+    println("married reproductive percentage : $repMarriedPercentage")
+    println("  out of which had a recent child : $womenWithRecentChildPercentage ")
+
+    nothing 
+end
 """
 Accept a population and evaluates the birth rate upon computing
 - the population of married fertile women according to 
@@ -136,33 +178,24 @@ function doBirths!(;people,parameters,data,currstep,
     end 
 
     babies = Person[] 
-    numBirths =  0    # instead of [0, 0, 0, 0, 0]
+    # numBirths =  0    # instead of [0, 0, 0, 0, 0]
 
     # TODO The following could be collapsed into one loop / not sure if it is more efficient 
     #      there is also a potential to save alot of re-computation in each iteration by 
     #      storing the intermediate results and modifying the computation.
     #      However, it could be also the case that Julia compiler does something efficient any way? 
 
-    allFemales = [ woman for woman in people if isFemale(woman) ]
-    adultWomen = [ aWomen for aWomen in allFemales if 
-                                age(aWomen) >= parameters.minPregnancyAge ] 
-    notFertiledWomen = [ nfWoman for nfWoman in adultWomen if 
-                                age(nfWoman) > parameters.maxPregnancyAge ]
-    womenOfReproductiveAge = [ rWoman for rWoman in adultWomen if 
-                                age(rWoman) <= parameters.maxPregnancyAge ]
-    marriedWomenOfReproductiveAge = 
-                    [ rmWoman for rmWoman in womenOfReproductiveAge if 
-                                !isSingle(rmWoman) ]
-    womenWithRecentChild = [ rcWoman for rcWoman in adultWomen if 
-                                ageYoungestAliveChild(rcWoman) <= 1 ]
-    reproductiveWomen = [ rWoman for rWoman in marriedWomenOfReproductiveAge if 
-                                ageYoungestAliveChild(rWoman) > 1 ] 
-    womenOfReproductiveAgeButNotMarried = 
-                    [ rnmWoman for rnmWoman in womenOfReproductiveAge if 
-                                isSingle(rnmWoman) ]
-
+    reproductiveWomen = [ woman for woman in people if 
+                            isFemale(woman) && 
+                            !isSingle(woman) && 
+                            age(woman) >= parameters.minPregnancyAge && 
+                            age(woman) <= parameters.maxPregnancyAge && 
+                            ageYoungestAliveChild(woman) > 1 ] 
     # TODO @assumption 
     if checkassumption
+        allFemales = [ woman for woman in people if isFemale(woman) ]
+        adultWomen = [ aWomen for aWomen in allFemales if 
+                         age(aWomen) >= parameters.minPregnancyAge ] 
         nonadultFemale = setdiff(Set(allFemales),Set(adultWomen)) 
         for woman in nonadultFemale
             @assert(isSingle(woman))   
@@ -179,19 +212,6 @@ function doBirths!(;people,parameters,data,currstep,
         end
     end
 
-    #   for person in self.pop.livingPeople:
-    #           
-    #      if person.sex == 'female' and person.age >= self.p['minPregnancyAge']:
-    #                adultLadies += 1
-    #                if person.partner != None:
-    #                    marriedLadies += 1
-    #        marriedPercentage = float(marriedLadies)/float(adultLadies)
-
-    numMarriedRepLadies = length(womenOfReproductiveAge) - 
-                            length(womenOfReproductiveAgeButNotMarried) 
-    repMarriedPercentage = numMarriedRepLadies / length(adultWomen)
-    womenWithRecentChildPercentage = length(womenWithRecentChild) / numMarriedRepLadies
-
     if verbose
 
         (curryear,currmonth) = date2yearsmonths(Rational(currstep))
@@ -199,14 +219,7 @@ function doBirths!(;people,parameters,data,currstep,
                                 
         # TODO this generic print msg to be placed in a top function 
         println("In iteration $curryear , month $currmonth :")
-        println("# allFemales    : $(length(allFemales))") 
-        println("# adult women   : $(length(adultWomen))") 
-        println("# NotFertile    : $(length(notFertiledWomen))")
-        println("# fertile women : $(length(womenOfReproductiveAge))")
-        println("# non-married fertile women : $(length(womenOfReproductiveAgeButNotMarried))")
-        println("# of women with recent child: $(length(womenWithRecentChild))")
-        println("married reproductive percentage : $repMarriedPercentage")
-        println("  out of which had a recent child : $womenWithRecentChildPercentage ")
+        verboseBirthCounting(people,parameters)
 
         sleep(sleeptime)
 

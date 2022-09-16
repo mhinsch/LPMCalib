@@ -83,11 +83,10 @@ function personSubjectToDeath!(person,parameters,data,currstep,
     else # curryear < 1950 / made-up probabilities 
                         
         babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 # does not play any role in the code
-
         ageDieProb  = isMale(person) ? 
                         exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
                         exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
-                        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
+        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
                                     
         # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
                         
@@ -128,7 +127,6 @@ function doDeaths!(;people,parameters,data,currstep,
                     verbose=true,sleeptime=0,checkassumption=true)
 
     deads = Person[] 
-    count = 0     # number of survived 
 
     for person in people 
         if personSubjectToDeath!(person,parameters,data,currstep,
@@ -136,12 +134,11 @@ function doDeaths!(;people,parameters,data,currstep,
                                 sleeptime=sleeptime,
                                 checkassumption=checkassumption) 
             push!(deads,person)
-        else
-            count += 1
         end 
     end # for livingPeople
     
     if verbose
+        count = length([person for person in people if alive(person)] )
         numDeaths = length(deads)
         println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
         sleep(sleeptime)
