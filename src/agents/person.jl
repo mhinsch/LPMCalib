@@ -72,7 +72,7 @@ end # struct Person
 
 @delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
 
-@export_forward Person kinship father mother partner children
+@export_forward Person.kinship father mother partner children
 
 
 "costum @show method for Agent person"
