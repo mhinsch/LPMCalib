@@ -72,8 +72,8 @@ end # struct Person
 
 @delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
 
-@export_forward Person.kinship father mother partner children
-
+@export_forward Person.kinship father mother partner 
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)

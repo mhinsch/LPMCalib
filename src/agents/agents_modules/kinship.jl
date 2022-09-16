@@ -1,7 +1,7 @@
 using  SomeUtil: date2yearsmonths
 
 export KinshipBlock
-export hasChildren, addChild!, isSingle
+export hasChildren, addChild!, isSingle 
 
 
 mutable struct KinshipBlock{P} 
@@ -16,11 +16,11 @@ KinshipBlock{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) whe
       KinshipBlock(father,mother,partner,children)
 
 
-hasChildren(person) = length(children(person)) > 0
+  hasChildren(parent::KinshipBlock{P}) where{P} = length(parent.children) > 0
 
-addChild!(parent, child) = push!(children(parent), child)
+addChild!(parent::KinshipBlock{P}, child::P) where{P} = push!(parent.children, child)
 
-isSingle(person) = partner(person) == nothing 
+isSingle(person::KinshipBlock) = person.partner == nothing 
 
 
 "costum @show method for Agent person"
