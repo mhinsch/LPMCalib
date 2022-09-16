@@ -2,6 +2,8 @@
 module ParamTypes
 
 using Parameters
+using Random: seed!
+
 export SimulationPars
 
 include("./demography/Loaders.jl")
@@ -16,6 +18,15 @@ include("./demography/Loaders.jl")
     sleeptime :: Float64  = 0; @assert sleeptime >= 0
                                    # how long simulation is suspended after printing info 
     checkassumption :: Bool = true # whether assumptions in unit functions should be checked
+end 
+
+function SimulationPars(randomSeed::Bool)
+    pars = SimulationPars()
+    if randomSeed || pars.seed == 0
+        pars.seed = floor(Int, time())
+    end 
+    seed!(pars.seed)
+    pars
 end 
 
 end # ParamTypes

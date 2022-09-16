@@ -28,7 +28,7 @@ is provided here
 """
 function loadSimulationParameters() 
 
-    simpars = SimulationPars()
+    simpars = SimulationPars(false)
 
     # The following moight be modified as parameters struct rather than dictionary
 

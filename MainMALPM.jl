@@ -30,6 +30,8 @@ using MultiAgents: run!
 initMultiAgents()                 # reset agents counter
 @assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
 
+simProperties = loadSimulationParameters()
+
 ukDemographyPars = loadUKDemographyPars() 
 
 # Declaration and initialization of a MABM for a demography model of UK 
@@ -53,9 +55,6 @@ println(); println();
 
 
 # Declaration of a simulation 
-
-simProperties = loadSimulationParameters()
-simProperties[:seed] = floor(Int, time())
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
                                   example=LPMUKDemography())
 
@@ -63,5 +62,3 @@ lpmDemographySim = MABMSimulation(ukDemography,simProperties,
 # Execution 
 
 @time run!(lpmDemographySim)
-
-lpmDemographySim 
