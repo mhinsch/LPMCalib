@@ -59,6 +59,7 @@ function setup!(sim::MABMSimulation,example::LPMUKDemography)
     #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
 
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
+    attach_pre_model_step!(sim.simulations[3],removeDead!)
     attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
 
@@ -75,13 +76,11 @@ end
 
 function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt) 
 
-    @assert false  # To be updated
-    # attach_init_step!(sim,someInitialization!)
+    println("setting up optimized demography simulation")
 
-    #attach_agent_step!(sim.simulations[3],removeDead!) 
-    #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)    
     attach_pre_model_step!(sim.simulations[3],doDeaths!)
-    attach_pre_model_step!(sim.simulations[3],removeDead!)
+    # attach_pre_model_step!(sim.simulations[3],removeDead!)
+    attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
 
     # to simplify the following ... 
