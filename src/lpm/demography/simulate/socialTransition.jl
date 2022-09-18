@@ -117,7 +117,7 @@ end
 
 # TODO here for now, maybe not the best place
 function resetWork!(person, pars)
-    status!(person, Work.unemployed)
+    status!(person, WorkStatus.unemployed)
     newEntrant!(person, true)
     workingHours!(person, 0)
     income!(person, 0)

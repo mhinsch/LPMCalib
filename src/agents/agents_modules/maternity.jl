@@ -1,5 +1,3 @@
-module Maternity
-
 export MaternityBlock
 export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
 
@@ -25,4 +23,3 @@ function endMaternity!(mat)
     mat.monthsSinceBirth = 0
 end
 
-end # Maternity

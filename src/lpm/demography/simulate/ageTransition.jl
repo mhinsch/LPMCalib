@@ -1,6 +1,8 @@
-using XAgents: Work, status, status!, hasBirthday, age, outOfTownStudent!, agestep!
+using Distributions
+
+using XAgents: WorkStatus, status, status!, hasBirthday, age, outOfTownStudent!, agestep!
 using XAgents: setEmptyJobSchedule!, wage!, pension!, isInMaternity, maternityDuration
-using XAgents: stepMaternity!, endMaternity!
+using XAgents: stepMaternity!, endMaternity!, workingPeriods
 
 function doAgeTransitions!(people, step, pars)
     
@@ -32,17 +34,17 @@ function doAgeTransitions!(people, step, pars)
 
     # only process those not retired and born in the current month
     relevant = Iterators.filter(people) do p
-        status(p) != Work.retired && hasBirthday(p, month)
+        status(p) != WorkStatus.retired && hasBirthday(p)
     end
 
     for person in relevant
         if age(person) == pars.ageTeenagers
-            status!(person, Work.teenager)
+            status!(person, WorkStatus.teenager)
             continue
         end
 
         if age(person) == pars.ageOfAdulthood
-            status!(person, Work.student)
+            status!(person, WorkStatus.student)
             #class!(person, 0)
 
             if rand() < pars.probOutOfTownStudent
@@ -53,7 +55,7 @@ function doAgeTransitions!(people, step, pars)
         end
 
         if age(person) == pars.ageOfRetirement
-            status!(person, Work.retired)
+            status!(person, WorkStatus.retired)
             setEmptyJobSchedule!(person)
             wage!(person, 0)
 

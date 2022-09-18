@@ -5,36 +5,19 @@ using DeclUtils
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import Maternity: MaternityBlock, startMaternity!, stepMaternity!, endMaternity!, 
-    isInMaternity, maternityDuration
-
-import Work: Work, WorkBlock, status, outOfTownStudent, newEntrant, wage, income, 
-    jobTenure, schedule, workingHours, workingPeriods, pension
-import Work: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
-    workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
-
 export Person
 export PersonHouse, undefinedHouse
 export setHouse!, resetHouse!, resolvePartnership!, setDead!
 
-
-# export Maternity
-export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
-
-# export Work
-export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, workingHours, 
-    workingPeriods, pension
-export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
-    workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
-
-
 export getHomeTown, getHomeTownName, agestepAlive!, setDead!
 export setAsParentChild!, setAsPartners!, setParent!
-export hasAliveChild, ageYoungestAliveChild
+export hasAliveChild, ageYoungestAliveChild, hasBirthday
 
 
 include("agents_modules/basicinfo.jl")
 include("agents_modules/kinship.jl")
+include("agents_modules/maternity.jl")
+include("agents_modules/work.jl")
 
 
 """
@@ -88,21 +71,21 @@ mutable struct Person <: AbstractXAgent
 end # struct Person 
 
 # delegate functions to components
+# and export accessors
 
+@export_forward Person.info age gender alive
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
+
+@export_forward Person.kinship father mother partner children
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
 
-@delegate_onefield Person work [status, outOfTownStudent, newEntrant, wage, income, jobTenure,
-    schedule, workingHours, workingPeriods, pension]
-@delegate_onefield Person work [status!, outOfTownStudent!, newEntrant!, wage!, income!, 
-    jobTenure!, schedule!, workingHours!, workingPeriods!, pension!]
+@export_forward Person.work status outOfTownStudent newEntrant wage income jobTenure
+@export_forward Person.work schedule workingHours workingPeriods pension
+@delegate_onefield Person work [setEmptyJobSchedule!]
 
-@export_forward Person.info age gender alive
-@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
-
-@export_forward Person.kinship father mother partner children
-@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -121,7 +104,7 @@ Person(pos,age; gender=unknown,
         Person(pos,BasicInfoBlock(;age, gender), 
             KinshipBlock(father,mother,partner,children), 
             MaternityBlock(false, 0),
-            WorkBlock(Work.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+            WorkBlock(WorkStatus.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 "Constructor with default values"
@@ -132,7 +115,7 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,BasicInfoBlock(;age,gender), 
                 KinshipBlock(father,mother,partner,children),
                 MaternityBlock(false, 0),
-                WorkBlock(Work.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+                WorkBlock(WorkStatus.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
 
 
 const PersonHouse = House{Person}
