@@ -5,18 +5,16 @@ using DeclUtils
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
-
 export Person
 export PersonHouse, undefinedHouse
 export setHouse!, resetHouse!, resolvePartnership!, setDead!
 
-export isMale, isFemale, age
-export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild
 
 
+include("agents_modules/basicinfo.jl")
 include("agents_modules/kinship.jl")
 
 
@@ -70,9 +68,10 @@ end # struct Person
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
+@export_forward Person.info age gender alive
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
 
-@export_forward Person.kinship father mother partner 
+@export_forward Person.kinship father mother partner children
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"

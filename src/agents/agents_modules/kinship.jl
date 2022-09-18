@@ -16,7 +16,7 @@ KinshipBlock{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) whe
       KinshipBlock(father,mother,partner,children)
 
 
-  hasChildren(parent::KinshipBlock{P}) where{P} = length(parent.children) > 0
+hasChildren(parent::KinshipBlock{P}) where{P} = length(parent.children) > 0
 
 addChild!(parent::KinshipBlock{P}, child::P) where{P} = push!(parent.children, child)
 
