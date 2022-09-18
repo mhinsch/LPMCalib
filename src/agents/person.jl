@@ -1,13 +1,9 @@
 using TypedDelegation
 
+using DeclUtils
+
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
-
-import Kinship: KinshipBlock, isSingle, partner, father, mother, children, hasChildren, 
-    setParent!, addChild!, setPartner!
-
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive,
-    hasBirthday
 
 import Maternity: MaternityBlock, startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration
@@ -19,14 +15,7 @@ import Work: status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!
 
 export Person
 export PersonHouse, undefinedHouse
-export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
-
-#export Kinship
-export isMale, isFemale, age
-export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
-export setAsParentChild!, setPartner!, setAsPartners!, partner 
-export hasAliveChild, ageYoungestAliveChild, hasBirthday
-
+export setHouse!, resetHouse!, resolvePartnership!, setDead!
 
 
 # export Maternity
@@ -37,6 +26,15 @@ export status, outOfTownStudent, newEntrant, wage, income, jobTenure, schedule, 
     workingPeriods, pension
 export status!, outOfTownStudent!, newEntrant!, wage!, income!, jobTenure!, schedule!, 
     workingHours!, workingPeriods!, pension!, setEmptyJobSchedule!
+
+
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export setAsParentChild!, setAsPartners!, setParent!
+export hasAliveChild, ageYoungestAliveChild
+
+
+include("agents_modules/basicinfo.jl")
+include("agents_modules/kinship.jl")
 
 
 """
@@ -91,10 +89,6 @@ end # struct Person
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
-
-@delegate_onefield Person kinship [isSingle, partner, father, mother, children, hasChildren, 
-    setParent!, addChild!, setPartner!]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
@@ -104,6 +98,11 @@ end # struct Person
 @delegate_onefield Person work [status!, outOfTownStudent!, newEntrant!, wage!, income!, 
     jobTenure!, schedule!, workingHours!, workingPeriods!, pension!]
 
+@export_forward Person.info age gender alive
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
+
+@export_forward Person.kinship father mother partner children
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -183,8 +182,8 @@ end
 function resetPartner!(person)
     other = partner(person)
     if other != nothing 
-        setPartner!(person, nothing)
-        setPartner!(other, nothing)
+        partner!(person, nothing)
+        partner!(other, nothing)
     end
     nothing 
 end
@@ -206,8 +205,8 @@ function setAsPartners!(person1::Person,person2::Person)
         resetPartner!(person1) 
         resetPartner!(person2)
 
-        setPartner!(person1, person2)
-        setPartner!(person2, person1)
+        partner!(person1, person2)
+        partner!(person2, person1)
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
@@ -224,6 +223,16 @@ function setDead!(person::Person)
     nothing
 end 
 
+"set child of a parent" 
+function setParent!(child, parent)
+  if isFemale(parent) 
+    mother!(child, parent)
+  elseif isMale(parent) 
+    father!(child, parent)
+  else
+    throw(InvalidStateException("undefined case",:undefined))
+  end
+end 
 
 function hasAliveChild(person::KinshipBlock)
     for child in children(person) 
