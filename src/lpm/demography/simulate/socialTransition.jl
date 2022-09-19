@@ -1,12 +1,18 @@
 using Distributions: Normal, LogNormal
 
+export doSocialTransitions!
+
+using XAgents: classRank, father, mother, householdIncomePerCapita, newEntrant!, jobTenure!
+using XAgents: initialIncome!, finalIncome!
+
+
 # class sensitive versions
 # TODO 
 # * move to separate, optional module
 # * replace with non-class version here
-initialIncomeLevel(person, pars) = pars.incomeInitialLevels[classRank(person)]
+initialIncomeLevel(person, pars) = pars.incomeInitialLevels[classRank(person)+1]
 
-workingAge(person, pars) = pars.workingAge[classRank(p)]
+workingAge(person, pars) = pars.workingAge[classRank(person)+1]
 
 function incomeDist(person, pars)
     # TODO make parameters
@@ -24,6 +30,9 @@ function incomeDist(person, pars)
         error("unknown class rank!")
     end
 end
+
+# TODO dummy, replace
+socialClassShares(model, class) = 0.2
 
 function studyClassFactor(person, model, pars)
     if classRank(person) == 0 
@@ -44,7 +53,7 @@ end
 doneStudying(person, pars) = classRank(person) >= 4
 
 # TODO
-function addToWorkForce!(person, model)
+function addToWorkforce!(person, model)
 end
 
 
@@ -54,10 +63,10 @@ function doSocialTransitions!(people, time, model, pars, verbose=true)
     month += 1 # adjusting 0:11 => 1:12 
 
     # newly adult people
-    newAdults = I.filter(people) do p
-        hasBirthday(p, month) && 
+    newAdults = Iterators.filter(people) do p
+        hasBirthday(p) && 
         age(p) == workingAge(p, pars) &&
-        status(p) == student
+        status(p) == WorkStatus.student
     end
 
     if verbose
@@ -71,7 +80,7 @@ function doSocialTransitions!(people, time, model, pars, verbose=true)
         if rand() < probStudy
             startStudying!(person, pars)
         else
-            startWorking!(person)
+            startWorking!(person, pars)
             addToWorkforce!(person, model)
         end
     end
@@ -83,15 +92,15 @@ function startStudyProb(person, model, pars)
         return 0.0
     end
 
-    # TODO
-    perCapitaDisposableIncome = disposableIncomePerCapita(person)
+                                # renamed from python but same calculation
+    perCapitaDisposableIncome = householdIncomePerCapita(person)
 
     if perCapitaDisposableIncome <= 0
         return 0.0
     end
 
     forgoneSalary = initialIncomeLevels(person, pars) * 
-        pars.weeklyHours[careNeedLevel(person)]
+        pars.weeklyHours[careNeedLevel(person)+1]
     relCost = forgoneSalary / perCapitaDisposableIncome
     incomeEffect = (pars.constantIncomeParam+1) / 
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
@@ -115,7 +124,7 @@ function startStudying!(person, pars)
     addClassRank!(person, 1) 
 end
 
-# TODO here for now, maybe not the best place
+# TODO here for now, maybe not the best place?
 function resetWork!(person, pars)
     status!(person, WorkStatus.unemployed)
     newEntrant!(person, true)
@@ -124,13 +133,13 @@ function resetWork!(person, pars)
     jobTenure!(person, 0)
     # monthHired
     # jobShift
-    schedule!(person, zeros(Int, 7, 24))
+    setEmptyJobSchedule!(person)
     outOfTownStudent!(person, true)
 end
 
 function startWorking!(person, pars)
 
-    resetWork!(person)
+    resetWork!(person, pars)
 
     dKi = rand(Normal(0, pars.wageVar))
     initialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))
@@ -138,5 +147,17 @@ function startWorking!(person, pars)
     dist = incomeDist(person, pars)
 
     finalIncome!(person, rand(dist))
+
+# commented in original:
+#        if person.classRank < 4:
+#            dKf = np.random.normal(dKi, self.p['wageVar'])
+#            person.finalIncome = self.p['incomeFinalLevels'][person.classRank]*math.exp(dKf)
+#        else:
+#            sigma = float(self.p['incomeFinalLevels'][person.classRank])/5.0
+            # person.finalIncome = np.random.lognormal(self.p['incomeFinalLevels'][person.classRank], sigma)
+            
+#        person.wage = person.initialIncome
+#        person.income = person.wage*self.p['weeklyHours'][int(person.careNeedLevel)]
+#        person.potentialIncome = person.income
 end
 

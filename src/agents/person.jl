@@ -7,7 +7,8 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 export Person
 export PersonHouse, undefinedHouse
-export setHouse!, resetHouse!, resolvePartnership!, setDead!
+export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+export householdIncomePerCapita
 
 export getHomeTown, getHomeTownName, agestepAlive!, setDead!
 export setAsParentChild!, setAsPartners!, setParent!
@@ -18,6 +19,8 @@ include("agents_modules/basicinfo.jl")
 include("agents_modules/kinship.jl")
 include("agents_modules/maternity.jl")
 include("agents_modules/work.jl")
+include("agents_modules/care.jl")
+include("agents_modules/class.jl")
 
 
 """
@@ -43,11 +46,13 @@ mutable struct Person <: AbstractXAgent
     kinship::KinshipBlock{Person}
     maternity :: MaternityBlock
     work :: WorkBlock
+    care :: CareBlock
+    class :: ClassBlock
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos, info, kinship, maternity, work)
-        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work)
+    function Person(pos, info, kinship, maternity, work, care, class)
+        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -73,18 +78,24 @@ end # struct Person
 # delegate functions to components
 # and export accessors
 
-@export_forward Person.info age gender alive
+@export_forward Person info [age, gender, alive]
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
-@export_forward Person.kinship father mother partner children
+@export_forward Person kinship [father, mother, partner, children]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
 
-@export_forward Person.work status outOfTownStudent newEntrant wage income jobTenure
-@export_forward Person.work schedule workingHours workingPeriods pension
-@delegate_onefield Person work [setEmptyJobSchedule!]
+@export_forward Person work [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
+    wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
+    availableWorkingHours, workingPeriods, pension]
+@delegate_onefield Person work [setEmptyJobSchedule!, setFullWeeklyTime!]
+
+@export_forward Person care [careNeedLevel, socialWork, childWork]
+
+@export_forward Person class [classRank]
+@delegate_onefield Person class [addClassRank!]
 
 
 "costum @show method for Agent person"
@@ -104,7 +115,9 @@ Person(pos,age; gender=unknown,
         Person(pos,BasicInfoBlock(;age, gender), 
             KinshipBlock(father,mother,partner,children), 
             MaternityBlock(false, 0),
-            WorkBlock(WorkStatus.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+            WorkBlock(),
+            CareBlock(0, 0, 0),
+            ClassBlock(0))
 
 
 "Constructor with default values"
@@ -115,7 +128,9 @@ Person(;pos=undefinedHouse,age=0,
             Person(pos,BasicInfoBlock(;age,gender), 
                 KinshipBlock(father,mother,partner,children),
                 MaternityBlock(false, 0),
-                WorkBlock(WorkStatus.child, false, false, 0, 0, 0, 0, 0, zeros(Int, 7, 24), 0, 0, 0))
+                WorkBlock(),
+                CareBlock(0, 0, 0),
+                ClassBlock(0))
 
 
 const PersonHouse = House{Person}
@@ -148,6 +163,11 @@ function resetHouse!(person::Person)
     person.pos = undefinedHouse
     nothing 
 end 
+
+# TODO check if correct
+# TODO cache for optimisation?
+householdIncome(person) = sum(p -> income(p), person.pos.occupants)
+householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.occupants)
 
 
 "set the father of a child"
