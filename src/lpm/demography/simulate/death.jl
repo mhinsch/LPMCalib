@@ -144,5 +144,5 @@ function doDeaths!(;people,parameters,data,currstep,
         sleep(sleeptime)
     end 
 
-    (deadpeople = deads)   
+    deads   
 end  # function doDeaths! 
