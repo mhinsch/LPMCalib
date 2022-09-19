@@ -6,7 +6,8 @@ using XAgents: isFemale, isSingle, hasChildren, alive
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: partner, age, ageYoungestAliveChild
-using XAgents: startMaternity!, workingHours!, income!
+using XAgents: startMaternity!, workingHours!, income!, potentialIncome!
+using XAgents: availableWorkingHours!, setFullWeeklyTime!
 
 export doBirths!
 
@@ -59,6 +60,19 @@ function effectsOfMaternity!(woman, pars)
     
     workingHours!(woman, 0)
     income!(woman, 0)
+    potentialIncome!(woman, 0)
+    availableWorkingHours!(woman, 0)
+    # commented in sim.py:
+    # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
+    # sets all weeklyTime slots to 1
+    # TODO copied from the python code, but does it make sense?
+    setFullWeeklyTime!(woman)
+    #= TODO
+    woman.maxWeeklySupplies = [0, 0, 0, 0]
+    woman.residualDailySupplies = [0]*7
+    woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
+    =# 
+    nothing
 end
 
 
@@ -106,20 +120,6 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
         effectsOfMaternity!(woman, parameters)
 
         return baby
-        # woman.maternityStatus = True
-                        
-        #=
-        # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
-        woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
-        woman.workingHours = 0
-        woman.maxWeeklySupplies = [0, 0, 0, 0]
-        woman.residualDailySupplies = [0]*7
-        woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
-        woman.residualWorkingHours = 0
-        woman.availableWorkingHours = 0
-        woman.potentialIncome = 0
-        woman.income = 0
-        =# 
     end # if rand()
 
     nothing 
