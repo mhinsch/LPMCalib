@@ -1,12 +1,14 @@
 
 using SomeUtil: date2yearsmonths
 
-using XAgents: isMale, isFemale, alive 
+using XAgents: Person, isMale, isFemale, alive 
 using XAgents: age
+using LPM.ParamTypes.Loaders: UKPopulationPars
+
 
 export doDeaths!
 
-function deathProbability(baseRate,person,parameters) 
+function deathProbability(baseRate::Float64,person::Person,parameters::UKPopulationPars)::Float64 
     #=
         Not realized yet  / to be realized in another module? 
         classRank = person.classRank
@@ -14,8 +16,11 @@ function deathProbability(baseRate,person,parameters)
             classRank = person.parentsClassRank
     =# 
 
-    mortalityBias = isMale(person) ? parameters.maleMortalityBias : 
-                                     parameters.femaleMortalityBias 
+    if isMale(person) 
+        mortalityBias =  parameters.maleMortalityBias
+    else 
+        mortalityBias =  parameters.femaleMortalityBias 
+    end 
 
     #= 
     To be integrated in class modules 
@@ -57,10 +62,10 @@ function deathProbability(baseRate,person,parameters)
     deathProb 
 end # function deathProb
 
-function personSubjectToDeath!(person,parameters,data,currstep,
+function personSubjectToDeath!(person::Person,parameters,data,currstep,
                                ;verbose,sleeptime,checkassumption)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(Rational{Int}(currstep))
     currmonth += 1 # adjusting 0:11 => 1:12 
 
     agep = age(person)             
@@ -68,7 +73,7 @@ function personSubjectToDeath!(person,parameters,data,currstep,
     if checkassumption
         @assert alive(person)       
         @assert isMale(person) || isFemale(person) # Assumption 
-        @assert typeof(agep) == Rational{Int64}
+        @assert typeof(agep) == Rational{Int}
     end
  
     if curryear >= 1950 
@@ -124,7 +129,7 @@ end
 
 "evaluate death events in a population"
 function doDeaths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0,checkassumption=true)
+                    verbose=true,sleeptime=0.0,checkassumption=true)
 
     deads = Person[] 
 
