@@ -30,9 +30,9 @@ using MultiAgents: run!
 initMultiAgents()                 # reset agents counter
 @assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
 
-simProperties = loadSimulationParameters()
+const simProperties = loadSimulationParameters()
 
-ukDemographyPars = loadUKDemographyPars() 
+const ukDemographyPars = loadUKDemographyPars() 
 
 # Declaration and initialization of a MABM for a demography model of UK 
 
