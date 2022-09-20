@@ -30,7 +30,7 @@ Person ties various agent modules into one compound agent type.
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractXAgent
-    id
+    id::Int
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -85,7 +85,7 @@ end
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
 
 "Constructor with default values"
-Person(pos,age; gender=unknown,
+Person(pos,age::Rational{Int}; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
             Person(pos,
@@ -95,7 +95,7 @@ Person(pos,age; gender=unknown,
 
 
 "Constructor with default values"
-Person(;pos=undefinedHouse,age=0,
+Person(;pos=undefinedHouse,age=0//1,
                  gender=unknown,
                  father=nothing,mother=nothing,
                  partner=nothing,children=Person[]) = 
