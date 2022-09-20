@@ -60,7 +60,7 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
     birthProb = computeBirthProb(woman, parameters, data, currstep)
                         
     if checkassumption
-        @assert isFemale(rWoman) && 
+        @assert isFemale(woman) && 
         @assert ageYoungestAliveChild(woman) > 1 
         @assert !isSingle(woman)
         @assert age(woman) >= parameters.minPregnancyAge 
