@@ -12,9 +12,13 @@ from REPL execute it using
 
 include("./loadLibsPath.jl")
 
-using MultiAgents: MultiABM
+if !occursin("multiagents",LOAD_PATH)
+    push!(LOAD_PATH, "src/multiagents") 
+end
+
+using MultiAgents: MultiABM, initMultiAgents, MAVERSION
  
-using LPM.Parameters.Loaders:    loadUKDemographyPars
+using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
 using MALPM.Demography.Create:     LPMUKDemography, LPMUKDemographyOpt, createUKDemography 
 using MALPM.Demography.Initialize: initializeDemography!
@@ -22,6 +26,11 @@ using MALPM.Demography.SimSetup:   loadSimulationParameters
 
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
+
+initMultiAgents()                 # reset agents counter
+@assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
+
+simProperties = loadSimulationParameters()
 
 ukDemographyPars = loadUKDemographyPars() 
 
@@ -46,14 +55,10 @@ println(); println();
 
 
 # Declaration of a simulation 
-
-simProperties = loadSimulationParameters()
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  example=LPMUKDemographyOpt())
+                                  example=LPMUKDemography())
 
 
 # Execution 
 
-run!(lpmDemographySim,verbose=true)
-
-lpmDemographySim 
+@time run!(lpmDemographySim)

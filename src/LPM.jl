@@ -1,6 +1,6 @@
 module LPM
 
     include("./lpm/Demography.jl")
-    include("./lpm/Parameters.jl")
+    include("./lpm/ParamTypes.jl")
 
 end # LoneParentsModel

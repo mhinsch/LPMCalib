@@ -1,12 +1,7 @@
-module Kinship
-
 using  SomeUtil: date2yearsmonths
-using  BasicInfo: isFemale, isMale      # Otherwise, unit test for setAsParentChild! fails
-
 
 export KinshipBlock
-export father, mother, setFather!, setMother!, setParent!, addChild!
-export partner, isSingle, setPartner!
+export hasChildren, addChild!, isSingle 
 
 
 mutable struct KinshipBlock{P} 
@@ -20,36 +15,12 @@ end
 KinshipBlock{P}(;father=nothing,mother=nothing,partner=nothing,children=P[]) where {P} = 
       KinshipBlock(father,mother,partner,children)
 
-father(child::KinshipBlock) = child.father
-mother(child::KinshipBlock) = child.mother
 
-"set the father of child"
-setFather!(child::KinshipBlock{P},father::P) where {P} = child.father = father
-"set the mother of child"
-setMother!(child::KinshipBlock{P},mother::P) where {P} = child.mother = mother
-
-"set child of a parent" 
-function setParent!(child::KinshipBlock{P},parent::P) where {P}
-  if isFemale(parent) 
-    setMother!(child,parent)
-  elseif isMale(parent) 
-    setFather!(child,parent)
-  else
-    throw(InvalidStateException("undefined case",:undefined))
-  end
-end 
+hasChildren(parent::KinshipBlock{P}) where{P} = length(parent.children) > 0
 
 addChild!(parent::KinshipBlock{P}, child::P) where{P} = push!(parent.children, child)
 
 isSingle(person::KinshipBlock) = person.partner == nothing 
-
-partner(person::KinshipBlock) = person.partner
-
-"set a partnership"
-function setPartner!(person1::KinshipBlock{P}, person2) where {P}
-	person1.partner = person2
-end
-
 
 
 "costum @show method for Agent person"
@@ -65,5 +36,3 @@ function Base.show(io::IO, kinship::KinshipBlock)
   println() 
 end
 
-
-end # Kinship

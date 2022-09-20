@@ -1,22 +1,21 @@
 using TypedDelegation
 
+using DeclUtils
+
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import Kinship: KinshipBlock, 
-    isSingle, partner, father, mother, setParent!, addChild!, setPartner!
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!
-
 export Person
 export PersonHouse, undefinedHouse
-export isSingle, setHouse!, resetHouse!, resolvePartnership!
+export setHouse!, resetHouse!, resolvePartnership!, setDead!
 
-#export Kinship
-export isMale, isFemale, age
-export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
-export setAsParentChild!, setPartner!, setAsPartners!, partner 
-export isFemale, isMale
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export setAsParentChild!, setAsPartners!, setParent!
+export hasAliveChild, ageYoungestAliveChild
 
+
+include("agents_modules/basicinfo.jl")
+include("agents_modules/kinship.jl")
 
 
 """
@@ -48,15 +47,32 @@ mutable struct Person <: AbstractXAgent
         if !undefined(pos)
             addOccupant!(pos, person)
         end
+        if kinship.father != nothing 
+            addChild!(kinship.father,person) 
+        end 
+        if kinship.mother != nothing 
+            addChild!(kinship.mother,person) 
+        end 
+        if kinship.partner != nothing
+            resetPartner!(kinship.partner)
+            partner.partner = person 
+        end 
+        if length(kinship.children) > 0
+            for child in kinship.children
+                setAsParentChild!(person,child)
+            end
+        end 
         person  
-    end 
-end
+    end # Person Cor
+end # struct Person 
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive, setDead!]
-@delegate_onefield Person kinship [isSingle, partner, father, mother, setParent!, addChild!, setPartner!]
+@export_forward Person.info age gender alive
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
 
+@export_forward Person.kinship father mother partner children
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -72,17 +88,21 @@ end
 Person(pos,age; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
-                    Person(pos,BasicInfoBlock(;age, gender), 
-                    KinshipBlock(father,mother,partner,children))
+            Person(pos,
+                 BasicInfoBlock(;age, gender), 
+                 KinshipBlock(father,mother,partner,children))
+
 
 
 "Constructor with default values"
 Person(;pos=undefinedHouse,age=0,
-        gender=unknown,
-        father=nothing,mother=nothing,
-        partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfoBlock(;age,gender), 
-                       KinshipBlock(father,mother,partner,children))
+                 gender=unknown,
+                 father=nothing,mother=nothing,
+                 partner=nothing,children=Person[]) = 
+            Person(pos,
+                   BasicInfoBlock(;age,gender), 
+                   KinshipBlock(father,mother,partner,children))
+
 
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
@@ -131,8 +151,8 @@ end
 function resetPartner!(person)
     other = partner(person)
     if other != nothing 
-        setPartner!(person, nothing)
-        setPartner!(other, nothing)
+        partner!(person, nothing)
+        partner!(other, nothing)
     end
     nothing 
 end
@@ -154,11 +174,48 @@ function setAsPartners!(person1::Person,person2::Person)
         resetPartner!(person1) 
         resetPartner!(person2)
 
-        setPartner!(person1, person2)
-        setPartner!(person2, person1)
+        partner!(person1, person2)
+        partner!(person2, person1)
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
 end
 
 
+function setDead!(person::Person) 
+    person.info.alive = false
+    resetHouse!(person)
+    if !isSingle(person) 
+        resolvePartnership!(partner(person),person)
+    end
+    # no need to resolve parents / childern relationship
+    nothing
+end 
+
+"set child of a parent" 
+function setParent!(child, parent)
+  if isFemale(parent) 
+    mother!(child, parent)
+  elseif isMale(parent) 
+    father!(child, parent)
+  else
+    throw(InvalidStateException("undefined case",:undefined))
+  end
+end 
+
+function hasAliveChild(person::KinshipBlock)
+    for child in children(person) 
+        if alive(child) return true end 
+    end
+    false 
+end
+
+function ageYoungestAliveChild(person::Person) 
+    youngest = Rational(Inf)  
+    for child in children(person) 
+        if alive(child) 
+            youngest = min(youngest,age(child))
+        end 
+    end
+    youngest 
+end
