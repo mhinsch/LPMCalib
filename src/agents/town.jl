@@ -14,7 +14,7 @@ This file is included in the module XAgents
 
 Type Town to extend from AbstractAXgent.
 """
-mutable struct Town <: AbstractXAgent
+struct Town <: AbstractXAgent
     id::Int
     pos::TownLocation
     name::String                            # does not look necessary
