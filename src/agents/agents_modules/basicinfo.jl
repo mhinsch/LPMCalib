@@ -6,7 +6,7 @@ export isFemale, isMale, agestep!, agestepAlive!
 
 # TODO think about whether to make this immutable
 mutable struct BasicInfoBlock
-  age::Rational{Int} 
+  age::Rational 
   # (birthyear, birthmonth)
   gender::Gender  
   alive::Bool 
