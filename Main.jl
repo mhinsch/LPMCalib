@@ -107,18 +107,19 @@ const model = createUKDemography!(pars)
 
 initializeDemography!(model.towns, model.houses, model.pop, pars.mappars)
 
-@show "Town Samples: \n"     
-@show model.towns[1:10]
-println(); println(); 
+if simPars.verbose
+    @show "Town Samples: \n"     
+    @show model.towns[1:10]
+    println(); println(); 
                         
-@show "Houses samples: \n"      
-@show model.houses[1:10]
-println(); println(); 
+    @show "Houses samples: \n"      
+    @show model.houses[1:10]
+    println(); println(); 
                         
-@show "population samples : \n" 
-@show model.pop[1:10]
-println(); println(); 
-
+    @show "population samples : \n" 
+    @show model.pop[1:10]
+    println(); println(); 
+end 
 # Execution 
 
 @time run!(model, simPars, pars.poppars)
