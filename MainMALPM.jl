@@ -41,18 +41,19 @@ ukDemography = MultiABM(ukDemographyPars,
                         declare=createUKDemography,
                         initialize=initializeDemography!)
 
-@show "Town Samples: \n"     
-@show ukDemography.abms[1].agentsList[1:10]
-println(); println(); 
+if simProperties.verbose
+    @show "Town Samples: \n"     
+    @show ukDemography.abms[1].agentsList[1:10]
+    println(); println(); 
                         
-@show "Houses samples: \n"      
-@show ukDemography.abms[2].agentsList[1:10]
-println(); println(); 
+    @show "Houses samples: \n"      
+    @show ukDemography.abms[2].agentsList[1:10]
+    println(); println(); 
                         
-@show "population samples : \n" 
-@show ukDemography.abms[3].agentsList[1:10]
-println(); println(); 
-
+    @show "population samples : \n" 
+    @show ukDemography.abms[3].agentsList[1:10]
+    println(); println(); 
+end 
 
 # Declaration of a simulation 
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 

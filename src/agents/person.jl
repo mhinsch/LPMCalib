@@ -1,24 +1,21 @@
 using TypedDelegation
 
+using DeclUtils
+
 # enable using/import from local directory
 push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
-import Kinship: KinshipBlock, isSingle, 
-    partner, father, mother, children, hasChildren, setParent!, addChild!, setPartner!
-import BasicInfo: BasicInfoBlock, isFemale, isMale, age, agestep!, agestepAlive!, alive
-
 export Person
 export PersonHouse, undefinedHouse
-export isSingle, setHouse!, resetHouse!, resolvePartnership!, setDead!
+export setHouse!, resetHouse!, resolvePartnership!, setDead!
 
-#export Kinship
-export isMale, isFemale, age
-export getHomeTown, getHomeTownName, agestep!, agestepAlive!, alive, setDead!
-export setAsParentChild!, setPartner!, setAsPartners!, partner 
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild
 
 
-
+include("agents_modules/basicinfo.jl")
+include("agents_modules/kinship.jl")
 
 
 """
@@ -33,7 +30,7 @@ Person ties various agent modules into one compound agent type.
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractXAgent
-    id
+    id::Int
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -71,9 +68,11 @@ end # struct Person
 
 # delegate functions to components
 
-@delegate_onefield Person info [isFemale, isMale, age, agestep!, agestepAlive!, alive]
-@delegate_onefield Person kinship [isSingle, partner, father, mother, children, hasChildren, setParent!, addChild!, setPartner!]
+@export_forward Person.info age gender alive
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
 
+@export_forward Person.kinship father mother partner children
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -86,7 +85,7 @@ end
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
 
 "Constructor with default values"
-Person(pos,age; gender=unknown,
+Person(pos,age::Rational{Int}; gender=unknown,
                 father=nothing,mother=nothing,
                 partner=nothing,children=Person[]) = 
             Person(pos,
@@ -96,7 +95,7 @@ Person(pos,age; gender=unknown,
 
 
 "Constructor with default values"
-Person(;pos=undefinedHouse,age=0,
+Person(;pos=undefinedHouse,age=0//1,
                  gender=unknown,
                  father=nothing,mother=nothing,
                  partner=nothing,children=Person[]) = 
@@ -152,8 +151,8 @@ end
 function resetPartner!(person)
     other = partner(person)
     if other != nothing 
-        setPartner!(person, nothing)
-        setPartner!(other, nothing)
+        partner!(person, nothing)
+        partner!(other, nothing)
     end
     nothing 
 end
@@ -175,8 +174,8 @@ function setAsPartners!(person1::Person,person2::Person)
         resetPartner!(person1) 
         resetPartner!(person2)
 
-        setPartner!(person1, person2)
-        setPartner!(person2, person1)
+        partner!(person1, person2)
+        partner!(person2, person1)
         return nothing 
     end 
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
@@ -193,6 +192,16 @@ function setDead!(person::Person)
     nothing
 end 
 
+"set child of a parent" 
+function setParent!(child, parent)
+  if isFemale(parent) 
+    mother!(child, parent)
+  elseif isMale(parent) 
+    father!(child, parent)
+  else
+    throw(InvalidStateException("undefined case",:undefined))
+  end
+end 
 
 function hasAliveChild(person::KinshipBlock)
     for child in children(person) 

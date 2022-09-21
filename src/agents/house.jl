@@ -13,7 +13,7 @@ This file is included in the module XAgents
 Type House to extend from AbstracXAgent.
 """ 
 mutable struct House{P} <: AbstractXAgent
-    id	# TODO type?
+    id::Int
 	# TODO make these type parameters?
     pos::Tuple{Town,HouseLocation}     # town and location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
@@ -24,20 +24,20 @@ end # House
 
 House{P}(town::Town,locationInTown::HouseLocation) where {P} = House{P}((town,locationInTown))
 
-undefined(house) = house.pos == (undefinedTown,(-1,-1))
+undefined(house::House{P}) where P = house.pos == (undefinedTown,(-1,-1))
 
 "town associated with house"
-function getHomeTown(house::House)
+function getHomeTown(house::House{P}) where P 
     house.pos[1]
 end
 
 "town name associated with house"
-function getHomeTownName(house::House)
+function getHomeTownName(house::House{P}) where P
     house.pos[1].name
 end
 
 "house location in the associated town"
-function getHouseLocation(house::House)
+function getHouseLocation(house::House{P}) where P
     house.pos[2]
 end 
 
@@ -56,7 +56,7 @@ function removeOccupant!(house::House{P}, person::P) where {P}
 end
 
 "Costum print function for agents"
-function Base.show(io::IO, house::House)
+function Base.show(io::IO, house::House{P}) where P
     townName = getHomeTownName(house)
     print("House $(house.id) @ town $(townName) @ $(house.pos[2])")
     length(house.occupants) == 0 ? nothing : print(" occupants: ") 
