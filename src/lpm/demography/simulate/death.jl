@@ -3,8 +3,6 @@ using SomeUtil: date2yearsmonths
 
 using XAgents: Person, isMale, isFemale, alive 
 using XAgents: age
-using LPM.ParamTypes.Loaders: UKPopulationPars
-
 
 export doDeaths!
 
