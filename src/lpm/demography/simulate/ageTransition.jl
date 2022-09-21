@@ -1,8 +1,6 @@
 using Distributions
 
-using XAgents: WorkStatus, status, status!, hasBirthday, age, outOfTownStudent!, agestep!
-using XAgents: setEmptyJobSchedule!, wage!, pension!, isInMaternity, maternityDuration
-using XAgents: stepMaternity!, endMaternity!, workingPeriods
+using XAgents
 
 export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition!
 

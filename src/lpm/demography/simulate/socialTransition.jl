@@ -14,7 +14,7 @@ end
 
 
 # class sensitive versions
-# TODO 
+# TODO? 
 # * move to separate, optional module
 # * replace with non-class version here
 initialIncomeLevel(person, pars) = pars.incomeInitialLevels[classRank(person)+1]
@@ -39,6 +39,8 @@ function incomeDist(person, pars)
 end
 
 # TODO dummy, replace
+# or, possibly remove altogether and calibrate model 
+# properly instead
 socialClassShares(model, class) = 0.2
 
 function studyClassFactor(person, model, pars)
@@ -122,6 +124,7 @@ function resetWork!(person, pars)
     workingHours!(person, 0)
     income!(person, 0)
     jobTenure!(person, 0)
+    # TODO
     # monthHired
     # jobShift
     setEmptyJobSchedule!(person)

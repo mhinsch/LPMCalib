@@ -8,6 +8,7 @@ using Utilities: Gender, unknown, female, male
 using XAgents: Person, Town
 using XAgents: undefinedHouse, setAsPartners!
 
+export createUKTowns, createUKPopulation
 ### 
 
 function createUKTowns(pars) 

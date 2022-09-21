@@ -4,10 +4,10 @@ Main simulation of the lone parent model
 under construction 
 
 Run this script from shell as 
-# julia MainMALPM.jl
+# julia Main.jl
 
 from REPL execute it using 
-> include("MainMALPM.jl")
+> include("Main.jl")
 """
 
 using CSV
@@ -20,20 +20,16 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 
-using LPM.ParamTypes.Loaders:    loadUKDemographyPars
-using LPM.ParamTypes: SimulationPars
+using LPM.ParamTypes
+using LPM.ParamTypes.Loaders
 
-using XAgents: Person, Town, PersonHouse, alive
+using XAgents
 
-using LPM.Demography.Create:     createUKTowns, createUKPopulation
-using LPM.Demography.Initialize: initializeHousesInTowns,
-                                  assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!, doBirths!
-using LPM.Demography.Simulate: selectAgeTransition, ageTransition!
-using LPM.Demography.Simulate: selectWorkTransition, workTransition!
-using LPM.Demography.Simulate: selectSocialTransition, socialTransition!
+using LPM.Demography.Create
+using LPM.Demography.Initialize
+using LPM.Demography.Simulate
 
-using Utilities: applyTransition!
+using Utilities
 
 mutable struct Model
     towns :: Vector{Town}
