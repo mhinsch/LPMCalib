@@ -7,10 +7,10 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 export Person
 export PersonHouse, undefinedHouse
-export setHouse!, resetHouse!, resolvePartnership!, setDead!
+export setHouse!, resetHouse!, setDead!
 
-export getHomeTown, getHomeTownName, agestepAlive!, setDead!
-export setAsParentChild!, setAsPartners!, setParent!
+export getHomeTown, getHomeTownName, agestepAlive!
+export setAsParentChild!, setAsPartners!, setParent!, resolvePartnership!
 export hasAliveChild, ageYoungestAliveChild
 
 
