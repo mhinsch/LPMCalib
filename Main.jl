@@ -28,7 +28,9 @@ using XAgents: Person, Town, PersonHouse, alive
 using LPM.Demography.Create:     createUKTowns, createUKPopulation
 using LPM.Demography.Initialize: initializeHousesInTowns,
                                   assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!
+using LPM.Demography.Simulate: doDeaths!, doBirths!
+using LPM.Demography.Simulate: selectAgeTransition, ageTransition!
+using LPM.Demography.Simulate: selectWorkTransition, workTransition!
 using LPM.Demography.Simulate: selectSocialTransition, socialTransition!
 
 using Utilities: applyTransition!
@@ -92,7 +94,13 @@ function run!(model, simPars, pars)
                   parameters = pars.birthpars, data = model, currstep = time, 
                  verbose = simPars.verbose, checkassumption = simPars.checkassumption)
 
-        #doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
+        selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
+        applyTransition!(selected, ageTransition!, time, model, pars.workpars, 
+                         "age", simPars.verbose)
+
+        selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
+        applyTransition!(selected, workTransition!, time, model, pars.workpars, 
+                         "work", simPars.verbose)
 
         selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
         applyTransition!(selected, socialTransition!, time, model, pars.workpars, 

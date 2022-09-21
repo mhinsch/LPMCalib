@@ -4,66 +4,59 @@ using XAgents: WorkStatus, status, status!, hasBirthday, age, outOfTownStudent!,
 using XAgents: setEmptyJobSchedule!, wage!, pension!, isInMaternity, maternityDuration
 using XAgents: stepMaternity!, endMaternity!, workingPeriods
 
-function doAgeTransitions!(people, step, pars)
-    
-    (year,month) = date2yearsmonths(step)
-    month += 1 # adjusting 0:11 => 1:12 
+export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition!
 
-    for person in people
 
-        @assert alive(person)
+selectAgeTransition(person, pars) = alive(person)
 
-        if isInMaternity(person)
-            # count maternity months
-            stepMaternity!(person)
+function ageTransition!(person, time, model, pars, verbose)
+    if isInMaternity(person)
+        # count maternity months
+        stepMaternity!(person)
 
-            # end of maternity leave
-            if maternityDuration(person) >= pars.maternityLeaveDuration
-                endMaternity!(person)
-            end
+        # end of maternity leave
+        if maternityDuration(person) >= pars.maternityLeaveDuration
+            endMaternity!(person)
         end
-
-        agestep!(person)
+    end
 
         # TODO part of location module, TBD
         #if hasBirthday(person, month)
         #    person.movedThisYear = false
         #    person.yearInTown += 1
         #end
-    end # person in people
+    agestep!(person)
+end
 
-    # only process those not retired and born in the current month
-    relevant = Iterators.filter(people) do p
-        status(p) != WorkStatus.retired && hasBirthday(p)
+selectWorkTransition(person, pars) = 
+    status(person) != WorkStatus.retired && hasBirthday(person)
+
+
+function workTransition!(person, time, model, pars, verbose)
+    if age(person) == pars.ageTeenagers
+        status!(person, WorkStatus.teenager)
+        return
     end
 
-    for person in relevant
-        if age(person) == pars.ageTeenagers
-            status!(person, WorkStatus.teenager)
-            continue
+    if age(person) == pars.ageOfAdulthood
+        status!(person, WorkStatus.student)
+        #class!(person, 0)
+
+        if rand() < pars.probOutOfTownStudent
+            outOfTownStudent!(person, true)
         end
 
-        if age(person) == pars.ageOfAdulthood
-            status!(person, WorkStatus.student)
-            #class!(person, 0)
+        return
+    end
 
-            if rand() < pars.probOutOfTownStudent
-                outOfTownStudent!(person, true)
-            end
+    if age(person) == pars.ageOfRetirement
+        status!(person, WorkStatus.retired)
+        setEmptyJobSchedule!(person)
+        wage!(person, 0)
 
-            continue
-        end
+        shareWorkingTime = workingPeriods(person) / pars.minContributionPeriods
 
-        if age(person) == pars.ageOfRetirement
-            status!(person, WorkStatus.retired)
-            setEmptyJobSchedule!(person)
-            wage!(person, 0)
-
-            shareWorkingTime = workingPeriods(person) / pars.minContributionPeriods
-
-            dK = rand(Normal(0, pars.wageVar))
-            pension!(person, shareWorkingTime * exp(dK))
-        end
-    end # for person in non-retired
-
+        dK = rand(Normal(0, pars.wageVar))
+        pension!(person, shareWorkingTime * exp(dK))
+    end
 end
