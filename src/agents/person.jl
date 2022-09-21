@@ -211,7 +211,7 @@ function hasAliveChild(person::KinshipBlock)
 end
 
 function ageYoungestAliveChild(person::Person) 
-    youngest = Rational(Inf)  
+    youngest = Rational{Int}(Inf)  
     for child in children(person) 
         if alive(child) 
             youngest = min(youngest,age(child))
