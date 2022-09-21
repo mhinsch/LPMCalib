@@ -141,7 +141,7 @@ end
 end
     
 
-mutable struct UKDemographyPars 
+struct UKDemographyPars 
     mappars::UKMapPars
     poppars::UKPopulationPars
     birthpars::UKBirthPars
