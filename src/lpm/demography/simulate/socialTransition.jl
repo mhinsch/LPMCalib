@@ -1,9 +1,16 @@
 using Distributions: Normal, LogNormal
 
-export doSocialTransitions!
+export socialTransition!, selectSocialTransition
 
 using XAgents: classRank, father, mother, householdIncomePerCapita, newEntrant!, jobTenure!
 using XAgents: initialIncome!, finalIncome!
+
+
+function selectSocialTransition(p, pars)
+    alive(p) && hasBirthday(p) && 
+    age(p) == workingAge(p, pars) &&
+    status(p) == WorkStatus.student
+end
 
 
 # class sensitive versions
@@ -56,35 +63,19 @@ doneStudying(person, pars) = classRank(person) >= 4
 function addToWorkforce!(person, model)
 end
 
-
 # move newly adult agents into study or work
-function doSocialTransitions!(people, time, model, pars, verbose=true)
-    (year,month) = date2yearsmonths(time)
-    month += 1 # adjusting 0:11 => 1:12 
+function socialTransition!(person, time, model, pars, verbose)
+    probStudy = doneStudying(person, pars)  ?  
+        0.0 : startStudyProb(person, model, pars)
 
-    # newly adult people
-    newAdults = Iterators.filter(people) do p
-        hasBirthday(p) && 
-        age(p) == workingAge(p, pars) &&
-        status(p) == WorkStatus.student
-    end
-
-    if verbose
-        println(count(x->true, newAdults), " new adults")
-    end
-
-    for person in newAdults
-        probStudy = doneStudying(person, pars)  ?  
-            0.0 : startStudyProb(person, model, pars)
-
-        if rand() < probStudy
-            startStudying!(person, pars)
-        else
-            startWorking!(person, pars)
-            addToWorkforce!(person, model)
-        end
+    if rand() < probStudy
+        startStudying!(person, pars)
+    else
+        startWorking!(person, pars)
+        addToWorkforce!(person, model)
     end
 end
+
 
 # probability to start studying instead of working
 function startStudyProb(person, model, pars)

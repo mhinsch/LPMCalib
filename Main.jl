@@ -28,14 +28,17 @@ using XAgents: Person, Town, PersonHouse, alive
 using LPM.Demography.Create:     createUKTowns, createUKPopulation
 using LPM.Demography.Initialize: initializeHousesInTowns,
                                   assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!, doSocialTransitions!
+using LPM.Demography.Simulate: doDeaths!, doBirths!, doAgeTransitions!
+using LPM.Demography.Simulate: selectSocialTransition, socialTransition!
+
+using Utilities: applyTransition!
 
 mutable struct Model
     towns :: Vector{Town}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
 
-    fert :: Matrix{Float64}
+    fertility :: Matrix{Float64}
     death_female :: Matrix{Float64}
     death_male :: Matrix{Float64}
 end
@@ -75,20 +78,25 @@ end
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
+    simPars.verbose = false
+
     while time < simPars.finishTime
         
+        # TODO remove dead people?
         doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
                   parameters = pars.poppars, data = model, currstep = time, 
                   verbose = simPars.verbose, 
                   checkassumption = simPars.checkassumption)
 
         babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-                  parameters = pars.birthpars, data = model, currstep = time)
+                  parameters = pars.birthpars, data = model, currstep = time, 
+                 verbose = simPars.verbose, checkassumption = simPars.checkassumption)
 
-        doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
+        #doAgeTransitions!(Iterators.filter(a->alive(a), model.pop), time, pars.workpars)
 
-        doSocialTransitions!(Iterators.filter(a->alive(a), model.pop), time, model, 
-                             pars.workpars)
+        selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
+        applyTransition!(selected, socialTransition!, time, model, pars.workpars, 
+                         "social", simPars.verbose)
 
         append!(model.pop, babies)
 
