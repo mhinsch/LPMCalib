@@ -57,7 +57,7 @@ end
 
 # Declaration of a simulation 
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  #example=LPMUKDemography())
+                                  # example=LPMUKDemography())
                                   example=LPMUKDemographyOpt())
 
 

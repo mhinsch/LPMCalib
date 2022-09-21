@@ -22,7 +22,8 @@ export doDeaths!,doBirths!
 alivePeople(population::ABM{Person},example::LPMUKDemography) = allagents(population)
 
 alivePeople(population::ABM{Person},example::LPMUKDemographyOpt) = 
-                Iterators.filter(person->alive(person),allagents(population))
+               # Iterators.filter(person->alive(person),allagents(population))
+                [ person for person in allagents(population)  if alive(person) ]
 
 function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
 
@@ -49,7 +50,7 @@ end # function doDeaths!
 function doBirths!(population::ABM{Person}) 
 
     newbabies = LPM.Demography.Simulate.doBirths!(
-                        people = allagents(population),
+                        people = alivePeople(population,population.properties.example),
                         parameters =  population.parameters.birthpars,
                         data = population.data,
                         currstep = population.properties.currstep,
