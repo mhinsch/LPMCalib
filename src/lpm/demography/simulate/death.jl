@@ -8,7 +8,7 @@ using LPM.ParamTypes.Loaders: UKPopulationPars
 
 export doDeaths!
 
-function deathProbability(baseRate::Float64,person::Person,parameters::UKPopulationPars)::Float64 
+function deathProbability(baseRate::Float64,person,parameters) 
     #=
         Not realized yet  / to be realized in another module? 
         classRank = person.classRank
@@ -62,7 +62,7 @@ function deathProbability(baseRate::Float64,person::Person,parameters::UKPopulat
     deathProb 
 end # function deathProb
 
-function personSubjectToDeath!(person::Person,parameters,data,currstep,
+function personSubjectToDeath!(person,parameters,data,currstep,
                                ;verbose,sleeptime,checkassumption)
 
     (curryear,currmonth) = date2yearsmonths(Rational{Int}(currstep))
