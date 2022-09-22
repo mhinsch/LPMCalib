@@ -33,7 +33,7 @@ function createUKDemography(pars)
     ukTowns  = ABM{Town}(pars.mappars,
                         declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
-    ukHouses = ABM{PersonHouse}() # (declare = dict::Dict{Symbol} -> House[])              
+    ukHouses = ABM{PersonHouse}() # (declare = nothing -> House[])              
 
     # Consider an argument for data 
     ukPopulation = ABM{Person}(pars, declare=createUKPopulationDash)
