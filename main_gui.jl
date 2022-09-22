@@ -1,6 +1,13 @@
 using Raylib
 using Raylib: rayvector
 
+# make this less annoying
+const RL = Raylib
+
+include("mainHelpers.jl")
+
+include("src/RayGUI/render.jl")
+
 
 const screenWidth = 1600
 const screenHeight = 900
@@ -9,37 +16,40 @@ function main()
     framesCounter = 0
     pause = false
 
-    Raylib.InitWindow(screenWidth, screenHeight, "this is a test")
+    # need to do that first, otherwise it blocks the GUI
+    model, simPars, pars = setupModel()
 
-    Raylib.SetTargetFPS(30)
 
-    camera = Raylib.RayCamera2D(
+    RL.InitWindow(screenWidth, screenHeight, "this is a test")
+
+    RL.SetTargetFPS(30)
+
+    camera = RL.RayCamera2D(
         rayvector(screenWidth/2, screenHeight/2),
         rayvector(500, 500),
         0,
         1
     )
 
-    while !Raylib.WindowShouldClose()
 
-        Raylib.BeginDrawing()
+    while !RL.WindowShouldClose()
 
-        Raylib.ClearBackground(Raylib.LIGHTGRAY)
-        
-        Raylib.BeginMode2D(camera)
-        
-        rect = Raylib.RayRectangle(500, 500, 100, 100)
-        
-        Raylib.DrawRectangleRec(rect, Raylib.RED)
-        
-        Raylib.EndMode2D()
+        RL.BeginDrawing()
 
-        Raylib.DrawText("Bla Bla", 20, 20, 10, Raylib.BLACK)
+        RL.ClearBackground(RL.LIGHTGRAY)
+        
+        RL.BeginMode2D(camera)
+        
+        drawModel(model, (0, 0), (50, 50), (2, 2))
+        
+        RL.EndMode2D()
 
-        Raylib.EndDrawing()
+        RL.DrawText("Bla Bla", 20, 20, 10, RL.BLACK)
+
+        RL.EndDrawing()
     end
 
-    Raylib.CloseWindow()
+    RL.CloseWindow()
 end
 
 main()

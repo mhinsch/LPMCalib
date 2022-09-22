@@ -127,4 +127,3 @@ function setupModel()
 end
 
 
-@time run!(setupModel()...)
