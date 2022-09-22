@@ -2,8 +2,7 @@ using Distributions: Normal, LogNormal
 
 export socialTransition!, selectSocialTransition
 
-using XAgents: classRank, father, mother, householdIncomePerCapita, newEntrant!, jobTenure!
-using XAgents: initialIncome!, finalIncome!
+using XAgents 
 
 
 function selectSocialTransition(p, pars)
