@@ -1,8 +1,9 @@
 module Create
 
 using XAgents: Town, PersonHouse, Person 
-using MultiAgents: ABM, attach2DData!
+using MultiAgents: ABM
 
+using LPM.ParamTypes.Loaders: loadUKDemographyData
 using LPM.Demography.Create: createUKTowns, createUKPopulation
 
 import SomeUtil: AbstractExample
@@ -27,20 +28,14 @@ createUKPopulationDash(pars) = createUKPopulation(pars.poppars)
 "create UK demography"
 function createUKDemography(pars) 
      
-    println(fieldnames(typeof(pars)))
-    
-
     ukTowns  = ABM{Town}(pars.mappars,
                         declare=createUKTowns) # TODO delevir only the requird properties and substract them 
     
-    ukHouses = ABM{PersonHouse}() # (declare = nothing -> House[])              
+    ukHouses = ABM{PersonHouse}()              
 
+    ukDemographyData = loadUKDemographyData()
     # Consider an argument for data 
-    ukPopulation = ABM{Person}(pars, declare=createUKPopulationDash)
-
-    attach2DData!(ukPopulation,:fertility,"data/babyrate.txt.csv")
-    attach2DData!(ukPopulation,:death_female,"data/deathrate.fem.csv")
-    attach2DData!(ukPopulation,:death_male,"data/deathrate.male.csv")
+    ukPopulation = ABM{Person}(pars, ukDemographyData, declare=createUKPopulationDash)
 
     [ukTowns,ukHouses,ukPopulation]
 end 

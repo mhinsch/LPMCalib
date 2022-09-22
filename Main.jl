@@ -10,9 +10,6 @@ from REPL execute it using
 > include("MainMALPM.jl")
 """
 
-using CSV
-using Tables
-
 include("./loadLibsPath.jl")
 
 if !occursin("src/generic",LOAD_PATH)
@@ -20,7 +17,7 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 
-using LPM.ParamTypes.Loaders:    loadUKDemographyPars
+using LPM.ParamTypes.Loaders:    loadUKDemographyPars, loadUKDemographyData
 using LPM.ParamTypes: SimulationPars
 
 using XAgents: Person, Town, PersonHouse, alive, agestep!
@@ -35,7 +32,7 @@ mutable struct Model
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
 
-    fert :: Matrix{Float64}
+    fertility  :: Matrix{Float64}
     death_female :: Matrix{Float64}
     death_male :: Matrix{Float64}
 end
@@ -48,11 +45,12 @@ function createUKDemography!(pars)
 
     ukPopulation = createUKPopulation(pars.poppars)
 
-    fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
-    death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix
-    death_male = CSV.File("data/deathrate.male.csv",header=0) |> Tables.matrix
+    demogData = loadUKDemographyData()
+    (fertility,death_female,death_male) = (demogData.fertility,
+                                      demogData.death_female,
+                                      demogData.death_male)
 
-    Model(ukTowns, ukHouses, ukPopulation, fert, death_female, death_male)
+    Model(ukTowns, ukHouses, ukPopulation, fertility, death_female, death_male)
 end
 
 

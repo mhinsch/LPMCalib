@@ -1,8 +1,11 @@
 module Loaders 
 
+using CSV
+using Tables
+
 using  Parameters
 export UKMapPars, UKPopulationPars, UKDemographyPars
-export loadUKDemographyPars
+export loadUKDemographyPars, loadUKDemographyData
 
 @with_kw mutable struct UKMapPars 
     mapDensityModifier::Float64 = 0.6   # for allocating houses in towns 
@@ -138,6 +141,12 @@ function loadUKDemographyPars()
     UKDemographyPars(ukmapPars,ukpopPars,ukbirthPars)
 end 
 
+function loadUKDemographyData() 
+    fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
+    death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix
+    death_male = CSV.File("data/deathrate.male.csv",header=0) |> Tables.matrix
 
+    (fertility=fert,death_female=death_female,death_male=death_male)
+end
 
 end # Loaders 
