@@ -104,8 +104,8 @@ Person(;pos=undefinedHouse,age=0,
                    KinshipBlock(father,mother,partner,children))
 
 
-const PersonHouse = House{Person}
-const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
+const PersonHouse = House{Person, Town}
+const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
 "home town of a person"
 getHomeTown(person::Person) = getHomeTown(person.pos) 
