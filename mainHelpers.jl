@@ -4,10 +4,10 @@ Main simulation of the lone parent model
 under construction 
 
 Run this script from shell as 
-# julia MainMALPM.jl
+# julia Main.jl
 
 from REPL execute it using 
-> include("MainMALPM.jl")
+> include("Main.jl")
 """
 
 using CSV
@@ -20,22 +20,23 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 
-using LPM.ParamTypes.Loaders:    loadUKDemographyPars
-using LPM.ParamTypes: SimulationPars
+using LPM.ParamTypes
+using LPM.ParamTypes.Loaders
 
-using XAgents: Person, Town, PersonHouse, alive, agestep!
+using XAgents
 
-using LPM.Demography.Create:     createUKTowns, createUKPopulation
-using LPM.Demography.Initialize: initializeHousesInTowns,
-                                  assignCouplesToHouses!
-using LPM.Demography.Simulate: doDeaths!
+using LPM.Demography.Create
+using LPM.Demography.Initialize
+using LPM.Demography.Simulate
+
+using Utilities
 
 mutable struct Model
     towns :: Vector{Town}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
 
-    fert :: Matrix{Float64}
+    fertility :: Matrix{Float64}
     death_female :: Matrix{Float64}
     death_male :: Matrix{Float64}
 end
@@ -84,19 +85,39 @@ end
 
 
 function step!(model, time, simPars, pars)
+    # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars, data = model, currstep = time, 
+              parameters = pars.poppars, data = model, currstep = time, 
               verbose = simPars.verbose, 
               checkassumption = simPars.checkassumption)
 
-    populationStep!(model.pop, simPars, pars)
+    babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
+              parameters = pars.birthpars, data = model, currstep = time, 
+             verbose = simPars.verbose, checkassumption = simPars.checkassumption)
+
+    selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
+    applyTransition!(selected, ageTransition!, time, model, pars.workpars, 
+                     "age", simPars.verbose)
+
+    selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
+    applyTransition!(selected, workTransition!, time, model, pars.workpars, 
+                     "work", simPars.verbose)
+
+    selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
+    applyTransition!(selected, socialTransition!, time, model, pars.workpars, 
+                     "social", simPars.verbose)
+
+    append!(model.pop, babies)
 end
 
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
+    simPars.verbose = false
+
     while time < simPars.finishTime
         step!(model, time, simPars, pars)     
+
         time += simPars.dt
     end
 end
@@ -125,5 +146,4 @@ function setupModel()
 
     model, simPars, pars
 end
-
 
