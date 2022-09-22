@@ -63,7 +63,7 @@ end # function deathProb
 function personSubjectToDeath!(person,parameters,data,currstep,
                                ;verbose,sleeptime,checkassumption)
 
-    (curryear,currmonth) = date2yearsmonths(Rational{Int}(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
 
     agep = age(person)             

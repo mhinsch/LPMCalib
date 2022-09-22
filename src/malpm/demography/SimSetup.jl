@@ -38,7 +38,7 @@ function loadSimulationParameters()
         :dt=>simpars.dt,
         :seed=> simpars.seed,
         :stepnumber=> 0,
-        :currstep=> simpars.startTime,
+        :currstep=> Rational{Int}(simpars.startTime),
         :verbose=> simpars.verbose,
         :sleeptime=> simpars.sleeptime,
         :checkassumption=> simpars.checkassumption)
