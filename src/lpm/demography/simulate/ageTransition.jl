@@ -27,7 +27,7 @@ function ageTransition!(person, time, model, pars, verbose)
 end
 
 selectWorkTransition(person, pars) = 
-    status(person) != WorkStatus.retired && hasBirthday(person)
+    alive(person) && status(person) != WorkStatus.retired && hasBirthday(person)
 
 
 function workTransition!(person, time, model, pars, verbose)

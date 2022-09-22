@@ -53,7 +53,7 @@ function applyTransition!(people, transition, time, model, pars, name = "", verb
     end
 
     if verbose && name != ""
-        println(count, " agents in ", name)
+        println(count, " agents processed in ", name)
     end
 end
 
