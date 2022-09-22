@@ -11,7 +11,7 @@ export doBirths!
 
 function computeBirthProb(rWoman,parameters,data,currstep)::Float64
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
     #=
@@ -49,7 +49,7 @@ end # computeBirthProb
 function womanSubjectToBirth!(woman,parameters,data,currstep; 
                                 verbose,sleeptime,checkassumption)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1   # adjusting 0:11 => 1:12 
                             
     # womanClassRank = woman.classRank
@@ -205,7 +205,7 @@ function doBirths!(;people,parameters,data,currstep,
 
     if verbose
 
-        (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+        (curryear,currmonth) = date2yearsmonths(currstep)
         currmonth += 1   # adjusting 0:11 => 1:12 
                                 
         # TODO this generic print msg to be placed in a top function 
