@@ -78,6 +78,8 @@ end # struct Person
 # delegate functions to components
 # and export accessors
 
+@delegate_onefield Person pos [getHomeTown, getHomeTownName]
+
 @export_forward Person info [age, gender, alive]
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
@@ -136,13 +138,6 @@ Person(;pos=undefinedHouse,age=0,
 const PersonHouse = House{Person}
 const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
 
-"home town of a person"
-getHomeTown(person::Person) = getHomeTown(person.pos) 
-
-"home town name of a person" 
-function getHomeTownName(person::Person) 
-    getHomeTown(person).name 
-end
 
 "associate a house to a person"
 function setHouse!(person::Person,house)
