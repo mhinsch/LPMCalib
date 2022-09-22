@@ -109,7 +109,7 @@ end # UKMapPars
     femaleAgeDieProb::Float64       = 0.00019   
     femaleAgeScaling::Float64       = 15.5 
     femaleMortalityBias::Float64    = 0.85  
-    initialPop::Int                 = 50    # Number of females or males  in the initial population
+    initialPop::Int                 = 500    # Number of females or males  in the initial population
     maleAgeDieProb::Float64         = 0.00021 
     maleAgeScaling::Float64         = 14.0 
     maleMortalityBias::Float64      = 0.8 
