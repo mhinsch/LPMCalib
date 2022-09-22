@@ -83,42 +83,48 @@ function populationStep!(pop, simPars, pars)
 end
 
 
+function step!(model, time, simPars, pars)
+    doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
+              parameters = pars, data = model, currstep = time, 
+              verbose = simPars.verbose, 
+              checkassumption = simPars.checkassumption)
+
+    populationStep!(model.pop, simPars, pars)
+end
+
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
     while time < simPars.finishTime
-        
-        doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-                  parameters = pars, data = model, currstep = time, 
-                  verbose = simPars.verbose, 
-                  checkassumption = simPars.checkassumption)
-
-        populationStep!(model.pop, simPars, pars)
-
+        step!(model, time, simPars, pars)     
         time += simPars.dt
     end
 end
 
-const simPars = SimulationPars(false)
+function setupModel()
 
-const pars = loadUKDemographyPars() 
+    simPars = SimulationPars(false)
 
-const model = createUKDemography!(pars)
+    pars = loadUKDemographyPars() 
 
-initializeDemography!(model.towns, model.houses, model.pop, pars.mappars)
+    model = createUKDemography!(pars)
 
-@show "Town Samples: \n"     
-@show model.towns[1:10]
-println(); println(); 
-                        
-@show "Houses samples: \n"      
-@show model.houses[1:10]
-println(); println(); 
-                        
-@show "population samples : \n" 
-@show model.pop[1:10]
-println(); println(); 
+    initializeDemography!(model.towns, model.houses, model.pop, pars.mappars)
 
-# Execution 
+    @show "Town Samples: \n"     
+    @show model.towns[1:10]
+    println(); println(); 
+                            
+    @show "Houses samples: \n"      
+    @show model.houses[1:10]
+    println(); println(); 
+                            
+    @show "population samples : \n" 
+    @show model.pop[1:10]
+    println(); println(); 
 
-@time run!(model, simPars, pars.poppars)
+    model, simPars, pars
+end
+
+
+@time run!(setupModel()...)
