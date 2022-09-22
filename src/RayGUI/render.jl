@@ -11,8 +11,8 @@ function drawModel(model, offset, townSize, houseSize)
         h_offset = t_offset[1] + (house.pos[1]-1) * houseSize[1],
             t_offset[2] + (house.pos[2]-1) * houseSize[2]
         
-        
-        RL.DrawRectangleRec(RL.RayRectangle(h_offset..., houseSize...), RL.RED)
+        col = isempty(house.occupants) ? RL.BLACK : RL.RED
+        RL.DrawRectangleRec(RL.RayRectangle(h_offset..., houseSize...), col)
     end
 
     for town in model.towns

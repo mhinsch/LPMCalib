@@ -13,9 +13,6 @@ const screenWidth = 1600
 const screenHeight = 900
 
 function main()
-    framesCounter = 0
-    pause = false
-
     # need to do that first, otherwise it blocks the GUI
     model, simPars, pars = setupModel()
 
@@ -32,7 +29,14 @@ function main()
     )
 
 
+    pause = false
+    time = Rational(simPars.startTime)
     while !RL.WindowShouldClose()
+
+        if !pause && time <= simPars.finishTime
+            step!(model, time, simPars, pars)
+            time += simPars.dt
+        end
 
         RL.BeginDrawing()
 
@@ -44,7 +48,7 @@ function main()
         
         RL.EndMode2D()
 
-        RL.DrawText("Bla Bla", 20, 20, 10, RL.BLACK)
+        RL.DrawText("$(Float64(time))", 20, 20, 20, RL.BLACK)
 
         RL.EndDrawing()
     end
