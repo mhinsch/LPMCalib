@@ -28,7 +28,7 @@ using MultiAgents: MABMSimulation
 using MultiAgents: run! 
 
 initMultiAgents()                 # reset agents counter
-@assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
+@assert MAVERSION == v"0.2.3"   # ensure MultiAgents.jl latest update 
 
 const simProperties = loadSimulationParameters()
 
