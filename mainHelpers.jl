@@ -67,9 +67,16 @@ function initialConnectP!(pop, houses, pars)
 end
 
 
-function initializeDemography!(towns, houses, pop, pars)
-    initialConnectH!(houses, towns, pars)
-    initialConnectP!(pop, houses, pars)
+function initializeDemography!(model, poppars, workpars, mappars)
+    initialConnectH!(model.houses, model.towns, mappars)
+    initialConnectP!(model.pop, model.houses, mappars)
+
+    for person in model.pop
+        initClass!(person, poppars)
+        initWork!(person, workpars)
+    end
+
+    nothing
 end
 
 
@@ -130,7 +137,7 @@ function setupModel()
 
     model = createUKDemography!(pars)
 
-    initializeDemography!(model.towns, model.houses, model.pop, pars.mappars)
+    initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
 
     @show "Town Samples: \n"     
     @show model.towns[1:10]

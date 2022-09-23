@@ -91,7 +91,7 @@ function startStudyProb(person, model, pars)
         return 0.0
     end
 
-    forgoneSalary = initialIncomeLevels(person, pars) * 
+    forgoneSalary = initialIncomeLevel(person, pars) * 
         pars.weeklyHours[careNeedLevel(person)+1]
     relCost = forgoneSalary / perCapitaDisposableIncome
     incomeEffect = (pars.constantIncomeParam+1) / 
