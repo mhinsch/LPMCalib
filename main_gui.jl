@@ -14,7 +14,8 @@ const screenHeight = 900
 
 function main()
     # need to do that first, otherwise it blocks the GUI
-    model, simPars, pars = setupModel()
+    simPars, pars = getParameters()
+    model = setupModel(pars)
 
 
     RL.InitWindow(screenWidth, screenHeight, "this is a test")

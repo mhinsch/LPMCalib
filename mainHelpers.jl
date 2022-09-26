@@ -117,6 +117,7 @@ function step!(model, time, simPars, pars)
     append!(model.pop, babies)
 end
 
+
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
@@ -129,12 +130,17 @@ function run!(model, simPars, pars)
     end
 end
 
-function setupModel()
 
+function getParameters()
     simPars = SimulationPars(false)
 
     pars = loadUKDemographyPars() 
 
+    simPars, pars
+end
+
+
+function setupModel(pars)
     model = createUKDemography!(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
@@ -151,6 +157,6 @@ function setupModel()
     @show model.pop[1:10]
     println(); println(); 
 
-    model, simPars, pars
+    model, pars
 end
 

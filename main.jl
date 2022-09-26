@@ -1,4 +1,7 @@
 include("mainHelpers.jl")
 
+const simPars, pars = getParameters()
 
-@time run!(setupModel()...)
+const model = setupModel(pars)
+
+@time run!(model, simPars, pars)
