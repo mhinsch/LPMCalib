@@ -157,6 +157,6 @@ function setupModel(pars)
     @show model.pop[1:10]
     println(); println(); 
 
-    model, pars
+    model
 end
 

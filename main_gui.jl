@@ -8,6 +8,8 @@ include("mainHelpers.jl")
 
 include("src/RayGUI/render.jl")
 
+include("src/RayGUI/SimpleGraph.jl")
+using .SimpleGraph
 
 const screenWidth = 1600
 const screenHeight = 900
@@ -29,6 +31,7 @@ function main()
         1
     )
 
+    graph = Graph{Float64}(RL.BLUE)
 
     pause = false
     time = Rational(simPars.startTime)
@@ -37,6 +40,7 @@ function main()
         if !pause && time <= simPars.finishTime
             step!(model, time, simPars, pars)
             time += simPars.dt
+            add_value!(graph, rand())
         end
 
         RL.BeginDrawing()
@@ -46,6 +50,7 @@ function main()
         RL.BeginMode2D(camera)
         
         drawModel(model, (0, 0), (50, 50), (2, 2))
+        draw_graph(1000, 0, 600, 900, [graph])
         
         RL.EndMode2D()
 
