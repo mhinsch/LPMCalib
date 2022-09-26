@@ -131,6 +131,48 @@ function run!(model, simPars, pars)
 end
 
 
+function create_params(argv, par_type)
+	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
+
+	@add_arg_table! arg_settings begin
+		"--stop-time", "-t"
+			help = "at which time to stop the simulation" 
+			arg_type = Float64
+			default = 50.0
+		"--par-out-file"
+			help = "file name for parameter output"
+			default = "params_used.jl"
+		"--city-out-file"
+			help = "file name for city data output"
+			default = "cities.txt"
+		"--link-out-file"
+			help = "file name for link data output"
+			default = "links.txt"
+		"--log-file", "-l"
+			help = "file name for log"
+			default = "log.txt"
+		"--map", "-m"
+			help = "load map in JSON format"
+			default = ""
+		"--scenario", "-s"
+			help = "load custom scenario code"
+			nargs = 2
+			action = :append_arg
+		"--scenario-dir"
+			help = "directory to search for scenarios"
+			default = ""
+	end
+
+	add_arg_group!(arg_settings, "simulation parameters")
+	fields_as_args!(arg_settings, par_type)
+
+	args = parse_args(argv, arg_settings, as_symbols=true)
+	p = @create_from_args(args, par_type)
+
+	args, p
+end
+
+
 function getParameters()
     simPars = SimulationPars(false)
 
