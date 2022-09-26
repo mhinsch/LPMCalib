@@ -1,6 +1,6 @@
 module StatsAccumulator
 
-export CountAcc, MeanVarAcc, MeanVarAcc2, add!, results, result_type, MaxMinAcc, AccList
+export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, AccList
 
 
 
@@ -40,7 +40,7 @@ end
 
 
 results(acc :: MeanVarAcc{T}) where {T} = 
-	(mean : acc.sum / acc.n, var : (acc.sum_sq - acc.sum*acc.sum/acc.n) / (acc.n - 1))
+	(mean = acc.sum / acc.n, var = (acc.sum_sq - acc.sum*acc.sum/acc.n) / (acc.n - 1))
 
 result_type(::Type{MeanVarAcc{T}}) where {T} = @NamedTuple{mean::T, var::T}
 	
