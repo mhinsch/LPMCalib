@@ -11,4 +11,7 @@ end
 # Temporary solution 
 !occursin("MultiAgents.jl",LOAD_PATH) ? push!(LOAD_PATH, "../MultiAgents.jl") : nothing 
 !occursin("SomeUtil.jl",LOAD_PATH) ? push!(LOAD_PATH, "../SomeUtil.jl") : nothing 
-!occursin("LoneParentsModel.jl",LOAD_PATH) ? push!(LOAD_PATH, "../LoneParentsModel.jl/src") : nothing 
+if !occursin("LoneParentsModel.jl",LOAD_PATH)
+    push!(LOAD_PATH, "../LoneParentsModel.jl")
+    push!(LOAD_PATH, "../LoneParentsModel.jl/src")
+end
