@@ -11,16 +11,9 @@ using XAgents: availableWorkingHours!, setFullWeeklyTime!
 
 export doBirths!
 
-function computeBirthProb(rWoman,parameters,data,currstep;
-                          verbose,sleeptime,checkassumption)
+function computeBirthProb(rWoman,parameters,data,currstep)
 
-    if checkassumption 
-        @assert isFemale(rWoman) && 
-        age(rWoman) >= parameters.minPregnancyAge && 
-        age(rWoman) <= parameters.maxPregnancyAge
-    end # checkassumption
-
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
     #=
@@ -79,19 +72,17 @@ end
 function womanSubjectToBirth!(woman,parameters,data,currstep; 
                                 verbose,sleeptime,checkassumption)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1   # adjusting 0:11 => 1:12 
                             
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
-                        
-    birthProb = computeBirthProb(woman, parameters, data, currstep,
-                                verbose = verbose, 
-                                sleeptime = sleeptime, 
-                                checkassumption = checkassumption)
+
+    birthProb = computeBirthProb(woman, parameters, data, currstep)
                         
     if checkassumption
+        @assert isFemale(woman) 
         @assert ageYoungestAliveChild(woman) > 1 
         @assert !isSingle(woman)
         @assert age(woman) >= parameters.minPregnancyAge 
@@ -179,7 +170,7 @@ Class rankes and shares are temporarily ignored.
 """
 
 function doBirths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0,checkassumption=true)
+                    verbose=true,sleeptime=0.0,checkassumption=true)
 
     # TODO Assumptions 
     if checkassumption
@@ -225,7 +216,7 @@ function doBirths!(;people,parameters,data,currstep,
 
     if verbose
 
-        (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+        (curryear,currmonth) = date2yearsmonths(currstep)
         currmonth += 1   # adjusting 0:11 => 1:12 
                                 
         # TODO this generic print msg to be placed in a top function 

@@ -12,8 +12,9 @@ This file is included in the module XAgents
 
 Type House to extend from AbstracXAgent.
 """ 
+
 mutable struct House{P, T} <: AbstractXAgent
-    id	# TODO type?
+    id :: Int
     town :: T
     pos :: HouseLocation     # location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
@@ -55,7 +56,7 @@ function removeOccupant!(house::House{P}, person::P) where {P}
 end
 
 "Costum print function for agents"
-function Base.show(io::IO, house::House)
+function Base.show(io::IO, house::House{P}) where P
     townName = getHomeTownName(house)
     print("House $(house.id) @ town $(townName) @ $(house.pos)")
     length(house.occupants) == 0 ? nothing : print(" occupants: ") 

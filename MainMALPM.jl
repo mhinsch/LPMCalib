@@ -12,11 +12,20 @@ from REPL execute it using
 
 include("./loadLibsPath.jl")
 
+using MultiAgents: initMultiAgents, MAVERSION
+
+initMultiAgents()                 # reset agents counter
+@assert MAVERSION == v"0.2.3"   # ensure MultiAgents.jl latest update 
+
 if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
-using MultiAgents: MultiABM, initMultiAgents, MAVERSION
+if !occursin("multiagents",LOAD_PATH)
+    push!(LOAD_PATH, "src/multiagents") 
+end
+
+using MultiAgents: MultiABM
  
 using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
@@ -27,12 +36,8 @@ using MALPM.Demography.SimSetup:   loadSimulationParameters
 using MultiAgents: MABMSimulation
 using MultiAgents: run! 
 
-initMultiAgents()                 # reset agents counter
-@assert MAVERSION == v"0.2.2"   # ensure MultiAgents.jl latest update 
-
-simProperties = loadSimulationParameters()
-
-ukDemographyPars = loadUKDemographyPars() 
+const simProperties = loadSimulationParameters()
+const ukDemographyPars = loadUKDemographyPars() 
 
 # Declaration and initialization of a MABM for a demography model of UK 
 
@@ -41,22 +46,24 @@ ukDemography = MultiABM(ukDemographyPars,
                         declare=createUKDemography,
                         initialize=initializeDemography!)
 
-@show "Town Samples: \n"     
-@show ukDemography.abms[1].agentsList[1:10]
-println(); println(); 
+if simProperties.verbose
+    @show "Town Samples: \n"     
+    @show ukDemography.abms[1].agentsList[1:10]
+    println(); println(); 
                         
-@show "Houses samples: \n"      
-@show ukDemography.abms[2].agentsList[1:10]
-println(); println(); 
+    @show "Houses samples: \n"      
+    @show ukDemography.abms[2].agentsList[1:10]
+    println(); println(); 
                         
-@show "population samples : \n" 
-@show ukDemography.abms[3].agentsList[1:10]
-println(); println(); 
-
+    @show "population samples : \n" 
+    @show ukDemography.abms[3].agentsList[1:10]
+    println(); println(); 
+end 
 
 # Declaration of a simulation 
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  example=LPMUKDemography())
+                                  # example=LPMUKDemography())
+                                  example=LPMUKDemographyOpt())
 
 
 # Execution 
