@@ -10,9 +10,6 @@ from REPL execute it using
 > include("Main.jl")
 """
 
-using CSV
-using Tables
-
 include("./loadLibsPath.jl")
 
 if !occursin("src/generic",LOAD_PATH)
@@ -49,11 +46,10 @@ function createUKDemography!(pars)
 
     ukPopulation = createUKPopulation(pars.poppars)
 
-    fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
-    death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix
-    death_male = CSV.File("data/deathrate.male.csv",header=0) |> Tables.matrix
+    ukDemoData   = loadUKDemographyData()
 
-    Model(ukTowns, ukHouses, ukPopulation, fert, death_female, death_male)
+    Model(ukTowns, ukHouses, ukPopulation, 
+            ukDemoData.fertility , ukDemoData.death_female, ukDemoData.death_male)
 end
 
 
