@@ -12,33 +12,34 @@ This file is included in the module XAgents
 
 Type House to extend from AbstracXAgent.
 """ 
-mutable struct House{P} <: AbstractXAgent
-    id::Int
-	# TODO make these type parameters?
-    pos::Tuple{Town,HouseLocation}     # town and location in the town    
+
+mutable struct House{P, T} <: AbstractXAgent
+    id :: Int
+    town :: T
+    pos :: HouseLocation     # location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
 
-    House{P}(pos) where {P} = new(getIDCOUNTER(),pos,P[])
+    House{P, T}(town, pos) where {P, T} = new(getIDCOUNTER(),town, pos,P[])
 end # House 
 
-House{P}(town::Town,locationInTown::HouseLocation) where {P} = House{P}((town,locationInTown))
 
-undefined(house::House{P}) where P = house.pos == (undefinedTown,(-1,-1))
+undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)
 
 "town associated with house"
-function getHomeTown(house::House{P}) where P 
-    house.pos[1]
+function getHomeTown(house::House)
+    house.town
 end
 
 "town name associated with house"
-function getHomeTownName(house::House{P}) where P
-    house.pos[1].name
+function getHomeTownName(house::House)
+    house.town.name
 end
 
 "house location in the associated town"
-function getHouseLocation(house::House{P}) where P
-    house.pos[2]
+function getHouseLocation(house::House)
+    house.pos
+>>>>>>> develop
 end 
 
 "add an occupant to a house"
@@ -58,7 +59,7 @@ end
 "Costum print function for agents"
 function Base.show(io::IO, house::House{P}) where P
     townName = getHomeTownName(house)
-    print("House $(house.id) @ town $(townName) @ $(house.pos[2])")
+    print("House $(house.id) @ town $(townName) @ $(house.pos)")
     length(house.occupants) == 0 ? nothing : print(" occupants: ") 
     for person in house.occupants
         print(" $(person.id) ")

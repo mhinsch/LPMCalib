@@ -6,6 +6,8 @@ using XAgents: isFemale, isSingle, hasChildren, alive
 using XAgents: Person
 using XAgents: resetHouse!, resolvePartnership!, setDead!
 using XAgents: partner, age, ageYoungestAliveChild
+using XAgents: startMaternity!, workingHours!, income!, potentialIncome!
+using XAgents: availableWorkingHours!, setFullWeeklyTime!
 
 export doBirths!
 
@@ -44,6 +46,27 @@ function computeBirthProb(rWoman,parameters,data,currstep)::Float64
     birthProb = rawRate * parameters.fertilityBias 
     return birthProb
 end # computeBirthProb
+
+
+function effectsOfMaternity!(woman, pars)
+    startMaternity!(woman)
+    
+    workingHours!(woman, 0)
+    income!(woman, 0)
+    potentialIncome!(woman, 0)
+    availableWorkingHours!(woman, 0)
+    # commented in sim.py:
+    # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
+    # sets all weeklyTime slots to 1
+    # TODO copied from the python code, but does it make sense?
+    setFullWeeklyTime!(woman)
+    #= TODO
+    woman.maxWeeklySupplies = [0, 0, 0, 0]
+    woman.residualDailySupplies = [0]*7
+    woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
+    =# 
+    nothing
+end
 
 
 function womanSubjectToBirth!(woman,parameters,data,currstep; 
@@ -85,21 +108,9 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))
         
+        effectsOfMaternity!(woman, parameters)
+
         return baby
-        # woman.maternityStatus = True
-                        
-        #=
-        # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
-        woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
-        woman.workingHours = 0
-        woman.maxWeeklySupplies = [0, 0, 0, 0]
-        woman.residualDailySupplies = [0]*7
-        woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
-        woman.residualWorkingHours = 0
-        woman.availableWorkingHours = 0
-        woman.potentialIncome = 0
-        woman.income = 0
-        =# 
     end # if rand()
 
     nothing 
@@ -267,8 +278,10 @@ function doBirths!(;people,parameters,data,currstep,
         sleep(sleeptime)
     end
 
-    return (newbabies=babies)
-
+    # any reason for that?
+#    return (newbabies=babies)
+    
+    babies
 end  # function doBirths! 
 
 "This function is supposed to implement the suggested model, TODO"

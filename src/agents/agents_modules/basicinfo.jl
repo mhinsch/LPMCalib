@@ -1,15 +1,15 @@
 using SomeUtil: date2yearsmonths
 using Utilities: Gender, unknown, female, male
 
-export isFemale, isMale, agestep!, agestepAlive!
+export isFemale, isMale, agestep!, agestepAlive!, hasBirthday
 
 
 # TODO think about whether to make this immutable
 mutable struct BasicInfoBlock
-  age::Rational{Int} 
-  # (birthyear, birthmonth)
-  gender::Gender  
-  alive::Bool 
+    age::Rational{Int} 
+    # (birthyear, birthmonth)
+    gender::Gender  
+    alive::Bool 
 end
 
 "Default constructor"
@@ -36,3 +36,4 @@ function agestepAlive!(person::BasicInfoBlock, dt=1//12)
     person.age += person.alive ? dt : 0  
 end 
 
+hasBirthday(person::BasicInfoBlock) = person.age % 1 == 0

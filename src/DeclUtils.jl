@@ -47,9 +47,9 @@ module DeclUtils
     end
 
 
-    macro export_forward(typesub, fields...)
-        type = typesub.args[1]
-        sub = typesub.args[2].value
+    macro export_forward(type, sub, fieldvec)
+        @assert fieldvec.head == :vect
+        fields = fieldvec.args
         Expr(:block,
             [subsetter(f, type, sub) for f in fields]...,
             [subgetter(f, type, sub) for f in fields]...,

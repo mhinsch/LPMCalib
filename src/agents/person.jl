@@ -7,15 +7,21 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 export Person
 export PersonHouse, undefinedHouse
-export setHouse!, resetHouse!, setDead!
 
-export getHomeTown, getHomeTownName, agestepAlive!
-export setAsParentChild!, setAsPartners!, setParent!, resolvePartnership!
-export hasAliveChild, ageYoungestAliveChild
+export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+export householdIncomePerCapita
+
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export setAsParentChild!, setAsPartners!, setParent!
+export hasAliveChild, ageYoungestAliveChild, hasBirthday
 
 
 include("agents_modules/basicinfo.jl")
 include("agents_modules/kinship.jl")
+include("agents_modules/maternity.jl")
+include("agents_modules/work.jl")
+include("agents_modules/care.jl")
+include("agents_modules/class.jl")
 
 
 """
@@ -39,11 +45,15 @@ mutable struct Person <: AbstractXAgent
     pos::House{Person}
     info::BasicInfoBlock     
     kinship::KinshipBlock{Person}
+    maternity :: MaternityBlock
+    work :: WorkBlock
+    care :: CareBlock
+    class :: ClassBlock
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos, info, kinship)
-        person = new(getIDCOUNTER(),pos,info,kinship)
+    function Person(pos, info, kinship, maternity, work, care, class)
+        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -67,12 +77,29 @@ mutable struct Person <: AbstractXAgent
 end # struct Person 
 
 # delegate functions to components
+# and export accessors
 
-@export_forward Person.info age gender alive
-@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!]
+@delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
-@export_forward Person.kinship father mother partner children
+@export_forward Person info [age, gender, alive]
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
+
+@export_forward Person kinship [father, mother, partner, children]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
+
+@delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
+    isInMaternity, maternityDuration]
+
+@export_forward Person work [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
+    wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
+    availableWorkingHours, workingPeriods, pension]
+@delegate_onefield Person work [setEmptyJobSchedule!, setFullWeeklyTime!]
+
+@export_forward Person care [careNeedLevel, socialWork, childWork]
+
+@export_forward Person class [classRank]
+@delegate_onefield Person class [addClassRank!]
+
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -85,35 +112,34 @@ end
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
 
 "Constructor with default values"
-Person(pos,age::Rational{Int}; gender=unknown,
-                father=nothing,mother=nothing,
-                partner=nothing,children=Person[]) = 
-            Person(pos,
-                 BasicInfoBlock(;age, gender), 
-                 KinshipBlock(father,mother,partner,children))
 
+Person(pos,age; gender=unknown,
+    father=nothing,mother=nothing,
+    partner=nothing,children=Person[]) = 
+        Person(pos,BasicInfoBlock(;age, gender), 
+            KinshipBlock(father,mother,partner,children), 
+            MaternityBlock(false, 0),
+            WorkBlock(),
+            CareBlock(0, 0, 0),
+            ClassBlock(0))
 
 
 "Constructor with default values"
-Person(;pos=undefinedHouse,age=0//1,
-                 gender=unknown,
-                 father=nothing,mother=nothing,
-                 partner=nothing,children=Person[]) = 
-            Person(pos,
-                   BasicInfoBlock(;age,gender), 
-                   KinshipBlock(father,mother,partner,children))
+Person(;pos=undefinedHouse,age=0,
+        gender=unknown,
+        father=nothing,mother=nothing,
+        partner=nothing,children=Person[]) = 
+            Person(pos,BasicInfoBlock(;age,gender), 
+                KinshipBlock(father,mother,partner,children),
+                MaternityBlock(false, 0),
+                WorkBlock(),
+                CareBlock(0, 0, 0),
+                ClassBlock(0))
 
 
-const PersonHouse = House{Person}
-const undefinedHouse = PersonHouse((undefinedTown, (-1, -1)))
+const PersonHouse = House{Person, Town}
+const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
-"home town of a person"
-getHomeTown(person::Person) = getHomeTown(person.pos) 
-
-"home town name of a person" 
-function getHomeTownName(person::Person) 
-    getHomeTown(person).name 
-end
 
 "associate a house to a person"
 function setHouse!(person::Person,house)
@@ -134,6 +160,11 @@ function resetHouse!(person::Person)
     person.pos = undefinedHouse
     nothing 
 end 
+
+# TODO check if correct
+# TODO cache for optimisation?
+householdIncome(person) = sum(p -> income(p), person.pos.occupants)
+householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.occupants)
 
 
 "set the father of a child"
