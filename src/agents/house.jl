@@ -39,7 +39,6 @@ end
 "house location in the associated town"
 function getHouseLocation(house::House)
     house.pos
->>>>>>> develop
 end 
 
 "add an occupant to a house"
