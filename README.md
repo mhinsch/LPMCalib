@@ -16,6 +16,7 @@ simulation considering death probabilities
   - v0.3.1: The abstract conceptual part of the code moved to MultiAgents.jl 
   - v0.3.2: Kinship & BasicInfo modules for the type Person 
 - **V0.4** (25.08.2022): A new module LPM containing generic implementation. In contrary, MALPM makes use of LPM & MultiAgents.jl  
+- **V0.5** (20.09.2022): Female agents giving birth, generic XAgents and flat Main simulation for agent-based modeling without other packages, re-architecturing Simulate module and implementation patterns of incldued functions, Agent Person improved declaration and implementation, DRY concept for struct fields of Agent Person, Employing Parameters.jl
 
 
 ### Source code structure 
@@ -34,5 +35,4 @@ simulation considering death probabilities
 
 
 ### Running the code
-See the head documentation of RunTests.jl and MainDummy.jl 
-dummy edit 
+See the head documentation of RunTests.jl and Main*.jl 
