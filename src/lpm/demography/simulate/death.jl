@@ -6,7 +6,7 @@ using XAgents: age
 
 export doDeaths!
 
-function deathProbability(baseRate::Float64,person,parameters) 
+function deathProbability(baseRate,person,parameters) 
     #=
         Not realized yet  / to be realized in another module? 
         classRank = person.classRank

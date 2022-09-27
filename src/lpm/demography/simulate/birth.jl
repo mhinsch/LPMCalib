@@ -11,7 +11,7 @@ using XAgents: availableWorkingHours!, setFullWeeklyTime!
 
 export doBirths!
 
-function computeBirthProb(rWoman,parameters,data,currstep)::Float64
+function computeBirthProb(rWoman,parameters,data,currstep)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
