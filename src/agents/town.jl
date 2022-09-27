@@ -14,8 +14,8 @@ This file is included in the module XAgents
 
 Type Town to extend from AbstractAXgent.
 """
-mutable struct Town <: AbstractXAgent
-    id
+struct Town <: AbstractXAgent
+    id::Int
     pos::TownLocation
     name::String                            # does not look necessary
     # lha::Array{Float64,1}                 # local house allowance 
@@ -23,7 +23,7 @@ mutable struct Town <: AbstractXAgent
     density::Float64                        # relative population density w.r.t. the town with the highest density 
 
     ""
-    function Town(pos::TownLocation,name::String,density) 
+    function Town(pos::TownLocation,name::String,density::Float64) 
         #global IDCOUNTER = IDCOUNTER + 1
         # idcounter = getIDCOUNTER() 
         # new(IDCOUNTER,pos,name,density)

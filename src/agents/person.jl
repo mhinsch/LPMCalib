@@ -7,6 +7,7 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 export Person
 export PersonHouse, undefinedHouse
+
 export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
 export householdIncomePerCapita
 
@@ -35,7 +36,7 @@ Person ties various agent modules into one compound agent type.
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractXAgent
-    id
+    id::Int
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -111,6 +112,7 @@ end
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
 
 "Constructor with default values"
+
 Person(pos,age; gender=unknown,
     father=nothing,mother=nothing,
     partner=nothing,children=Person[]) = 
@@ -240,7 +242,7 @@ function hasAliveChild(person::KinshipBlock)
 end
 
 function ageYoungestAliveChild(person::Person) 
-    youngest = Rational(Inf)  
+    youngest = Rational{Int}(Inf)  
     for child in children(person) 
         if alive(child) 
             youngest = min(youngest,age(child))
