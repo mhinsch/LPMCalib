@@ -114,6 +114,8 @@ end # UKMapPars
     # range of minStartAge - maxStartAge
     maxStartAge::Int                = 45  
     minStartAge::Int                = 25  
+
+    cumProbClasses::Vector{Float64} = cumsum([0.2, 0.35, 0.25, 0.15, 0.05])
 end # UKPopulationPars 
 
 @with_kw mutable struct UKBirthPars
@@ -123,10 +125,34 @@ end # UKPopulationPars
     minPregnancyAge::Int            =  17
 end 
 
-mutable struct UKDemographyPars 
+
+@with_kw mutable struct UKWorkPars
+    maternityLeaveDuration :: Rational  = 9//12
+    ageTeenagers :: Int                 = 13
+    ageOfAdulthood :: Int               = 16
+    probOutOfTownStudent :: Float64     = 0.5
+    ageOfRetirement :: Int              = 65
+    minContributionPeriods :: Int       = 12 * 35
+    wageVar :: Float64                  = 0.2
+    incomeInitialLevels :: Vector{Float64} = [6.0, 8.0, 10.0, 12.0, 15.0]
+    incomeFinalLevels :: Vector{Float64} = [12.0, 16.0, 25.0, 40.0, 60.0]
+    incomeGrowthRate :: Vector{Float64} = [0.4/12.0, 0.35/12.0, 0.3/12.0, 0.25/12.0, 0.2/12.0]
+    workingAge :: Vector{Int}           = [16, 18, 20, 22, 24]
+    weeklyHours :: Vector{Float64}      = [40.0, 20.0, 10.0, 0.0, 0.0]
+    constantIncomeParam :: Float64      = 50.0
+    constantEduParam :: Float64         = 4.0
+    eduWageSensitivity :: Float64       = 0.1
+    eduRankSensitivity :: Float64       = 4.0
+    careEducationParam :: Float64       = 0.0
+    workDiscountingTime :: Float64      = 1.0
+end
+    
+
+struct UKDemographyPars 
     mappars::UKMapPars
     poppars::UKPopulationPars
     birthpars::UKBirthPars
+    workpars :: UKWorkPars
 end 
 
 function loadUKDemographyPars() 
@@ -134,8 +160,9 @@ function loadUKDemographyPars()
     ukmapPars   = UKMapPars()
     ukpopPars   = UKPopulationPars() 
     ukbirthPars = UKBirthPars() 
+    ukworkPars = UKWorkPars()
 
-    UKDemographyPars(ukmapPars,ukpopPars,ukbirthPars)
+    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars)
 end 
 
 

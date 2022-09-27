@@ -11,7 +11,7 @@ module Utilities
     export SimulationFolderPrefix
 
     # Functions
-    export createTimeStampedFolder, p_yearly2monthly
+    export createTimeStampedFolder, p_yearly2monthly, applyTransition!
 
     # list of types 
 
@@ -42,5 +42,20 @@ module Utilities
         # folder
         "" 
     end
+
+
+"Apply a transition function to an iterator."
+function applyTransition!(people, transition, time, model, pars, name = "", verbose = true)
+    count = 0
+    for p in people 
+        transition(p, time, model, pars, verbose)
+        count += 1
+    end
+
+    if verbose && name != ""
+        println(count, " agents processed in ", name)
+    end
+end
+
  
 end 

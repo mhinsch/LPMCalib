@@ -8,6 +8,7 @@ using Utilities: Gender, unknown, female, male
 using XAgents: Person, Town
 using XAgents: undefinedHouse, setAsPartners!
 
+export createUKTowns, createUKPopulation
 ### 
 
 function createUKTowns(pars) 
@@ -29,8 +30,8 @@ function createUKPopulation(pars)
     population = Person[] 
 
     for i in 1 : pars.initialPop
-        ageMale = rand((pars.minStartAge:pars.maxStartAge))
-        ageFemale = ageMale - rand((-2:5))
+        ageMale = rand(pars.minStartAge:pars.maxStartAge)
+        ageFemale = ageMale - rand(-2:5)
         ageFemale = ageFemale < 24 ? 24 : ageFemale
         
         rageMale = ageMale + rand(0:11) // 12     
