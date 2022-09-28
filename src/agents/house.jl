@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!,  undefined
+export getHomeTown, getHouseLocation, undefined
 
 using Utilities: HouseLocation
 using SomeUtil: removefirst!
