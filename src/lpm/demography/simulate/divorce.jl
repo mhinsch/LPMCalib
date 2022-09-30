@@ -31,9 +31,9 @@ function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
     ## but only for the years after 2012
     if curryear < parameters.thePresent 
         # Not sure yet if the following is parameter or data 
-        rawRate = parameters.basicDivorceRate * parameters.divorceModifierByDecade[trunc(Int, agem / 10) + 1]
+        rawRate = parameters.basicDivorceRate * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]
     else 
-        rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[trunc(Int, agem / 10) + 1]           
+        rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]           
     end
 
     divorceProb = divorceProbability(rawRate,parameters,data,time) # TODO , man.classRank)
