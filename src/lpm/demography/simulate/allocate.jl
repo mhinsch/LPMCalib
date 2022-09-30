@@ -5,7 +5,7 @@ An initial design for findNewHouse*(*) interfaces (subject to incremental
 =# 
 
 export findEmptyHouseInTown, findEmptyHouseInOrdAdjacentTown, 
-        findEmptyHouseAnyWhere
+        findEmptyHouseAnyWhere, allocatePeopleToNewHouse
 
 # internal function / subject to merge in the following functiom
 # an unoccupied house is randomly selected out of the set empty houses in selectedTowns 
@@ -36,3 +36,23 @@ findEmptyHouseInOrdAdjacentTown(person, allHouses, allTowns) =
 
 findEmptyHouseAnyWhere(allHouses) = 
     findEmptyHouseInSelectedTowns([ house for house in allHouses if empty(house)]) 
+
+
+function allocatePeopleToNewHouse!(person,attachedPeople,allHouses,dmax,allTowns=Town[]) 
+    if dmax == "here"
+        newhouse = findEmptyHouseInTown(person,allHouses)
+    else if dmax == "near" 
+        newhouse = findEmptyHouseInOrdAdjacentTown(person,allHouses,allTowns) 
+    else if dmax == "far"
+        newhouse = findEmptyHouseAnyWhere(allHouses)
+    else
+        error("dmax should have any of the values here, near or far")
+    end 
+    
+    setHouse!(person,newhouse)
+    for someone in attachedPeople
+        setHouse!(person,newhouse)
+    end
+    
+    nothing 
+end
