@@ -60,8 +60,8 @@ function deathProbability(baseRate,person,parameters)
     deathProb 
 end # function deathProb
 
-function personSubjectToDeath!(person,parameters,data,currstep,
-                               ;verbose,sleeptime,checkassumption)
+function personSubjectToDeath!(person,parameters,data,currstep;
+                                verbose,sleeptime,checkassumption)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 

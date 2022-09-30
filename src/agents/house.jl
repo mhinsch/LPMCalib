@@ -1,6 +1,6 @@
 export  House 
 
-export getHomeTown, getHouseLocation, setHouse!,  undefined
+export getHomeTown, getHouseLocation, undefined, isEmpty, town 
 
 using Utilities: HouseLocation
 using SomeUtil: removefirst!
@@ -26,6 +26,11 @@ end # House
 
 undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)
 
+isEmpty(house) = length(house.occupants) == 0
+
+town(house) = house.town 
+
+# to replace the functions below in order to unify style across agents APIs
 "town associated with house"
 function getHomeTown(house::House)
     house.town
@@ -39,7 +44,7 @@ end
 "house location in the associated town"
 function getHouseLocation(house::House)
     house.pos
-end 
+end
 
 "add an occupant to a house"
 function addOccupant!(house::House{P}, person::P) where {P}

@@ -21,10 +21,6 @@ if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
-if !occursin("multiagents",LOAD_PATH)
-    push!(LOAD_PATH, "src/multiagents") 
-end
-
 using MultiAgents: MultiABM
  
 using LPM.ParamTypes.Loaders:    loadUKDemographyPars
