@@ -4,7 +4,7 @@ using CSV
 using Tables
 
 using  Parameters
-export UKMapPars, UKPopulationPars, UKDemographyPars
+export UKMapPars, UKPopulationPars, UKDemographyPars, UKDivorcePars
 export loadUKDemographyPars, loadUKDemographyData
 
 @with_kw mutable struct UKMapPars 
@@ -150,12 +150,19 @@ end
     workDiscountingTime :: Float64      = 1.0
 end
     
+@with_kw mutable struct UKDivorcePars
+    basicDivorceRate :: Float64             = 0.06
+    divorceModifierByDecade :: Vector{Float64}   = [0.0, 1.0, 0.9, 0.5, 0.4, 0.2, 0.1, 0.03, 0.01, 0.001, 0.001, 0.001, 0.0, 0.0, 0.0, 0.0] 
+    thePresent :: Int                       = 2012
+    variableDivorce :: Float64              = 0.06
+end 
 
 struct UKDemographyPars 
-    mappars::UKMapPars
-    poppars::UKPopulationPars
-    birthpars::UKBirthPars
-    workpars :: UKWorkPars
+    mappars     ::  UKMapPars
+    poppars     ::  UKPopulationPars
+    birthpars   ::  UKBirthPars
+    workpars    ::  UKWorkPars
+    divorcepars ::  UKDivorcePars 
 end 
 
 function loadUKDemographyPars() 
@@ -164,8 +171,9 @@ function loadUKDemographyPars()
     ukpopPars   = UKPopulationPars() 
     ukbirthPars = UKBirthPars() 
     ukworkPars = UKWorkPars()
+    ukdivorcePars = UKDivorcePars()
 
-    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars)
+    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars, ukdivorcePars)
 end 
 
 function loadUKDemographyData() 

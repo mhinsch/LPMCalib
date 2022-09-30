@@ -42,9 +42,9 @@ function allocatePeopleToNewHouse!(person,attachedPeople,allHouses,dmax,allTowns
 
     if dmax == "here"
         newhouse = findEmptyHouseInTown(person,allHouses)
-    else if dmax == "near" 
+    elseif dmax == "near" 
         newhouse = findEmptyHouseInOrdAdjacentTown(person,allHouses,allTowns) 
-    else if dmax == "far"
+    elseif dmax == "far"
         newhouse = findEmptyHouseAnyWhere(allHouses)
     else
         error("dmax should have any of the values here, near or far")

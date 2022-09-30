@@ -29,11 +29,11 @@ function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
     
     ## This is here to manage the sweeping through of this parameter
     ## but only for the years after 2012
-    if curryear < parameter.thePresent 
+    if curryear < parameters.thePresent 
         # Not sure yet if the following is parameter or data 
-        rawRate = parameters.basicDivorceRate * parameters.divorceModifierByDecade[trunc(Int, agem / 10]
+        rawRate = parameters.basicDivorceRate * parameters.divorceModifierByDecade[trunc(Int, agem / 10) + 1]
     else 
-        rawRate = parameters.variableDivorce * parameters.divorceModifierByDecade[trunc(Int, agem / 10]           
+        rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[trunc(Int, agem / 10) + 1]           
     end
 
     divorceProb = divorceProbability(rawRate,parameters,data,time) # TODO , man.classRank)
@@ -63,12 +63,6 @@ function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
 
         allocatePeopleToNewHouse(man,attachedChildren,allHouses,
                                     rand(["near", "far"]), allTowns)
-        #=
-        distance = random.choice(['near','far'])
-        peopleToMove = [man]
-        peopleToMove += manChildren
-        self.findNewHouse(peopleToMove,distance, policyFolder)     
-        =# 
 
         return true 
     end
@@ -101,24 +95,3 @@ function doDivorces!(people,allHouses,allTowns;parameters,data,time,
     
     divorced 
 end
-
-
-#=
-def doDivorces(self, policyFolder, month):
-        menInRelationships = [x for x in self.pop.livingPeople if x.sex == 'male' and x.partner != None ]
-        for man in menInRelationships:
-            
-            
-                
-            
-                # manChildren = [x for x in man.children if x.dead == False and x.house == man.house and x.father == man and x.mother != wife]
-                
- 
-                
-#                for x in manChildren:
-#                    if x not in man.house.occupants:
-#                        print 'Error in doDivorce: man children not in house'
-#                        sys.exit()
-                        
-                
-=# 
