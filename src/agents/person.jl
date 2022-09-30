@@ -8,7 +8,7 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 export Person
 export PersonHouse, undefinedHouse
 
-export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+export moveToHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
 export householdIncomePerCapita
 
 export getHomeTown, getHomeTownName, agestepAlive!, setDead!, cohabiting
@@ -142,8 +142,8 @@ const PersonHouse = House{Person, Town}
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
 
-"associate a house to a person"
-function setHouse!(person::Person,house)
+"associate a house to a person, removes person from previous house"
+function moveToHouse!(person::Person,house)
     if ! undefined(person.pos) 
         removeOccupant!(person.pos, person)
     end

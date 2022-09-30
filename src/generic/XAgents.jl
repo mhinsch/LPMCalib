@@ -15,6 +15,7 @@ module XAgents
     include("../agents/town.jl")
     include("../agents/house.jl")
     include("../agents/person.jl")
+    include("../agents/world.jl")
     
 end  # XAgents 
 

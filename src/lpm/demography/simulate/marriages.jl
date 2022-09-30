@@ -1,4 +1,4 @@
-export resetCacheMarriages, marriage!
+export resetCacheMarriages, marriage!, selectMarriage
 
 
 ageClass(person) = trunc(Int, age(person))
@@ -73,7 +73,11 @@ function marryWeight(man, woman, pars)
 end
 
 
-# TODO pars
+selectMarriage(p, pars) = isMale(p) && !isSingle(p) && age(p) > pars.ageOfAdulthood &&
+    careNeedLevel(p) < 4
+
+
+# TODO pars: minPregnancyAge, numClasses, ageOfAdulthood
 function marriage!(man, time, model, pars, verbose)
     ageclass = ageClass(person) 
 
@@ -119,26 +123,31 @@ function marriage!(man, time, model, pars, verbose)
     setAsPartners!(man, selectedWoman)
     remove_unsorted!(women, selectedIdx)
 
-    # TODO joinCouple
     joinCouple!(man, selectedWoman)
 
     nothing
 end
 
+bringTheKids(person) = [ child for child in children(person) if 
+                 !independent(child) && alive(child) && house(child) == house(person) ]
+
+
+dependents(person) = [ p for p in occupants(house(person)) if p != person ]
+
+
 function gatherDependents(person)
     if independent(person)
-        # TODO dependents
         dependents(person)
     else
-        # TODO bringTheKids
         bringTheKids(person)
     end
 end
+
     
 function joinCouple(man, woman, model, pars)
     # they stay apart
     if rand() >= pars.probApartWillMoveTogether
-        return nothing
+        return false
     end
 
     peopleToMove = [man, woman]
@@ -149,11 +158,17 @@ function joinCouple(man, woman, model, pars)
         targetHouse = nOccupants(house(man)) > nOccupants(house(woman)) ? 
             house(woman) : house(man)
 
-        movePeopleIntoChosenHouse(targetHouse, peopleToMove)
+        movePeopleToHouse(targetHouse, peopleToMove)
     else
-        distance = rand(["here", "near"])
-        findNewHouse(peopleToMove, distance)
+        distance = rand([:here, :near])
+        movePeopleToEmptyHouse(peopleToMove, distance, model.houses, model.towns)
     end
 
-    # TODO independent status
+    independent!(man, true)
+    independent!(woman, true)
+
+    # TODO movedThisYear
+    # required by moving around (I think)
+    
+    true
 end
