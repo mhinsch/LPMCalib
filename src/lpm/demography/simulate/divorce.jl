@@ -1,4 +1,4 @@
-
+export doDivorces!
 
 function divorceProbability(rawRate, divorceBias) # ,classRank) 
     #=
@@ -14,7 +14,7 @@ function divorceProbability(rawRate, divorceBias) # ,classRank)
 end 
 
 # Internal function 
-function manSubjectToDivorce!(man,parameters,data,time;
+function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
                                 verbose,sleeptime,checkassumption)
         
     (curryear,currmonth) = date2yearsmonths(time)
@@ -61,33 +61,23 @@ function manSubjectToDivorce!(man,parameters,data,time;
             end 
         end # for 
 
-         
+        allocatePeopleToNewHouse(man,attachedChildren,allHouses,
+                                    rand(["near", "far"]), allTowns)
+        #=
+        distance = random.choice(['near','far'])
+        peopleToMove = [man]
+        peopleToMove += manChildren
+        self.findNewHouse(peopleToMove,distance, policyFolder)     
+        =# 
 
         return true 
     end
-
-    #=
-    if np.random.random() < splitProb and np.random.choice([x+1 for x in range(12)]) == month:
-        # man.children = []
-        
-        
-        self.divorceTally += 1
-        distance = random.choice(['near','far'])
-        if man.house == self.displayHouse:
-            messageString = str(self.year) + ": #" + str(man.id) + " splits with #" + str(wife.id) + "."
-            self.textUpdateList.append(messageString)
-            
-            with open(os.path.join(policyFolder, "Log.csv"), "a") as file:
-                writer = csv.writer(file, delimiter = ",", lineterminator='\r')
-                writer.writerow([self.year, messageString])
-            
-    =# 
 
     false 
 end 
 
 
-function doDivorces!(people;parameters,data,time,
+function doDivorces!(people,allHouses,allTowns;parameters,data,time,
                         verbose=true,sleeptime=0.0,checkassumption=true) 
 
     marriedMens = [ man for man in people if isMale(man) && !isSingle(man) ]
@@ -95,7 +85,8 @@ function doDivorces!(people;parameters,data,time,
     divorced = Person[] 
     
     for man in marriedMens 
-        if manSubjectToDivorce!(man, parameters, data, time, 
+        if manSubjectToDivorce!(man, allHouses, allTowns, 
+                                parameters, data, time, 
                                 verbose = verbose, 
                                 sleeptime = sleeptime, 
                                 checkassumption = checkassumption )
@@ -129,7 +120,5 @@ def doDivorces(self, policyFolder, month):
 #                        print 'Error in doDivorce: man children not in house'
 #                        sys.exit()
                         
-                peopleToMove = [man]
-                peopleToMove += manChildren
-                self.findNewHouse(peopleToMove,distance, policyFolder)
+                
 =# 
