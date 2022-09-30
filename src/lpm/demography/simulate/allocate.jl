@@ -48,11 +48,9 @@ function allocatePeopleToNewHouse!(person,attachedPeople,allHouses,dmax,allTowns
     else
         error("dmax should have any of the values here, near or far")
     end 
-    
     setHouse!(person,newhouse)
     for someone in attachedPeople
         setHouse!(person,newhouse)
     end
-    
     nothing 
 end
