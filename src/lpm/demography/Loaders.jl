@@ -153,6 +153,7 @@ end
 @with_kw mutable struct UKDivorcePars
     basicDivorceRate :: Float64             = 0.06
     divorceModifierByDecade :: Vector{Float64}   = [0.0, 1.0, 0.9, 0.5, 0.4, 0.2, 0.1, 0.03, 0.01, 0.001, 0.001, 0.001, 0.0, 0.0, 0.0, 0.0] 
+    probChildrenWithFather  :: Float64      = 0.1
     thePresent :: Int                       = 2012
     variableDivorce :: Float64              = 0.06
 end 
