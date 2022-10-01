@@ -1,4 +1,4 @@
-export doDivorces!
+export doDivorces!, selectDivorce, divorce!
 
 function divorceProbability(rawRate, divorceBias) # ,classRank) 
     #=
@@ -14,12 +14,9 @@ function divorceProbability(rawRate, divorceBias) # ,classRank)
 end 
 
 # Internal function 
-function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
+function divorce!(man,allHouses,allTowns,parameters,data,time;
                                 verbose,sleeptime,checkassumption)
         
-    (curryear,currmonth) = date2yearsmonths(time)
-    currmonth += 1 # adjusting 0:11 => 1:12
-                                
     agem = age(man) 
     if checkassumption 
         @assert isMale(man) 
@@ -38,31 +35,31 @@ function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
 
     divorceProb = divorceProbability(rawRate,parameters,data,time) # TODO , man.classRank)
 
-    if rand() < divorceProb && rand(1:12) == currmonth
+    if rand() < p_yearly2monthly(divorceProb) 
         resolvePartnership!(man, partner(man))
         
         #=
         man.yearDivorced.append(self.year)
         wife.yearDivorced.append(self.year)
-        if wife.status == 'student':
-            wife.independentStatus = True
-            self.startWorking(wife)
         =# 
+        if status(wife) == WorkStatus.student
+            independent!(wife, true) 
+            startWorking!(wife)
+        end
 
-        attachedChildren = Person[]
+        peopleToMove = [man]
         for child in children(person)
             if !alive(child) continue end 
             if father(child) == man && mother(child) != partner(man)
-                append!(attachedChildren,child)
+                push!(peopleToMove, child)
             else 
                 if rand() < parameters.probChildrenWithFather
-                    append!(attachedChildren,child)
+                    push!(peopleToMove, child)
                 end
             end 
         end # for 
 
-        allocatePeopleToNewHouse(man,attachedChildren,allHouses,
-                                    rand(["near", "far"]), allTowns)
+        movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), allHouses, allTowns)
 
         return true 
     end
@@ -71,15 +68,18 @@ function manSubjectToDivorce!(man,allHouses,allTowns,parameters,data,time;
 end 
 
 
+selectDivorce(person, pars) = alive(person) && isMale(person) && !isSingle(person)
+
+
 function doDivorces!(people,allHouses,allTowns;parameters,data,time,
                         verbose=true,sleeptime=0.0,checkassumption=true) 
 
-    marriedMens = [ man for man in people if isMale(man) && !isSingle(man) ]
+    marriedMen = [ man for man in people if selectDivorce(man, pars) ]
 
     divorced = Person[] 
     
-    for man in marriedMens 
-        if manSubjectToDivorce!(man, allHouses, allTowns, 
+    for man in marriedMen 
+        if divorce!(man, allHouses, allTowns, 
                                 parameters, data, time, 
                                 verbose = verbose, 
                                 sleeptime = sleeptime, 

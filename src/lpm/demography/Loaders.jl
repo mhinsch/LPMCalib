@@ -158,6 +158,28 @@ end
     variableDivorce :: Float64              = 0.06
 end 
 
+
+@with_kw mutable struct UKMarriagePars
+    basicMaleMarriageProb :: Float64            = 0.7
+    maleMarriageModifierByDecade :: Vector{Float64} = [ 0.0, 0.16, 0.5, 1.0, 0.8, 0.7, 0.66, 0.5, 0.4, 0.2, 0.1, 0.05, 0.01, 0.0, 0.0, 0.0 ]
+    notWorkingMarriageBias :: Float64           = 0.5
+    manWithChildrenBias :: Float64              = 0.9
+    probApartWillMoveTogether :: Float64        = 1.0
+    couplesMoveToExistingHousehold :: Float64   = 0.0
+    "effect of distance on marriage prob."
+    betaGeoExp :: Float64                       = 0.2
+    studentFactorParam :: Float64               = 0.5
+    "effect of class diff on marriage prob."
+    betaSocExp :: Float64                       = 2.0
+    rankGenderBias :: Float64                   = 0.5
+    "prob dist of age difference"
+    deltaProb :: Vector{Float64}                = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
+    bridesChildrenExp :: Float64                = 0.5
+end
+
+
+    
+
 struct UKDemographyPars 
     mappars     ::  UKMapPars
     poppars     ::  UKPopulationPars

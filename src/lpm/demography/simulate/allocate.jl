@@ -4,53 +4,64 @@ An initial design for findNewHouse*(*) interfaces (subject to incremental
     modification, simplifcation and tuning)
 =# 
 
+using Memoization
+
+using XAgents
+
 export findEmptyHouseInTown, findEmptyHouseInOrdAdjacentTown, 
-        findEmptyHouseAnyWhere, allocatePeopleToNewHouse
-
-# internal function / subject to merge in the following functiom
-# an unoccupied house is randomly selected out of the set empty houses in selectedTowns 
-findEmptyHouseInSelectedTowns(emptyHouses) = rand(emptyHouses)                       
+        findEmptyHouseAnywhere, movePeopleToEmptyHouse!, movePeopleToHouse!
 
 
-# Interneal function could be moved to src/agents/house/town.jl 
-emptyHouses(allHouses,townsList)  = 
-    [ house for house in allHouses if town(house) in townsList ]
+function selectHouse(list)
+    if isempty(list)
+        return nothing
+    end
+    rand(list)
+end
 
 
-# Internal function 
-findEmptyHouse(allHouses,selectedTowns) = 
-    findEmptyHouseInSelectedTowns(emptyHouses(allHouses,selectedTowns)) 
-
-# descriptive interfaces to be exported  
-# find an empty house in the same town where a person is living 
-findEmptyHouseInTown(person,allHouses) = findEmptyHouse(allHouses,[town(person)])
+findEmptyHouseInTown(town, allHouses) = selectHouse(emptyHousesInTown(town, allHouses))
 
 
-# Internal function / could be moved to a relevant source file
-adjacentTowns(town,towns) = [ t for t in towns if isAdjacent(town) ] 
+function findEmptyHouseInOrdAdjacentTown(town, allHouses, allTowns) 
+    adjTowns = adjacent4Towns(town, allTowns)
+    emptyHouses = [ house for town in adjTowns for house in town if empty(house) ]
+    selectHouse(emptyHouses)
+end
 
-# exported interface
-findEmptyHouseInOrdAdjacentTown(person, allHouses, allTowns) = 
-    findEmptyHouse(allHouses, [ town(person), adjacentTowns(town(person),allTowns) ])
+# we might want to cache a list of empty houses at some point, but for now 
+# this is fine
+findEmptyHouseAnywhere(allHouses) = selectHouse(emptyHouses(allHouses)) 
 
 
-findEmptyHouseAnyWhere(allHouses) = 
-    findEmptyHouseInSelectedTowns([ house for house in allHouses if empty(house)]) 
+function movePeopleToHouse!(people, house)
+    # TODO 
+    # - yearInTown (used in relocation cost)
+    # - movedThisYear
+    for person in people
+        moveToHouse!(person, newhouse)
+    end
+end
 
 
-function allocatePeopleToNewHouse!(person,attachedPeople,allHouses,dmax,allTowns=Town[]) 
-    if dmax == "here"
-        newhouse = findEmptyHouseInTown(person,allHouses)
-    elseif dmax == "near" 
-        newhouse = findEmptyHouseInOrdAdjacentTown(person,allHouses,allTowns) 
-    elseif dmax == "far"
-        newhouse = findEmptyHouseAnyWhere(allHouses)
+function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=Town[]) 
+    newhouse = nothing
+
+    if dmax == :here
+        newhouse = findEmptyHouseInTown(house(person),allHouses)
+    end
+    if dmax == :near || newhouse == nothing 
+        newhouse = findEmptyHouseInOrdAdjacentTown(house(person),allHouses,allTowns) 
+    end
+    if dmax == :far || newhouse == nothing
+        newhouse = findEmptyHouseAnywhere(allHouses)
     else
-        error("dmax should have any of the values here, near or far")
+        error("dmax should have any of the values :here, :near or :far")
     end 
-    setHouse!(person,newhouse)
-    for someone in attachedPeople
-        setHouse!(person,newhouse)
+
+    if newHouse != nothing
+        movePeopleToHouse!(people, newHouse)
+        return newHouse
     end
     nothing 
 end
