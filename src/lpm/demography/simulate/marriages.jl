@@ -100,7 +100,7 @@ function marriage!(man, time, model, pars, verbose)
     # we store candidates as indices, so that we can efficiently remove married women 
     candidates = [i for enumerate(i,w) in women if (age(man)-10 < age(w) < age(man)+5)  &&
                                                 # exclude siblings as well
-                          !cohabiting(man, w) && !related2(man, w) ]
+                          !livingTogether(man, w) && !related1stDegree(man, w) ]
     
     if length(candidates) == 0
         return nothing

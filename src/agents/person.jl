@@ -11,10 +11,10 @@ export PersonHouse, undefinedHouse
 export moveToHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, agestepAlive!, setDead!, cohabiting
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
-export hasChildrenAtHome, related1, related2, areSiblings
+export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
 
 
 include("agents_modules/basicinfo.jl")
@@ -162,14 +162,14 @@ function resetHouse!(person::Person)
     nothing 
 end 
 
-cohabiting(person1, person2) = house(person1) == house(person2)
+livingTogether(person1, person2) = house(person1) == house(person2)
 
 # parent - child
-related1(person1, person2) = person1 in children(person2) || person2 in children(person1)
+areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
 areSiblings(person1, person2) = father(person1) == father(person2) || 
     mother(person1) == mother(person2)
 # siblings
-related2(person1, person2) = related1(person1, person2) || areSiblings(person1, person2)
+related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
 
 # TODO check if correct

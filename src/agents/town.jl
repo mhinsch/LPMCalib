@@ -1,5 +1,5 @@
 
-export Town, undefinedTown, isAdjacent4, adjacent4Towns
+export Town, undefinedTown, isAdjacent8, adjacent8Towns
 # export show
 
 using Utilities: TownLocation
@@ -47,7 +47,7 @@ Town(pos;name="",density=0.0) = Town(pos,name,density)
 
 const undefinedTown = Town((-1,-1),"",0.0)
 
-isAdjacent4(town1,town2) = 
+isAdjacent8(town1,town2) = 
     abs(town1.pos[1] - town2.pos[1]) <= 1 &&   
     abs(town1.pos[2] - town2.pos[2]) <= 1 
 
