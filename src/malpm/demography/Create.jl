@@ -6,7 +6,7 @@ using MultiAgents: ABM
 using LPM.ParamTypes.Loaders: loadUKDemographyData
 using LPM.Demography.Create: createUKTowns, createUKPopulation
 
-import SomeUtil: AbstractExample
+import MultiAgents.Util: AbstractExample
 
 export DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 export createUKDemographDash, createUKTownsDash
