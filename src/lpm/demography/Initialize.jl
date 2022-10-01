@@ -54,8 +54,8 @@ function  assignCouplesToHouses!(population::Array{Person}, houses::Array{Person
 
         house  = pop!(randomhouses) 
         
-        setHouse!(man,house) 
-        setHouse!(partner(man),house)
+        moveToHouse!(man,house) 
+        moveToHouse!(partner(man),house)
     end # for person     
     
     length(randomhouses) > 0 ? 
