@@ -1,9 +1,11 @@
-export  House 
+export  House, HouseLocation
 
 export getHomeTown, getHouseLocation, undefined, isEmpty, town 
 
-using Utilities: HouseLocation
-using SomeUtil: removefirst!
+using Utilities: removefirst!
+
+
+const HouseLocation  = NTuple{2,Int}
 
 """
 Specification of a House Agent Type. 

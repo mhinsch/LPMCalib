@@ -1,6 +1,4 @@
-using Utilities: female, male
-
-using SomeUtil:  date2yearsmonths
+using Utilities: female, male, age2yearsmonths, date2yearsmonths
 
 using XAgents: isFemale, isSingle, hasChildren, alive 
 using XAgents: Person
@@ -29,7 +27,7 @@ function computeBirthProb(rWoman,parameters,data,currstep)
     if curryear < 1951
         rawRate = parameters.growingPopBirthProb
     else
-        (yearold,tmp) = date2yearsmonths(age(rWoman)) 
+        (yearold,tmp) = age2yearsmonths(age(rWoman)) 
         rawRate = data.fertility[yearold-16,curryear-1950]
     end 
 
