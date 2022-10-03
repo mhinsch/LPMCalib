@@ -4,7 +4,7 @@ Diverse useful functions and types
 module Utilities
 
 # Types 
-export Gender 
+export Gender, male, female, unknown
 
 # Constants 
 export SimulationFolderPrefix
@@ -12,6 +12,8 @@ export SimulationFolderPrefix
 # Functions
 export createTimeStampedFolder, p_yearly2monthly, applyTransition!, remove_unsorted! 
 export removefirst!, date2yearsmonths, age2yearsmonths
+export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
+export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 
 
 # list of types 
@@ -93,4 +95,42 @@ function applyTransition!(people, transition, time, model, pars, name = "", verb
 end
 
  
+mutable struct Debug
+    checkAssumptions :: Bool
+    verbose :: Bool
+    sleeptime :: Float64
+end
+
+const debug = Debug(false, false, 0.0)
+
+checkAssumptions!() = debug.checkAssumptions = true
+ignoreAssumptions!() = debug.checkAssumptions = false
+
+function assumption(check, args...)
+    if debug.checkAssumptions
+        check(args...)
+    end
+end
+
+setDelay!(delay) = debug.sleeptime = delay
+delay() = sleep(debug.sleeptime)
+
+setVerbose!() = debug.verbose = true
+unsetVerbose!() = debug.verbose = false
+
+function verbose(output, args...)
+    if debug.verbose
+        output(args...)
+    end
+end
+
+verbosePrint(args...) = verbose(println, args...)
+
+function delayedVerbose(output, args...)
+    if debug.verbose
+        output(args...)
+        delay()
+    end
+end
+
 end # module Utilities  

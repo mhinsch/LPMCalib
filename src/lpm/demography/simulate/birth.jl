@@ -1,4 +1,4 @@
-using Utilities: female, male, age2yearsmonths, date2yearsmonths
+using Utilities
 
 using XAgents: isFemale, isSingle, hasChildren, alive 
 using XAgents: Person
@@ -79,7 +79,7 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
 
     birthProb = computeBirthProb(woman, parameters, data, currstep)
                         
-    if checkassumption
+    assumption() do
         @assert isFemale(woman) 
         @assert ageYoungestAliveChild(woman) > 1 
         @assert !isSingle(woman)
@@ -171,7 +171,7 @@ function doBirths!(;people,parameters,data,currstep,
                     verbose=true,sleeptime=0.0,checkassumption=true)
 
     # TODO Assumptions 
-    if checkassumption
+    assumption() do
         for person in people  
             @assert alive(person) 
         end
@@ -192,7 +192,7 @@ function doBirths!(;people,parameters,data,currstep,
                             age(woman) <= parameters.maxPregnancyAge && 
                             ageYoungestAliveChild(woman) > 1 ] 
     # TODO @assumption 
-    if checkassumption
+    assumption() do
         allFemales = [ woman for woman in people if isFemale(woman) ]
         adultWomen = [ aWomen for aWomen in allFemales if 
                          age(aWomen) >= parameters.minPregnancyAge ] 
@@ -212,17 +212,13 @@ function doBirths!(;people,parameters,data,currstep,
         end
     end
 
-    if verbose
-
+    delayedVerbose() do
         (curryear,currmonth) = date2yearsmonths(currstep)
         currmonth += 1   # adjusting 0:11 => 1:12 
                                 
         # TODO this generic print msg to be placed in a top function 
         println("In iteration $curryear , month $currmonth :")
         verboseBirthCounting(people,parameters)
-
-        sleep(sleeptime)
-
     end # verbose 
 
 
@@ -271,9 +267,8 @@ function doBirths!(;people,parameters,data,currstep,
        
     end # for woman 
 
-    if verbose
+    delayedVerbose() do
         println("number of births : $length(babies)")
-        sleep(sleeptime)
     end
 
     # any reason for that?
