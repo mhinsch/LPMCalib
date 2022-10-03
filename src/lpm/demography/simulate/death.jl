@@ -1,5 +1,5 @@
 
-using SomeUtil: date2yearsmonths
+using Utilities: age2yearsmonths, date2yearsmonths
 
 using XAgents: Person, isMale, isFemale, alive 
 using XAgents: age
@@ -112,7 +112,7 @@ function personSubjectToDeath!(person,parameters,data,currstep;
                                 
     if rand() < deathProb && rand(1:12) == currmonth 
         if verbose 
-            y, m = date2yearsmonths(agep)
+            y, m = age2yearsmonths(agep)
             println("person $(person.id) died year $(curryear) with age of $y")
             sleep(sleeptime) 
         end

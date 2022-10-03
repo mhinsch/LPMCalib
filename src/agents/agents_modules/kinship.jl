@@ -1,8 +1,5 @@
-using  SomeUtil: date2yearsmonths
-
 export KinshipBlock
 export hasChildren, addChild!, isSingle 
-
 
 mutable struct KinshipBlock{P} 
   father::Union{P,Nothing}
