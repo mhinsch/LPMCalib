@@ -65,7 +65,7 @@ function addToWorkforce!(person, model)
 end
 
 # move newly adult agents into study or work
-function socialTransition!(person, time, model, pars, verbose)
+function socialTransition!(person, time, model, pars)
     probStudy = doneStudying(person, pars)  ?  
         0.0 : startStudyProb(person, model, pars)
 

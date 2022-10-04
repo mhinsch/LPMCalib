@@ -14,6 +14,7 @@ export createTimeStampedFolder, p_yearly2monthly, applyTransition!, remove_unsor
 export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
+export fuse
 
 
 # list of types 
@@ -82,15 +83,17 @@ function remove_unsorted!(list, index)
 end
 
 "Apply a transition function to an iterator."
-function applyTransition!(people, transition, time, model, pars, name = "", verbose = true)
+function applyTransition!(people, transition, name, args...)
     count = 0
     for p in people 
-        transition(p, time, model, pars, verbose)
+        transition(p, args...)
         count += 1
     end
 
-    if verbose && name != ""
-        println(count, " agents processed in ", name)
+    verbose() do 
+        if name != ""
+            println(count, " agents processed in ", name)
+        end
     end
 end
 
@@ -133,4 +136,29 @@ function delayedVerbose(output, args...)
     end
 end
 
+
+"obtain a named tuple type with the same field types and names as `struct_T`"
+function tuple_type(struct_Ts...)
+    names = [ name for struct_T in struct_Ts for name in fieldnames(struct_T) ]
+    types = [ typ for struct_T in struct_Ts for typ in fieldtypes(struct_T) ]
+    NamedTuple{Tuple(names), Tuple{types...}}
+end
+
+"construct a named tuple from `x`"
+@generated function fuse(args...)
+	# constructor call
+	tuptyp = Expr(:quote, tuple_type(args...))
+	
+	# constructor arguments
+	tup = Expr(:tuple)
+    # iterate indices, @generated only catches 'args'
+    for a in eachindex(args)
+        for i in 1:fieldcount(args[a])
+            push!(tup.args, :(getfield(args[$a], $i)) )
+        end
+    end
+	
+	# both put together
+	:($tuptyp($tup))
+end
 end # module Utilities  
