@@ -1,14 +1,14 @@
 export resetCacheMarriages, marriage!, selectMarriage
 
 
-ageClass(person) = trunc(Int, age(person))
+ageClass(person) = trunc(Int, age(person)/10)
 
 
 @memoize function shareMenNoChildren(model, ageclass)
     nAll = 0
     nNoC = 0
 
-    for p in Iterators.filter(x->male(x) && ageClass(x) == ageclass, model.pop)
+    for p in Iterators.filter(x->isMale(x) && ageClass(x) == ageclass, model.pop)
         nAll += 1
         if !hasChildrenAtHome(p)
             nNoC += 1
@@ -19,7 +19,7 @@ ageClass(person) = trunc(Int, age(person))
 end
 
 
-@memoize eligibleWomen(model, pars) = [f for f in model.pop if female(f) && 
+@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && 
                                        isSingle(f) && age(f) > pars.minPregnancyAge]
 
 # reset memoization caches
@@ -43,6 +43,7 @@ function deltaAge(delta)
         4
     else
         5
+    end
 end
 
 
@@ -78,8 +79,8 @@ selectMarriage(p, pars) = isMale(p) && !isSingle(p) && age(p) > pars.ageOfAdulth
 
 
 # TODO pars: minPregnancyAge, numClasses, ageOfAdulthood
-function marriage!(man, time, model, pars, verbose)
-    ageclass = ageClass(person) 
+function marriage!(man, time, model, pars)
+    ageclass = ageClass(man) 
 
     manMarriageProb = pars.basicMaleMarriageProb * pars.maleMarriageModifierByDecade[ageclass]
 
@@ -98,7 +99,7 @@ function marriage!(man, time, model, pars, verbose)
 
     women = eligibleWomen(model, pars)
     # we store candidates as indices, so that we can efficiently remove married women 
-    candidates = [i for enumerate(i,w) in women if (age(man)-10 < age(w) < age(man)+5)  &&
+    candidates = [i for (i,w) in enumerate(women) if (age(man)-10 < age(w) < age(man)+5)  &&
                                                 # exclude siblings as well
                           !livingTogether(man, w) && !related1stDegree(man, w) ]
     

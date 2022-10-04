@@ -7,7 +7,7 @@ export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition
 
 selectAgeTransition(person, pars) = alive(person)
 
-function ageTransition!(person, time, model, pars, verbose)
+function ageTransition!(person, time, model, pars)
     if isInMaternity(person)
         # count maternity months
         stepMaternity!(person)
@@ -30,7 +30,7 @@ selectWorkTransition(person, pars) =
     alive(person) && status(person) != WorkStatus.retired && hasBirthday(person)
 
 
-function workTransition!(person, time, model, pars, verbose)
+function workTransition!(person, time, model, pars)
     if age(person) == pars.ageTeenagers
         status!(person, WorkStatus.teenager)
         return

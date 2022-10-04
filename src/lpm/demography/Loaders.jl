@@ -186,6 +186,7 @@ struct UKDemographyPars
     birthpars   ::  UKBirthPars
     workpars    ::  UKWorkPars
     divorcepars ::  UKDivorcePars 
+    marriagepars :: UKMarriagePars
 end 
 
 function loadUKDemographyPars() 
@@ -195,8 +196,10 @@ function loadUKDemographyPars()
     ukbirthPars = UKBirthPars() 
     ukworkPars = UKWorkPars()
     ukdivorcePars = UKDivorcePars()
+    ukmarriagePars = UKMarriagePars()
 
-    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars, ukdivorcePars)
+    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars, ukdivorcePars,
+                    ukmarriagePars)
 end 
 
 function loadUKDemographyData() 

@@ -162,7 +162,7 @@ function resetHouse!(person::Person)
     nothing 
 end 
 
-livingTogether(person1, person2) = house(person1) == house(person2)
+livingTogether(person1, person2) = person1.pos == person2.pos
 
 # parent - child
 areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
@@ -253,7 +253,7 @@ end
 
 function hasChildrenAtHome(person)
     for c in children(person)
-        if alive(c) && house(c) == house(person)
+        if alive(c) && c.pos == person.pos
             return true
         end
     end
