@@ -99,16 +99,18 @@ function step!(model, time, simPars, pars)
              verbose = simPars.verbose, checkassumption = simPars.checkassumption)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, ageTransition!, time, model, pars.workpars, 
-                     "age", simPars.verbose)
+    applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
 
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, workTransition!, time, model, pars.workpars, 
-                     "work", simPars.verbose)
+    applyTransition!(selected, workTransition!, "work", time, model, pars.workpars)
 
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
-    applyTransition!(selected, socialTransition!, time, model, pars.workpars, 
-                     "social", simPars.verbose)
+    applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
+
+    resetCacheMarriages()
+    selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
+    applyTransition!(selected, marriage!, "marriage", time, model, 
+                     fuse(pars.marriagepars, pars.birthpars))
 
     append!(model.pop, babies)
 end
@@ -117,7 +119,8 @@ end
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
-    simPars.verbose = false
+    simPars.verbose ? setVerbose!() : unsetVerbose!()
+    setDelay!(simPars.sleeptime)
 
     while time < simPars.finishTime
         step!(model, time, simPars, pars)     
