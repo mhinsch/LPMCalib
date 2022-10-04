@@ -166,8 +166,8 @@ livingTogether(person1, person2) = person1.pos == person2.pos
 
 # parent - child
 areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
-areSiblings(person1, person2) = father(person1) == father(person2) || 
-    mother(person1) == mother(person2)
+areSiblings(person1, person2) = father(person1) == father(person2) != nothing || 
+    mother(person1) == mother(person2) != nothing
 # siblings
 related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
