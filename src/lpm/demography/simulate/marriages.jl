@@ -19,16 +19,14 @@ ageClass(person) = trunc(Int, age(person)/10)
 end
 
 
-#@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && 
-#                                       isSingle(f) && age(f) > pars.minPregnancyAge]
-eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
+@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
                                        isSingle(f) && age(f) > pars.minPregnancyAge]
 
 # reset memoization caches
 # needs to be done on every time step
 function resetCacheMarriages()
     Memoization.empty_cache!(shareMenNoChildren)
-#    Memoization.empty_cache!(eligibleWomen)
+    Memoization.empty_cache!(eligibleWomen)
 end
 
 
