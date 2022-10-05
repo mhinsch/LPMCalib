@@ -110,7 +110,7 @@ function step!(model, time, simPars, pars)
     resetCacheMarriages()
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
     applyTransition!(selected, marriage!, "marriage", time, model, 
-                     fuse(pars.marriagepars, pars.birthpars))
+                     fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
 
     append!(model.pop, babies)
 end

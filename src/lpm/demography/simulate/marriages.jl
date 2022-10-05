@@ -19,14 +19,16 @@ ageClass(person) = trunc(Int, age(person)/10)
 end
 
 
-@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && 
+#@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && 
+#                                       isSingle(f) && age(f) > pars.minPregnancyAge]
+eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
                                        isSingle(f) && age(f) > pars.minPregnancyAge]
 
 # reset memoization caches
 # needs to be done on every time step
 function resetCacheMarriages()
     Memoization.empty_cache!(shareMenNoChildren)
-    Memoization.empty_cache!(eligibleWomen)
+#    Memoization.empty_cache!(eligibleWomen)
 end
 
 
@@ -50,7 +52,7 @@ end
 function marryWeight(man, woman, pars)
     geoFactor = 1/exp(pars.betaGeoExp * geoDistance(man, woman, pars))
 
-    if status(woman) == student 
+    if status(woman) == WorkStatus.student 
         studentFactor = pars.studentFactorParam
         womanRank = maxParentRank(woman)
     else
@@ -58,27 +60,28 @@ function marryWeight(man, woman, pars)
         womanRank = classRank(woman)
     end
 
-    statusDistance = abs(classRank(man) - womanRank) / (pars.numberClasses - 1)
+    statusDistance = abs(classRank(man) - womanRank) / (length(pars.cumProbClasses) - 1)
 
     betaExponent = pars.betaSocExp * (classRank(man) < womanRank ? 1.0 : pars.rankGenderBias)
 
     socFactor = 1/exp(betaExponent * statusDistance)
 
-    ageFactor = pars.deltageProb[deltaAge(age(man) - age(woman))]
+    ageFactor = pars.deltaAgeProb[deltaAge(age(man) - age(woman))]
 
-    numChildrenWithWoman = count(x->house(x) == house(woman), children(woman))
+    numChildrenWithWoman = count(x->x.pos == woman.pos, children(woman))
 
     childrenFactor = 1/exp(pars.bridesChildrenExp * numChildrenWithWoman)
 
     geoFactor * socFactor * ageFactor * childrenFactor * studentFactor
 end
 
+geoDistance(m, w, pars) = manhattanDistance(getHomeTown(m), getHomeTown(w))/
+    (pars.mapGridXDimension + pars.mapGridYDimension)
 
-selectMarriage(p, pars) = isMale(p) && !isSingle(p) && age(p) > pars.ageOfAdulthood &&
+selectMarriage(p, pars) = isMale(p) && isSingle(p) && age(p) > pars.ageOfAdulthood &&
     careNeedLevel(p) < 4
 
 
-# TODO pars: minPregnancyAge, numClasses, ageOfAdulthood
 function marriage!(man, time, model, pars)
     ageclass = ageClass(man) 
 
@@ -98,6 +101,7 @@ function marriage!(man, time, model, pars)
     end
 
     women = eligibleWomen(model, pars)
+
     # we store candidates as indices, so that we can efficiently remove married women 
     candidates = [i for (i,w) in enumerate(women) if (age(man)-10 < age(w) < age(man)+5)  &&
                                                 # exclude siblings as well
@@ -109,7 +113,7 @@ function marriage!(man, time, model, pars)
 
     weights = [marryWeight(man, women[idx], pars) for idx in candidates]
 
-    cumsum!(weights)
+    cumsum!(weights, weights)
     if weights[end] == 0
         selected = rand(1:length(weights))
     else
@@ -124,16 +128,16 @@ function marriage!(man, time, model, pars)
     setAsPartners!(man, selectedWoman)
     remove_unsorted!(women, selectedIdx)
 
-    joinCouple!(man, selectedWoman)
+    joinCouple!(man, selectedWoman, model, pars)
 
     nothing
 end
 
 bringTheKids(person) = [ child for child in children(person) if 
-                 !independent(child) && alive(child) && house(child) == house(person) ]
+                 !independent(child) && alive(child) && child.pos == person.pos ]
 
 
-dependents(person) = [ p for p in occupants(house(person)) if p != person ]
+dependents(person) = [ p for p in person.pos.occupants if p != person ]
 
 
 function gatherDependents(person)
@@ -145,7 +149,7 @@ function gatherDependents(person)
 end
 
     
-function joinCouple(man, woman, model, pars)
+function joinCouple!(man, woman, model, pars)
     # they stay apart
     if rand() >= pars.probApartWillMoveTogether
         return false
@@ -156,13 +160,13 @@ function joinCouple(man, woman, model, pars)
     append!(peopleToMove, gatherDependents(man), gatherDependents(woman))
 
     if rand() < pars.couplesMoveToExistingHousehold
-        targetHouse = nOccupants(house(man)) > nOccupants(house(woman)) ? 
-            house(woman) : house(man)
+        targetHouse = nOccupants(man.pos) > nOccupants(woman.pos) ? 
+            woman.pos : man.pos
 
-        movePeopleToHouse(targetHouse, peopleToMove)
+        movePeopleToHouse!(targetHouse, peopleToMove)
     else
         distance = rand([:here, :near])
-        movePeopleToEmptyHouse(peopleToMove, distance, model.houses, model.towns)
+        movePeopleToEmptyHouse!(peopleToMove, distance, model.houses, model.towns)
     end
 
     independent!(man, true)

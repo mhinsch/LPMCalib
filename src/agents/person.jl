@@ -15,6 +15,7 @@ export getHomeTown, getHomeTownName, agestepAlive!, setDead!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
 export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
+export maxParentRank
 
 
 include("agents_modules/basicinfo.jl")
@@ -85,7 +86,7 @@ end # struct Person
 @export_forward Person info [age, gender, alive]
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
-@export_forward Person kinship [father, mother, partner, children]
+@export_forward Person kinship [father, mother, partner, children, independent]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
@@ -118,7 +119,7 @@ Person(pos,age; gender=unknown,
     father=nothing,mother=nothing,
     partner=nothing,children=Person[]) = 
         Person(pos,BasicInfoBlock(;age, gender), 
-            KinshipBlock(father,mother,partner,children), 
+               KinshipBlock{Person}(father,mother,partner,children), 
             MaternityBlock(false, 0),
             WorkBlock(),
             CareBlock(0, 0, 0),
@@ -131,7 +132,7 @@ Person(;pos=undefinedHouse,age=0,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
             Person(pos,BasicInfoBlock(;age,gender), 
-                KinshipBlock(father,mother,partner,children),
+                   KinshipBlock{Person}(father,mother,partner,children),
                 MaternityBlock(false, 0),
                 WorkBlock(),
                 CareBlock(0, 0, 0),
@@ -164,11 +165,10 @@ end
 
 livingTogether(person1, person2) = person1.pos == person2.pos
 
-# parent - child
+
 areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
 areSiblings(person1, person2) = father(person1) == father(person2) != nothing || 
     mother(person1) == mother(person2) != nothing
-# siblings
 related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
 
@@ -270,4 +270,19 @@ function ageYoungestAliveChild(person::Person)
         end 
     end
     youngest 
+end
+
+
+function maxParentRank(person)
+    f = father(person)
+    m = mother(person)
+    if f == m == nothing
+        classRank(person)
+    elseif f == nothing
+        classRank(m)
+    elseif m == nothing
+        classRank(f)
+    else
+        max(classRank(m), classRank(f))
+    end
 end
