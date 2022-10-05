@@ -35,6 +35,8 @@ function main()
 
     graph_pop = Graph{Float64}(RL.BLUE)
     graph_hhs = Graph{Float64}(RL.WHITE)
+    graph_marr = Graph{Float64}(RL.BLACK)
+    graph_age = Graph{Float64}(RL.RED)
 
     pause = false
     time = Rational(simPars.startTime)
@@ -44,8 +46,11 @@ function main()
             step!(model, time, simPars, pars)
             time += simPars.dt
             data = observe(Data, model)
-            add_value!(graph_pop, data.N)
-            add_value!(graph_hhs, data.hh_size.mean)
+            add_value!(graph_pop, data.alive.n)
+            add_value!(graph_hhs, data.eligible2.n)
+            add_value!(graph_marr, data.married.n)
+            add_value!(graph_age, data.eligible.n)
+            println(data.hh_size.max, " ", data.alive.n, " ", data.eligible.n, " ", data.eligible2.n)
         end
 
         RL.BeginDrawing()
@@ -55,7 +60,7 @@ function main()
         RL.BeginMode2D(camera)
         
         drawModel(model, (0, 0), (50, 50), (2, 2))
-        draw_graph(1000, 0, 600, 900, [graph_pop, graph_hhs], false)
+        draw_graph(1000, 0, 600, 900, [graph_pop, graph_marr, graph_hhs, graph_age], false)
         
         RL.EndMode2D()
 

@@ -24,8 +24,9 @@ findEmptyHouseInTown(town, allHouses) = selectHouse(emptyHousesInTown(town, allH
 
 
 function findEmptyHouseInOrdAdjacentTown(town, allHouses, allTowns) 
-    adjTowns = adjacent4Towns(town, allTowns)
-    emptyHouses = [ house for town in adjTowns for house in town if empty(house) ]
+    adjTowns = adjacent8Towns(town, allTowns)
+    emptyHouses = [ house for town in adjTowns 
+                   for house in findHousesInTown(town, allHouses) if isEmpty(house) ]
     selectHouse(emptyHouses)
 end
 
@@ -39,29 +40,27 @@ function movePeopleToHouse!(people, house)
     # - yearInTown (used in relocation cost)
     # - movedThisYear
     for person in people
-        moveToHouse!(person, newhouse)
+        moveToHouse!(person, house)
     end
 end
 
-
+# TODO check that callers are fine with people[1] determining the search location
 function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=Town[]) 
     newhouse = nothing
 
     if dmax == :here
-        newhouse = findEmptyHouseInTown(house(person),allHouses)
+        newhouse = findEmptyHouseInTown(people[1].pos,allHouses)
     end
     if dmax == :near || newhouse == nothing 
-        newhouse = findEmptyHouseInOrdAdjacentTown(house(person),allHouses,allTowns) 
+        newhouse = findEmptyHouseInOrdAdjacentTown(people[1].pos,allHouses,allTowns) 
     end
     if dmax == :far || newhouse == nothing
         newhouse = findEmptyHouseAnywhere(allHouses)
-    else
-        error("dmax should have any of the values :here, :near or :far")
     end 
 
-    if newHouse != nothing
-        movePeopleToHouse!(people, newHouse)
-        return newHouse
+    if newhouse != nothing
+        movePeopleToHouse!(people, newhouse)
+        return newhouse
     end
     nothing 
 end

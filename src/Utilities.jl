@@ -79,7 +79,7 @@ end
 "Very efficiently remove element `index` from `list`. Does not preserve ordering of `list`."
 function remove_unsorted!(list, index)
     list[index] = list[end]
-    pop![list]
+    pop!(list)
 end
 
 "Apply a transition function to an iterator."

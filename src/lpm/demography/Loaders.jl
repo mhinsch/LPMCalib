@@ -109,7 +109,7 @@ end # UKMapPars
     femaleAgeDieProb::Float64       = 0.00019   
     femaleAgeScaling::Float64       = 15.5 
     femaleMortalityBias::Float64    = 0.85  
-    initialPop::Int                 = 500    # Number of females or males  in the initial population
+    initialPop::Int                 = 5000    # Number of females or males  in the initial population
     maleAgeDieProb::Float64         = 0.00021 
     maleAgeScaling::Float64         = 14.0 
     maleMortalityBias::Float64      = 0.8 
@@ -173,7 +173,7 @@ end
     betaSocExp :: Float64                       = 2.0
     rankGenderBias :: Float64                   = 0.5
     "prob dist of age difference"
-    deltaProb :: Vector{Float64}                = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
+    deltaAgeProb :: Vector{Float64}                = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
     bridesChildrenExp :: Float64                = 0.5
 end
 
