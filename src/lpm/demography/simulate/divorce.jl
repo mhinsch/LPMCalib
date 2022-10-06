@@ -14,11 +14,10 @@ function divorceProbability(rawRate, divorceBias) # ,classRank)
 end 
 
 # Internal function 
-function divorce!(man,allHouses,allTowns,parameters,data,time;
-                                verbose,sleeptime,checkassumption)
+function divorce!(man,allHouses,allTowns,parameters,data,time)
         
     agem = age(man) 
-    if checkassumption 
+    assumption() do
         @assert isMale(man) 
         @assert !isSingle(man)
         @assert typeof(agem) == Rational{Int}
@@ -71,26 +70,20 @@ end
 selectDivorce(person, pars) = alive(person) && isMale(person) && !isSingle(person)
 
 
-function doDivorces!(people,allHouses,allTowns;parameters,data,time,
-                        verbose=true,sleeptime=0.0,checkassumption=true) 
+function doDivorces!(people,allHouses,allTowns;parameters,data,time)
 
     marriedMen = [ man for man in people if selectDivorce(man, pars) ]
 
     divorced = Person[] 
     
     for man in marriedMen 
-        if divorce!(man, allHouses, allTowns, 
-                                parameters, data, time, 
-                                verbose = verbose, 
-                                sleeptime = sleeptime, 
-                                checkassumption = checkassumption )
+        if divorce!(man, allHouses, allTowns, parameters, data, time) 
             divorced.append!([man, partner(man)]) 
         end 
     end 
 
-    if verbose 
+    delayedVerbose() do
         println("# of divorced in current iteration $(length(divorced))")
-        sleeptime(sleeptime)
     end
     
     divorced 
