@@ -153,7 +153,8 @@ function joinCouple!(man, woman, model, pars)
         return false
     end
 
-    peopleToMove = [man, woman]
+    # decide who leads the move
+    peopleToMove = rand()<0.5 ? [man, woman] : [woman, man]
 
     append!(peopleToMove, gatherDependents(man), gatherDependents(woman))
 
