@@ -107,6 +107,10 @@ function step!(model, time, simPars, pars)
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
     applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
 
+    selected = Iterators.filter(p->selectDivorce(p, pars), model.pop)
+    applyTransition!(selected, divorce!, "divorce", time, model, 
+                     fuse(pars.divorcepars, pars.workpars))
+
     resetCacheMarriages()
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
     applyTransition!(selected, marriage!, "marriage", time, model, 
