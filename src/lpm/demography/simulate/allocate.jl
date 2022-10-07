@@ -40,11 +40,13 @@ function movePeopleToHouse!(people, house)
     # - yearInTown (used in relocation cost)
     # - movedThisYear
     for person in people
-        moveToHouse!(person, house)
+        if person.pos != house
+            moveToHouse!(person, house)
+        end
     end
 end
 
-# TODO check that callers are fine with people[1] determining the search location
+# people[1] determines centre of search radius
 function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=Town[]) 
     newhouse = nothing
 

@@ -1,6 +1,6 @@
 export doDivorces!, selectDivorce, divorce!
 
-function divorceProbability(rawRate, divorceBias) # ,classRank) 
+function divorceProbability(rawRate, pars) # ,classRank) 
     #=
      def computeSplitProb(self, rawRate, classRank):
         a = 0
@@ -10,15 +10,18 @@ function divorceProbability(rawRate, divorceBias) # ,classRank)
         splitProb = baseRate*math.pow(self.p['divorceBias'], classRank)
         return splitProb
     =# 
-    rawRate * divorceBias 
+    rawRate * pars.divorceBias 
 end 
 
-# Internal function 
-function divorce!(man,allHouses,allTowns,parameters,data,time;
-                                verbose,sleeptime,checkassumption)
+function divorce!(man, time, model, parameters)
+    applyDivorce!(man, time, model.houses, model.towns, parameters)
+end
+
+
+function applyDivorce!(man, time, allHouses, allTowns, parameters)
         
     agem = age(man) 
-    if checkassumption 
+    assumption() do
         @assert isMale(man) 
         @assert !isSingle(man)
         @assert typeof(agem) == Rational{Int}
@@ -26,17 +29,18 @@ function divorce!(man,allHouses,allTowns,parameters,data,time;
     
     ## This is here to manage the sweeping through of this parameter
     ## but only for the years after 2012
-    if curryear < parameters.thePresent 
+    if time < parameters.thePresent 
         # Not sure yet if the following is parameter or data 
         rawRate = parameters.basicDivorceRate * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]
     else 
         rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]           
     end
 
-    divorceProb = divorceProbability(rawRate,parameters,data,time) # TODO , man.classRank)
+    divorceProb = divorceProbability(rawRate, parameters) # TODO , man.classRank)
 
     if rand() < p_yearly2monthly(divorceProb) 
-        resolvePartnership!(man, partner(man))
+        wife = partner(man)
+        resolvePartnership!(man, wife)
         
         #=
         man.yearDivorced.append(self.year)
@@ -44,13 +48,13 @@ function divorce!(man,allHouses,allTowns,parameters,data,time;
         =# 
         if status(wife) == WorkStatus.student
             independent!(wife, true) 
-            startWorking!(wife)
+            startWorking!(wife, parameters)
         end
 
         peopleToMove = [man]
-        for child in children(person)
+        for child in children(man)
             if !alive(child) continue end 
-            if father(child) == man && mother(child) != partner(man)
+            if father(child) == man && mother(child) != wife
                 push!(peopleToMove, child)
             else 
                 if rand() < parameters.probChildrenWithFather
@@ -71,26 +75,20 @@ end
 selectDivorce(person, pars) = alive(person) && isMale(person) && !isSingle(person)
 
 
-function doDivorces!(people,allHouses,allTowns;parameters,data,time,
-                        verbose=true,sleeptime=0.0,checkassumption=true) 
+function doDivorces!(people, time, model, parameters)
 
-    marriedMen = [ man for man in people if selectDivorce(man, pars) ]
+    marriedMen = [ man for man in people if selectDivorce(man, parameters) ]
 
     divorced = Person[] 
     
     for man in marriedMen 
-        if divorce!(man, allHouses, allTowns, 
-                                parameters, data, time, 
-                                verbose = verbose, 
-                                sleeptime = sleeptime, 
-                                checkassumption = checkassumption )
+        if divorce!(man, model, parameters, time) 
             divorced.append!([man, partner(man)]) 
         end 
     end 
 
-    if verbose 
+    delayedVerbose() do
         println("# of divorced in current iteration $(length(divorced))")
-        sleeptime(sleeptime)
     end
     
     divorced 

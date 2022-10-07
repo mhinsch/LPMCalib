@@ -156,6 +156,7 @@ end
     probChildrenWithFather  :: Float64      = 0.1
     thePresent :: Int                       = 2012
     variableDivorce :: Float64              = 0.06
+    divorceBias :: Float64                  = 0.9
 end 
 
 
