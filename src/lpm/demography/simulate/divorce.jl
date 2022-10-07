@@ -13,8 +13,12 @@ function divorceProbability(rawRate, pars) # ,classRank)
     rawRate * pars.divorceBias 
 end 
 
-# Internal function 
 function divorce!(man, time, model, parameters)
+    applyDivorce!(man, time, model.houses, model.towns, parameters)
+end
+
+
+function applyDivorce!(man, time, allHouses, allTowns, parameters)
         
     agem = age(man) 
     assumption() do
@@ -59,7 +63,7 @@ function divorce!(man, time, model, parameters)
             end 
         end # for 
 
-        movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), model.houses, model.towns)
+        movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), allHouses, allTowns)
 
         return true 
     end
