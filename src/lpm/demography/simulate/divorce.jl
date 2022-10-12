@@ -47,7 +47,6 @@ function applyDivorce!(man, time, allHouses, allTowns, parameters)
         wife.yearDivorced.append(self.year)
         =# 
         if status(wife) == WorkStatus.student
-            independent!(wife, true) 
             startWorking!(wife, parameters)
         end
 

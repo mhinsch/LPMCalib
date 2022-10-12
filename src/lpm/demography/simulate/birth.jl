@@ -7,7 +7,7 @@ using XAgents: partner, age, ageYoungestAliveChild
 using XAgents: startMaternity!, workingHours!, income!, potentialIncome!
 using XAgents: availableWorkingHours!, setFullWeeklyTime!
 
-export doBirths!
+export selectBirth, doBirths!, birth!
 
 function computeBirthProb(rWoman,parameters,data,currstep)
 
@@ -63,12 +63,17 @@ function effectsOfMaternity!(woman, pars)
     woman.residualDailySupplies = [0]*7
     woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
     =# 
+
+    # TODO not necessarily true in many cases
+    if provider(woman) == nothing
+        setAsProviderProvidee(partner(woman), woman)
+    end
+
     nothing
 end
 
 
-function womanSubjectToBirth!(woman,parameters,data,currstep; 
-                                verbose,sleeptime,checkassumption)
+function birth!(woman,time, model, parameters)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1   # adjusting 0:11 => 1:12 
@@ -77,7 +82,7 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
 
-    birthProb = computeBirthProb(woman, parameters, data, currstep)
+    birthProb = computeBirthProb(woman, parameters, model, currstep)
                         
     assumption() do
         @assert isFemale(woman) 
@@ -105,8 +110,15 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))
-        
+
+        # this goes first, so that we know material circumstances
         effectsOfMaternity!(woman, parameters)
+        
+        setAsGuardianDependent!(woman, baby)
+        if !isSingle(woman) # currently not an option
+            setAsGuardianDependent!(partner(woman), baby)
+        end
+        setAsProviderProvidee!(woman, baby)
 
         return baby
     end # if rand()
@@ -167,8 +179,14 @@ fixed parameters (minPregnenacyAge, maxPregnenacyAge) and
 Class rankes and shares are temporarily ignored.
 """
 
-function doBirths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0.0,checkassumption=true)
+selectBirth(woman, parameters) = isFemale(woman) && 
+    !isSingle(woman) && 
+    age(woman) >= parameters.minPregnancyAge && 
+    age(woman) <= parameters.maxPregnancyAge && 
+    ageYoungestAliveChild(woman) > 1 
+
+
+function doBirths!(;people,time, model, parameters)
 
     # TODO Assumptions 
     assumption() do
@@ -185,12 +203,8 @@ function doBirths!(;people,parameters,data,currstep,
     #      storing the intermediate results and modifying the computation.
     #      However, it could be also the case that Julia compiler does something efficient any way? 
 
-    reproductiveWomen = [ woman for woman in people if 
-                            isFemale(woman) && 
-                            !isSingle(woman) && 
-                            age(woman) >= parameters.minPregnancyAge && 
-                            age(woman) <= parameters.maxPregnancyAge && 
-                            ageYoungestAliveChild(woman) > 1 ] 
+    reproductiveWomen = [ woman for woman in people if selectBirth(woman, parameters) ]
+
     # TODO @assumption 
     assumption() do
         allFemales = [ woman for woman in people if isFemale(woman) ]
@@ -257,10 +271,7 @@ function doBirths!(;people,parameters,data,currstep,
 
     for woman in reproductiveWomen 
 
-        baby = womanSubjectToBirth!(woman,parameters,data,currstep,
-                            verbose=verbose,
-                            sleeptime=sleeptime,
-                            checkassumption=checkassumption)
+        baby = birth!(woman,time, model, parameters)
         if baby != nothing 
             push!(babies,baby)
         end 

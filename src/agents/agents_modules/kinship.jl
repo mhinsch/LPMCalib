@@ -6,12 +6,7 @@ mutable struct KinshipBlock{P}
   mother::Union{P,Nothing} 
   partner::Union{P,Nothing}
   children::Vector{P}
-  independent :: Bool # TODO do something sensible with this
 end 
-
-KinshipBlock{P}(father, mother, partner, children) where {P} = 
-    KinshipBlock{P}(father,mother,partner,children, false)
-
 
 hasChildren(parent::KinshipBlock{P}) where{P} = length(parent.children) > 0
 

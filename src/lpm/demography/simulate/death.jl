@@ -60,15 +60,15 @@ function deathProbability(baseRate,person,parameters)
     deathProb 
 end # function deathProb
 
-function personSubjectToDeath!(person,parameters,data,currstep;
-                                verbose,sleeptime,checkassumption)
+# currently leaves dead agents in population
+function death!(person, currstep, model, parameters)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
 
     agep = age(person)             
 
-    if checkassumption
+    assumption() do
         @assert alive(person)       
         @assert isMale(person) || isFemale(person) # Assumption 
         @assert typeof(agep) == Rational{Int}
@@ -102,7 +102,7 @@ function personSubjectToDeath!(person,parameters,data,currstep;
         Classes to be considered in a different module 
     =#
                         
-    deathProb =  deathProbability(rawRate,person,parameters)
+    deathProb = deathProbability(rawRate,person,parameters)
                         
     #=
         The following is uncommented code in the original code < 1950
@@ -111,10 +111,9 @@ function personSubjectToDeath!(person,parameters,data,currstep;
     =# 
                                 
     if rand() < deathProb && rand(1:12) == currmonth 
-        if verbose 
+        delayedVerbose() do
             y, m = age2yearsmonths(agep)
             println("person $(person.id) died year $(curryear) with age of $y")
-            sleep(sleeptime) 
         end
         setDead!(person) 
         return true 
@@ -126,25 +125,20 @@ function personSubjectToDeath!(person,parameters,data,currstep;
 end 
 
 "evaluate death events in a population"
-function doDeaths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0.0,checkassumption=true)
+function doDeaths!(;people, currstep, model, parameters)
 
     deads = Person[] 
 
     for person in people 
-        if personSubjectToDeath!(person,parameters,data,currstep,
-                                verbose=verbose,
-                                sleeptime=sleeptime,
-                                checkassumption=checkassumption) 
+        if death!(person, currstep, model, parameters) 
             push!(deads,person)
         end 
     end # for livingPeople
     
-    if verbose
+    delayedVerbose() do
         count = length([person for person in people if alive(person)] )
         numDeaths = length(deads)
         println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
-        sleep(sleeptime)
     end 
 
     deads   

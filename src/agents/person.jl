@@ -15,6 +15,8 @@ export getHomeTown, getHomeTownName, agestepAlive!, setDead!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
 export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
+export canLiveAlone, setAsGuardianDependent!, setAsProviderProvidee!
+export setAsIndependent!, setAsSelfproviding!
 export maxParentRank
 
 
@@ -24,6 +26,7 @@ include("agents_modules/maternity.jl")
 include("agents_modules/work.jl")
 include("agents_modules/care.jl")
 include("agents_modules/class.jl")
+include("agents_modules/dependencies.jl")
 
 
 """
@@ -51,11 +54,12 @@ mutable struct Person <: AbstractXAgent
     work :: WorkBlock
     care :: CareBlock
     class :: ClassBlock
+    dependencies :: DependencyBlock{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos, info, kinship, maternity, work, care, class)
-        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class)
+    function Person(pos, info, kinship, maternity, work, care, class, dependencies)
+        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class, dependencies)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -86,7 +90,7 @@ end # struct Person
 @export_forward Person info [age, gender, alive]
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
-@export_forward Person kinship [father, mother, partner, children, independent]
+@export_forward Person kinship [father, mother, partner, children]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
@@ -102,6 +106,8 @@ end # struct Person
 @export_forward Person class [classRank]
 @delegate_onefield Person class [addClassRank!]
 
+@export_forward Person dependencies [guardians, dependents, provider, providees]
+@delegate_onefield Person dependencies [isDependent, hasDependents, hasProvidees]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -180,13 +186,16 @@ householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.o
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
-    isMale(parent) || isFemale(parent) ? nothing : throw(InvalidStateException("$(parent) has unknown gender",:undefined))
-    age(child) <  age(parent) ? nothing : throw(ArgumentError("child's age $(age(child)) >= parent's age $(age(parent))")) 
-    (isMale(parent) && father(child) == nothing) ||
-        (isFemale(parent) && mother(child) == nothing) ? nothing : 
-            throw(ArgumentError("$(child) has a parent"))
+    @assert isMale(parent) || isFemale(parent)
+    @assert age(child) < age(parent)
+    @assert (isMale(parent) && father(child) == nothing) ||
+        (isFemale(parent) && mother(child) == nothing) 
+
     addChild!(parent, child)
     setParent!(child, parent) 
+    # would be nice to ensure consistency of dependence/provision at this point as well
+    # but there are so many specific situations that it is easier to do that in simulation
+    # code
     nothing 
 end
 
@@ -201,26 +210,21 @@ end
 
 "resolving partnership"
 function resolvePartnership!(person1::Person, person2::Person)
-    if partner(person1) != person2 || partner(person2) != person1
-        throw(ArgumentError("$(person1) and $(person2) are not partners"))
-    end
+    @assert partner(person1) == person2 && partner(person2) == person1
+
     resetPartner!(person1)
 end
 
 
 "set two persons to be a partner"
 function setAsPartners!(person1::Person,person2::Person)
-    if (isMale(person1) && isFemale(person2) || 
-        isFemale(person1) && isMale(person2)) 
+    @assert isMale(person1) == isFemale(person2)
 
-        resetPartner!(person1) 
-        resetPartner!(person2)
+    resetPartner!(person1) 
+    resetPartner!(person2)
 
-        partner!(person1, person2)
-        partner!(person2, person1)
-        return nothing 
-    end 
-    throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
+    partner!(person1, person2)
+    partner!(person2, person1)
 end
 
 function setDead!(person::Person) 
@@ -229,19 +233,22 @@ function setDead!(person::Person)
     if !isSingle(person) 
         resolvePartnership!(partner(person),person)
     end
-    # no need to resolve parents / childern relationship
+
+    # dependencies are resolved separately
     nothing
 end 
 
 "set child of a parent" 
 function setParent!(child, parent)
-  if isFemale(parent) 
-    mother!(child, parent)
-  elseif isMale(parent) 
-    father!(child, parent)
-  else
-    throw(InvalidStateException("undefined case",:undefined))
-  end
+    @assert isFemale(paren) || isMale(parent)
+
+    if isFemale(parent) 
+        mother!(child, parent)
+    else 
+        father!(child, parent)
+    end
+
+    nothing
 end 
 
 function hasAliveChild(person)
@@ -270,6 +277,45 @@ function ageYoungestAliveChild(person::Person)
         end 
     end
     youngest 
+end
+
+
+canLiveAlone(person) = age(person) >= 18
+
+function setAsGuardianDependent!(guardian, dependent)
+    push!(dependents(guardian), dependent)
+    push!(guardians(dependent), guardian)
+    nothing
+end
+
+function setAsIndependent!(person)
+    if !isDependent(person) 
+        return
+    end
+
+    for g in guardians(person)
+        deps = dependents()
+        deleteat!(deps, findfirst(deps, person))
+    end
+    empty!(guardians(person))
+    nothing
+end
+
+function setAsProviderProvidee!(provider, providee)
+    push!(providees(provider), providee)
+    provider!(providee, provider)
+    nothing
+end
+
+function setAsSelfproviding!(person)
+    if provider(person) == nothing
+        return
+    end
+
+    provs = providees(provider(person))
+    deleteat!(provs, findfirst(provs, person))
+    provider!(person, nothing)
+    nothing
 end
 
 
