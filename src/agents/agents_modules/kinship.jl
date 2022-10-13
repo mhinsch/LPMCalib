@@ -1,5 +1,5 @@
 export KinshipBlock
-export hasChildren, addChild!, isSingle 
+export hasChildren, addChild!, isSingle, parents, siblings
 
 mutable struct KinshipBlock{P} 
   father::Union{P,Nothing}
@@ -14,6 +14,22 @@ addChild!(parent::KinshipBlock{P}, child::P) where{P} = push!(parent.children, c
 
 isSingle(person::KinshipBlock) = person.partner == nothing 
 
+parents(person::KinshipBlock) = [person.father, person.mother]
+
+function siblings(person::KinshipBlock{P}) where P
+    sibs = P[]
+
+    for p in parents(person)
+        if p == nothing continue end
+        for c in p
+            if c != person
+                push!(sibs, c)
+            end
+        end
+    end
+
+    sibs
+end
 
 "costum @show method for Agent person"
 function Base.show(io::IO, kinship::KinshipBlock)

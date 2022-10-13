@@ -90,13 +90,13 @@ end
 function step!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, data = model, currstep = time, 
-              verbose = simPars.verbose, 
-              checkassumption = simPars.checkassumption)
+              parameters = pars.poppars, model = model, currstep = time)
+
+    orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
+    applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
     babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-              parameters = pars.birthpars, data = model, currstep = time, 
-             verbose = simPars.verbose, checkassumption = simPars.checkassumption)
+                       parameters = pars.birthpars, model = model, currstep = time)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)

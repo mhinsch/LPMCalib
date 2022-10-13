@@ -51,14 +51,16 @@ function applyDivorce!(man, time, allHouses, allTowns, parameters)
         end
 
         peopleToMove = [man]
-        for child in children(man)
-            if !alive(child) continue end 
-            if father(child) == man && mother(child) != wife
+        for child in dependents(man)
+            @assert alive(child)
+            if (father(child) == man && mother(child) != wife) ||
+                # if both have the same status decide by probability
+                (((father(child) == man) == (mother(child) == wife)) &&
+                 rand() < parameters.probChildrenWithFather)
                 push!(peopleToMove, child)
-            else 
-                if rand() < parameters.probChildrenWithFather
-                    push!(peopleToMove, child)
-                end
+                resolveDependency!(wife, child)
+            else
+                resolveDependency!(man, child)
             end 
         end # for 
 

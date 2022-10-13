@@ -4,7 +4,7 @@ using Utilities: age2yearsmonths, date2yearsmonths
 using XAgents: Person, isMale, isFemale, alive 
 using XAgents: age
 
-export doDeaths!
+export doDeaths!, setDead!
 
 function deathProbability(baseRate,person,parameters) 
     #=
@@ -55,10 +55,33 @@ function deathProbability(baseRate,person,parameters)
     #   a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
     #   higherUnmetNeed = (classRate*len(classPop))/a
     #   deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
-     
-
     deathProb 
 end # function deathProb
+
+
+function setDead!(person) 
+    person.info.alive = false
+    resetHouse!(person)
+    if !isSingle(person) 
+        resolvePartnership!(partner(person),person)
+    end
+
+    # dead persons are no longer dependents
+    setAsIndependent!(person)
+
+    # dead persons no longer have to be provided for
+    setAsSelfproviding!(person)
+
+    for p in providees(person)
+        provider!(person, nothing)
+        # TODO update provision/work status
+    end
+    empty!(providees(person))
+
+    # dependents are being taken care of by assignGuardian!
+    nothing
+end 
+
 
 # currently leaves dead agents in population
 function death!(person, currstep, model, parameters)
@@ -110,7 +133,7 @@ function death!(person, currstep, model, parameters)
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
     =# 
                                 
-    if rand() < deathProb && rand(1:12) == currmonth 
+    if rand() < p_yearly2monthly(deathProb)
         delayedVerbose() do
             y, m = age2yearsmonths(agep)
             println("person $(person.id) died year $(curryear) with age of $y")

@@ -4,7 +4,7 @@ export DependencyBlock
 mutable struct DependencyBlock{P}
     guardians :: Vector{P}
     dependents :: Vector{P}
-    provider :: Union{P, nothing}
+    provider :: Union{P, Nothing}
     providees :: Vector{P}
 end
 

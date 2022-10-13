@@ -1,11 +1,6 @@
 using Utilities
 
-using XAgents: isFemale, isSingle, hasChildren, alive 
-using XAgents: Person
-using XAgents: resetHouse!, resolvePartnership!, setDead!
-using XAgents: partner, age, ageYoungestAliveChild
-using XAgents: startMaternity!, workingHours!, income!, potentialIncome!
-using XAgents: availableWorkingHours!, setFullWeeklyTime!
+using XAgents
 
 export selectBirth, doBirths!, birth!
 
@@ -66,18 +61,15 @@ function effectsOfMaternity!(woman, pars)
 
     # TODO not necessarily true in many cases
     if provider(woman) == nothing
-        setAsProviderProvidee(partner(woman), woman)
+        setAsProviderProvidee!(partner(woman), woman)
     end
 
     nothing
 end
 
 
-function birth!(woman,time, model, parameters)
+function birth!(woman, currstep, model, parameters)
 
-    (curryear,currmonth) = date2yearsmonths(currstep)
-    currmonth += 1   # adjusting 0:11 => 1:12 
-                            
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
@@ -101,7 +93,7 @@ function birth!(woman,time, model, parameters)
     #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
     =#
                         
-    if rand() < birthProb && rand(1:12) == currmonth 
+    if rand() < p_yearly2monthly(birthProb) 
                         
         # parentsClassRank = max([woman.classRank, woman.partner.classRank])
         # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
@@ -186,7 +178,7 @@ selectBirth(woman, parameters) = isFemale(woman) &&
     ageYoungestAliveChild(woman) > 1 
 
 
-function doBirths!(;people,time, model, parameters)
+function doBirths!(;people, currstep, model, parameters)
 
     # TODO Assumptions 
     assumption() do
@@ -271,7 +263,7 @@ function doBirths!(;people,time, model, parameters)
 
     for woman in reproductiveWomen 
 
-        baby = birth!(woman,time, model, parameters)
+        baby = birth!(woman, currstep, model, parameters)
         if baby != nothing 
             push!(babies,baby)
         end 

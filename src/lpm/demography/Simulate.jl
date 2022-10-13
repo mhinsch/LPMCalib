@@ -11,5 +11,6 @@ include("simulate/divorce.jl")
 include("simulate/ageTransition.jl")
 include("simulate/socialTransition.jl")
 include("simulate/marriages.jl")
+include("simulate/dependencies.jl")
 
 end # module Simulate 

@@ -8,15 +8,17 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 export Person
 export PersonHouse, undefinedHouse
 
-export moveToHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, agestepAlive!, setDead!, livingTogether
+export getHomeTown, getHomeTownName, agestepAlive!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
 export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
-export canLiveAlone, setAsGuardianDependent!, setAsProviderProvidee!
-export setAsIndependent!, setAsSelfproviding!
+export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
+export hasDependents, isDependent, hasProvidees
+export setAsIndependent!, setAsSelfproviding!, resolveDependency!
+export checkConsistencyDependents
 export maxParentRank
 
 
@@ -91,7 +93,7 @@ end # struct Person
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
 @export_forward Person kinship [father, mother, partner, children]
-@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle, parents, siblings]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
@@ -129,7 +131,7 @@ Person(pos,age; gender=unknown,
             MaternityBlock(false, 0),
             WorkBlock(),
             CareBlock(0, 0, 0),
-            ClassBlock(0))
+            ClassBlock(0), DependencyBlock{Person}())
 
 
 "Constructor with default values"
@@ -142,7 +144,7 @@ Person(;pos=undefinedHouse,age=0,
                 MaternityBlock(false, 0),
                 WorkBlock(),
                 CareBlock(0, 0, 0),
-                ClassBlock(0))
+                ClassBlock(0), DependencyBlock{Person}())
 
 
 const PersonHouse = House{Person, Town}
@@ -227,16 +229,6 @@ function setAsPartners!(person1::Person,person2::Person)
     partner!(person2, person1)
 end
 
-function setDead!(person::Person) 
-    person.info.alive = false
-    resetHouse!(person)
-    if !isSingle(person) 
-        resolvePartnership!(partner(person),person)
-    end
-
-    # dependencies are resolved separately
-    nothing
-end 
 
 "set child of a parent" 
 function setParent!(child, parent)
@@ -281,6 +273,7 @@ end
 
 
 canLiveAlone(person) = age(person) >= 18
+isOrphan(person) = !canLiveAlone(person) && !isDependent(person)
 
 function setAsGuardianDependent!(guardian, dependent)
     push!(dependents(guardian), dependent)
@@ -288,22 +281,58 @@ function setAsGuardianDependent!(guardian, dependent)
     nothing
 end
 
+function resolveDependency!(guardian, dependent)
+    deps = dependents(guardian)
+    idx_d = findfirst(==(dependent), deps)
+    if idx_d == nothing
+        return
+    end
+
+    deleteat!(deps, idx_d)
+
+    guards = guardians(dependent)
+    idx_g = findfirst(==(guardian), guards)
+    if idx_g == nothing
+        error("inconsistent dependency!")
+    end
+    deleteat!(guards, idx_g)
+end
+
+
 function setAsIndependent!(person)
     if !isDependent(person) 
         return
     end
 
     for g in guardians(person)
-        deps = dependents()
-        deleteat!(deps, findfirst(deps, person))
+        g_deps = dependents(g)
+        deleteat!(g_deps, findfirst(==(person), g_deps))
     end
     empty!(guardians(person))
     nothing
 end
 
-function setAsProviderProvidee!(provider, providee)
-    push!(providees(provider), providee)
-    provider!(providee, provider)
+# check basic consistency, if there's an error on any of these 
+# then something is seriously wrong
+function checkConsistencyDependents(person)
+    for guard in guardians(person)
+        @assert guard != nothing && alive(guard)
+        @assert person in dependents(guard)
+    end
+
+    for dep in dependents(person)
+        @assert dep != nothing && alive(dep)
+        @assert age(dep) < 18
+        @assert person.pos == dep.pos
+        @assert person in guardians(dep)
+    end
+end
+
+
+function setAsProviderProvidee!(prov, providee)
+    @assert provider(providee) == nothing
+    push!(providees(prov), providee)
+    provider!(providee, prov)
     nothing
 end
 
@@ -313,7 +342,7 @@ function setAsSelfproviding!(person)
     end
 
     provs = providees(provider(person))
-    deleteat!(provs, findfirst(provs, person))
+    deleteat!(provs, findfirst(==(person), provs))
     provider!(person, nothing)
     nothing
 end

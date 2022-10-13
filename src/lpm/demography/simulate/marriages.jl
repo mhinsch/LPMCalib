@@ -1,5 +1,6 @@
 export resetCacheMarriages, marriage!, selectMarriage
 
+using XAgents
 
 ageClass(person) = trunc(Int, age(person)/10)
 
@@ -127,9 +128,20 @@ function marriage!(man, time, model, pars)
     selectedWoman = women[selectedIdx]
 
     setAsPartners!(man, selectedWoman)
+    # remove from cached list
     remove_unsorted!(women, selectedIdx)
 
     joinCouple!(man, selectedWoman, model, pars)
+
+    dep_man = dependents(man)
+    dep_woman = dependents(selectedWoman)
+    # all dependents become joint dependents
+    for child in dep_man
+        setAsGuardianDependent!(selectedWoman, child)
+    end
+    for child in dep_woman
+        setAsGuardianDependent!(man, child)
+    end
 
     nothing
 end
@@ -137,7 +149,7 @@ end
 
 # for now simply all dependents
 function gatherDependentsSingle(person)
-    assume() do
+    assumption() do
         for p in dependents(person)
             @assert p.pos == person.pos
             @assert length(guardians(p)) == 1
@@ -158,7 +170,7 @@ function joinCouple!(man, woman, model, pars)
     # decide who leads the move
     peopleToMove = rand()<0.5 ? [man, woman] : [woman, man]
 
-    append!(peopleToMove, gatherDependents(man), gatherDependents(woman))
+    append!(peopleToMove, gatherDependentsSingle(man), gatherDependentsSingle(woman))
 
     if rand() < pars.couplesMoveToExistingHousehold
         targetHouse = nOccupants(man.pos) > nOccupants(woman.pos) ? 
