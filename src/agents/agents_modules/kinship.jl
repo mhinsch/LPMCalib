@@ -21,7 +21,7 @@ function siblings(person::KinshipBlock{P}) where P
 
     for p in parents(person)
         if p == nothing continue end
-        for c in p
+        for c in children(p)
             if c != person
                 push!(sibs, c)
             end

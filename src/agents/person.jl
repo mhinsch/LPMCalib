@@ -331,6 +331,7 @@ end
 
 function setAsProviderProvidee!(prov, providee)
     @assert provider(providee) == nothing
+    @assert !(providee in providees(prov))
     push!(providees(prov), providee)
     provider!(providee, prov)
     nothing

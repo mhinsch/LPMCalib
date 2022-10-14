@@ -73,7 +73,7 @@ function setDead!(person)
     setAsSelfproviding!(person)
 
     for p in providees(person)
-        provider!(person, nothing)
+        provider!(p, nothing)
         # TODO update provision/work status
     end
     empty!(providees(person))
@@ -101,8 +101,8 @@ function death!(person, currstep, model, parameters)
                         
         agep = agep > 109 ? Rational(109) : agep 
         ageindex = trunc(Int,agep)
-        rawRate = isMale(person) ?  data.death_male[ageindex+1,curryear-1950+1] : 
-                                    data.death_female[ageindex+1,curryear-1950+1]
+        rawRate = isMale(person) ?  model.death_male[ageindex+1,curryear-1950+1] : 
+                                    model.death_female[ageindex+1,curryear-1950+1]
                                    
         # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
                         
@@ -125,7 +125,7 @@ function death!(person, currstep, model, parameters)
         Classes to be considered in a different module 
     =#
                         
-    deathProb = deathProbability(rawRate,person,parameters)
+    deathProb = min(1.0, deathProbability(rawRate,person,parameters))
                         
     #=
         The following is uncommented code in the original code < 1950
