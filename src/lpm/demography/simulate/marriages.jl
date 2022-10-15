@@ -1,5 +1,6 @@
 export resetCacheMarriages, marriage!, selectMarriage
 
+using XAgents
 
 ageClass(person) = trunc(Int, age(person)/10)
 
@@ -10,7 +11,9 @@ ageClass(person) = trunc(Int, age(person)/10)
 
     for p in Iterators.filter(x->isMale(x) && ageClass(x) == ageclass, model.pop)
         nAll += 1
-        if !hasChildrenAtHome(p)
+        # only looks at legally dependent persons (which usually are underage and 
+        # living in the same household)
+        if !hasDependents(p)
             nNoC += 1
         end
     end
@@ -66,7 +69,8 @@ function marryWeight(man, woman, pars)
 
     ageFactor = pars.deltaAgeProb[deltaAge(age(man) - age(woman))]
 
-    numChildrenWithWoman = count(x->x.pos == woman.pos, children(woman))
+    # legal dependents (i.e. usually underage persons living at the same house)
+    numChildrenWithWoman = length(dependents(woman))
 
     childrenFactor = 1/exp(pars.bridesChildrenExp * numChildrenWithWoman)
 
@@ -92,7 +96,7 @@ function marriage!(man, time, model, pars)
     snc = shareMenNoChildren(model, ageclass)
     den = snc + (1-snc) * pars.manWithChildrenBias
 
-    prob = manMarriageProb / den * (hasChildrenAtHome(man) ? pars.manWithChildrenBias : 1)
+    prob = manMarriageProb / den * (hasDependents(man) ? pars.manWithChildrenBias : 1)
 
     if rand() >= p_yearly2monthly(prob) 
         return nothing
@@ -124,26 +128,36 @@ function marriage!(man, time, model, pars)
     selectedWoman = women[selectedIdx]
 
     setAsPartners!(man, selectedWoman)
+    # remove from cached list
     remove_unsorted!(women, selectedIdx)
 
     joinCouple!(man, selectedWoman, model, pars)
 
+    dep_man = dependents(man)
+    dep_woman = dependents(selectedWoman)
+    # all dependents become joint dependents
+    for child in dep_man
+        setAsGuardianDependent!(selectedWoman, child)
+    end
+    for child in dep_woman
+        setAsGuardianDependent!(man, child)
+    end
+
     nothing
 end
 
-bringTheKids(person) = [ child for child in children(person) if 
-                 !independent(child) && alive(child) && child.pos == person.pos ]
 
-
-dependents(person) = [ p for p in person.pos.occupants if p != person ]
-
-
-function gatherDependents(person)
-    if independent(person)
-        dependents(person)
-    else
-        bringTheKids(person)
+# for now simply all dependents
+function gatherDependentsSingle(person)
+    assumption() do
+        for p in dependents(person)
+            @assert p.pos == person.pos
+            @assert length(guardians(p)) == 1
+            @assert guardians(p)[1] == person
+        end
     end
+
+    dependents(person)
 end
 
     
@@ -156,7 +170,7 @@ function joinCouple!(man, woman, model, pars)
     # decide who leads the move
     peopleToMove = rand()<0.5 ? [man, woman] : [woman, man]
 
-    append!(peopleToMove, gatherDependents(man), gatherDependents(woman))
+    append!(peopleToMove, gatherDependentsSingle(man), gatherDependentsSingle(woman))
 
     if rand() < pars.couplesMoveToExistingHousehold
         targetHouse = nOccupants(man.pos) > nOccupants(woman.pos) ? 
@@ -167,9 +181,6 @@ function joinCouple!(man, woman, model, pars)
         distance = rand([:here, :near])
         movePeopleToEmptyHouse!(peopleToMove, distance, model.houses, model.towns)
     end
-
-    independent!(man, true)
-    independent!(woman, true)
 
     # TODO movedThisYear
     # required by moving around (I think)

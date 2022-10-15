@@ -24,6 +24,11 @@ function ageTransition!(person, time, model, pars)
         #    person.yearInTown += 1
         #end
     agestep!(person)
+
+    if age(person) == 18
+        # also updates guardian
+        setAsIndependent!(person)
+    end
 end
 
 selectWorkTransition(person, pars) = 
