@@ -10,11 +10,6 @@ from REPL execute it using
 > include("Main.jl")
 """
 
-include("./loadLibsPath.jl")
-
-if !occursin("src/generic",LOAD_PATH)
-    push!(LOAD_PATH, "src/generic") 
-end
 
 
 using LPM.ParamTypes
