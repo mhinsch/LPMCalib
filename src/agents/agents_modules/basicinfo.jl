@@ -1,5 +1,4 @@
-using SomeUtil: date2yearsmonths
-using Utilities: Gender, unknown, female, male
+using Utilities: Gender, unknown, female, male, age2yearsmonths
 
 export isFemale, isMale, agestep!, agestepAlive!, hasBirthday
 
@@ -7,9 +6,9 @@ export isFemale, isMale, agestep!, agestepAlive!, hasBirthday
 # TODO think about whether to make this immutable
 mutable struct BasicInfoBlock
     age::Rational{Int} 
-  # (birthyear, birthmonth)
-  gender::Gender  
-  alive::Bool 
+    # (birthyear, birthmonth)
+    gender::Gender  
+    alive::Bool 
 end
 
 "Default constructor"
@@ -21,7 +20,7 @@ isMale(person::BasicInfoBlock) = person.gender == male
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  info::BasicInfoBlock)
-  year, month = date2yearsmonths(info.age)
+  year, month = age2yearsmonths(info.age)
   print(" $(year) years & $(month) months, $(info.gender) ")
   info.alive ? print(" alive ") : print(" dead ")  
 end

@@ -10,9 +10,6 @@ from REPL execute it using
 > include("Main.jl")
 """
 
-using CSV
-using Tables
-
 include("./loadLibsPath.jl")
 
 if !occursin("src/generic",LOAD_PATH)
@@ -49,11 +46,10 @@ function createUKDemography!(pars)
 
     ukPopulation = createUKPopulation(pars.poppars)
 
-    fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
-    death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix
-    death_male = CSV.File("data/deathrate.male.csv",header=0) |> Tables.matrix
+    ukDemoData   = loadUKDemographyData()
 
-    Model(ukTowns, ukHouses, ukPopulation, fert, death_female, death_male)
+    Model(ukTowns, ukHouses, ukPopulation, 
+            ukDemoData.fertility , ukDemoData.death_female, ukDemoData.death_male)
 end
 
 
@@ -94,25 +90,31 @@ end
 function step!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, data = model, currstep = time, 
-              verbose = simPars.verbose, 
-              checkassumption = simPars.checkassumption)
+              parameters = pars.poppars, model = model, currstep = time)
+
+    orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
+    applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
     babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-              parameters = pars.birthpars, data = model, currstep = time, 
-             verbose = simPars.verbose, checkassumption = simPars.checkassumption)
+                       parameters = pars.birthpars, model = model, currstep = time)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, ageTransition!, time, model, pars.workpars, 
-                     "age", simPars.verbose)
+    applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
 
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, workTransition!, time, model, pars.workpars, 
-                     "work", simPars.verbose)
+    applyTransition!(selected, workTransition!, "work", time, model, pars.workpars)
 
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
-    applyTransition!(selected, socialTransition!, time, model, pars.workpars, 
-                     "social", simPars.verbose)
+    applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
+
+    selected = Iterators.filter(p->selectDivorce(p, pars), model.pop)
+    applyTransition!(selected, divorce!, "divorce", time, model, 
+                     fuse(pars.divorcepars, pars.workpars))
+
+    resetCacheMarriages()
+    selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
+    applyTransition!(selected, marriage!, "marriage", time, model, 
+                     fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
 
     append!(model.pop, babies)
 end
@@ -121,7 +123,8 @@ end
 function run!(model, simPars, pars)
     time = Rational(simPars.startTime)
 
-    simPars.verbose = false
+    simPars.verbose ? setVerbose!() : unsetVerbose!()
+    setDelay!(simPars.sleeptime)
 
     while time < simPars.finishTime
         step!(model, time, simPars, pars)     
@@ -199,6 +202,6 @@ function setupModel(pars)
     @show model.pop[1:10]
     println(); println(); 
 
-    model, pars
+    model
 end
 

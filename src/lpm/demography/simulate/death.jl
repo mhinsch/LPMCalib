@@ -1,10 +1,10 @@
 
-using SomeUtil: date2yearsmonths
+using Utilities: age2yearsmonths, date2yearsmonths
 
-using XAgents: isMale, isFemale, alive 
+using XAgents: Person, isMale, isFemale, alive 
 using XAgents: age
 
-export doDeaths!
+export doDeaths!, setDead!
 
 function deathProbability(baseRate,person,parameters) 
     #=
@@ -14,8 +14,11 @@ function deathProbability(baseRate,person,parameters)
             classRank = person.parentsClassRank
     =# 
 
-    mortalityBias = isMale(person) ? parameters.maleMortalityBias : 
-                                     parameters.femaleMortalityBias 
+    if isMale(person) 
+        mortalityBias =  parameters.maleMortalityBias
+    else 
+        mortalityBias =  parameters.femaleMortalityBias 
+    end 
 
     #= 
     To be integrated in class modules 
@@ -52,31 +55,54 @@ function deathProbability(baseRate,person,parameters)
     #   a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
     #   higherUnmetNeed = (classRate*len(classPop))/a
     #   deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
-     
-
     deathProb 
 end # function deathProb
 
-function personSubjectToDeath!(person,parameters,data,currstep,
-                               ;verbose,sleeptime,checkassumption)
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+function setDead!(person) 
+    person.info.alive = false
+    resetHouse!(person)
+    if !isSingle(person) 
+        resolvePartnership!(partner(person),person)
+    end
+
+    # dead persons are no longer dependents
+    setAsIndependent!(person)
+
+    # dead persons no longer have to be provided for
+    setAsSelfproviding!(person)
+
+    for p in providees(person)
+        provider!(p, nothing)
+        # TODO update provision/work status
+    end
+    empty!(providees(person))
+
+    # dependents are being taken care of by assignGuardian!
+    nothing
+end 
+
+
+# currently leaves dead agents in population
+function death!(person, currstep, model, parameters)
+
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
 
     agep = age(person)             
 
-    if checkassumption
+    assumption() do
         @assert alive(person)       
         @assert isMale(person) || isFemale(person) # Assumption 
-        @assert typeof(agep) == Rational{Int64}
+        @assert typeof(agep) == Rational{Int}
     end
  
     if curryear >= 1950 
                         
         agep = agep > 109 ? Rational(109) : agep 
         ageindex = trunc(Int,agep)
-        rawRate = isMale(person) ?  data.death_male[ageindex+1,curryear-1950+1] : 
-                                    data.death_female[ageindex+1,curryear-1950+1]
+        rawRate = isMale(person) ?  model.death_male[ageindex+1,curryear-1950+1] : 
+                                    model.death_female[ageindex+1,curryear-1950+1]
                                    
         # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
                         
@@ -99,7 +125,7 @@ function personSubjectToDeath!(person,parameters,data,currstep,
         Classes to be considered in a different module 
     =#
                         
-    deathProb =  deathProbability(rawRate,person,parameters)
+    deathProb = min(1.0, deathProbability(rawRate,person,parameters))
                         
     #=
         The following is uncommented code in the original code < 1950
@@ -107,11 +133,10 @@ function personSubjectToDeath!(person,parameters,data,currstep,
         # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
     =# 
                                 
-    if rand() < deathProb && rand(1:12) == currmonth 
-        if verbose 
-            y, m = date2yearsmonths(agep)
+    if rand() < p_yearly2monthly(deathProb)
+        delayedVerbose() do
+            y, m = age2yearsmonths(agep)
             println("person $(person.id) died year $(curryear) with age of $y")
-            sleep(sleeptime) 
         end
         setDead!(person) 
         return true 
@@ -123,25 +148,20 @@ function personSubjectToDeath!(person,parameters,data,currstep,
 end 
 
 "evaluate death events in a population"
-function doDeaths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0,checkassumption=true)
+function doDeaths!(;people, currstep, model, parameters)
 
     deads = Person[] 
 
     for person in people 
-        if personSubjectToDeath!(person,parameters,data,currstep,
-                                verbose=verbose,
-                                sleeptime=sleeptime,
-                                checkassumption=checkassumption) 
+        if death!(person, currstep, model, parameters) 
             push!(deads,person)
         end 
     end # for livingPeople
     
-    if verbose
+    delayedVerbose() do
         count = length([person for person in people if alive(person)] )
         numDeaths = length(deads)
         println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
-        sleep(sleeptime)
     end 
 
     deads   

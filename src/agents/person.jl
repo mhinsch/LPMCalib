@@ -7,12 +7,19 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 
 export Person
 export PersonHouse, undefinedHouse
-export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+
+export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export getHomeTown, getHomeTownName, agestepAlive!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
+export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
+export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
+export hasDependents, isDependent, hasProvidees
+export setAsIndependent!, setAsSelfproviding!, resolveDependency!
+export checkConsistencyDependents
+export maxParentRank
 
 
 include("agents_modules/basicinfo.jl")
@@ -21,6 +28,7 @@ include("agents_modules/maternity.jl")
 include("agents_modules/work.jl")
 include("agents_modules/care.jl")
 include("agents_modules/class.jl")
+include("agents_modules/dependencies.jl")
 
 
 """
@@ -35,7 +43,7 @@ Person ties various agent modules into one compound agent type.
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
 mutable struct Person <: AbstractXAgent
-    id
+    id::Int
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -48,11 +56,12 @@ mutable struct Person <: AbstractXAgent
     work :: WorkBlock
     care :: CareBlock
     class :: ClassBlock
+    dependencies :: DependencyBlock{Person}
 
     # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
-    function Person(pos, info, kinship, maternity, work, care, class)
-        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class)
+    function Person(pos, info, kinship, maternity, work, care, class, dependencies)
+        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class, dependencies)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -84,7 +93,7 @@ end # struct Person
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
 
 @export_forward Person kinship [father, mother, partner, children]
-@delegate_onefield Person kinship [hasChildren, addChild!, isSingle]
+@delegate_onefield Person kinship [hasChildren, addChild!, isSingle, parents, siblings]
 
 @delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
     isInMaternity, maternityDuration]
@@ -99,6 +108,8 @@ end # struct Person
 @export_forward Person class [classRank]
 @delegate_onefield Person class [addClassRank!]
 
+@export_forward Person dependencies [guardians, dependents, provider, providees]
+@delegate_onefield Person dependencies [isDependent, hasDependents, hasProvidees]
 
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
@@ -111,15 +122,16 @@ end
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
 
 "Constructor with default values"
+
 Person(pos,age; gender=unknown,
     father=nothing,mother=nothing,
     partner=nothing,children=Person[]) = 
         Person(pos,BasicInfoBlock(;age, gender), 
-            KinshipBlock(father,mother,partner,children), 
+               KinshipBlock{Person}(father,mother,partner,children), 
             MaternityBlock(false, 0),
             WorkBlock(),
             CareBlock(0, 0, 0),
-            ClassBlock(0))
+            ClassBlock(0), DependencyBlock{Person}())
 
 
 "Constructor with default values"
@@ -128,19 +140,19 @@ Person(;pos=undefinedHouse,age=0,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
             Person(pos,BasicInfoBlock(;age,gender), 
-                KinshipBlock(father,mother,partner,children),
+                   KinshipBlock{Person}(father,mother,partner,children),
                 MaternityBlock(false, 0),
                 WorkBlock(),
                 CareBlock(0, 0, 0),
-                ClassBlock(0))
+                ClassBlock(0), DependencyBlock{Person}())
 
 
 const PersonHouse = House{Person, Town}
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
 
-"associate a house to a person"
-function setHouse!(person::Person,house)
+"associate a house to a person, removes person from previous house"
+function moveToHouse!(person::Person,house)
     if ! undefined(person.pos) 
         removeOccupant!(person.pos, person)
     end
@@ -159,6 +171,15 @@ function resetHouse!(person::Person)
     nothing 
 end 
 
+livingTogether(person1, person2) = person1.pos == person2.pos
+
+
+areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
+areSiblings(person1, person2) = father(person1) == father(person2) != nothing || 
+    mother(person1) == mother(person2) != nothing
+related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
+
+
 # TODO check if correct
 # TODO cache for optimisation?
 householdIncome(person) = sum(p -> income(p), person.pos.occupants)
@@ -167,13 +188,16 @@ householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.o
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
-    isMale(parent) || isFemale(parent) ? nothing : throw(InvalidStateException("$(parent) has unknown gender",:undefined))
-    age(child) <  age(parent) ? nothing : throw(ArgumentError("child's age $(age(child)) >= parent's age $(age(parent))")) 
-    (isMale(parent) && father(child) == nothing) ||
-        (isFemale(parent) && mother(child) == nothing) ? nothing : 
-            throw(ArgumentError("$(child) has a parent"))
+    @assert isMale(parent) || isFemale(parent)
+    @assert age(child) < age(parent)
+    @assert (isMale(parent) && father(child) == nothing) ||
+        (isFemale(parent) && mother(child) == nothing) 
+
     addChild!(parent, child)
     setParent!(child, parent) 
+    # would be nice to ensure consistency of dependence/provision at this point as well
+    # but there are so many specific situations that it is easier to do that in simulation
+    # code
     nothing 
 end
 
@@ -188,63 +212,153 @@ end
 
 "resolving partnership"
 function resolvePartnership!(person1::Person, person2::Person)
-    if partner(person1) != person2 || partner(person2) != person1
-        throw(ArgumentError("$(person1) and $(person2) are not partners"))
-    end
+    @assert partner(person1) == person2 && partner(person2) == person1
+
     resetPartner!(person1)
 end
 
 
 "set two persons to be a partner"
 function setAsPartners!(person1::Person,person2::Person)
-    if (isMale(person1) && isFemale(person2) || 
-        isFemale(person1) && isMale(person2)) 
+    @assert isMale(person1) == isFemale(person2)
 
-        resetPartner!(person1) 
-        resetPartner!(person2)
+    resetPartner!(person1) 
+    resetPartner!(person2)
 
-        partner!(person1, person2)
-        partner!(person2, person1)
-        return nothing 
-    end 
-    throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
+    partner!(person1, person2)
+    partner!(person2, person1)
 end
 
 
-function setDead!(person::Person) 
-    person.info.alive = false
-    resetHouse!(person)
-    if !isSingle(person) 
-        resolvePartnership!(partner(person),person)
+"set child of a parent" 
+function setParent!(child, parent)
+    @assert isFemale(paren) || isMale(parent)
+
+    if isFemale(parent) 
+        mother!(child, parent)
+    else 
+        father!(child, parent)
     end
-    # no need to resolve parents / childern relationship
+
     nothing
 end 
 
-"set child of a parent" 
-function setParent!(child, parent)
-  if isFemale(parent) 
-    mother!(child, parent)
-  elseif isMale(parent) 
-    father!(child, parent)
-  else
-    throw(InvalidStateException("undefined case",:undefined))
-  end
-end 
-
-function hasAliveChild(person::KinshipBlock)
+function hasAliveChild(person)
     for child in children(person) 
         if alive(child) return true end 
     end
     false 
 end
 
+function hasChildrenAtHome(person)
+    for c in children(person)
+        if alive(c) && c.pos == person.pos
+            return true
+        end
+    end
+    
+    false
+end
+
+
 function ageYoungestAliveChild(person::Person) 
-    youngest = Rational(Inf)  
+    youngest = Rational{Int}(Inf)  
     for child in children(person) 
         if alive(child) 
             youngest = min(youngest,age(child))
         end 
     end
     youngest 
+end
+
+
+canLiveAlone(person) = age(person) >= 18
+isOrphan(person) = !canLiveAlone(person) && !isDependent(person)
+
+function setAsGuardianDependent!(guardian, dependent)
+    push!(dependents(guardian), dependent)
+    push!(guardians(dependent), guardian)
+    nothing
+end
+
+function resolveDependency!(guardian, dependent)
+    deps = dependents(guardian)
+    idx_d = findfirst(==(dependent), deps)
+    if idx_d == nothing
+        return
+    end
+
+    deleteat!(deps, idx_d)
+
+    guards = guardians(dependent)
+    idx_g = findfirst(==(guardian), guards)
+    if idx_g == nothing
+        error("inconsistent dependency!")
+    end
+    deleteat!(guards, idx_g)
+end
+
+
+function setAsIndependent!(person)
+    if !isDependent(person) 
+        return
+    end
+
+    for g in guardians(person)
+        g_deps = dependents(g)
+        deleteat!(g_deps, findfirst(==(person), g_deps))
+    end
+    empty!(guardians(person))
+    nothing
+end
+
+# check basic consistency, if there's an error on any of these 
+# then something is seriously wrong
+function checkConsistencyDependents(person)
+    for guard in guardians(person)
+        @assert guard != nothing && alive(guard)
+        @assert person in dependents(guard)
+    end
+
+    for dep in dependents(person)
+        @assert dep != nothing && alive(dep)
+        @assert age(dep) < 18
+        @assert person.pos == dep.pos
+        @assert person in guardians(dep)
+    end
+end
+
+
+function setAsProviderProvidee!(prov, providee)
+    @assert provider(providee) == nothing
+    @assert !(providee in providees(prov))
+    push!(providees(prov), providee)
+    provider!(providee, prov)
+    nothing
+end
+
+function setAsSelfproviding!(person)
+    if provider(person) == nothing
+        return
+    end
+
+    provs = providees(provider(person))
+    deleteat!(provs, findfirst(==(person), provs))
+    provider!(person, nothing)
+    nothing
+end
+
+
+function maxParentRank(person)
+    f = father(person)
+    m = mother(person)
+    if f == m == nothing
+        classRank(person)
+    elseif f == nothing
+        classRank(m)
+    elseif m == nothing
+        classRank(f)
+    else
+        max(classRank(m), classRank(f))
+    end
 end

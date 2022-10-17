@@ -6,7 +6,7 @@ export setEmptyJobSchedule!, setFullWeeklyTime!
 export WorkStatus
 
 # better (scoped) enums from package EnumX
-@enumx WorkStatus child teenager student retired unemployed
+@enumx WorkStatus child teenager student worker retired unemployed
 
 # TODO some of this should probably be moved to Care
 mutable struct WorkBlock

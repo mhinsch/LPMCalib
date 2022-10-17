@@ -65,7 +65,7 @@ function addToWorkforce!(person, model)
 end
 
 # move newly adult agents into study or work
-function socialTransition!(person, time, model, pars, verbose)
+function socialTransition!(person, time, model, pars)
     probStudy = doneStudying(person, pars)  ?  
         0.0 : startStudyProb(person, model, pars)
 
@@ -80,7 +80,12 @@ end
 
 # probability to start studying instead of working
 function startStudyProb(person, model, pars)
-    if !alive(father(person)) && !alive(mother(person))
+    # original version, we now use the provider
+    #if !alive(father(person)) && !alive(mother(person))
+    #    return 0.0
+    #end
+    
+    if provider(person) == nothing
         return 0.0
     end
 
@@ -140,6 +145,9 @@ function startWorking!(person, pars)
     dist = incomeDist(person, pars)
 
     finalIncome!(person, rand(dist))
+
+    # updates provider as well
+    setAsSelfproviding!(person)
 
 # commented in original:
 #        if person.classRank < 4:
