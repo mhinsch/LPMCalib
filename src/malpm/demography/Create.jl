@@ -13,7 +13,6 @@ export createUKDemographDash, createUKTownsDash
 export createUKDemography
 
 ### Example Names 
-
 "Super type for all demographic models"
 abstract type DemographyExample <: AbstractExample end 
 
@@ -22,6 +21,17 @@ struct LPMUKDemography <: DemographyExample end
 
 "This is an attemp for improved algorthimic translation"
 struct LPMUKDemographyOpt <: DemographyExample end 
+
+mutable struct MAModel <: AbstratMABM 
+    t      :: Rational{Int}
+    towns  :: ABM{Town} 
+    houses :: ABM{PersonHouse}
+    pop    :: ABM{Person}
+    
+    function MAModel(model) 
+    
+    end 
+end
 
 createUKPopulationDash(pars) = createUKPopulation(pars.poppars)
 
