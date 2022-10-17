@@ -23,6 +23,7 @@ if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
+using MALPM.Demography: MAModel 
 
 # using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
@@ -39,29 +40,26 @@ include("mainHelpers.jl")
 
 const simPars, pars = getParameters() 
 
+const model = setupModel(pars)
 
-# Declaration and initialization of a MABM for a demography model of UK 
+ukDemography = MAModel(simPars.startTime,model,pars)
 
-#= 
-const simProperties = loadSimulationParameters()
-
-ukDemography = MultiABM(ukDemographyPars,
-                        declare=createUKDemography,
-                        initialize=initializeDemography!)
-
-if simProperties.verbose
+if simPars.verbose
     @show "Town Samples: \n"     
-    @show ukDemography.abms[1].agentsList[1:10]
+    @show ukDemography.towns.agentsList[1:10]
     println(); println(); 
                         
     @show "Houses samples: \n"      
-    @show ukDemography.abms[2].agentsList[1:10]
+    @show ukDemography.houses.agentsList[1:10]
     println(); println(); 
                         
     @show "population samples : \n" 
-    @show ukDemography.abms[3].agentsList[1:10]
+    @show ukDemography.pop.agentsList[1:10]
     println(); println(); 
 end 
+
+
+#= 
 
 # Declaration of a simulation 
 lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
