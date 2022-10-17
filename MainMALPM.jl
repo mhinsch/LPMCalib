@@ -42,7 +42,7 @@ const simPars, pars = getParameters()
 
 const model = setupModel(pars)
 
-ukDemography = MAModel(simPars.startTime,model,pars)
+ukDemography = MAModel(model,pars)
 
 if simPars.verbose
     @show "Town Samples: \n"     

@@ -21,12 +21,11 @@ struct LPMUKDemographyOpt <: DemographyExample end
 =# 
 
 mutable struct MAModel <: AbstractMABM 
-    t      :: Rational{Int}
     towns  :: ABM{Town} 
     houses :: ABM{PersonHouse}
     pop    :: ABM{Person}
     
-    function MAModel(t,model,pars)
+    function MAModel(model,pars)
         ukTowns  = ABM{Town}(model.towns,parameters = pars.mappars) 
         ukHouses = ABM{PersonHouse}(model.houses)
         parameters = (poppars = pars.poppars, birthpars = pars.birthpars, 
@@ -35,7 +34,7 @@ mutable struct MAModel <: AbstractMABM
                     death_female = model.death_female, 
                     death_male = model.death_male)    
         ukPopulation = ABM{Person}(model.pop,parameters=parameters,data=data)
-        new(t,ukTowns,ukHouses,ukPopulation)
+        new(ukTowns,ukHouses,ukPopulation)
     end 
 end
 
