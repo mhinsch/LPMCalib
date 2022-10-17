@@ -6,6 +6,7 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 using ArgParse
+using YAML
 
 using LPM.ParamTypes
 
@@ -33,14 +34,19 @@ mutable struct Model
 end
 
 
-function createUKDemography!(pars)
-    ukTowns = createUKTowns(pars.mappars)
+function createDemography!(pars)
+    ukTowns = createTowns(pars.mappars)
 
     ukHouses = Vector{PersonHouse}()
 
-    ukPopulation = createUKPopulation(pars.poppars)
+    ukPopulation = createPopulation(pars.poppars)
+    
+    datp = pars.data
+    dir = datp.datadir
 
-    ukDemoData   = loadUKDemographyData()
+    ukDemoData   = loadDemographyData(dir * "/" * datp.fertFName, 
+                                      dir * "/" * datp.deathFFName,
+                                      dir * "/" * datp.deathMFName)
 
     Model(ukTowns, ukHouses, ukPopulation, 
             ukDemoData.fertility , ukDemoData.death_female, ukDemoData.death_male)
@@ -131,6 +137,18 @@ end
 nameOfParType(t) = replace(String(nameof(t)), "Pars" => "")
 
 
+asType(::Type{T}, value) where{T} = value
+asType(::Type{T}, value::AbstractString) where {T} = parse(T, value)
+asType(::Type{String}, value::AbstractString) = value
+
+function Base.parse(::Type{Rational{T}}, s::AbstractString) where {T}
+    nums = split(s, "//")
+    Rational{T}(parse(T, nums[1]), parse(T, nums[2]))
+end
+
+setValue!(str, fname, value) = setfield!(str, fname, 
+                                         asType(fieldtype(typeof(str), fname), value))
+
 function parFromYaml(yaml, ptype)
     name = Symbol(nameOfParType(ptype))
     par = ptype()
@@ -148,10 +166,32 @@ function parFromYaml(yaml, ptype)
             error("Field $f required in parameter $name!")
         end
 
-        setfield!(par, f, pyaml[f])
+        setValue!(par, f, pyaml[f])
     end
 
     par
+end
+
+
+function parToYaml(par)
+    dict = Dict{Symbol, Any}()
+    for n in fieldnames(typeof(par))
+        dict[n] = getfield(par, n)
+    end
+
+    dict
+end
+
+function saveParametersToFile(simPars, pars::DemographyPars, fname)
+    dict = Dict{Symbol, Any}()
+
+    dict[:Simulation] = parToYaml(simPars)
+
+    for f in fieldnames(DemographyPars)
+        dict[f] = parToYaml(getfield(pars, f))
+    end
+    
+    YAML.write_file(fname, dict)
 end
 
 
@@ -181,6 +221,8 @@ function loadParameters(argv)
 			default = "log.txt"
 	end
 
+    # setup command line arguments with docs 
+    
 	add_arg_group!(arg_settings, "Simulation Parameters")
 	fieldsAsArgs!(arg_settings, SimulationPars)
 
@@ -190,22 +232,35 @@ function loadParameters(argv)
         fieldsAsArgs!(arg_settings, t)
     end
 
+    # parse command line
 	args = parse_args(argv, arg_settings, as_symbols=true)
 
-    # default values unless provided in file
+    # read parameters from file if provided or set to default
     simpars, pars = loadParametersFromFile(args[:par_file])
+
+    # override values that were provided on command line
+
+    overrideParsCmdl!(simpars, args)
 
     @assert typeof(pars) == DemographyPars
     for f in fieldnames(DemographyPars)
         overrideParsCmdl!(getfield(pars, f), args)
     end
 
+    # set time dependent seed
+    if simpars.seed == 0
+        simpars.seed = floor(Int, time())
+    end
+
+    # keep a record of parameters used (including seed!)
+    saveParametersToFile(simPars, pars, args[:par_out_file])
+
     simpars, pars
 end
 
 
 function setupModel(pars)
-    model = createUKDemography!(pars)
+    model = createDemography!(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
 

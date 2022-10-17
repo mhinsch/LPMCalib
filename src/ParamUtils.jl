@@ -29,10 +29,11 @@ using YAML
 
 "add all fields of a type to the command line syntax"
 function fieldsAsArgs!(arg_settings, t :: Type)
-	fields = fieldnames(t)
-	for f in fields
-		fdoc =  REPL.stripmd(REPL.fielddoc(t, f))
-		add_arg_table!(arg_settings, ["--" * String(f)], Dict(:help => fdoc))
+	fieldns = fieldnames(t)
+	fieldts = fieldtypes(t)
+        for (fn, ft) in zip(fieldns, fieldts)
+		fdoc =  REPL.stripmd(REPL.fielddoc(t, fn))
+		add_arg_table!(arg_settings, ["--" * String(fn)], Dict(:help => fdoc, :arg_type => ft))
 	end
 end
 
@@ -65,7 +66,7 @@ function overrideParsCmdl!(pars, args)
     fields = fieldnames(typeof(pars))
 
     for f in fields
-        if haskey(args, f)
+        if args[f] != nothing
             setfield!(pars, f, args[f])
         end
     end

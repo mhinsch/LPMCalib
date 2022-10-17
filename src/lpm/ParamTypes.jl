@@ -2,7 +2,6 @@
 module ParamTypes
 
 using Parameters
-using Random: seed!
 
 export SimulationPars
 

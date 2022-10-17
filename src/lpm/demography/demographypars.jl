@@ -120,6 +120,7 @@ end # UKMapPars
     cumProbClasses::Vector{Float64} = cumsum([0.2, 0.35, 0.25, 0.15, 0.05])
 end # PopulationPars 
 
+
 "Parameters related to reproduction"
 @with_kw mutable struct BirthPars
     fertilityBias::Float64          =  0.9
@@ -183,6 +184,14 @@ end
 end
 
 
+"Data files"
+@with_kw mutable struct DataPars
+    datadir     :: String = "data"
+    fertFName   :: String = "babyrate.txt.csv"
+    deathFFName :: String = "deathrate.fem.csv"
+    deathMFName :: String = "deathrate.male.csv"
+end
+
 struct DemographyPars 
     mappars     ::  MapPars
     poppars     ::  PopulationPars
@@ -190,19 +199,10 @@ struct DemographyPars
     workpars    ::  WorkPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
+    datapars    :: DataPars
 end 
 
 
-function DemographyPars() 
-    # Model parameters 
-    mapPars   = MapPars()
-    popPars   = PopulationPars() 
-    birthPars = BirthPars() 
-    workPars = WorkPars()
-    divorcePars = DivorcePars()
-    marriagePars = MarriagePars()
-
-    DemographyPars(mapPars, popPars, birthPars, workPars, divorcePars,
-                    marriagePars)
-end 
+DemographyPars() = DemographyPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
+                                  DivorcePars(), MarriagePars(), DataPars())
 
