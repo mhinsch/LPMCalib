@@ -1,7 +1,5 @@
-export Town, undefinedTown
-# export show
-
-using Utilities: TownLocation
+export Town, undefinedTown, TownLocation
+export isAdjacent8, adjacent8Towns
 
 """
 Specification of a Town agent type.
@@ -14,6 +12,9 @@ This file is included in the module XAgents
 
 Type Town to extend from AbstractAXgent.
 """
+
+const TownLocation  = NTuple{2,Int}
+
 struct Town <: AbstractXAgent
     id::Int
     pos::TownLocation
@@ -46,9 +47,7 @@ Town(pos;name="",density=0.0) = Town(pos,name,density)
 
 const undefinedTown = Town((-1,-1),"",0.0)
 
+isAdjacent8(town1,town2) = 
+    abs(town1.pos[1] - town2.pos[1]) <= 1 &&   
+    abs(town1.pos[2] - town2.pos[2]) <= 1 
 
-
-
-
-
- 

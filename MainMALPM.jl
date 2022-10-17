@@ -18,6 +18,7 @@ using MultiAgents: AbstractMABM
 initMultiAgents()                 # reset agents counter
 @assert MAVERSION == v"0.3"   # ensure MultiAgents.jl latest update 
 
+
 if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end

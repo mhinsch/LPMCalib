@@ -2,10 +2,9 @@
     Main simulation functions for the demographic aspect of LPM. 
 """ 
 
-
 module Simulate
 
-using SomeUtil: getproperty
+using MultiAgents.Util: getproperty
 
 using XAgents: Person, isFemale, alive, age
 

@@ -53,9 +53,9 @@ function  assignCouplesToHouses!(population::Array{Person}, houses::Array{Person
         isFemale(man) ? continue : nothing 
 
         house  = pop!(randomhouses) 
-        man.pos = partner(man).pos = house 
-
-        append!(house.occupants, [man, partner(man)])
+        
+        moveToHouse!(man,house) 
+        moveToHouse!(partner(man),house)
     end # for person     
     
     length(randomhouses) > 0 ? 

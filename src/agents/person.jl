@@ -8,12 +8,13 @@ push!(LOAD_PATH, "$(@__DIR__)/agents_modules")
 export Person
 export PersonHouse, undefinedHouse
 
-export setHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
+export moveToHouse!, resetHouse!, resolvePartnership!, setDead!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, agestepAlive!, setDead!
+export getHomeTown, getHomeTownName, agestepAlive!, setDead!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday
+export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
 
 
 include("agents_modules/basicinfo.jl")
@@ -141,8 +142,8 @@ const PersonHouse = House{Person, Town}
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
 
-"associate a house to a person"
-function setHouse!(person::Person,house)
+"associate a house to a person, removes person from previous house"
+function moveToHouse!(person::Person,house)
     if ! undefined(person.pos) 
         removeOccupant!(person.pos, person)
     end
@@ -160,6 +161,16 @@ function resetHouse!(person::Person)
     person.pos = undefinedHouse
     nothing 
 end 
+
+livingTogether(person1, person2) = house(person1) == house(person2)
+
+# parent - child
+areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
+areSiblings(person1, person2) = father(person1) == father(person2) || 
+    mother(person1) == mother(person2)
+# siblings
+related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
+
 
 # TODO check if correct
 # TODO cache for optimisation?
@@ -212,7 +223,6 @@ function setAsPartners!(person1::Person,person2::Person)
     throw(InvalidStateException("Undefined case + $person1 partnering with $person2",:undefined))
 end
 
-
 function setDead!(person::Person) 
     person.info.alive = false
     resetHouse!(person)
@@ -234,12 +244,23 @@ function setParent!(child, parent)
   end
 end 
 
-function hasAliveChild(person::KinshipBlock)
+function hasAliveChild(person)
     for child in children(person) 
         if alive(child) return true end 
     end
     false 
 end
+
+function hasChildrenAtHome(person)
+    for c in children(person)
+        if alive(c) && house(c) == house(person)
+            return true
+        end
+    end
+    
+    false
+end
+
 
 function ageYoungestAliveChild(person::Person) 
     youngest = Rational{Int}(Inf)  
