@@ -15,19 +15,20 @@
 
 
 
-module Params2Args
+module ParamUtils
 
-export fields_as_args!, fields_as_cmdl, create_from_args, @create_from_args
+export fieldsAsArgs!, fieldsAsCmdl,  overrideParsCmdl!
 
 using ArgParse
 using REPL
+using YAML
 
 # TODO
 # * use explicit types
 # * use flag for Bool
 
 "add all fields of a type to the command line syntax"
-function fields_as_args!(arg_settings, t :: Type)
+function fieldsAsArgs!(arg_settings, t :: Type)
 	fields = fieldnames(t)
 	for f in fields
 		fdoc =  REPL.stripmd(REPL.fielddoc(t, f))
@@ -36,7 +37,7 @@ function fields_as_args!(arg_settings, t :: Type)
 end
 
 "generate command line arguments from an object"
-function fields_as_cmdl(o, ignore = [])
+function fieldsAsCmdl(o, ignore = [])
 	fields = fieldnames(typeof(o))
 	res = ""
 	for f in fields
@@ -59,26 +60,16 @@ function Base.parse(::Type{T}, s::AbstractString) where {T<:AbstractArray}
 	parse.(eltype(T), s3)
 end
 
-"create object from command line arguments, using module mod as context"
-function create_from_args(args, t :: Type, mod)
-	par_expr = Expr(:call, t.name.name)
 
-	fields = fieldnames(t)
+function overrideParsCmdl!(pars, args)
+    fields = fieldnames(typeof(pars))
 
-	for key in eachindex(args)
-		if args[key] == nothing || !(key in fields)
-			continue
-		end
-		val = parse(fieldtype(t, key), args[key])
-		push!(par_expr.args, Expr(:kw, key, val))
-	end
-
-	mod.eval(par_expr)
+    for f in fields
+        if haskey(args, f)
+            setfield!(pars, f, args[f])
+        end
+    end
 end
 
-"create object from command line arguments in current module"
-macro create_from_args(arguments, t)
-	:(create_from_args($(esc(arguments)), $(esc(t)), $(__module__)))
-end
 
 end

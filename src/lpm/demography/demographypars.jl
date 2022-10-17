@@ -1,18 +1,16 @@
-module Loaders 
-
 using CSV
 using Tables
 
 using  Parameters
-export UKMapPars, UKPopulationPars, UKDemographyPars, UKDivorcePars
-export loadUKDemographyPars, loadUKDemographyData
+export MapPars, PopulationPars, DemographyPars, DivorcePars
 
-@with_kw mutable struct UKMapPars 
+"Parameters describing map properties"
+@with_kw mutable struct MapPars 
     mapDensityModifier::Float64 = 0.6   # for allocating houses in towns 
     mapGridXDimension::Int      = 8
     mapGridYDimension::Int      = 12
     townGridDimension::Int      = 25
-    ukMap::Array{Float64,2}     = [ 0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+    map::Array{Float64,2}     = [ 0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
                                     0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
                                     0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
                                     0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
@@ -103,7 +101,8 @@ end # UKMapPars
     
     =#                   
     
-@with_kw mutable struct UKPopulationPars
+"Parameters related to population setup and dynamics"
+@with_kw mutable struct PopulationPars
     baseDieProb::Float64            = 0.0001 
     babyDieProb::Float64            = 0.005 
     femaleAgeDieProb::Float64       = 0.00019   
@@ -119,9 +118,10 @@ end # UKMapPars
     minStartAge::Int                = 25  
 
     cumProbClasses::Vector{Float64} = cumsum([0.2, 0.35, 0.25, 0.15, 0.05])
-end # UKPopulationPars 
+end # PopulationPars 
 
-@with_kw mutable struct UKBirthPars
+"Parameters related to reproduction"
+@with_kw mutable struct BirthPars
     fertilityBias::Float64          =  0.9
     growingPopBirthProb::Float64    =  0.215
     maxPregnancyAge::Int            =  42
@@ -129,7 +129,8 @@ end # UKPopulationPars
 end 
 
 
-@with_kw mutable struct UKWorkPars
+"Parameters related to work and education"
+@with_kw mutable struct WorkPars
     maternityLeaveDuration :: Rational  = 9//12
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
@@ -150,7 +151,9 @@ end
     workDiscountingTime :: Float64      = 1.0
 end
     
-@with_kw mutable struct UKDivorcePars
+
+"Divorce"
+@with_kw mutable struct DivorcePars
     basicDivorceRate :: Float64             = 0.06
     divorceModifierByDecade :: Vector{Float64}   = [0.0, 1.0, 0.9, 0.5, 0.4, 0.2, 0.1, 0.03, 0.01, 0.001, 0.001, 0.001, 0.0, 0.0, 0.0, 0.0] 
     probChildrenWithFather  :: Float64      = 0.1
@@ -160,7 +163,8 @@ end
 end 
 
 
-@with_kw mutable struct UKMarriagePars
+"Marriage"
+@with_kw mutable struct MarriagePars
     basicMaleMarriageProb :: Float64            = 0.7
     maleMarriageModifierByDecade :: Vector{Float64} = [ 0.0, 0.16, 0.5, 1.0, 0.8, 0.7, 0.66, 0.5, 0.4, 0.2, 0.1, 0.05, 0.01, 0.0, 0.0, 0.0 ]
     notWorkingMarriageBias :: Float64           = 0.5
@@ -179,36 +183,26 @@ end
 end
 
 
-    
-
-struct UKDemographyPars 
-    mappars     ::  UKMapPars
-    poppars     ::  UKPopulationPars
-    birthpars   ::  UKBirthPars
-    workpars    ::  UKWorkPars
-    divorcepars ::  UKDivorcePars 
-    marriagepars :: UKMarriagePars
+struct DemographyPars 
+    mappars     ::  MapPars
+    poppars     ::  PopulationPars
+    birthpars   ::  BirthPars
+    workpars    ::  WorkPars
+    divorcepars ::  DivorcePars 
+    marriagepars :: MarriagePars
 end 
 
-function loadUKDemographyPars() 
+
+function DemographyPars() 
     # Model parameters 
-    ukmapPars   = UKMapPars()
-    ukpopPars   = UKPopulationPars() 
-    ukbirthPars = UKBirthPars() 
-    ukworkPars = UKWorkPars()
-    ukdivorcePars = UKDivorcePars()
-    ukmarriagePars = UKMarriagePars()
+    mapPars   = MapPars()
+    popPars   = PopulationPars() 
+    birthPars = BirthPars() 
+    workPars = WorkPars()
+    divorcePars = DivorcePars()
+    marriagePars = MarriagePars()
 
-    UKDemographyPars(ukmapPars, ukpopPars, ukbirthPars, ukworkPars, ukdivorcePars,
-                    ukmarriagePars)
+    DemographyPars(mapPars, popPars, birthPars, workPars, divorcePars,
+                    marriagePars)
 end 
 
-function loadUKDemographyData() 
-    fert = CSV.File("data/babyrate.txt.csv",header=0) |> Tables.matrix
-    death_female = CSV.File("data/deathrate.fem.csv",header=0) |> Tables.matrix
-    death_male = CSV.File("data/deathrate.male.csv",header=0) |> Tables.matrix
-
-    (fertility=fert,death_female=death_female,death_male=death_male)
-end
-
-end # Loaders 

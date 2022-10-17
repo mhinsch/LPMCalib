@@ -1,14 +1,3 @@
-"""
-Main simulation of the lone parent model 
-
-under construction 
-
-Run this script from shell as 
-# julia Main.jl
-
-from REPL execute it using 
-> include("Main.jl")
-"""
 
 include("./loadLibsPath.jl")
 
@@ -16,9 +5,9 @@ if !occursin("src/generic",LOAD_PATH)
     push!(LOAD_PATH, "src/generic") 
 end
 
+using ArgParse
 
 using LPM.ParamTypes
-using LPM.ParamTypes.Loaders
 
 using XAgents
 
@@ -27,6 +16,11 @@ using LPM.Demography.Initialize
 using LPM.Demography.Simulate
 
 using Utilities
+
+using ParamUtils
+
+# TODO put into module somewhere?
+include("src/lpm/demography/demographydata.jl")
 
 mutable struct Model
     towns :: Vector{Town}
@@ -134,54 +128,79 @@ function run!(model, simPars, pars)
 end
 
 
-function create_params(argv, par_type)
-	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
+nameOfParType(t) = replace(String(nameof(t)), "Pars" => "")
 
-	@add_arg_table! arg_settings begin
-		"--stop-time", "-t"
-			help = "at which time to stop the simulation" 
-			arg_type = Float64
-			default = 50.0
-		"--par-out-file"
-			help = "file name for parameter output"
-			default = "params_used.jl"
-		"--city-out-file"
-			help = "file name for city data output"
-			default = "cities.txt"
-		"--link-out-file"
-			help = "file name for link data output"
-			default = "links.txt"
-		"--log-file", "-l"
-			help = "file name for log"
-			default = "log.txt"
-		"--map", "-m"
-			help = "load map in JSON format"
-			default = ""
-		"--scenario", "-s"
-			help = "load custom scenario code"
-			nargs = 2
-			action = :append_arg
-		"--scenario-dir"
-			help = "directory to search for scenarios"
-			default = ""
-	end
 
-	add_arg_group!(arg_settings, "simulation parameters")
-	fields_as_args!(arg_settings, par_type)
+function parFromYaml(yaml, ptype)
+    name = Symbol(nameOfParType(ptype))
+    par = ptype()
 
-	args = parse_args(argv, arg_settings, as_symbols=true)
-	p = @create_from_args(args, par_type)
+    # use return values
+    if !haskey(yaml, name)
+        return par
+    end
 
-	args, p
+    pyaml = yaml[name]
+
+    for f in fieldnames(ptype)
+        if !haskey(pyaml, f)
+            # all fields have to be set (or none)
+            error("Field $f required in parameter $name!")
+        end
+
+        setfield!(par, f, pyaml[f])
+    end
+
+    par
 end
 
 
-function getParameters()
-    simPars = SimulationPars(false)
+function loadParametersFromFile(fname)
+    DT = Dict{Symbol, Any}
+    yaml = fname == "" ? DT() : YAML.load_file(fname, dicttype=DT)
 
-    pars = loadUKDemographyPars() 
+    simpars = parFromYaml(yaml, SimulationPars)
 
-    simPars, pars
+    pars = [ parFromYaml(yaml, ft) for ft in fieldtypes(DemographyPars) ]
+    simpars, DemographyPars(pars...)
+end
+
+
+function loadParameters(argv)
+	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
+
+	@add_arg_table! arg_settings begin
+		"--par-file", "-p"
+            help = "parameter file"
+            default = "parameters.yaml"
+        "--par-out-file", "-P"
+			help = "file name for parameter output"
+			default = "parameters.run.yaml"
+		"--log-file", "-l"
+			help = "file name for log"
+			default = "log.txt"
+	end
+
+	add_arg_group!(arg_settings, "Simulation Parameters")
+	fieldsAsArgs!(arg_settings, SimulationPars)
+
+    for t in fieldtypes(DemographyPars)
+        groupName =  nameOfParType(t) * " Parameters"
+        add_arg_group!(arg_settings, groupName)
+        fieldsAsArgs!(arg_settings, t)
+    end
+
+	args = parse_args(argv, arg_settings, as_symbols=true)
+
+    # default values unless provided in file
+    simpars, pars = loadParametersFromFile(args[:par_file])
+
+    @assert typeof(pars) == DemographyPars
+    for f in fieldnames(DemographyPars)
+        overrideParsCmdl!(getfield(pars, f), args)
+    end
+
+    simpars, pars
 end
 
 

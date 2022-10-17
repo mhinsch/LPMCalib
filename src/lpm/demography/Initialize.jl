@@ -36,7 +36,7 @@ end  # function initializeHousesInTwons
 
 
 "Randomly assign a population of couples to non-inhebted set of houses"
-function  assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
+function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
 
     numberOfMens   = length([ man   for man   in population if isMale(man) ])  
     numberOfWomens = length([ woman for woman in population if isFemale(woman) ])  
