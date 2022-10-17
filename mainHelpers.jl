@@ -136,18 +136,6 @@ function setupModel(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
 
-    @show "Town Samples: \n"     
-    @show model.towns[1:10]
-    println(); println(); 
-                            
-    @show "Houses samples: \n"      
-    @show model.houses[1:10]
-    println(); println(); 
-                            
-    @show "population samples : \n" 
-    @show model.pop[1:10]
-    println(); println(); 
-
     model
 end
 
