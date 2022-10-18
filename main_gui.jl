@@ -17,7 +17,7 @@ const screenHeight = 900
 
 function main()
     # need to do that first, otherwise it blocks the GUI
-    simPars, pars = getParameters()
+    simPars, pars = loadParameters(ARGS)
     model = setupModel(pars)
 
 
@@ -33,6 +33,7 @@ function main()
         1
     )
 
+    # create graph objects with colour
     graph_pop = Graph{Float64}(RL.BLUE)
     graph_hhs = Graph{Float64}(RL.WHITE)
     graph_marr = Graph{Float64}(RL.BLACK)
@@ -46,10 +47,11 @@ function main()
             step!(model, time, simPars, pars)
             time += simPars.dt
             data = observe(Data, model)
+            # add values to graph objects
             add_value!(graph_pop, data.alive.n)
             add_value!(graph_hhs, data.eligible2.n)
             add_value!(graph_marr, data.married.n)
-            add_value!(graph_age, data.eligible.n)
+            add_value!(graph_age, data.age.mean)
             println(data.hh_size.max, " ", data.alive.n, " ", data.eligible.n, " ", data.eligible2.n)
         end
 
@@ -60,7 +62,10 @@ function main()
         RL.BeginMode2D(camera)
         
         drawModel(model, (0, 0), (50, 50), (2, 2))
-        draw_graph(1000, 0, 600, 900, [graph_pop, graph_marr, graph_hhs, graph_age], false)
+        # draw graphs
+        draw_graph(1000, 0, 600, 900, [graph_pop, graph_marr, graph_hhs, graph_age], 
+                   single_scale=false, 
+                   labels=["#alive", "#eligible2", "#married", "mean age"])
         
         RL.EndMode2D()
 
