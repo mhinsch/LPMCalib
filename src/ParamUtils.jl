@@ -17,15 +17,11 @@
 
 module ParamUtils
 
-export fieldsAsArgs!, fieldsAsCmdl,  overrideParsCmdl!
+export fieldsAsArgs!, fieldsAsCmdl,  overrideParsCmdl!, parFromYaml, parToYaml
 
 using ArgParse
 using REPL
-using YAML
 
-# TODO
-# * use explicit types
-# * use flag for Bool
 
 "add all fields of a type to the command line syntax"
 function fieldsAsArgs!(arg_settings, t :: Type)
@@ -36,6 +32,7 @@ function fieldsAsArgs!(arg_settings, t :: Type)
 		add_arg_table!(arg_settings, ["--" * String(fn)], Dict(:help => fdoc, :arg_type => ft))
 	end
 end
+
 
 "generate command line arguments from an object"
 function fieldsAsCmdl(o, ignore = [])
@@ -53,15 +50,7 @@ function fieldsAsCmdl(o, ignore = [])
 	res
 end
 
-"parse arrays of parseable types"
-function Base.parse(::Type{T}, s::AbstractString) where {T<:AbstractArray}
-	s1 = replace(s, r"[\[\]]"=>"")
-	s2 = replace(s1, ','=>' ')
-	s3 = split(s2)
-	parse.(eltype(T), s3)
-end
-
-
+"set fields in pars to values in args, if provided"
 function overrideParsCmdl!(pars, args)
     fields = fieldnames(typeof(pars))
 
@@ -70,6 +59,75 @@ function overrideParsCmdl!(pars, args)
             setfield!(pars, f, args[f])
         end
     end
+end
+
+
+"convert value to type T"
+asType(::Type{T}, value) where{T} = value
+asType(::Type{T}, value::AbstractString) where {T} = parse(T, value)
+asType(::Type{String}, value::AbstractString) = value
+
+# For some reason Julia can *write* Rational, but not read it...
+"parse Rational from an AbstractString"
+function Base.parse(::Type{Rational{T}}, s::AbstractString) where {T}
+    nums = split(s, "//")
+    Rational{T}(parse(T, nums[1]), parse(T, nums[2]))
+end
+
+# This is effectively a setfield replacement that allows for type coercion.
+# We need this, as the representation of some built-in types (e.g. Rational)
+# is understood as generic String by YAML, so we can't simply assign these fields when
+# reading a YAML file. setValue pipes the assignment through asValue which converts
+# a value of type A to type B (the field type in this case), but defaults to identity.
+# We simply overload asValue for A==AbstractString and any B that is not recognised
+# by YAML.
+"set value of a struct's field while allowing for type coercion overloads"
+setValue!(str, fname, value) = setfield!(str, fname, 
+                                         asType(fieldtype(typeof(str), fname), value))
+
+"Read an object of type `ptype` stored as `name` in dict `yaml`."
+function parFromYaml(yaml, ptype, name)
+    # generate default object
+    par = ptype()
+
+    # type not in file, so use default values
+    if !haskey(yaml, name)
+        return par
+    end
+
+    pyaml = yaml[name]
+
+    for f in fieldnames(ptype)
+        if !haskey(pyaml, f)
+            # all fields have to be set (or none)
+            error("Field $f required in parameter $name!")
+        end
+
+        # use setValue, so that e.g. Rational can be converted from String
+        setValue!(par, f, pyaml[f])
+    end
+
+    par
+end
+
+
+"generate dict from dict from `par`"
+function parToYaml(par)
+    dict = Dict{Symbol, Any}()
+    for n in fieldnames(typeof(par))
+        dict[n] = getfield(par, n)
+    end
+
+    dict
+end
+
+# TODO not sure if this is still needed
+"parse arrays of parseable types"
+function Base.parse(::Type{T}, s::AbstractString) where {T<:AbstractArray}
+	s1 = replace(s, r"[\[\]]"=>"")
+	s2 = replace(s1, ','=>' ')
+	s3 = split(s2)
+	parse.(eltype(T), s3)
 end
 
 

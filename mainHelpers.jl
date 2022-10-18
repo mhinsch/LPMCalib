@@ -6,7 +6,6 @@ if !occursin("src/generic",LOAD_PATH)
 end
 
 using ArgParse
-using YAML
 
 using LPM.ParamTypes
 
@@ -18,10 +17,11 @@ using LPM.Demography.Simulate
 
 using Utilities
 
-using ParamUtils
 
 # TODO put into module somewhere?
 include("src/lpm/demography/demographydata.jl")
+
+include("src/handleParams.jl")
 
 mutable struct Model
     towns :: Vector{Town}
@@ -134,78 +134,6 @@ function run!(model, simPars, pars)
 end
 
 
-nameOfParType(t) = replace(String(nameof(t)), "Pars" => "")
-
-
-asType(::Type{T}, value) where{T} = value
-asType(::Type{T}, value::AbstractString) where {T} = parse(T, value)
-asType(::Type{String}, value::AbstractString) = value
-
-function Base.parse(::Type{Rational{T}}, s::AbstractString) where {T}
-    nums = split(s, "//")
-    Rational{T}(parse(T, nums[1]), parse(T, nums[2]))
-end
-
-setValue!(str, fname, value) = setfield!(str, fname, 
-                                         asType(fieldtype(typeof(str), fname), value))
-
-function parFromYaml(yaml, ptype)
-    name = Symbol(nameOfParType(ptype))
-    par = ptype()
-
-    # use return values
-    if !haskey(yaml, name)
-        return par
-    end
-
-    pyaml = yaml[name]
-
-    for f in fieldnames(ptype)
-        if !haskey(pyaml, f)
-            # all fields have to be set (or none)
-            error("Field $f required in parameter $name!")
-        end
-
-        setValue!(par, f, pyaml[f])
-    end
-
-    par
-end
-
-
-function parToYaml(par)
-    dict = Dict{Symbol, Any}()
-    for n in fieldnames(typeof(par))
-        dict[n] = getfield(par, n)
-    end
-
-    dict
-end
-
-function saveParametersToFile(simPars, pars::DemographyPars, fname)
-    dict = Dict{Symbol, Any}()
-
-    dict[:Simulation] = parToYaml(simPars)
-
-    for f in fieldnames(DemographyPars)
-        dict[f] = parToYaml(getfield(pars, f))
-    end
-    
-    YAML.write_file(fname, dict)
-end
-
-
-function loadParametersFromFile(fname)
-    DT = Dict{Symbol, Any}
-    yaml = fname == "" ? DT() : YAML.load_file(fname, dicttype=DT)
-
-    simpars = parFromYaml(yaml, SimulationPars)
-
-    pars = [ parFromYaml(yaml, ft) for ft in fieldtypes(DemographyPars) ]
-    simpars, DemographyPars(pars...)
-end
-
-
 function loadParameters(argv)
 	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
 
@@ -253,7 +181,7 @@ function loadParameters(argv)
     end
 
     # keep a record of parameters used (including seed!)
-    saveParametersToFile(simPars, pars, args[:par_out_file])
+    saveParametersToFile(simpars, pars, args[:par_out_file])
 
     simpars, pars
 end
