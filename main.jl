@@ -1,6 +1,10 @@
+using Random
+
 include("mainHelpers.jl")
 
-const simPars, pars = getParameters()
+const simPars, pars = loadParameters(ARGS)
+
+Random.seed!(simPars.seed)
 
 const model = setupModel(pars)
 

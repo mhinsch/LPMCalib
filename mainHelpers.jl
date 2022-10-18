@@ -1,14 +1,3 @@
-"""
-Main simulation of the lone parent model 
-
-under construction 
-
-Run this script from shell as 
-# julia Main.jl
-
-from REPL execute it using 
-> include("Main.jl")
-"""
 
 include("./loadLibsPath.jl")
 
@@ -16,9 +5,9 @@ if !occursin("src/generic",LOAD_PATH)
     push!(LOAD_PATH, "src/generic") 
 end
 
+using ArgParse
 
 using LPM.ParamTypes
-using LPM.ParamTypes.Loaders
 
 using XAgents
 
@@ -27,6 +16,12 @@ using LPM.Demography.Initialize
 using LPM.Demography.Simulate
 
 using Utilities
+
+
+# TODO put into module somewhere?
+include("src/lpm/demography/demographydata.jl")
+
+include("src/handleParams.jl")
 
 mutable struct Model
     towns :: Vector{Town}
@@ -39,17 +34,22 @@ mutable struct Model
 end
 
 
-function createUKDemography!(pars)
-    ukTowns = createUKTowns(pars.mappars)
+function createDemography!(pars)
+    ukTowns = createTowns(pars.mappars)
 
     ukHouses = Vector{PersonHouse}()
 
-    ukPopulation = createUKPopulation(pars.poppars)
+    ukPopulation = createPopulation(pars.poppars)
+    
+    datp = pars.datapars
+    dir = datp.datadir
 
-    ukDemoData   = loadUKDemographyData()
+    ukDemoData   = loadDemographyData(dir * "/" * datp.fertFName, 
+                                      dir * "/" * datp.deathFFName,
+                                      dir * "/" * datp.deathMFName)
 
     Model(ukTowns, ukHouses, ukPopulation, 
-            ukDemoData.fertility , ukDemoData.death_female, ukDemoData.death_male)
+            ukDemoData.fertility , ukDemoData.deathFemale, ukDemoData.deathMale)
 end
 
 
@@ -134,17 +134,61 @@ function run!(model, simPars, pars)
 end
 
 
-function getParameters()
-    simPars = SimulationPars(false)
+function loadParameters(argv)
+	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
 
-    pars = loadUKDemographyPars() 
+	@add_arg_table! arg_settings begin
+		"--par-file", "-p"
+            help = "parameter file"
+            default = "parameters.yaml"
+        "--par-out-file", "-P"
+			help = "file name for parameter output"
+			default = "parameters.run.yaml"
+		"--log-file", "-l"
+			help = "file name for log"
+			default = "log.txt"
+	end
 
-    simPars, pars
+    # setup command line arguments with docs 
+    
+	add_arg_group!(arg_settings, "Simulation Parameters")
+	fieldsAsArgs!(arg_settings, SimulationPars)
+
+    for t in fieldtypes(DemographyPars)
+        groupName =  nameOfParType(t) * " Parameters"
+        add_arg_group!(arg_settings, groupName)
+        fieldsAsArgs!(arg_settings, t)
+    end
+
+    # parse command line
+	args = parse_args(argv, arg_settings, as_symbols=true)
+
+    # read parameters from file if provided or set to default
+    simpars, pars = loadParametersFromFile(args[:par_file])
+
+    # override values that were provided on command line
+
+    overrideParsCmdl!(simpars, args)
+
+    @assert typeof(pars) == DemographyPars
+    for f in fieldnames(DemographyPars)
+        overrideParsCmdl!(getfield(pars, f), args)
+    end
+
+    # set time dependent seed
+    if simpars.seed == 0
+        simpars.seed = floor(Int, time())
+    end
+
+    # keep a record of parameters used (including seed!)
+    saveParametersToFile(simpars, pars, args[:par_out_file])
+
+    simpars, pars
 end
 
 
 function setupModel(pars)
-    model = createUKDemography!(pars)
+    model = createDemography!(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
 
