@@ -1,9 +1,4 @@
-
-include("./loadLibsPath.jl")
-
-if !occursin("src/generic",LOAD_PATH)
-    push!(LOAD_PATH, "src/generic") 
-end
+addToLoadPath!(".", "src")
 
 using ArgParse
 

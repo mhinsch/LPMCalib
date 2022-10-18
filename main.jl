@@ -1,6 +1,6 @@
 using Random
 
-include("mainHelpers.jl")
+include("lpm.jl")
 
 const simPars, pars = loadParameters(ARGS)
 
