@@ -17,6 +17,7 @@ include("./demography/demographypars.jl")
     sleeptime :: Float64  = 0; @assert sleeptime >= 0
                                    # how long simulation is suspended after printing info 
     checkassumption :: Bool = false # whether assumptions in unit functions should be checked
+    logfile :: String = "log.tsv"
 end 
 
 
