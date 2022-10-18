@@ -3,7 +3,7 @@ using YAML
 
 
 "extract name of parameter category from struct type name"
-nameOfParType(t) = replace(String(nameof(t)), "Pars" => "")
+nameOfParType(t) = replace(String(nameof(t)), "Pars" => "") |> Symbol
 
 
 function saveParametersToFile(simPars::SimulationPars, pars::DemographyPars, fname)
@@ -12,7 +12,8 @@ function saveParametersToFile(simPars::SimulationPars, pars::DemographyPars, fna
     dict[:Simulation] = parToYaml(simPars)
 
     for f in fieldnames(DemographyPars)
-        dict[f] = parToYaml(getfield(pars, f))
+        name = nameOfParType(fieldtype(DemographyPars, f))
+        dict[name] = parToYaml(getfield(pars, f))
     end
     
     YAML.write_file(fname, dict)
@@ -25,7 +26,7 @@ function loadParametersFromFile(fname)
 
     simpars = parFromYaml(yaml, SimulationPars, :Simulation)
 
-    pars = [ parFromYaml(yaml, ft, Symbol(nameOfParType(ft))) 
+    pars = [ parFromYaml(yaml, ft, nameOfParType(ft)) 
             for ft in fieldtypes(DemographyPars) ]
     simpars, DemographyPars(pars...)
 end
