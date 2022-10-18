@@ -8,7 +8,7 @@ Random.seed!(simPars.seed)
 
 const model = setupModel(pars)
 
-logfile = setupLogging(simPars)
+const logfile = setupLogging(simPars)
 
 @time runModel!(model, simPars, pars, logfile)
 
