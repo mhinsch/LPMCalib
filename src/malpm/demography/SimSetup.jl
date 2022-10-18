@@ -1,22 +1,13 @@
 module SimSetup
 
 # using XAgents: agestepAlivePerson!
-using MALPM.Population: removeDead!, population_step!
-using LPM.ParamTypes: SimulationPars
+# using MALPM.Population: removeDead!, population_step!
+# using MALPM.Demography.Simulate: doDeaths!,doBirths!
 
-using MultiAgents: dummystep, defaultprestep!, defaultpoststep!
-using MultiAgents: startTime, dt
-
-using MultiAgents: ABMSimulation, MABMSimulation
-using MultiAgents: attach_agent_step!, attach_pre_model_step!, attach_post_model_step!  
-
-using MALPM.Demography.Simulate: doDeaths!,doBirths!
-using MALPM.Demography.Create: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
-
+using  MALPM.Demography: DemographyExample
+using  MultiAgents: ABMSimulation
 import MultiAgents: setup!
-
-export loadSimulationParameters, setup!  
-
+export setup!  
 
 """
 set simulation paramters @return dictionary of symbols to values
@@ -26,6 +17,7 @@ is provided here
 
 @return dictionary of required simulation parameters 
 """
+#=
 function loadSimulationParameters() 
 
     simpars = SimulationPars(false)
@@ -43,18 +35,19 @@ function loadSimulationParameters()
         :sleeptime=> simpars.sleeptime,
         :checkassumption=> simpars.checkassumption)
 end 
-
+=# 
 
 function setup!(sim::ABMSimulation,example::DemographyExample) 
 
     # initDefaultProb!(sim.model,sim.properties)
-    sim.model.properties = deepcopy(sim.properties)
-    sim.model.example    = example 
+    # sim.model.properties = deepcopy(sim.properties)
+    # sim.model.example    = example 
     # sim.agent_steps      = [] # insted of [dummystep!]  
 
     nothing 
 end
 
+#= 
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
     #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
 
@@ -91,5 +84,6 @@ function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt)
 
     nothing 
 end
+=#
 
 end # SimSetup 

@@ -9,7 +9,6 @@ export SimulationPars
 include("./demography/Loaders.jl")
 
 @with_kw mutable struct SimulationPars 
-    numRepeats::Int   = -1         # how many time
     startTime :: Int  = 1920
     finishTime :: Int = 2040 
     dt :: Rational{Int} = 1//12      # step size 

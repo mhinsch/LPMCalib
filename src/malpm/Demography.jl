@@ -4,8 +4,7 @@ using XAgents: Town, PersonHouse, Person
 using MultiAgents: AbstractMABM, ABM
 
 export MAModel 
-
-#= 
+ 
 import MultiAgents.Util: AbstractExample
 export DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
@@ -18,7 +17,7 @@ struct LPMUKDemography <: DemographyExample end
 
 "This is an attemp for improved algorthimic translation"
 struct LPMUKDemographyOpt <: DemographyExample end 
-=# 
+ 
 
 mutable struct MAModel <: AbstractMABM 
     towns  :: ABM{Town} 
@@ -38,10 +37,9 @@ mutable struct MAModel <: AbstractMABM
     end 
 end
 
-
+include("./demography/SimSetup.jl")   
     #=
     include("./demography/Simulate.jl")
-    include("./demography/SimSetup.jl")   
     =# 
 
 
