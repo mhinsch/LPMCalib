@@ -41,7 +41,7 @@ function createDemography!(pars)
 
     ukPopulation = createPopulation(pars.poppars)
     
-    datp = pars.data
+    datp = pars.datapars
     dir = datp.datadir
 
     ukDemoData   = loadDemographyData(dir * "/" * datp.fertFName, 
@@ -49,7 +49,7 @@ function createDemography!(pars)
                                       dir * "/" * datp.deathMFName)
 
     Model(ukTowns, ukHouses, ukPopulation, 
-            ukDemoData.fertility , ukDemoData.death_female, ukDemoData.death_male)
+            ukDemoData.fertility , ukDemoData.deathFemale, ukDemoData.deathMale)
 end
 
 
