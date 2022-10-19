@@ -40,7 +40,8 @@ end
 
 
 # draw graph to canvas
-function draw_graph(x0, y0, xsize, ysize, graphs, single_scale=true)
+function draw_graph(x0, y0, xsize, ysize, graphs; 
+        single_scale=true, labels=[], fontsize=15)
 	if single_scale # draw all graphs to the same scale
 		max_all = mapreduce(g -> g.max, max, graphs) # find maximum of graphs[...].max
 		min_all = mapreduce(g -> g.min, min, graphs)
@@ -68,6 +69,24 @@ function draw_graph(x0, y0, xsize, ysize, graphs, single_scale=true)
 			dxold, dyold = dx, dy
 		end
 	end
+
+    if isempty(labels)
+        return nothing
+    end
+
+    @assert length(labels) == length(graphs)
+
+    w = 0
+    for l in labels
+        w = max(w, RL.MeasureText(l*" ", fontsize))
+    end
+
+    lx = x0 + xsize - w
+
+    for (i, l) in enumerate(labels)
+        RL.DrawText(l, lx, i*fontsize, fontsize, graphs[i].colour)
+    end
+
 end
 
 

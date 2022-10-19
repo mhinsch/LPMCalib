@@ -100,7 +100,7 @@ function parFromYaml(yaml, ptype, name)
     for f in fieldnames(ptype)
         if !haskey(pyaml, f)
             # all fields have to be set (or none)
-            error("Field $f required in parameter $name!")
+            error("Field $f required in parameter $(name)!")
         end
 
         # use setValue, so that e.g. Rational can be converted from String

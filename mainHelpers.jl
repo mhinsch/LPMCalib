@@ -1,9 +1,4 @@
-
-include("./loadLibsPath.jl")
-
-if !occursin("src/generic",LOAD_PATH)
-    push!(LOAD_PATH, "src/generic") 
-end
+addToLoadPath!(".", "src")
 
 using ArgParse
 
@@ -22,6 +17,8 @@ using Utilities
 include("src/lpm/demography/demographydata.jl")
 
 include("src/handleParams.jl")
+
+include("analysis.jl")
 
 mutable struct Model
     towns :: Vector{Town}
@@ -120,33 +117,16 @@ function step!(model, time, simPars, pars)
 end
 
 
-function run!(model, simPars, pars)
-    time = Rational(simPars.startTime)
-
-    simPars.verbose ? setVerbose!() : unsetVerbose!()
-    setDelay!(simPars.sleeptime)
-
-    while time < simPars.finishTime
-        step!(model, time, simPars, pars)     
-
-        time += simPars.dt
-    end
-end
-
-
 function loadParameters(argv)
 	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
 
 	@add_arg_table! arg_settings begin
 		"--par-file", "-p"
             help = "parameter file"
-            default = "parameters.yaml"
+            default = ""
         "--par-out-file", "-P"
 			help = "file name for parameter output"
 			default = "parameters.run.yaml"
-		"--log-file", "-l"
-			help = "file name for log"
-			default = "log.txt"
 	end
 
     # setup command line arguments with docs 
@@ -155,7 +135,7 @@ function loadParameters(argv)
 	fieldsAsArgs!(arg_settings, SimulationPars)
 
     for t in fieldtypes(DemographyPars)
-        groupName =  nameOfParType(t) * " Parameters"
+        groupName =  String(nameOfParType(t)) * " Parameters"
         add_arg_group!(arg_settings, groupName)
         fieldsAsArgs!(arg_settings, t)
     end
@@ -206,4 +186,37 @@ function setupModel(pars)
 
     model
 end
+
+
+function setupLogging(simPars)
+    if simPars.logfile == ""
+        return nothing
+    end
+
+    file = open(simPars.logfile, "w")
+
+    print_header(file, Data)
+
+    file
+end
+
+
+function runModel!(model, simPars, pars, logfile = nothing)
+    time = Rational(simPars.startTime)
+
+    simPars.verbose ? setVerbose!() : unsetVerbose!()
+    setDelay!(simPars.sleeptime)
+
+    while time < simPars.finishTime
+        step!(model, time, simPars, pars)
+
+        if logfile != nothing
+            results = observe(Data, model)
+            log_results(logfile, results)
+        end
+
+        time += simPars.dt
+    end
+end
+
 

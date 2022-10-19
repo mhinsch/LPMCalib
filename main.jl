@@ -1,6 +1,6 @@
 using Random
 
-include("mainHelpers.jl")
+include("lpm.jl")
 
 const simPars, pars = loadParameters(ARGS)
 
@@ -8,4 +8,8 @@ Random.seed!(simPars.seed)
 
 const model = setupModel(pars)
 
-@time run!(model, simPars, pars)
+const logfile = setupLogging(simPars)
+
+@time runModel!(model, simPars, pars, logfile)
+
+close(logfile)
