@@ -17,6 +17,8 @@
 
 module SimpleGraph
 
+using Printf
+
 using Raylib
 const RL = Raylib
 
@@ -38,14 +40,24 @@ function add_value!(graph::Graph, value)
 	value > graph.max ? (graph.max = value) : (value < graph.min ? (graph.min = value) : value)
 end
 
+function draw_legend(value, x, y, fontsize, colour)
+    text = @sprintf "%g" value
+    RL.DrawText(text, x, y, fontsize, colour)
+end
+
 
 # draw graph to canvas
-function draw_graph(x0, y0, xsize, ysize, graphs; 
+function draw_graph(x_0, y_0, width, height, graphs; 
         single_scale=true, labels=[], fontsize=15)
 	if single_scale # draw all graphs to the same scale
 		max_all = mapreduce(g -> g.max, max, graphs) # find maximum of graphs[...].max
 		min_all = mapreduce(g -> g.min, min, graphs)
 	end
+
+    width_legend = RL.MeasureText("00000000", fontsize)
+    width_g = width - width_legend
+    height_g = height - fontsize
+    x_0_g = x_0 + width_legend
 
 	for g in graphs
 		g_max = single_scale ? max_all : g.max
@@ -56,19 +68,30 @@ function draw_graph(x0, y0, xsize, ysize, graphs;
 			continue
 		end
 
-		x_scale = (xsize-1) / (length(g.data)-1)
-		y_scale = (ysize-1) / (g_max - g_min)
+		x_scale = (width_g-1) / (length(g.data)-1)
+		y_scale = (height_g-1) / (g_max - g_min)
 		
 		dxold = 1
-		dyold = ysize - trunc(Int, (g.data[1]-g_min) * y_scale ) 
+		dyold = height_g - trunc(Int, (g.data[1]-g_min) * y_scale ) 
 
         for (i,dat) in enumerate(g.data)
 			dx = trunc(Int, (i-1) * x_scale) + 1
-			dy = ysize - trunc(Int, (dat-g_min) * y_scale) 
-			RL.DrawLine(x0+dxold, y0+dyold, x0+dx, y0+dy, g.colour)
+			dy = height_g - trunc(Int, (dat-g_min) * y_scale) 
+			RL.DrawLine(x_0_g+dxold, y_0+dyold, x_0_g+dx, y_0+dy, g.colour)
 			dxold, dyold = dx, dy
 		end
 	end
+
+    if single_scale
+        draw_legend(min_all, x_0, y_0 + height, fontsize, graphs[1].colour)
+        draw_legend(max_all, x_0, y_0, fontsize, graphs[1].colour)
+    else
+        yoffs = y_0 + height - fontsize * length(graphs)
+        for (i, g) in enumerate(graphs)
+            draw_legend(g.min, x_0, yoffs + (i-1) * fontsize, fontsize, g.colour)
+            draw_legend(g.max, x_0, y_0 + (i-1) * fontsize, fontsize, g.colour)
+        end
+    end
 
     if isempty(labels)
         return nothing
@@ -81,10 +104,10 @@ function draw_graph(x0, y0, xsize, ysize, graphs;
         w = max(w, RL.MeasureText(l*" ", fontsize))
     end
 
-    lx = x0 + xsize - w
+    lx = x_0 + width - w
 
     for (i, l) in enumerate(labels)
-        RL.DrawText(l, lx, i*fontsize, fontsize, graphs[i].colour)
+        RL.DrawText(l, lx, (i-1)*fontsize, fontsize, graphs[i].colour)
     end
 
 end

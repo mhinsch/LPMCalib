@@ -117,7 +117,7 @@ function step!(model, time, simPars, pars)
 end
 
 
-function loadParameters(argv)
+function loadParameters(argv, cmdl...)
 	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
 
 	@add_arg_table! arg_settings begin
@@ -128,6 +128,10 @@ function loadParameters(argv)
 			help = "file name for parameter output"
 			default = "parameters.run.yaml"
 	end
+
+    if ! isempty(cmdl)
+        add_arg_table!(arg_settings, cmdl...)
+    end
 
     # setup command line arguments with docs 
     
@@ -163,7 +167,7 @@ function loadParameters(argv)
     # keep a record of parameters used (including seed!)
     saveParametersToFile(simpars, pars, args[:par_out_file])
 
-    simpars, pars
+    simpars, pars, args
 end
 
 
