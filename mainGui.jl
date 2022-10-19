@@ -12,13 +12,17 @@ include("src/RayGUI/render.jl")
 include("src/RayGUI/SimpleGraph.jl")
 using .SimpleGraph
 
-const screenWidth = 1600
-const screenHeight = 900
-
 function main()
     # need to do that first, otherwise it blocks the GUI
-    simPars, pars = loadParameters(ARGS)
+    simPars, pars, args = loadParameters(ARGS, 
+        ["--gui-scale"], 
+        Dict(:help => "set gui scale", :default => 1.0, :arg_type => Float64))
     model = setupModel(pars)
+
+    scale = args[:gui_scale]
+
+    screenWidth = floor(Int, 1600 * scale)
+    screenHeight = floor(Int, 900 * scale)
 
 
     RL.InitWindow(screenWidth, screenHeight, "this is a test")
@@ -61,15 +65,21 @@ function main()
         
         RL.BeginMode2D(camera)
         
-        drawModel(model, (0, 0), (50, 50), (2, 2))
+        drawModel(model, (0, 0), 
+                  (floor(Int, 50 * scale), floor(Int, 50 * scale)), 
+                  (floor(Int, 2 * scale), floor(Int, 2 * scale)))
         # draw graphs
-        draw_graph(1000, 0, 600, 900, [graph_pop, graph_marr, graph_hhs, graph_age], 
-                   single_scale=false, 
-                   labels=["#alive", "#eligible2", "#married", "mean age"])
+        draw_graph(floor(Int, screenWidth/3), 0, floor(Int, screenWidth*2/3), screenHeight, 
+                   [graph_pop, graph_marr, graph_hhs, graph_age], 
+                   single_scale = false, 
+                   labels = ["#alive", "#eligible2", "#married", "mean age"],
+                   fontsize = floor(Int, 15 * scale))
         
         RL.EndMode2D()
 
-        RL.DrawText("$(Float64(time))", 20, 20, 20, RL.BLACK)
+        RL.DrawText("$(Float64(time))", 0, 
+                    screenHeight - floor(Int, 20 * scale), 
+                    floor(Int, 20 * scale), RL.BLACK)
 
         RL.EndDrawing()
     end
