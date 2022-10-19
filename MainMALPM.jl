@@ -57,17 +57,9 @@ if simPars.verbose
 end 
 
 lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
-
 setup!(lpmDemographySim,LPMUKDemography()) 
 
 #= 
-# Declaration of a simulation 
-lpmDemographySim = MABMSimulation(ukDemography,simProperties, 
-                                  # example=LPMUKDemography())
-                                  example=LPMUKDemographyOpt())
-
-
 # Execution 
-
 @time run!(lpmDemographySim)
 =# 

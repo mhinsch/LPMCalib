@@ -4,7 +4,7 @@
 
 module Simulate
 
-using MultiAgents.Util: getproperty
+# using MultiAgents.Util: getproperty
 
 using XAgents: Person, isFemale, alive, age
 
@@ -24,16 +24,16 @@ alivePeople(population::ABM{Person},example::LPMUKDemographyOpt) =
                # Iterators.filter(person->alive(person),allagents(population))
                 [ person for person in allagents(population)  if alive(person) ]
 
-function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
+function doDeaths!(population::ABM{Person},sim::ABMSimulation,example::DemographyExample) # argument simulation or simulation properties ? 
 
     (deadpeople) = LPM.Demography.Simulate.doDeaths!(
-            people=alivePeople(population,population.properties.example),
+            people=alivePeople(population,example),
             parameters=population.parameters.poppars,
             data=population.data,
-            currstep=population.properties.currstep,
-            verbose=population.properties.verbose,
-            sleeptime=population.properties.sleeptime,
-            checkassumption=population.properties.checkassumption) 
+            currstep=currstep(sim),
+            verbose=verbose(sim),
+            sleeptime=sim.parameters.sleeptime,
+            checkassumption=sim.parameters.checkassumption) 
 
     #for deadperson in deadpeople
     #    removeDead!(deadperson,population)
@@ -45,7 +45,7 @@ function doDeaths!(population::ABM{Person}) # argument simulation or simulation 
 
 end # function doDeaths!
 
-
+#=
 function doBirths!(population::ABM{Person}) 
 
     newbabies = LPM.Demography.Simulate.doBirths!(
@@ -65,5 +65,6 @@ function doBirths!(population::ABM{Person})
 
     nothing 
 end
+=# 
 
 end # Simulate 

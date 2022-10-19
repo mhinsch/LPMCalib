@@ -2,9 +2,10 @@ module SimSetup
 
 # using XAgents: agestepAlivePerson!
 # using MALPM.Population: removeDead!, population_step!
-# using MALPM.Demography.Simulate: doDeaths!,doBirths!
 
 using  MALPM.Demography: DemographyExample
+using  MALPM.Demography.Simulate: doDeaths!,doBirths!
+
 using  MultiAgents: ABMSimulation
 import MultiAgents: setup!
 export setup!  
@@ -38,12 +39,8 @@ end
 =# 
 
 function setup!(sim::ABMSimulation,example::DemographyExample) 
-
-    # initDefaultProb!(sim.model,sim.properties)
-    # sim.model.properties = deepcopy(sim.properties)
-    # sim.model.example    = example 
-    # sim.agent_steps      = [] # insted of [dummystep!]  
-
+    attach_pre_model_step!(sim.simulations[3],doDeaths!)
+    # attach_pre_model_step!(sim.simulations[3],removeDead!)
     nothing 
 end
 
@@ -51,7 +48,7 @@ end
 function setup!(sim::MABMSimulation,example::LPMUKDemography) 
     #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
 
-    attach_pre_model_step!(sim.simulations[3],doDeaths!)
+    
     attach_pre_model_step!(sim.simulations[3],removeDead!)
     attach_pre_model_step!(sim.simulations[3],doBirths!)
     attach_post_model_step!(sim.simulations[3],population_step!)
