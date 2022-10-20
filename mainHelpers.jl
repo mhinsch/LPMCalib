@@ -73,17 +73,6 @@ function initializeDemography!(model, poppars, workpars, mappars)
 end
 
 
-function populationStep!(pop, simPars, pars)
-    for agent in pop
-        if !alive(agent)
-            continue
-        end
-
-        agestep!(agent, simPars.dt)
-    end
-end
-
-
 function step!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
