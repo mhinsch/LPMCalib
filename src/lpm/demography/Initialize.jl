@@ -1,10 +1,10 @@
 module Initialize
 
+using Distributions: Normal
 using Random:  shuffle 
-using XAgents: Town, Person, PersonHouse  
-using XAgents: isFemale, isMale, partner
+using XAgents 
 
-export initializeHousesInTowns, assignCouplesToHouses!
+export initializeHousesInTowns, assignCouplesToHouses!, initClass!, initWork!
 
 "initialize houses in a given set of towns"
 function initializeHousesInTowns(towns::Array{Town,1}, pars) 
@@ -36,7 +36,7 @@ end  # function initializeHousesInTwons
 
 
 "Randomly assign a population of couples to non-inhebted set of houses"
-function  assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
+function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
 
     numberOfMens   = length([ man   for man   in population if isMale(man) ])  
     numberOfWomens = length([ woman for woman in population if isFemale(woman) ])  
@@ -53,9 +53,9 @@ function  assignCouplesToHouses!(population::Array{Person}, houses::Array{Person
         isFemale(man) ? continue : nothing 
 
         house  = pop!(randomhouses) 
-        man.pos = partner(man).pos = house 
-
-        append!(house.occupants, [man, partner(man)])
+        
+        moveToHouse!(man,house) 
+        moveToHouse!(partner(man),house)
     end # for person     
     
     length(randomhouses) > 0 ? 
@@ -63,6 +63,42 @@ function  assignCouplesToHouses!(population::Array{Person}, houses::Array{Person
         nothing 
 
 end  # function assignCouplesToHouses 
+
+
+function initClass!(person, pars)
+    p = rand()
+    class = findfirst(x->p<x, pars.cumProbClasses)-1
+    classRank!(person, class)
+
+    nothing
+end
+
+
+function initWork!(person, pars)
+    class = classRank(person)+1
+    workingTime = 0
+    for i in age(person):pars.workingAge[class]
+        workingTime *= pars.workDiscountingTime
+        workingTime += 1
+    end
+
+    dKi = rand(Normal(0, pars.wageVar))
+    initialWage = pars.incomeInitialLevels[class] * exp(dKi)
+    dKf = rand(Normal(dKi, pars.wageVar))
+    finalWage = pars.incomeFinalLevels[class] * exp(dKf)
+
+    initialIncome!(person, initialWage)
+    finalIncome!(person, finalWage)
+
+    c = log(initialWage/finalWage)
+    wage!(person, finalWage * exp(c * exp(-pars.incomeGrowthRate[class]*workingTime)))
+    income!(person, wage(person) * pars.weeklyHours[class])
+    potentialIncome!(person, income(person))
+    jobTenure!(person, rand(1:50))
+#    workExperience = workingTime
+
+    nothing
+end
 
 
 

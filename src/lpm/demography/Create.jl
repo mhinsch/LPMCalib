@@ -8,15 +8,16 @@ using Utilities: Gender, unknown, female, male
 using XAgents: Person, Town
 using XAgents: undefinedHouse, setAsPartners!
 
+export createTowns, createPopulation
 ### 
 
-function createUKTowns(pars) 
+function createTowns(pars) 
 
     uktowns = Town[] 
     
     for y in 1:pars.mapGridYDimension
         for x in 1:pars.mapGridXDimension 
-            town = Town((x,y),density=pars.ukMap[y,x])
+            town = Town((x,y),density=pars.map[y,x])
             push!(uktowns,town)
         end
     end
@@ -24,13 +25,13 @@ function createUKTowns(pars)
     uktowns
 end
 
-function createUKPopulation(pars) 
+function createPopulation(pars) 
 
     population = Person[] 
 
     for i in 1 : pars.initialPop
-        ageMale = rand((pars.minStartAge:pars.maxStartAge))
-        ageFemale = ageMale - rand((-2:5))
+        ageMale = rand(pars.minStartAge:pars.maxStartAge)
+        ageFemale = ageMale - rand(-2:5)
         ageFemale = ageFemale < 24 ? 24 : ageFemale
         
         rageMale = ageMale + rand(0:11) // 12     
@@ -53,7 +54,7 @@ function createUKPopulation(pars)
 
     population
 
-end # createUKPopulation 
+end # createPopulation 
 
 
 end # module Create 

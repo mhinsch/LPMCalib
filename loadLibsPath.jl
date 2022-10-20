@@ -1,14 +1,20 @@
-import Base.occursin 
+# this is a super simplistic relative import macro
+# npot needed right now, but kept for potential future use
+#"temporarily prepend `path` to `LOAD_PATH`, while executing `args`" 
+#macro in(path, args...)
+#    quote
+#    pushfirst!($(esc(:LOAD_PATH)), joinpath(@__DIR__, $path))
+#    $(args...)
+#    popfirst!($(esc(:LOAD_PATH)))
+#    end
+#end
 
-"if a substr occurs as a substring in any element of string vector"
-function occursin(substr::String,strvec::Vector{String})
-    for str in strvec 
-        !occursin(substr,str) ? nothing : return true  
-    end   
-    false
+
+function addToLoadPath!(paths...)
+    for path in paths
+        if ! (path in LOAD_PATH)
+            push!(LOAD_PATH, path)
+        end
+    end
 end
 
-# Temporary solution 
-!occursin("MultiAgents.jl",LOAD_PATH) ? push!(LOAD_PATH, "../MultiAgents.jl") : nothing 
-!occursin("SomeUtil.jl",LOAD_PATH) ? push!(LOAD_PATH, "../SomeUtil.jl") : nothing 
-!occursin("LoneParentsModel.jl",LOAD_PATH) ? push!(LOAD_PATH, "../LoneParentsModel.jl/src") : nothing 

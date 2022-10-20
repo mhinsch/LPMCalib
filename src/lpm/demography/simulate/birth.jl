@@ -1,24 +1,12 @@
-using Utilities: female, male
+using Utilities
 
-using SomeUtil:  date2yearsmonths
+using XAgents
 
-using XAgents: isFemale, isSingle, hasChildren, alive 
-using XAgents: Person
-using XAgents: resetHouse!, resolvePartnership!, setDead!
-using XAgents: partner, age, ageYoungestAliveChild
+export selectBirth, doBirths!, birth!
 
-export doBirths!
+function computeBirthProb(rWoman,parameters,data,currstep)
 
-function computeBirthProb(rWoman,parameters,data,currstep;
-                          verbose,sleeptime,checkassumption)
-
-    if checkassumption 
-        @assert isFemale(rWoman) && 
-        age(rWoman) >= parameters.minPregnancyAge && 
-        age(rWoman) <= parameters.maxPregnancyAge
-    end # checkassumption
-
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
     #=
@@ -34,7 +22,7 @@ function computeBirthProb(rWoman,parameters,data,currstep;
     if curryear < 1951
         rawRate = parameters.growingPopBirthProb
     else
-        (yearold,tmp) = date2yearsmonths(age(rWoman)) 
+        (yearold,tmp) = age2yearsmonths(age(rWoman)) 
         rawRate = data.fertility[yearold-16,curryear-1950]
     end 
 
@@ -53,22 +41,43 @@ function computeBirthProb(rWoman,parameters,data,currstep;
 end # computeBirthProb
 
 
-function womanSubjectToBirth!(woman,parameters,data,currstep; 
-                                verbose,sleeptime,checkassumption)
+function effectsOfMaternity!(woman, pars)
+    startMaternity!(woman)
+    
+    workingHours!(woman, 0)
+    income!(woman, 0)
+    potentialIncome!(woman, 0)
+    availableWorkingHours!(woman, 0)
+    # commented in sim.py:
+    # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
+    # sets all weeklyTime slots to 1
+    # TODO copied from the python code, but does it make sense?
+    setFullWeeklyTime!(woman)
+    #= TODO
+    woman.maxWeeklySupplies = [0, 0, 0, 0]
+    woman.residualDailySupplies = [0]*7
+    woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
+    =# 
 
-    (curryear,currmonth) = date2yearsmonths(Rational(currstep))
-    currmonth += 1   # adjusting 0:11 => 1:12 
-                            
+    # TODO not necessarily true in many cases
+    if provider(woman) == nothing
+        setAsProviderProvidee!(partner(woman), woman)
+    end
+
+    nothing
+end
+
+
+function birth!(woman, currstep, model, parameters)
+
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
+
+    birthProb = computeBirthProb(woman, parameters, model, currstep)
                         
-    birthProb = computeBirthProb(woman, parameters, data, currstep,
-                                verbose = verbose, 
-                                sleeptime = sleeptime, 
-                                checkassumption = checkassumption)
-                        
-    if checkassumption
+    assumption() do
+        @assert isFemale(woman) 
         @assert ageYoungestAliveChild(woman) > 1 
         @assert !isSingle(woman)
         @assert age(woman) >= parameters.minPregnancyAge 
@@ -84,7 +93,7 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
     #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
     =#
                         
-    if rand() < birthProb && rand(1:12) == currmonth 
+    if rand() < p_yearly2monthly(birthProb) 
                         
         # parentsClassRank = max([woman.classRank, woman.partner.classRank])
         # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
@@ -93,22 +102,17 @@ function womanSubjectToBirth!(woman,parameters,data,currstep;
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))
+
+        # this goes first, so that we know material circumstances
+        effectsOfMaternity!(woman, parameters)
         
+        setAsGuardianDependent!(woman, baby)
+        if !isSingle(woman) # currently not an option
+            setAsGuardianDependent!(partner(woman), baby)
+        end
+        setAsProviderProvidee!(woman, baby)
+
         return baby
-        # woman.maternityStatus = True
-                        
-        #=
-        # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
-        woman.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
-        woman.workingHours = 0
-        woman.maxWeeklySupplies = [0, 0, 0, 0]
-        woman.residualDailySupplies = [0]*7
-        woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
-        woman.residualWorkingHours = 0
-        woman.availableWorkingHours = 0
-        woman.potentialIncome = 0
-        woman.income = 0
-        =# 
     end # if rand()
 
     nothing 
@@ -167,11 +171,17 @@ fixed parameters (minPregnenacyAge, maxPregnenacyAge) and
 Class rankes and shares are temporarily ignored.
 """
 
-function doBirths!(;people,parameters,data,currstep,
-                    verbose=true,sleeptime=0,checkassumption=true)
+selectBirth(woman, parameters) = isFemale(woman) && 
+    !isSingle(woman) && 
+    age(woman) >= parameters.minPregnancyAge && 
+    age(woman) <= parameters.maxPregnancyAge && 
+    ageYoungestAliveChild(woman) > 1 
+
+
+function doBirths!(;people, currstep, model, parameters)
 
     # TODO Assumptions 
-    if checkassumption
+    assumption() do
         for person in people  
             @assert alive(person) 
         end
@@ -185,14 +195,10 @@ function doBirths!(;people,parameters,data,currstep,
     #      storing the intermediate results and modifying the computation.
     #      However, it could be also the case that Julia compiler does something efficient any way? 
 
-    reproductiveWomen = [ woman for woman in people if 
-                            isFemale(woman) && 
-                            !isSingle(woman) && 
-                            age(woman) >= parameters.minPregnancyAge && 
-                            age(woman) <= parameters.maxPregnancyAge && 
-                            ageYoungestAliveChild(woman) > 1 ] 
+    reproductiveWomen = [ woman for woman in people if selectBirth(woman, parameters) ]
+
     # TODO @assumption 
-    if checkassumption
+    assumption() do
         allFemales = [ woman for woman in people if isFemale(woman) ]
         adultWomen = [ aWomen for aWomen in allFemales if 
                          age(aWomen) >= parameters.minPregnancyAge ] 
@@ -212,17 +218,13 @@ function doBirths!(;people,parameters,data,currstep,
         end
     end
 
-    if verbose
-
-        (curryear,currmonth) = date2yearsmonths(Rational(currstep))
+    delayedVerbose() do
+        (curryear,currmonth) = date2yearsmonths(currstep)
         currmonth += 1   # adjusting 0:11 => 1:12 
                                 
         # TODO this generic print msg to be placed in a top function 
         println("In iteration $curryear , month $currmonth :")
         verboseBirthCounting(people,parameters)
-
-        sleep(sleeptime)
-
     end # verbose 
 
 
@@ -261,23 +263,21 @@ function doBirths!(;people,parameters,data,currstep,
 
     for woman in reproductiveWomen 
 
-        baby = womanSubjectToBirth!(woman,parameters,data,currstep,
-                            verbose=verbose,
-                            sleeptime=sleeptime,
-                            checkassumption=checkassumption)
+        baby = birth!(woman, currstep, model, parameters)
         if baby != nothing 
             push!(babies,baby)
         end 
        
     end # for woman 
 
-    if verbose
+    delayedVerbose() do
         println("number of births : $length(babies)")
-        sleep(sleeptime)
     end
 
-    return (newbabies=babies)
-
+    # any reason for that?
+#    return (newbabies=babies)
+    
+    babies
 end  # function doBirths! 
 
 "This function is supposed to implement the suggested model, TODO"
