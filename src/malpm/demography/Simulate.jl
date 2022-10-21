@@ -34,11 +34,13 @@ function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExa
             people=alivePeople(population,example),
             parameters=population.parameters.poppars,
             data=population.data,
-            currstep=currstep(sim),
+            currstep=currstep(sim))
+    #=
             verbose=verbose(sim),
             sleeptime=sim.parameters.sleeptime,
             checkassumption=sim.parameters.checkassumption) 
-
+    =# 
+    
     #for deadperson in deadpeople
     #    removeDead!(deadperson,population)
     #end

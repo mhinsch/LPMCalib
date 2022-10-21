@@ -84,7 +84,7 @@ end
 
 
 # currently leaves dead agents in population
-function death!(person, currstep, model, parameters)
+function death!(person, currstep, data, parameters)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
@@ -101,8 +101,8 @@ function death!(person, currstep, model, parameters)
                         
         agep = agep > 109 ? Rational(109) : agep 
         ageindex = trunc(Int,agep)
-        rawRate = isMale(person) ?  model.death_male[ageindex+1,curryear-1950+1] : 
-                                    model.death_female[ageindex+1,curryear-1950+1]
+        rawRate = isMale(person) ?  data.death_male[ageindex+1,curryear-1950+1] : 
+                                    data.death_female[ageindex+1,curryear-1950+1]
                                    
         # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
                         
@@ -147,13 +147,15 @@ function death!(person, currstep, model, parameters)
     false
 end 
 
+
+
 "evaluate death events in a population"
-function doDeaths!(;people, currstep, model, parameters)
+function doDeaths!(;people, currstep, data, parameters)
 
     deads = Person[] 
 
     for person in people 
-        if death!(person, currstep, model, parameters) 
+        if death!(person, currstep, data, parameters) 
             push!(deads,person)
         end 
     end # for livingPeople
@@ -166,3 +168,13 @@ function doDeaths!(;people, currstep, model, parameters)
 
     deads   
 end  # function doDeaths! 
+
+#= 
+An alternative : 
+type model need to be accessible through a module
+
+doDeaths!(model;people,currstep,parameters) =
+    doDeaths!(people = people, currstep=currstep, 
+                parameters = parameters, data = getData(model))
+
+=# 

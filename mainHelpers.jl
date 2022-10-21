@@ -30,6 +30,10 @@ mutable struct Model
     death_male :: Matrix{Float64}
 end
 
+getData(model) = (fertility = model.fertility, 
+                    death_female = model.death_female, 
+                    death_male   = model.death_male)
+
 
 function createDemography!(pars)
     ukTowns = createTowns(pars.mappars)
@@ -77,7 +81,7 @@ end
 function step!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, model = model, currstep = time)
+              parameters = pars.poppars, data = getData(model), currstep = time)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
