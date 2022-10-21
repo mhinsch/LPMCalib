@@ -37,10 +37,8 @@ mutable struct MAModel <: AbstractMABM
     end 
 end
 
-include("./demography/SimSetup.jl")   
-    #=
-    include("./demography/Simulate.jl")
-    =# 
+include("./demography/Simulate.jl")
+include("./demography/SimSetup.jl")  
 
 
 end # Demography

@@ -8,15 +8,17 @@ module Simulate
 
 using XAgents: Person, isFemale, alive, age
 
-using MultiAgents: ABM, allagents, add_agent!
+using MultiAgents: ABM, AbstractMABM, ABMSimulation
+using MultiAgents: allagents, add_agent!, currstep, verbose 
 using MALPM.Population: removeDead!
+using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
-using MALPM.Demography.Create: LPMUKDemography, LPMUKDemographyOpt
+# using MALPM.Demography: LPMUKDemography, LPMUKDemographyOpt
 
 using LPM
 import LPM.Demography.Simulate: doDeaths!
-import LPM.Demography.Simulate: doBirths!
-export doDeaths!,doBirths!
+# import LPM.Demography.Simulate: doBirths!
+# export doDeaths!,doBirths!
 
 alivePeople(population::ABM{Person},example::LPMUKDemography) = allagents(population)
 
@@ -24,7 +26,9 @@ alivePeople(population::ABM{Person},example::LPMUKDemographyOpt) =
                # Iterators.filter(person->alive(person),allagents(population))
                 [ person for person in allagents(population)  if alive(person) ]
 
-function doDeaths!(population::ABM{Person},sim::ABMSimulation,example::DemographyExample) # argument simulation or simulation properties ? 
+function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExample) # argument simulation or simulation properties ? 
+
+    population = model.pop 
 
     (deadpeople) = LPM.Demography.Simulate.doDeaths!(
             people=alivePeople(population,example),

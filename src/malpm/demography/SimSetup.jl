@@ -1,13 +1,14 @@
 module SimSetup
 
 # using XAgents: agestepAlivePerson!
-# using MALPM.Population: removeDead!, population_step!
+
+using MALPM.Population: removeDead!, population_step!
 
 using  MALPM.Demography: DemographyExample
-using  MALPM.Demography.Simulate: doDeaths!,doBirths!
+using  MALPM.Demography.Simulate: doDeaths! #,doBirths!
 
 using  MultiAgents: ABMSimulation
-import MultiAgents: setup!
+import MultiAgents: setup!, attach_pre_model_step!, attach_post_model_step!
 export setup!  
 
 """
@@ -38,8 +39,10 @@ function loadSimulationParameters()
 end 
 =# 
 
-function setup!(sim::ABMSimulation,example::DemographyExample) 
-    attach_pre_model_step!(sim.simulations[3],doDeaths!)
+function setup!(sim::ABMSimulation,example::DemographyExample)
+    attach_pre_model_step!(sim,population_step!)
+    attach_post_model_step!(sim,doDeaths!)
+
     # attach_pre_model_step!(sim.simulations[3],removeDead!)
     nothing 
 end
