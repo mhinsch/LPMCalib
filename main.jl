@@ -4,7 +4,7 @@ if !occursin("src/generic",LOAD_PATH)
     push!(LOAD_PATH, "src/generic") 
 end
 
-include("mainHelpers.jl")
+include("mainHelpersModel.jl")
 
 const simPars, pars = getParameters()
 
@@ -23,5 +23,7 @@ if simPars.verbose
     @show model.pop[1:10]
     println(); println(); 
 end 
+
+include("mainHelpers.jl")
 
 @time run!(model, simPars, pars)

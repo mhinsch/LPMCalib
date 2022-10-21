@@ -14,6 +14,7 @@ include("./loadLibsPath.jl")
 
 using MultiAgents: initMultiAgents, MAVERSION
 using MultiAgents: AbstractMABM, ABMSimulation 
+using MultiAgents: run!
 
 initMultiAgents()                 # reset agents counter
 @assert MAVERSION == v"0.3"   # ensure MultiAgents.jl latest update 
@@ -23,8 +24,9 @@ if !occursin("multiagents",LOAD_PATH)
     push!(LOAD_PATH, "src/multiagents") 
 end
 
-using MALPM.Demography: MAModel, LPMUKDemography
+using MALPM.Demography: MAModel, LPMUKDemography, LPMUKDemographyOpt 
 using MALPM.Demography.SimSetup: setup! 
+
 
 # using LPM.ParamTypes.Loaders:    loadUKDemographyPars
 
@@ -34,7 +36,7 @@ using MALPM.Demography.Initialize: initializeDemography!
 using MultiAgents: run! 
 =# 
 
-include("mainHelpers.jl")
+include("mainHelpersModel.jl")
 
 const simPars, pars = getParameters() 
 
@@ -58,8 +60,6 @@ end
 
 lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
 setup!(lpmDemographySim,LPMUKDemography()) 
-
-#= 
+ 
 # Execution 
-@time run!(lpmDemographySim)
-=# 
+@time run!(ukDemography,lpmDemographySim,LPMUKDemographyOpt())
