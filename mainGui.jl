@@ -12,9 +12,15 @@ include("src/RayGUI/render.jl")
 include("src/RayGUI/SimpleGraph.jl")
 using .SimpleGraph
 
-function main()
+function main(parOverrides...)
+    args = copy(ARGS)
+
+    for pov in parOverrides
+        push!(args, pov)
+    end
+
     # need to do that first, otherwise it blocks the GUI
-    simPars, pars, args = loadParameters(ARGS, 
+    simPars, pars, args = loadParameters(args, 
         ["--gui-scale"], 
         Dict(:help => "set gui scale", :default => 1.0, :arg_type => Float64))
     model = setupModel(pars)
@@ -53,7 +59,7 @@ function main()
             data = observe(Data, model)
             # add values to graph objects
             add_value!(graph_pop, data.alive.n)
-            add_value!(graph_hhs, data.eligible2.n)
+            add_value!(graph_hhs, data.hh_size.mean)
             add_value!(graph_marr, data.married.n)
             add_value!(graph_age, data.age.mean)
             println(data.hh_size.max, " ", data.alive.n, " ", data.eligible.n, " ", data.eligible2.n)
@@ -70,9 +76,9 @@ function main()
                   (floor(Int, 2 * scale), floor(Int, 2 * scale)))
         # draw graphs
         draw_graph(floor(Int, screenWidth/3), 0, floor(Int, screenWidth*2/3), screenHeight, 
-                   [graph_pop, graph_marr, graph_hhs, graph_age], 
+                   [graph_pop, graph_hhs, graph_marr, graph_age], 
                    single_scale = false, 
-                   labels = ["#alive", "#eligible2", "#married", "mean age"],
+                   labels = ["#alive", "hh size", "#married", "mean age"],
                    fontsize = floor(Int, 15 * scale))
         
         RL.EndMode2D()
@@ -87,4 +93,6 @@ function main()
     RL.CloseWindow()
 end
 
-main()
+if ! isinteractive()
+    main()
+end
