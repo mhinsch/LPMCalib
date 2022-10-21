@@ -5,7 +5,6 @@ using Raylib: rayvector
 const RL = Raylib
 
 include("lpm.jl")
-include("analysis.jl")
 
 include("src/RayGUI/render.jl")
 
@@ -24,17 +23,14 @@ function main(parOverrides...)
         ["--gui-scale"], 
         Dict(:help => "set gui scale", :default => 1.0, :arg_type => Float64))
     model = setupModel(pars)
+    logfile = setupLogging(simPars)
 
     scale = args[:gui_scale]
-
     screenWidth = floor(Int, 1600 * scale)
     screenHeight = floor(Int, 900 * scale)
 
-
     RL.InitWindow(screenWidth, screenHeight, "this is a test")
-
     RL.SetTargetFPS(30)
-
     camera = RL.RayCamera2D(
         rayvector(screenWidth/2, screenHeight/2),
         rayvector(screenWidth/2, screenHeight/2),
@@ -54,9 +50,10 @@ function main(parOverrides...)
     while !RL.WindowShouldClose()
 
         if !pause && time <= simPars.finishTime
-            step!(model, time, simPars, pars)
+            stepModel!(model, time, simPars, pars)
             time += simPars.dt
             data = observe(Data, model)
+            log_results(logfile, data)
             # add values to graph objects
             add_value!(graph_pop, data.alive.n)
             add_value!(graph_hhs, data.hh_size.mean)
@@ -91,6 +88,8 @@ function main(parOverrides...)
     end
 
     RL.CloseWindow()
+
+    close(logfile)
 end
 
 if ! isinteractive()
