@@ -1,5 +1,5 @@
 using  Parameters
-export MapPars, PopulationPars, DemographyPars, DivorcePars
+export MapPars, PopulationPars, DemographyPars, DivorcePars, WorkPars
 
 "Parameters describing map properties"
 @with_kw mutable struct MapPars 
@@ -129,7 +129,7 @@ end
 
 "Parameters related to work and education"
 @with_kw mutable struct WorkPars
-    maternityLeaveDuration :: Rational  = 9//12
+    maternityLeaveDuration :: Rational{Int}  = 9//12
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
     probOutOfTownStudent :: Float64     = 0.5

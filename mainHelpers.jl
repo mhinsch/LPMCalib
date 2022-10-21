@@ -73,7 +73,7 @@ function initializeDemography!(model, poppars, workpars, mappars)
 end
 
 
-function step!(model, time, simPars, pars)
+function stepModel!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
               parameters = pars.poppars, model = model, currstep = time)
@@ -201,7 +201,7 @@ function runModel!(model, simPars, pars, logfile = nothing)
     setDelay!(simPars.sleeptime)
 
     while time < simPars.finishTime
-        step!(model, time, simPars, pars)
+        stepModel!(model, time, simPars, pars)
 
         if logfile != nothing
             results = observe(Data, model)
