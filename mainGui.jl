@@ -16,7 +16,7 @@ function main(parOverrides...)
     args = copy(ARGS)
 
     for pov in parOverrides
-        push!(args, pov)
+        push!(args, string(pov))
     end
 
     # need to do that first, otherwise it blocks the GUI
