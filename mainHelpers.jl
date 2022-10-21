@@ -73,6 +73,7 @@ function initializeDemography!(model, poppars, workpars, mappars)
 end
 
 
+
 function step!(model, time, simPars, pars)
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
@@ -211,5 +212,6 @@ function runModel!(model, simPars, pars, logfile = nothing)
         time += simPars.dt
     end
 end
+
 
 
