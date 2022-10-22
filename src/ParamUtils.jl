@@ -65,6 +65,9 @@ end
 "convert value to type T"
 asType(::Type{T}, value) where{T} = value
 asType(::Type{T}, value::AbstractString) where {T} = parse(T, value)
+# matrizes come back as [ "1 2 ; 3 4" ]
+asType(::Type{Array{T, 2}}, value::Vector{String}) where {T<:Number} = 
+    parse(Array{T, 2}, value)
 asType(::Type{String}, value::AbstractString) = value
 
 # For some reason Julia can *write* Rational, but not read it...
@@ -72,6 +75,25 @@ asType(::Type{String}, value::AbstractString) = value
 function Base.parse(::Type{Rational{T}}, s::AbstractString) where {T}
     nums = split(s, "//")
     Rational{T}(parse(T, nums[1]), parse(T, nums[2]))
+end
+
+function Base.parse(::Type{Array{T, 2}}, value::Vector{String}) where {T<:Number}
+    # matrizes come back as [ "1 2 ; 3 4" ]
+    str = value[1]
+    lines = split(str, ";")
+
+    data = T[]
+
+    for line in lines
+        for el in split(line)
+            push!(data, parse(T, el))
+        end
+    end
+
+    # transform into matrix
+    # there's probably an easier way, but this works and it's used only once
+    # per simulation run anyway
+    reshape(data, :, length(lines)) |> permutedims
 end
 
 # This is effectively a setfield replacement that allows for type coercion.
