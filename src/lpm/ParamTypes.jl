@@ -29,8 +29,8 @@ include("./demography/demographypars.jl")
 end 
 
 reseed0!(simPars) = 
-    simPars = simPars.seed == 0 ?  floor(Int, time()) : 
-                                    simPars.seed 
+    simPars.seed = simPars.seed == 0 ?  floor(Int, time()) : 
+                                        simPars.seed 
 
 function seed!(simPars::SimulationPars,
                 randomizeSeedZero=true)
