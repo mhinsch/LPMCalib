@@ -14,6 +14,9 @@ using Utilities
 
 
 # TODO put into module somewhere?
+# Atiyah: Suggestion: as it is related to ParamTypes, it fits there
+#                     or another module for Data (though currently 
+#                     not that significant amount of code)
 include("src/lpm/demography/demographydata.jl")
 
 include("src/handleParams.jl")
@@ -42,6 +45,8 @@ function createDemography!(pars)
 
     ukPopulation = createPopulation(pars.poppars)
     
+    # Atiyah: For more DRY code, you may want to consider calling 
+    #         loadDemographyData(datapars) 
     datp = pars.datapars
     dir = datp.datadir
 

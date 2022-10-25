@@ -12,3 +12,10 @@ function loadDemographyData(fertFName, deathFFName, deathMFName)
 
     (fertility=fert,deathFemale=deathFemale,deathMale=deathMale)
 end
+
+function loadDemographyData(datapars)
+    dir = datapars.datadir
+    ukDemoData   = loadDemographyData(dir * "/" * datapars.fertFName, 
+                                      dir * "/" * datapars.deathFFName,
+                                      dir * "/" * datapars.deathMFName)
+end
