@@ -11,7 +11,7 @@ using Parameters
 
 import Random.seed! 
 
-export SimulationPars, seed!
+export SimulationPars, seed!, reseed0!
 
 include("./demography/demographypars.jl")
 
@@ -28,11 +28,14 @@ include("./demography/demographypars.jl")
     logfile :: String = "log.tsv"
 end 
 
+reseed0!(simPars) = 
+    simPars = simPars.seed == 0 ?  floor(Int, time()) : 
+                                    simPars.seed 
 
 function seed!(simPars::SimulationPars,
                 randomizeSeedZero=true)
-    if randomizeSeedZero && simPars.seed == 0 
-        simPars.seed = floor(Int, time())
+    if randomizeSeedZero 
+        reseed0!(simPars)
     end
     Random.seed!(simPars.seed)
 end

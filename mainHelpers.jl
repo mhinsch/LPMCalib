@@ -152,6 +152,9 @@ function loadParameters(argv, cmdl...)
         overrideParsCmdl!(getfield(pars, f), args)
     end
 
+    # Atiyah: for more DRY Code, you may consider using 
+    # LPM.ParamTypes.{seed!,reseed0!} within mainHelpers.jl 
+    # and remove the following call & the using statement 
     # set time dependent seed
     if simpars.seed == 0
         simpars.seed = floor(Int, time())
