@@ -1,13 +1,11 @@
 """
 Main simulation of the lone parent model 
 
-under construction 
-
 Run this script from shell as 
-# julia MainMALPM.jl
+# julia mainMA.jl
 
 from REPL execute it using 
-> include("MainMALPM.jl")
+> include("mainMA.jl")
 """
 
 using Random
