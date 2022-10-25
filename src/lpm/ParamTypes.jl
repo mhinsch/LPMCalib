@@ -1,9 +1,17 @@
+"""
+Parameter types and values 
+
+This module is within the LPM module 
+"""
 
 module ParamTypes
 
+using Random
 using Parameters
 
-export SimulationPars
+import Random.seed! 
+
+export SimulationPars, seed!
 
 include("./demography/demographypars.jl")
 
@@ -19,6 +27,15 @@ include("./demography/demographypars.jl")
     checkassumption :: Bool = false # whether assumptions in unit functions should be checked
     logfile :: String = "log.tsv"
 end 
+
+
+function seed!(simPars::SimulationPars,
+                randomizeSeedZero=true)
+    if randomizeSeedZero && simPars.seed == 0 
+        simPars.seed = floor(Int, time())
+    end
+    Random.seed!(simPars.seed)
+end
 
 
 end # ParamTypes
