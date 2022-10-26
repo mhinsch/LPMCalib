@@ -38,10 +38,10 @@ function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExa
     population = model.pop 
 
     (deadpeople) = LPM.Demography.Simulate.doDeaths!(
-            people=alivePeople(population,example),
-            parameters=population.parameters.poppars,
-            data=population.data,
-            currstep=currstep(sim))
+            alivePeople(population,example),
+            currstep(sim),
+            population.data,
+            population.parameters.poppars)
     
     removeDeads!(deadpeople,population,example)
     nothing 

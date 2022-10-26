@@ -150,7 +150,7 @@ end
 
 
 "evaluate death events in a population"
-function doDeaths!(;people, currstep, data, parameters)
+function doDeaths!(people, currstep, data, parameters)
 
     deads = Person[] 
 
@@ -170,11 +170,8 @@ function doDeaths!(;people, currstep, data, parameters)
 end  # function doDeaths! 
 
 #= 
-An alternative : 
-type model need to be accessible through a module
-
-doDeaths!(model;people,currstep,parameters) =
-    doDeaths!(people = people, currstep=currstep, 
-                parameters = parameters, data = getData(model))
-
+Alternative: 
+alivePeople(pop) = Iterators.filter(a->alive(a), pop)
+doDeaths!(model,currstep,parameters) = 
+    doDeaths!(alivePeople(model.pop),currstep,model,parameters)
 =# 

@@ -29,14 +29,11 @@ mutable struct Model
     pop :: Vector{Person}
 
     fertility :: Matrix{Float64}
-    death_female :: Matrix{Float64}
-    death_male :: Matrix{Float64}
+    deathFemale :: Matrix{Float64}
+    deathMale :: Matrix{Float64}
 end
 
-getData(model) = (fertility = model.fertility, 
-                    deathFemale = model.death_female, 
-                    deathMale   = model.death_male)
-
+data(model) = model 
 
 function createDemography!(pars)
     ukTowns = createTowns(pars.mappars)
@@ -81,11 +78,12 @@ function initializeDemography!(model, poppars, workpars, mappars)
     nothing
 end
 
+alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
+
 
 function stepModel!(model, time, simPars, pars)
     # TODO remove dead people?
-    doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, data = getData(model), currstep = time)
+    doDeaths!(alivePeople(model), time, data(model), pars.poppars)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
