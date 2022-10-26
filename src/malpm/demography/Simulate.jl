@@ -13,11 +13,8 @@ using MultiAgents: allagents, add_agent!, currstep, verbose
 using MALPM.Population: removeDead!
 using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
-# using MALPM.Demography: LPMUKDemography, LPMUKDemographyOpt
-
 using LPM
-import LPM.Demography.Simulate: doDeaths!
-# import LPM.Demography.Simulate: doBirths!
+import LPM.Demography.Simulate: doDeaths!, doBirths!
 # export doDeaths!,doBirths!
 
 alivePeople(population::ABM{Person},::LPMUKDemography) = allagents(population)
@@ -46,20 +43,18 @@ function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExa
             data=population.data,
             currstep=currstep(sim))
     
+    removeDeads!(deadpeople,population,example)
     nothing 
 end # function doDeaths!
 
-#=
-function doBirths!(population::ABM{Person}) 
+
+function doBirths!(population::ABM{Person},sim::ABMSimulation,example::DemographyExample) 
 
     newbabies = LPM.Demography.Simulate.doBirths!(
                         people = alivePeople(population,population.properties.example),
                         parameters =  population.parameters.birthpars,
                         data = population.data,
-                        currstep = population.properties.currstep,
-                        verbose = population.properties.verbose,
-                        sleeptime = population.properties.sleeptime,
-                        checkassumption = population.properties.checkassumption) 
+                        currstep = population.properties.currstep) 
 
     # false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
     
@@ -69,6 +64,6 @@ function doBirths!(population::ABM{Person})
 
     nothing 
 end
-=# 
+
 
 end # Simulate 

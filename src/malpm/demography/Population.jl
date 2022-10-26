@@ -5,7 +5,7 @@ Population module providing help utilities for realizing a population as an ABM
 module Population 
 
 using  MultiAgents: ABM, ABMSimulation, AbstractMABM  
-using  MultiAgents: allagents, dt
+using  MultiAgents: allagents, dt, kill_agent!
 
 import XAgents: agestep!, agestepAlive!, alive 
 
@@ -57,20 +57,5 @@ agestepAlivePerson!(person::PersonType,population::ABM{PersonType},
 
 end # Population 
 
-#= 
 
-In future we could have something like that: 
-
-mutable struct Population 
-
-    abm::ABM  
-    Population(createPopulation::Function) 
-    parameters::Dict
-    variables::Dict
-    data::Dict
-    properties::Dict
-    ...
-
-end 
-=# 
 
