@@ -8,44 +8,26 @@ from REPL execute it using
 > include("mainMA.jl")
 """
 
-using Random
+include("mainMAHelpers.jl")
 
-include("./loadLibsPath.jl")
+const mainExample = Light() 
+# const mainExample = WithInputFiles()
 
-addToLoadPath!("src")
-addToLoadPath!("src/multiagents") 
-addToLoadPath!("../MultiAgents.jl")
-
-include("mainHelpers.jl")
-
-const simPars, pars = loadParameters(ARGS) 
-
-Random.seed!(simPars.seed)
+const simPars, pars = loadParameters(mainExample) 
 
 const model = setupModel(pars)
 
-const logfile = setupLogging(simPars)
+const logfile = setupLogging(simPars,mainExample)
 
+const data = loadDemographyData(pars.datapars)
 
-using MultiAgents: initMultiAgents, MAVERSION
-using MultiAgents: AbstractMABM, ABMSimulation 
-using MultiAgents: run!
+const ukDemography = MAModel(model,pars,data)
 
-initMultiAgents()                 # reset agents counter
-@assert MAVERSION == v"0.3"   # ensure MultiAgents.jl latest update 
-
-
-
-using MALPM.Demography: MAModel, LPMUKDemography, LPMUKDemographyOpt 
-using MALPM.Demography.SimSetup: setup! 
-
-
-ukDemography = MAModel(model,pars)
-
-lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
+const lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
 setup!(lpmDemographySim,LPMUKDemography()) 
  
 # Execution 
 @time run!(ukDemography,lpmDemographySim,LPMUKDemographyOpt())
 
-close(logfile)
+closeLogfile(logfile,mainExample)
+ 

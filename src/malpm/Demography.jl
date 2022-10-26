@@ -24,18 +24,6 @@ mutable struct MAModel <: AbstractMABM
     towns  :: ABM{Town} 
     houses :: ABM{PersonHouse}
     pop    :: ABM{Person}
-    
-    function MAModel(model,pars)
-        ukTowns  = ABM{Town}(model.towns,parameters = pars.mappars) 
-        ukHouses = ABM{PersonHouse}(model.houses)
-        parameters = (poppars = pars.poppars, birthpars = pars.birthpars, 
-                        divorcepars = pars.divorcepars, workpars = pars.workpars)
-        data = (fertility = model.fertility, 
-                    death_female = model.death_female, 
-                    death_male = model.death_male)    
-        ukPopulation = ABM{Person}(model.pop,parameters=parameters,data=data)
-        new(ukTowns,ukHouses,ukPopulation)
-    end 
 
     function MAModel(model,pars,data) 
         ukTowns  = ABM{Town}(model.towns,parameters = pars.mappars) 
