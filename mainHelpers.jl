@@ -34,8 +34,8 @@ mutable struct Model
 end
 
 getData(model) = (fertility = model.fertility, 
-                    death_female = model.death_female, 
-                    death_male   = model.death_male)
+                    deathFemale = model.death_female, 
+                    deathMale   = model.death_male)
 
 
 function createDemography!(pars)
