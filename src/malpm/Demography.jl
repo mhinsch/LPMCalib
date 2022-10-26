@@ -2,6 +2,7 @@ module Demography
 
 using XAgents: Town, PersonHouse, Person 
 using MultiAgents: AbstractMABM, ABM
+# using LPM.Demography.Create: createTowns
 
 export MAModel 
  
@@ -35,6 +36,16 @@ mutable struct MAModel <: AbstractMABM
         ukPopulation = ABM{Person}(model.pop,parameters=parameters,data=data)
         new(ukTowns,ukHouses,ukPopulation)
     end 
+
+    function MAModel(model,pars,data) 
+        ukTowns  = ABM{Town}(model.towns,parameters = pars.mappars) 
+        ukHouses = ABM{PersonHouse}(model.houses)
+        parameters = (poppars = pars.poppars, birthpars = pars.birthpars, 
+                        divorcepars = pars.divorcepars, workpars = pars.workpars)   
+        ukPopulation = ABM{Person}(model.pop,parameters=pars,data=data)
+        new(ukTowns,ukHouses,ukPopulation)
+    end
+
 end
 
 include("./demography/Simulate.jl")
