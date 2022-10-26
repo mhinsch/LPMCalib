@@ -10,24 +10,27 @@ from REPL execute it using
 
 include("mainMAHelpers.jl")
 
-const mainExample = Light() 
-# const mainExample = WithInputFiles()
+mainConfig = Light() 
+# mainConfig = WithInputFiles()
 
-const simPars, pars = loadParameters(mainExample) 
+# lpmExample = LPMUKDemography() 
+lpmExample = LPMUKDemographyOpt() 
+
+const simPars, pars = loadParameters(mainConfig) 
 
 const model = setupModel(pars)
 
-const logfile = setupLogging(simPars,mainExample)
+const logfile = setupLogging(simPars,mainConfig)
 
 const data = loadDemographyData(pars.datapars)
 
 const ukDemography = MAModel(model,pars,data)
 
 const lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
-setup!(lpmDemographySim,LPMUKDemography()) 
+setup!(lpmDemographySim,lpmExample) 
  
 # Execution 
-@time run!(ukDemography,lpmDemographySim,LPMUKDemographyOpt())
+@time run!(ukDemography,lpmDemographySim,lpmExample)
 
-closeLogfile(logfile,mainExample)
+closeLogfile(logfile,mainConfig)
  

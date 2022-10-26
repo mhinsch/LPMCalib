@@ -20,11 +20,21 @@ import LPM.Demography.Simulate: doDeaths!
 # import LPM.Demography.Simulate: doBirths!
 # export doDeaths!,doBirths!
 
-alivePeople(population::ABM{Person},example::LPMUKDemography) = allagents(population)
+alivePeople(population::ABM{Person},::LPMUKDemography) = allagents(population)
 
-alivePeople(population::ABM{Person},example::LPMUKDemographyOpt) = 
+alivePeople(population::ABM{Person},::LPMUKDemographyOpt) = 
                # Iterators.filter(person->alive(person),allagents(population))
                 [ person for person in allagents(population)  if alive(person) ]
+
+function removeDeads!(deadpeople,population,::LPMUKDemography)    
+    for deadperson in deadpeople
+        removeDead!(deadperson,population)
+    end
+    
+    nothing 
+end
+
+removeDeads!(deadpeople,population,::LPMUKDemographyOpt) = nothing 
 
 function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExample) # argument simulation or simulation properties ? 
 
@@ -35,20 +45,8 @@ function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExa
             parameters=population.parameters.poppars,
             data=population.data,
             currstep=currstep(sim))
-    #=
-            verbose=verbose(sim),
-            sleeptime=sim.parameters.sleeptime,
-            checkassumption=sim.parameters.checkassumption) 
-    =# 
     
-    #for deadperson in deadpeople
-    #    removeDead!(deadperson,population)
-    #end
-
     nothing 
-
-    # false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
-
 end # function doDeaths!
 
 #=
