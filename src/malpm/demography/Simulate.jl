@@ -33,7 +33,7 @@ end
 
 removeDeads!(deadpeople,population,::LPMUKDemographyOpt) = nothing 
 
-function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExample) # argument simulation or simulation properties ? 
+function doDeaths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) # argument simulation or simulation properties ? 
 
     population = model.pop 
 
@@ -48,13 +48,15 @@ function doDeaths!(model::AbstractMABM,sim::ABMSimulation,example::DemographyExa
 end # function doDeaths!
 
 
-function doBirths!(population::ABM{Person},sim::ABMSimulation,example::DemographyExample) 
+function doBirths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
 
     newbabies = LPM.Demography.Simulate.doBirths!(
-                        people = alivePeople(population,population.properties.example),
-                        parameters =  population.parameters.birthpars,
-                        data = population.data,
-                        currstep = population.properties.currstep) 
+                        alivePeople(population,example),
+                        currstep(sim),
+                        population.data,
+                        population.parameters.birthpars) 
 
     # false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
     

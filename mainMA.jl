@@ -13,8 +13,8 @@ include("mainMAHelpers.jl")
 mainConfig = Light() 
 # mainConfig = WithInputFiles()
 
-# lpmExample = LPMUKDemography() 
-lpmExample = LPMUKDemographyOpt() 
+lpmExample = LPMUKDemography()    # remove deads
+# lpmExample = LPMUKDemographyOpt()   # don't remove deads 
 
 const simPars, pars = loadParameters(mainConfig) 
 
@@ -22,9 +22,9 @@ const model = setupModel(pars)
 
 const logfile = setupLogging(simPars,mainConfig)
 
-const data = loadDemographyData(pars.datapars)
+const demoData = loadDemographyData(pars.datapars)
 
-const ukDemography = MAModel(model,pars,data)
+const ukDemography = MAModel(model,pars,demoData)
 
 const lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
 setup!(lpmDemographySim,lpmExample) 
