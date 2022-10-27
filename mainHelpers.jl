@@ -78,12 +78,17 @@ function initializeDemography!(model, poppars, workpars, mappars)
     nothing
 end
 
-alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
 
+# Atiyah: remove this for the more primative simulation function
+# alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
 
 function stepModel!(model, time, simPars, pars)
     # TODO remove dead people?
-    doDeaths!(alivePeople(model), time, data(model), pars.poppars)
+    
+    # Atiyah: 
+    doDeaths!(model,time,pars)   # a possible unified way 
+    # or the primiative simulation function 
+    # doDeaths!(alivePeople(model), time, data(model), pars.poppars)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)

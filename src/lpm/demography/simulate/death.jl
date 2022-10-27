@@ -169,9 +169,9 @@ function doDeaths!(people, currstep, data, parameters)
     deads   
 end  # function doDeaths! 
 
-#= 
-Alternative: 
-alivePeople(pop) = Iterators.filter(a->alive(a), pop)
-doDeaths!(model,currstep,parameters) = 
-    doDeaths!(alivePeople(model.pop),currstep,model,parameters)
-=# 
+# Atiyah : Alternative: 
+
+alivePeople(model) = Iterators.filter(a->alive(a), model.pop)  # To be moved to a Model module
+populationPars(pars) = pars.poppars                            # To be moved to a Model module 
+doDeaths!(model,time,parameters) = 
+    doDeaths!(alivePeople(model),time,model,populationPars(parameters))
