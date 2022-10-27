@@ -171,7 +171,11 @@ end  # function doDeaths!
 
 # Atiyah : Alternative: 
 
-alivePeople(model) = Iterators.filter(a->alive(a), model.pop)  # To be moved to a Model module
-populationPars(pars) = pars.poppars                            # To be moved to a Model module 
+# the following accessory functions to be moved to an internal module 
+population(model)    = model.pop      
+alivePeople(model)   = Iterators.filter(a->alive(a), population(model))  
+populationPars(pars) = pars.poppars                             
+
+# Generic API for doDeaths!
 doDeaths!(model,time,parameters) = 
     doDeaths!(alivePeople(model),time,model,populationPars(parameters))
