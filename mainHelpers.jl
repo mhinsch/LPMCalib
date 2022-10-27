@@ -33,8 +33,6 @@ mutable struct Model
     deathMale :: Matrix{Float64}
 end
 
-data(model) = model 
-
 function createDemography!(pars)
     ukTowns = createTowns(pars.mappars)
 
@@ -79,22 +77,24 @@ function initializeDemography!(model, poppars, workpars, mappars)
 end
 
 
-# Atiyah: remove this for the more primative simulation function
+# Atiyah: remove this for the primative API simulation function
 # alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
+# data(model) = model 
 
 function stepModel!(model, time, simPars, pars)
     # TODO remove dead people?
     
     # Atiyah: 
     doDeaths!(model,time,pars)   # a possible unified way 
-    # or the primiative simulation function 
+    # or the primiative-API 
     # doDeaths!(alivePeople(model), time, data(model), pars.poppars)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
-    babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-                       parameters = pars.birthpars, model = model, currstep = time)
+    # Atiyah: 
+    babies = doBirths!(model,time,pars)
+    # babies = doBirths!(alivePeople(model), model.pop), time, model, pars.birthpars)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)

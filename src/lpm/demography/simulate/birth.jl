@@ -68,13 +68,13 @@ function effectsOfMaternity!(woman, pars)
 end
 
 
-function birth!(woman, currstep, model, parameters)
+function birth!(woman, currstep, data, parameters)
 
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
 
-    birthProb = computeBirthProb(woman, parameters, model, currstep)
+    birthProb = computeBirthProb(woman, parameters, data, currstep)
                         
     assumption() do
         @assert isFemale(woman) 
@@ -178,9 +178,8 @@ selectBirth(woman, parameters) = isFemale(woman) &&
     ageYoungestAliveChild(woman) > 1 
 
 
-function doBirths!(;people, currstep, model, parameters)
+function doBirths!(people, currstep, data, parameters)
 
-    # TODO Assumptions 
     assumption() do
         for person in people  
             @assert alive(person) 
@@ -263,7 +262,7 @@ function doBirths!(;people, currstep, model, parameters)
 
     for woman in reproductiveWomen 
 
-        baby = birth!(woman, currstep, model, parameters)
+        baby = birth!(woman, currstep, data, parameters)
         if baby != nothing 
             push!(babies,baby)
         end 
@@ -282,6 +281,18 @@ end  # function doBirths!
 
 "This function is supposed to implement the suggested model, TODO"
 function doBirthsOpt() end
+
+# the following accessory functions to be moved to an internal module 
+population(model)    = model.pop      
+data(model)          = model 
+alivePeople(model)   = Iterators.filter(a->alive(a), population(model))  
+birthPars(pars)      = pars.birthpars                             
+
+# Generic API for doDeaths!
+doBirths!(model,time,parameters) = 
+    doBirths!(alivePeople(model),time,data(model),birthPars(parameters))
+
+
 
 
 
