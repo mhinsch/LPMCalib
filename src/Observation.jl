@@ -157,7 +157,12 @@ function process_aggregate(var, collection, decls)
 		sname = Symbol(statname)
 		prop_code = :($sname :: joined_named_tuple_T())
 		for t in stattypes
-			push!(prop_code.args[2].args, :($(esc(:result_type))($(esc(t)))))
+            # not a constructor call
+            if ! @capture(t, typ_(args__))
+                typ = t
+            end
+
+			push!(prop_code.args[2].args, :($(esc(:result_type))($(esc(typ)))))
 		end
 
 		push!(stat_type_code, prop_code)
@@ -174,8 +179,14 @@ function process_aggregate(var, collection, decls)
 		for (j, stattype) in enumerate(stattypes)
 			# declaration of accumulator
 			vname = gensym("stat")
-			# goes into main body (outside of loop)
-			push!(body_code, :($(esc(vname)) = $(esc(stattype))()))
+            # goes into main body (outside of loop)
+            if @capture(stattype, typ_(args__))
+                # paste in constructor expression
+                push!(body_code, :($(esc(vname)) = $(esc(stattype))))
+            else
+                # create constructor call
+                push!(body_code, :($(esc(vname)) = $(esc(stattype))()))
+            end
 
 			# add value to accumulator
 			push!(loop_code, :($(esc(:add!))($(esc(vname)), $tmp_name)))
