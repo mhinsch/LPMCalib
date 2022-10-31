@@ -1,6 +1,6 @@
 module StatsAccumulator
 
-export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, AccList
+export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, HistAcc
 
 
 
@@ -46,24 +46,23 @@ result_type(::Type{MeanVarAcc{T}}) where {T} = @NamedTuple{mean::T, var::T}
 	
 
 
-mutable struct MeanVarAcc2{T}
-	m :: T
-	m2 :: T
-	n :: Int
-end
-
-
-MeanVarAcc2{T}() where T = MeanVarAcc2(T(0), T(0), 0)
-
-function add!(acc :: MeanVarAcc2{T}, v :: T) where T
-	delta = v - acc.m
-	acc.n += 1
-	delta_n = delta / acc.n
-	acc.m += delta_n
-	acc.m2 += delta * (delta - delta_n)
-end
-
-result(acc :: MeanVarAcc2{T}) where {T} = acc.m, acc.m2 / acc.n
+#mutable struct MeanVarAcc2{T}
+#	m :: T
+#	m2 :: T
+#	n :: Int
+#end
+#
+#MeanVarAcc2{T}() where T = MeanVarAcc2(T(0), T(0), 0)
+#
+#function add!(acc :: MeanVarAcc2{T}, v :: T) where T
+#	delta = v - acc.m
+#	acc.n += 1
+#	delta_n = delta / acc.n
+#	acc.m += delta_n
+#	acc.m2 += delta * (delta - delta_n)
+#end
+#
+#result(acc :: MeanVarAcc2{T}) where {T} = acc.m, acc.m2 / acc.n
 
 
 mutable struct MaxMinAcc{T}
@@ -79,6 +78,38 @@ function add!(acc :: MaxMinAcc{T}, v :: T) where {T}
 	acc.max = max(acc.max, v)
 	acc.min = min(acc.min, v)
 end
+
+
+mutable struct HistAcc{T}
+    bins :: Vector{Int}
+    min :: T
+    width :: T
+end
+
+HistAcc{T}(min::T = T(0), width::T = T(1)) where {T} = HistAcc{T}([], min, width)
+
+function add!(acc :: HistAcc{T}, v :: T) where {T}
+    if v < acc.min
+        return acc
+    end
+
+    bin = floor(Int, (v - acc.min) / acc.width) + 1
+    n = length(acc.bins)
+    if bin > n
+        sizehint!(acc.bins, bin)
+        for i in (n+1):bin
+            push!(acc.bins, 0)
+        end
+    end
+
+    acc.bins[bin] += 1
+
+    acc
+end
+
+results(acc::HistAcc{T}) where {T} = (;bins = acc.bins)
+
+result_type(::Type{HistAcc{T}}) where {T} = @NamedTuple{bins::Vector{Int}}
 
 # does not work with results/result_type, maybe rework as tuples?
 

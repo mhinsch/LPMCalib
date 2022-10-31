@@ -5,7 +5,7 @@ using XAgents
 ageClass(person) = trunc(Int, age(person)/10)
 
 
-@memoize function shareMenNoChildren(model, ageclass)
+@memoize Dict function shareMenNoChildren(model, ageclass :: Int)
     nAll = 0
     nNoC = 0
 
@@ -102,6 +102,8 @@ function marriage!(man, time, model, pars)
         return nothing
     end
 
+    # get cached list
+    # note: this is getting updated as we go
     women = eligibleWomen(model, pars)
 
     # we store candidates as indices, so that we can efficiently remove married women 
