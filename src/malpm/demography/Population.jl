@@ -5,18 +5,21 @@ Population module providing help utilities for realizing a population as an ABM
 module Population 
 
 using  MultiAgents: ABM, ABMSimulation, AbstractMABM  
-using  MultiAgents: allagents, dt, kill_agent!
+using  MultiAgents: allagents, dt, kill_agent! 
+using  XAgents: Person 
+using  XAgents: alive, agestepAlive! 
+using  MALPM.Demography: population
 
-import XAgents: agestep!, agestepAlive!, alive 
+import XAgents: agestep!
 
-export population_step!, agestepAlive!, removeDead!
+export population_step!, agestepAlivePerson!, removeDead!
 
 
-function population_step!(model::AbstractMABM,
+population_step!(model::AbstractMABM,
                             sim::ABMSimulation, 
-                            example) where {PersonType} 
-    population_step!(model.pop,sim,example)
-end 
+                            example) =
+    population_step!(population(model),sim,example)
+
 
 "Step function for the population"
 function population_step!(population::ABM{PersonType},
@@ -47,13 +50,21 @@ function removeDead!(population::ABM{PersonType},
 end
 
 "increment age with the simulation step size"
-agestep!(person::PersonType,population::ABM{PersonType},
+agestep!(person::Person,population::ABM{Person},
             sim::ABMSimulation,example) where {PersonType} = agestep!(person,dt(sim))
+
+
+agestep!(person::Person,model::AbstractMABM,sim,example) = 
+    agestep!(person,population(model),sim,example)
 
 "increment age with the simulation step size"
 agestepAlivePerson!(person::PersonType,population::ABM{PersonType},
                         sim::ABMSimulation,example) where {PersonType} = 
                             agestepAlive!(person, dt(sim))
+
+
+agestepAlivePerson!(person,model::AbstractMABM,sim,example) =
+    agestepAlivePerson!(person,population(model),sim,example)                              
 
 end # Population 
 
