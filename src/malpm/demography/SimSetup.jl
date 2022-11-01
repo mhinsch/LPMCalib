@@ -1,14 +1,19 @@
 module SimSetup
 
-# using XAgents: agestepAlivePerson!
 
-using MALPM.Population: removeDead!, population_step!
+using MALPM.Demography.Population: removeDead!, 
+                agestepAlivePerson!, agestep!, population_step!
 
-using  MALPM.Demography: DemographyExample
+using  MALPM.Demography: DemographyExample, 
+                            LPMUKDemography, LPMUKDemographyOpt
 using  MALPM.Demography.Simulate: doDeaths!, doBirths!
 
 using  MultiAgents: ABMSimulation
-import MultiAgents: setup!, attach_pre_model_step!, attach_post_model_step!
+using  MultiAgents: attach_pre_model_step!, attach_post_model_step!, 
+                    attach_agent_step!
+using  Utilities: setVerbose!, unsetVerbose!, setDelay!,
+                    checkAssumptions!, ignoreAssumptions!
+import MultiAgents: setup!, verbose
 export setup!  
 
 """
@@ -20,51 +25,36 @@ is provided here
 @return dictionary of required simulation parameters 
 """
 
-function setup!(sim::ABMSimulation,example::DemographyExample)
-    attach_pre_model_step!(sim,population_step!)
+
+function setupCommon!(sim::ABMSimulation) 
+
+    verbose(sim) ? setVerbose!() : unsetVerbose!()
+    setDelay!(sim.parameters.sleeptime)
+    sim.parameters.checkassumption ? checkAssumptions!() :
+                                        ignoreAssumptions!()
+
     attach_post_model_step!(sim,doDeaths!)
-    # attach_pre_model_step!(sim.simulations[3],removeDead!)
     attach_post_model_step!(sim,doBirths!)
     nothing 
-end
+end 
 
-#= 
-function setup!(sim::MABMSimulation,example::LPMUKDemography) 
-    #attach_agent_step!(sim.simulations[3],agestepAlivePerson!)
-
-    
-    attach_pre_model_step!(sim.simulations[3],removeDead!)
-    attach_pre_model_step!(sim.simulations[3],doBirths!)
-    attach_post_model_step!(sim.simulations[3],population_step!)
-
-    #= 
-    n = length(sim.simulations) 
-    for i in 1:n 
-        attach_agent_step!(simulations[i],X) 
-        attach_model_step!(simulations[i],Y)
-    end
-    =# 
+"set up simulation functions where dead people are removed" 
+function setup!(sim::ABMSimulation, example::LPMUKDemography)
+    # attach_pre_model_step!(sim,population_step!)
+    attach_agent_step!(sim,agestep!)
+    setupCommon!(sim)
 
     nothing 
 end
 
-function setup!(sim::MABMSimulation,example::LPMUKDemographyOpt) 
 
-    println("setting up optimized demography simulation")
+function setup!(sim::ABMSimulation,example::LPMUKDemographyOpt) 
 
-    attach_pre_model_step!(sim.simulations[3],doDeaths!)
-    # attach_pre_model_step!(sim.simulations[3],removeDead!)
-    attach_pre_model_step!(sim.simulations[3],doBirths!)
-    attach_post_model_step!(sim.simulations[3],population_step!)
-
-    # to simplify the following ... 
-    
-    # attach_post_model_step!(sim.simulations[3],someStats!)
-    # attach_post_model_step!(sim.simulations[3],writeSomeResults!)
-    # attach_final_step!(sim,someFinaliztion!) 
+    attach_agent_step!(sim,agestepAlivePerson!)
+    setupCommon!(sim)
 
     nothing 
 end
-=#
+
 
 end # SimSetup 
