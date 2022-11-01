@@ -13,6 +13,7 @@ initMultiAgents()             # reset agents counter
 @assert MAVERSION == v"0.3"   # ensure MultiAgents.jl latest update 
 
 
+using LPM.ParamTypes: seed!
 using MultiAgents: AbstractMABM, ABMSimulation 
 using MultiAgents: run!
 using MALPM.Demography: MAModel, LPMUKDemography, LPMUKDemographyOpt 
@@ -27,10 +28,9 @@ abstract type MainSim end
 struct WithInputFiles <: MainSim end   # Input parameter files 
 struct Light <: MainSim end            # no input files 
 
-
 function loadParameters(::WithInputFiles) 
     simPars, pars = loadParameters(ARGS)
-    Random.seed!(simPars.seed)
+    seed!(simPars)
     simPars, pars 
 end  
 
