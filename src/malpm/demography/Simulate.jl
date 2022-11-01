@@ -11,10 +11,10 @@ using XAgents: Person, isFemale, alive, age
 using MultiAgents: ABM, AbstractMABM, ABMSimulation
 using MultiAgents: allagents, add_agent!, currstep, verbose 
 using MALPM.Demography.Population: removeDead!
-using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt
-
+using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt, 
+                    houses, towns 
 using LPM
-import LPM.Demography.Simulate: doDeaths!, doBirths!
+import LPM.Demography.Simulate: doDeaths!, doBirths!, doDivorces!
 # export doDeaths!,doBirths!
 
 alivePeople(population::ABM{Person},::LPMUKDemography) = allagents(population)
@@ -66,6 +66,23 @@ function doBirths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyE
 
     nothing 
 end
+
+
+function doDivorces!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
+
+    divorced = LPM.Demography.Simulate.doDivorces!(
+                        allagents(population),
+                        currstep(sim),
+                        houses(model),
+                        towns(model),
+                        population.parameters.divorcepars) 
+
+    nothing 
+end
+
+
 
 
 end # Simulate 
