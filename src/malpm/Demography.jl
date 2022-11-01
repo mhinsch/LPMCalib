@@ -7,6 +7,8 @@ using MultiAgents: AbstractMABM, ABM
 export MAModel 
  
 import MultiAgents.Util: AbstractExample
+import MultiAgents: allagents
+export allagents, population
 export DemographyExample, LPMUKDemography, LPMUKDemographyOpt
 
 ### Example Names 
@@ -36,6 +38,11 @@ mutable struct MAModel <: AbstractMABM
 
 end
 
+allagents(model::MAModel) = allagents(model.pop)
+population(model::MAModel) = model.pop 
+
+
+include("./demography/Population.jl") 
 include("./demography/Simulate.jl")
 include("./demography/SimSetup.jl")  
 
