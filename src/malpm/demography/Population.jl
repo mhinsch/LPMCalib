@@ -8,17 +8,11 @@ using  MultiAgents: ABM, ABMSimulation, AbstractMABM
 using  MultiAgents: allagents, dt, kill_agent! 
 using  XAgents: Person 
 using  XAgents: alive, agestepAlive! 
-using  MALPM.Demography: population
+# using  MALPM.Demography: population
 
 import XAgents: agestep!
 
 export population_step!, agestepAlivePerson!, removeDead!
-
-
-population_step!(model::AbstractMABM,
-                            sim::ABMSimulation, 
-                            example) =
-    population_step!(population(model),sim,example)
 
 
 "Step function for the population"
@@ -31,6 +25,11 @@ function population_step!(population::ABM{PersonType},
         end  
     end
 end 
+
+population_step!(model::AbstractMABM,
+                            sim::ABMSimulation, 
+                            example) =
+    population_step!(model.pop,sim,example)
 
 "remove dead persons" 
 function removeDead!(person::PersonType, population::ABM{PersonType}) where {PersonType} 
@@ -55,7 +54,7 @@ agestep!(person::Person,population::ABM{Person},
 
 
 agestep!(person::Person,model::AbstractMABM,sim,example) = 
-    agestep!(person,population(model),sim,example)
+    agestep!(person,model.pop,sim,example)
 
 "increment age with the simulation step size"
 agestepAlivePerson!(person::PersonType,population::ABM{PersonType},
@@ -64,7 +63,7 @@ agestepAlivePerson!(person::PersonType,population::ABM{PersonType},
 
 
 agestepAlivePerson!(person,model::AbstractMABM,sim,example) =
-    agestepAlivePerson!(person,population(model),sim,example)                              
+    agestepAlivePerson!(person,model.pop,sim,example)                              
 
 end # Population 
 

@@ -39,7 +39,9 @@ mutable struct MAModel <: AbstractMABM
 end
 
 allagents(model::MAModel) = allagents(model.pop)
-population(model::MAModel) = model.pop 
+population(model::MAModel) = allagents(model.pop)
+houses(model::MAModel) = allagents(model.houses)
+towns(model::MAModel) = allagents(model.towns) 
 
 
 include("./demography/Population.jl") 
