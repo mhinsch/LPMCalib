@@ -22,7 +22,7 @@ using Printf
 using Raylib
 const RL = Raylib
 
-export Graph, add_value!, draw_graph
+export Graph, add_value!, draw_graph, set_data!
 
 ### super simplistic graph implementation
 
@@ -40,6 +40,13 @@ function add_value!(graph::Graph, value)
 	value > graph.max ? (graph.max = value) : (value < graph.min ? (graph.min = value) : value)
 end
 
+function set_data!(graph::Graph, data; maxm = data[1], minm = data[1])
+    graph.data = data
+    graph.max = maxm == data[1] ? maximum(data) : maxm
+    graph.min = minm == data[1] ? minimum(data) : minm
+end
+    
+
 function draw_legend(value, x, y, fontsize, colour)
     text = @sprintf "%g" value
     RL.DrawText(text, x, y, fontsize, colour)
@@ -49,7 +56,7 @@ end
 # draw graph to canvas
 function draw_graph(x_0, y_0, width, height, graphs; 
         single_scale=true, labels=[], fontsize=15)
-	if single_scale # draw all graphs to the same scale
+	if single_scale # draw all graphs to the same y scale
 		max_all = mapreduce(g -> g.max, max, graphs) # find maximum of graphs[...].max
 		min_all = mapreduce(g -> g.min, min, graphs)
 	end

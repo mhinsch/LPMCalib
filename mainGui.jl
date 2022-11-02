@@ -58,8 +58,13 @@ function main(parOverrides...)
             add_value!(graph_pop, data.alive.n)
             add_value!(graph_hhs, data.hh_size.mean)
             add_value!(graph_marr, data.married.n)
-            add_value!(graph_age, data.age.mean)
+            set_data!(graph_age, data.hist_age.bins, minm=0)
             println(data.hh_size.max, " ", data.alive.n, " ", data.eligible.n, " ", data.eligible2.n)
+        end
+
+        if RL.IsKeyPressed(Raylib.KEY_SPACE)
+            pause = !pause
+            sleep(0.2)
         end
 
         RL.BeginDrawing()
@@ -75,7 +80,7 @@ function main(parOverrides...)
         draw_graph(floor(Int, screenWidth/3), 0, floor(Int, screenWidth*2/3), screenHeight, 
                    [graph_pop, graph_hhs, graph_marr, graph_age], 
                    single_scale = false, 
-                   labels = ["#alive", "hh size", "#married", "mean age"],
+                   labels = ["#alive", "hh size", "#married", "age"],
                    fontsize = floor(Int, 15 * scale))
         
         RL.EndMode2D()
