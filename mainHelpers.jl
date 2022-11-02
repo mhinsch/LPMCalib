@@ -181,20 +181,20 @@ function setupModel(pars)
 end
 
 
-function setupLogging(simPars)
+function setupLogging(simPars; FS = "\t")
     if simPars.logfile == ""
         return nothing
     end
 
     file = open(simPars.logfile, "w")
 
-    print_header(file, Data)
+    print_header(file, Data; FS)
 
     file
 end
 
 
-function runModel!(model, simPars, pars, logfile = nothing)
+function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
     time = Rational(simPars.startTime)
 
     simPars.verbose ? setVerbose!() : unsetVerbose!()
@@ -205,7 +205,7 @@ function runModel!(model, simPars, pars, logfile = nothing)
 
         if logfile != nothing
             results = observe(Data, model)
-            log_results(logfile, results)
+            log_results(logfile, results; FS)
         end
 
         time += simPars.dt
