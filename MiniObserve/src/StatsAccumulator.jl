@@ -86,7 +86,7 @@ mutable struct HistAcc{T}
     width :: T
 end
 
-HistAcc{T}(min::T = T(0), width::T = T(1)) where {T} = HistAcc{T}([], min, width)
+HistAcc(min::T = T(0), width::T = T(1)) where {T} = HistAcc{T}([], min, width)
 
 function add!(acc :: HistAcc{T}, v :: T) where {T}
     if v < acc.min
@@ -107,9 +107,11 @@ function add!(acc :: HistAcc{T}, v :: T) where {T}
     acc
 end
 
-results(acc::HistAcc{T}) where {T} = (;bins = acc.bins)
+#results(acc::HistAcc{T}) where {T} = (;bins = acc.bins)
+results(acc::HistAcc) = (;bins = acc.bins)
 
-result_type(::Type{HistAcc{T}}) where {T} = @NamedTuple{bins::Vector{Int}}
+#result_type(::Type{HistAcc{T}}) where {T} = @NamedTuple{bins::Vector{Int}}
+result_type(::Type{HistAcc}) = @NamedTuple{bins::Vector{Int}}
 
 # does not work with results/result_type, maybe rework as tuples?
 
