@@ -114,6 +114,10 @@ end # UKMapPars
     maxStartAge::Int                = 45  
     minStartAge::Int                = 25  
 
+    startBabySurplus::Int           = 100
+    startProbMarried::Float64       = 0.8
+    startProbOrphan::Float64        = 0.01
+
     cumProbClasses::Vector{Float64} = cumsum([0.2, 0.35, 0.25, 0.15, 0.05])
 end # PopulationPars 
 

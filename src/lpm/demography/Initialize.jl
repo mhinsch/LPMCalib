@@ -37,31 +37,30 @@ end  # function initializeHousesInTwons
 
 "Randomly assign a population of couples to non-inhebted set of houses"
 function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
+    women = [ person for person in population if isFemale(person) ]
 
-    numberOfMens   = length([ man   for man   in population if isMale(man) ])  
-    numberOfWomens = length([ woman for woman in population if isFemale(woman) ])  
+    randomhouses = shuffle(houses)
 
-    @assert(numberOfMens == numberOfWomens) 
-    @assert(length(houses) >= numberOfMens)
-    
-    numberOfMens = trunc(Int,length(population) / 2) 
-
-    randomHousesIndices = shuffle(1:length(houses))    
-    randomhouses        = houses[randomHousesIndices[1:numberOfMens]] 
-
-    for man in population
-        isFemale(man) ? continue : nothing 
-
-        house  = pop!(randomhouses) 
+    for woman in women
+        house = pop!(randomhouses) 
         
-        moveToHouse!(man,house) 
-        moveToHouse!(partner(man),house)
-    end # for person     
-    
-    length(randomhouses) > 0 ? 
-        error("random houses for occupation has length $(length(randomhouses)) > 0") : 
-        nothing 
+        moveToHouse!(woman, house) 
+        if !isSingle(woman)
+            moveToHouse!(partner(woman), house)
+        end
 
+        for child in dependents(woman)
+            moveToHouse!(child, house)
+        end
+    end # for person     
+
+    for person in population
+        if person.pos == undefinedHouse
+            @assert isMale(person)
+            @assert length(randomhouses) >= 1
+            moveToHouse!(person, pop!(randomhouses))
+        end
+    end
 end  # function assignCouplesToHouses 
 
 

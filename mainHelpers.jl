@@ -36,7 +36,9 @@ function createDemography!(pars)
 
     ukHouses = Vector{PersonHouse}()
 
-    ukPopulation = createPopulation(pars.poppars)
+    # maybe switch using parameter
+    #ukPopulation = createPopulation(pars.poppars)
+    ukPopulation = createPyramidPopulation(pars.poppars)
     
     datp = pars.datapars
     dir = datp.datadir

@@ -4,11 +4,12 @@
 
 module Create 
 
-using Utilities: Gender, unknown, female, male
-using XAgents: Person, Town
-using XAgents: undefinedHouse, setAsPartners!
+using Distributions
 
-export createTowns, createPopulation
+using Utilities
+using XAgents
+
+export createTowns, createPopulation, createPyramidPopulation
 ### 
 
 function createTowns(pars) 
@@ -23,6 +24,120 @@ function createTowns(pars)
     end
 
     uktowns
+end
+
+
+function ageInterval(pop, mi, ma)
+    idx_mi = 1
+    idx_ma = 0
+
+    for p in pop
+        if age(p) < mi
+            idx_mi += 1
+            continue
+        end
+
+        if age(p) > ma
+            return idx_mi, idx_ma
+        end
+
+        idx_ma += 1
+    end
+
+    idx_mi, idx_ma
+end
+
+
+function createPyramidPopulation(pars)
+    population = Person[]
+    men = Person[]
+    women = Person[]
+
+    # age pyramid
+    dist = TriangularDist(0, pars.maxStartAge * 12, 0)
+
+    for i in 1:pars.initialPop
+        # surplus of babies and toddlers, lower bit of age pyramid
+        if i < pars.startBabySurplus
+            age = rand(1:36) // 12
+        else
+            age = floor(Int, rand(dist)) // 12
+        end
+        
+        gender = Bool(rand(0:1)) ? male : female
+
+        person = Person(undefinedHouse, age; gender)
+        if age < 18
+            push!(population, person)
+        else
+            push!((gender==male ? men : women), person)
+        end
+    end
+
+###  assign partners
+
+    nCouples = floor(Int, pars.startProbMarried * length(men))
+    for i in 1:nCouples
+        man = men[1]
+        # find woman of the right age
+        for (j, woman) in enumerate(women)
+            if age(man)+2 >= age(woman) >= age(man)-5
+                setAsPartners!(man, woman)
+                push!(population, man)
+                push!(population, woman)
+                remove_unsorted!(men, 1)
+                remove_unsorted!(women, j)
+                break
+            end
+        end
+    end
+
+    # store unmarried people in population as well
+    append!(population, men)
+    append!(population, women)
+
+### assign parents
+
+    # get all adult women
+    women = filter(population) do p
+        isFemale(p) && age(p) >= 18
+    end
+
+    sort!(women, by = age)
+
+    for p in population
+        a = age(p)
+        if a >= 18 && rand() < pars.startProbOrphan * a
+            continue
+        end
+
+        start, stop = ageInterval(women, a + 18, a + 40)
+        if start > length(women) || start > stop
+            continue
+        end
+
+        @assert typeof(start) == Int
+        @assert age(women[start]) >= a+18
+
+        mother = women[rand(start:stop)]
+        
+        setAsParentChild!(p, mother)
+        if !isSingle(mother)
+            setAsParentChild!(p, partner(mother))
+        end
+
+        if age(p) < 18
+            setAsGuardianDependent!(mother, p)
+            if !isSingle(mother) # currently not an option
+                setAsGuardianDependent!(partner(mother), p)
+            end
+            setAsProviderProvidee!(mother, p)
+        end
+    end
+
+    @assert length(population) == pars.initialPop 
+
+    population
 end
 
 function createPopulation(pars) 
