@@ -26,25 +26,29 @@ function createTowns(pars)
     uktowns
 end
 
-
-function ageInterval(pop, mi, ma)
-    idx_mi = 1
-    idx_ma = 0
+# return agents with age in interval minAge, maxAge
+# assumes pop is sorted by age
+# very simple implementation, binary search would be faster
+function ageInterval(pop, minAge, maxAge)
+    idx_start = 1
+    idx_end = 0
 
     for p in pop
-        if age(p) < mi
-            idx_mi += 1
+        if age(p) < minAge
+            # not there yet
+            idx_start += 1
             continue
         end
 
-        if age(p) > ma
-            return idx_mi, idx_ma
+        if age(p) > maxAge
+            # we reached the end of the interval, return what we have
+            return idx_start, idx_end
         end
 
-        idx_ma += 1
+        idx_end += 1
     end
 
-    idx_mi, idx_ma
+    idx_start, idx_end
 end
 
 
@@ -103,15 +107,20 @@ function createPyramidPopulation(pars)
         isFemale(p) && age(p) >= 18
     end
 
+    # sort by age so that we can easily get age intervals
     sort!(women, by = age)
 
     for p in population
         a = age(p)
+        # adults remain orphans with a certain likelihood
         if a >= 18 && rand() < pars.startProbOrphan * a
             continue
         end
 
+        # get all women with that are between 18 and 40 years older than 
+        # p (and could thus be their mother)
         start, stop = ageInterval(women, a + 18, a + 40)
+        # check if we actually found any
         if start > length(women) || start > stop
             continue
         end
