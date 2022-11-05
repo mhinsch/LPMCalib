@@ -117,7 +117,7 @@ function createPyramidPopulation(pars)
             continue
         end
 
-        # get all women with that are between 18 and 40 years older than 
+        # get all women that are between 18 and 40 years older than 
         # p (and could thus be their mother)
         start, stop = ageInterval(women, a + 18, a + 40)
         # check if we actually found any
