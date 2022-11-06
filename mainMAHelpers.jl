@@ -10,11 +10,11 @@ include("mainHelpers.jl")
 
 using MultiAgents: initMultiAgents, MAVERSION
 initMultiAgents()             # reset agents counter
-@assert MAVERSION == v"0.3"   # ensure MultiAgents.jl latest update 
+@assert MAVERSION == v"0.3.1"   # ensure MultiAgents.jl latest update 
 
 
 using LPM.ParamTypes: seed!
-using MultiAgents: AbstractMABM, ABMSimulation 
+using MultiAgents: AbstractMABM, ABMSimulationP 
 using MultiAgents: run!
 using MALPM.Demography: MAModel, LPMUKDemography, LPMUKDemographyOpt 
 using MALPM.Demography.SimSetup: setup! 
