@@ -8,7 +8,7 @@ module Simulate
 
 using XAgents: Person, isFemale, alive, age
 
-using MultiAgents: ABM, AbstractMABM, ABMSimulation
+using MultiAgents: ABM, AbstractMABM, AbstractABMSimulation
 using MultiAgents: allagents, add_agent!, currstep, verbose 
 using MALPM.Demography.Population: removeDead!
 using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt, 
@@ -33,7 +33,7 @@ end
 
 removeDeads!(deadpeople,population,::LPMUKDemographyOpt) = nothing 
 
-function doDeaths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) # argument simulation or simulation properties ? 
+function doDeaths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) # argument simulation or simulation properties ? 
 
     population = model.pop 
 
@@ -48,7 +48,7 @@ function doDeaths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyE
 end # function doDeaths!
 
 
-function doBirths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) 
+function doBirths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
 
     population = model.pop 
 
@@ -68,7 +68,7 @@ function doBirths!(model::AbstractMABM, sim::ABMSimulation, example::DemographyE
 end
 
 
-function doDivorces!(model::AbstractMABM, sim::ABMSimulation, example::DemographyExample) 
+function doDivorces!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
 
     population = model.pop 
 

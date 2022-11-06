@@ -4,7 +4,7 @@ Population module providing help utilities for realizing a population as an ABM
 
 module Population 
 
-using  MultiAgents: ABM, ABMSimulation, AbstractMABM  
+using  MultiAgents: ABM, AbstractABMSimulation, AbstractMABM  
 using  MultiAgents: allagents, dt, kill_agent! 
 using  XAgents: Person 
 using  XAgents: alive, agestepAlive! 
@@ -17,7 +17,7 @@ export population_step!, agestepAlivePerson!, removeDead!
 
 "Step function for the population"
 function population_step!(population::ABM{PersonType},
-                            sim::ABMSimulation, 
+                            sim::AbstractABMSimulation, 
                             example) where {PersonType} 
     for person in allagents(population)
         if alive(person) 
@@ -27,7 +27,7 @@ function population_step!(population::ABM{PersonType},
 end 
 
 population_step!(model::AbstractMABM,
-                            sim::ABMSimulation, 
+                            sim::AbstractABMSimulation, 
                             example) =
     population_step!(model.pop,sim,example)
 
@@ -40,7 +40,8 @@ function removeDead!(person::PersonType, population::ABM{PersonType}) where {Per
 end
 
 function removeDead!(population::ABM{PersonType},
-                        simulation::ABMSimulation,example) where {PersonType} 
+                        simulation::AbstractABMSimulation,
+                        example) where {PersonType} 
     people = reverse(allagents(population))
     for person in people 
         alive(person) ? nothing : kill_agent!(person,population)
@@ -50,7 +51,8 @@ end
 
 "increment age with the simulation step size"
 agestep!(person::Person,population::ABM{Person},
-            sim::ABMSimulation,example) where {PersonType} = agestep!(person,dt(sim))
+            sim::AbstractABMSimulation,
+            example) where {PersonType} = agestep!(person,dt(sim))
 
 
 agestep!(person::Person,model::AbstractMABM,sim,example) = 
@@ -58,7 +60,8 @@ agestep!(person::Person,model::AbstractMABM,sim,example) =
 
 "increment age with the simulation step size"
 agestepAlivePerson!(person::PersonType,population::ABM{PersonType},
-                        sim::ABMSimulation,example) where {PersonType} = 
+                        sim::AbstractABMSimulation,
+                        example) where {PersonType} = 
                             agestepAlive!(person, dt(sim))
 
 

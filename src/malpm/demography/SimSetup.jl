@@ -8,7 +8,7 @@ using  MALPM.Demography: DemographyExample,
                             LPMUKDemography, LPMUKDemographyOpt
 using  MALPM.Demography.Simulate: doDeaths!, doBirths!, doDivorces!
 
-using  MultiAgents: ABMSimulation
+using  MultiAgents: AbstractABMSimulation
 using  MultiAgents: attach_pre_model_step!, attach_post_model_step!, 
                     attach_agent_step!
 using  Utilities: setVerbose!, unsetVerbose!, setDelay!,
@@ -26,7 +26,7 @@ is provided here
 """
 
 
-function setupCommon!(sim::ABMSimulation) 
+function setupCommon!(sim::AbstractABMSimulation) 
 
     verbose(sim) ? setVerbose!() : unsetVerbose!()
     setDelay!(sim.parameters.sleeptime)
@@ -40,7 +40,7 @@ function setupCommon!(sim::ABMSimulation)
 end 
 
 "set up simulation functions where dead people are removed" 
-function setup!(sim::ABMSimulation, example::LPMUKDemography)
+function setup!(sim::AbstractABMSimulation, example::LPMUKDemography)
     # attach_pre_model_step!(sim,population_step!)
     attach_agent_step!(sim,agestep!)
     setupCommon!(sim)
@@ -49,7 +49,7 @@ function setup!(sim::ABMSimulation, example::LPMUKDemography)
 end
 
 
-function setup!(sim::ABMSimulation,example::LPMUKDemographyOpt) 
+function setup!(sim::AbstractABMSimulation,example::LPMUKDemographyOpt) 
 
     attach_agent_step!(sim,agestepAlivePerson!)
     setupCommon!(sim)

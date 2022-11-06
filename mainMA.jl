@@ -23,9 +23,9 @@ const simPars, pars = loadParameters(mainConfig)
 #   useful when executing from REPL
 if mainConfig == Light() 
     simPars.seed = 0; seed!(simPars)
-    simPars.verbose = false  
+    simPars.verbose = false   
     simPars.checkassumption = false 
-    simPars.sleeptime = 0.0 
+    simPars.sleeptime = 0 
     pars.poppars.initialPop = 500
 end
 
@@ -37,7 +37,9 @@ const demoData = loadDemographyData(pars.datapars)
 
 const ukDemography = MAModel(model,pars,demoData)
 
-const lpmDemographySim = ABMSimulation(simPars,setupEnabled = false)
+const lpmDemographySim = 
+    ABMSimulationP{typeof(simPars)}(simPars,setupEnabled = false)
+    
 setup!(lpmDemographySim,lpmExample) 
  
 # Execution 
