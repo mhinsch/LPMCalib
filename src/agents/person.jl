@@ -233,7 +233,7 @@ end
 
 "set child of a parent" 
 function setParent!(child, parent)
-    @assert isFemale(paren) || isMale(parent)
+    @assert isFemale(parent) || isMale(parent)
 
     if isFemale(parent) 
         mother!(child, parent)

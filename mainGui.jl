@@ -76,6 +76,9 @@ function main(parOverrides...)
         drawModel(model, (0, 0), 
                   (floor(Int, 50 * scale), floor(Int, 50 * scale)), 
                   (floor(Int, 2 * scale), floor(Int, 2 * scale)))
+
+        RL.EndMode2D()
+
         # draw graphs
         draw_graph(floor(Int, screenWidth/3), 0, floor(Int, screenWidth*2/3), screenHeight, 
                    [graph_pop, graph_hhs, graph_marr, graph_age], 
@@ -83,7 +86,6 @@ function main(parOverrides...)
                    labels = ["#alive", "hh size", "#married", "age"],
                    fontsize = floor(Int, 15 * scale))
         
-        RL.EndMode2D()
 
         RL.DrawText("$(Float64(time))", 0, 
                     screenHeight - floor(Int, 20 * scale), 

@@ -80,10 +80,9 @@ end
 
 # probability to start studying instead of working
 function startStudyProb(person, model, pars)
-    # original version, we now use the provider
-    #if !alive(father(person)) && !alive(mother(person))
-    #    return 0.0
-    #end
+    if father(person) == nothing && mother(person) == nothing
+        return 0.0
+    end
     
     if provider(person) == nothing
         return 0.0
@@ -103,7 +102,9 @@ function startStudyProb(person, model, pars)
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
     # TODO factor out class
-    targetEL = max(classRank(father(person)), classRank(mother(person)))
+    targetEL = father(person) != nothing ? 
+        max(classRank(father(person)), classRank(mother(person))) :
+        classRank(mother(person))
     dE = targetEL - classRank(person)
     expEdu = exp(pars.eduRankSensitivity * dE)
     educationEffect = expEdu / (expEdu + pars.constantEduParam)
