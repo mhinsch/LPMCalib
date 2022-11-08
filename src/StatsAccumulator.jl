@@ -1,6 +1,6 @@
 module StatsAccumulator
 
-export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, HistAcc
+export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, HistAcc, SumAcc
 
 
 
@@ -22,6 +22,15 @@ end
 CountAcc() = CountAcc(0)
 
 add!(acc :: CountAcc, cond) = cond ? acc.n += 1 : 0
+
+mutable struct SumAcc{T}
+	n :: T
+end
+
+
+SumAcc{T}() where {T} = SumAcc(T(0))
+
+add!(acc :: SumAcc, x) = acc.n += x
 
 
 mutable struct MeanVarAcc{T}
