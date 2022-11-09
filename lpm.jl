@@ -1,5 +1,5 @@
 include("./loadLibsPath.jl")
 
-addToLoadPath!("src/generic")
+addToLoadPath!(String(@__DIR__) * "/src/generic")
 
 include("mainHelpers.jl")
