@@ -6,6 +6,8 @@ const RL = Raylib
 
 include("lpm.jl")
 
+include("analysis.jl")
+
 include("src/RayGUI/render.jl")
 
 include("src/RayGUI/SimpleGraph.jl")

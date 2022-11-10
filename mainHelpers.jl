@@ -1,4 +1,4 @@
-addToLoadPath!(".", "src")
+addToLoadPath!(String(@__DIR__) * "/.", String(@__DIR__) * "/src")
 
 using ArgParse
 
@@ -17,8 +17,6 @@ using Utilities
 include("src/lpm/demography/demographydata.jl")
 
 include("src/handleParams.jl")
-
-include("analysis.jl")
 
 mutable struct Model
     towns :: Vector{Town}

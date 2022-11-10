@@ -4,6 +4,8 @@ using Random
 # load main simulation code
 include("lpm.jl")
 
+include("analysis.jl")
+
 # create parameters
 const simPars, pars = loadParameters(ARGS)
 
