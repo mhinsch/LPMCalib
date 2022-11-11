@@ -4,15 +4,10 @@
 ```
 
 ```@autodocs
-Modules = [MiniObserve, Observation, StatsAccumulator]
-Order   = [:function, :type]
+Modules = [MiniObserve.Observation, MiniObserve.StatsAccumulator]
+Order   = [:function, :macro, :type]
 ```
 
-## Functions
-
-```@docs
-@observe(tname, model, args_and_decl...)
-```
 
 ## Index
 
