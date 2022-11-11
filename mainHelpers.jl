@@ -216,7 +216,7 @@ end
 
 
 function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
-    time = Rational(simPars.startTime)
+    time = simPars.startTime
 
     simPars.verbose ? setVerbose!() : unsetVerbose!()
     setDelay!(simPars.sleeptime)
