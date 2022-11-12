@@ -182,6 +182,9 @@ function setupModel(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
 
+    #= 
+    Atiyah: this portion is not need any more. But if useful, could be 
+            attached with Logging level. 
     @show "Town Samples: \n"     
     @show model.towns[1:10]
     println(); println(); 
@@ -193,6 +196,7 @@ function setupModel(pars)
     @show "population samples : \n" 
     @show model.pop[1:10]
     println(); println(); 
+    =# 
 
     model
 end
@@ -212,7 +216,7 @@ end
 
 
 function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
-    time = Rational(simPars.startTime)
+    time = simPars.startTime
 
     simPars.verbose ? setVerbose!() : unsetVerbose!()
     setDelay!(simPars.sleeptime)
