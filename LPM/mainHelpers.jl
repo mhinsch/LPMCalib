@@ -153,8 +153,10 @@ function loadParameters(argv, cmdl...)
         simpars.seed = floor(Int, time())
     end
 
-    # keep a record of parameters used (including seed!)
-    saveParametersToFile(simpars, pars, args[:par_out_file])
+    if args[:par_out_file] != ""
+        # keep a record of parameters used (including seed!)
+        saveParametersToFile(simpars, pars, args[:par_out_file])
+    end
 
     simpars, pars, args
 end
@@ -164,18 +166,6 @@ function setupModel(pars)
     model = createDemography!(pars)
 
     initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
-
-    @show "Town Samples: \n"     
-    @show model.towns[1:10]
-    println(); println(); 
-                            
-    @show "Houses samples: \n"      
-    @show model.houses[1:10]
-    println(); println(); 
-                            
-    @show "population samples : \n" 
-    @show model.pop[1:10]
-    println(); println(); 
 
     model
 end
