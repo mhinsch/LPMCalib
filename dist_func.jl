@@ -1,5 +1,6 @@
 using CSV
 using DataFrames
+using DataFramesMeta
 using Statistics
 
 function rel_mean_square_diff_prop(dat, sim)
@@ -110,5 +111,24 @@ function dist_hh_size(dat_file, sim_data_all, obs_time)
     @assert length(all_emp) == length(all_sim)
 
     rel_mean_square_diff_prop(all_emp, all_sim)
+end
+
+
+function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=17, age_max=42)
+    emp_data = CSV.read(dat_file, DataFrame)
+
+    @subset!(emp_data, :age .>= age_min, :age .<= age_max)
+    emp_births = emp_data[!, :births]
+    sim_births = sim_data_all[obs_time].age_mother.bins
+
+    for i in length(sim_births):(age_max-1)
+        push!(sim_births, 0)
+    end
+
+    sim_births = sim_births[age_min:age_max]
+
+    @assert length(sim_births) == length(emp_births)
+
+    rel_mean_square_diff_prop(emp_births, sim_births)
 end
 
