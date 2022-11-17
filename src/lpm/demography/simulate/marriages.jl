@@ -9,7 +9,7 @@ ageClass(person) = trunc(Int, age(person)/10)
     nAll = 0
     nNoC = 0
 
-    for p in Iterators.filter(x->isMale(x) && ageClass(x) == ageclass, model.pop)
+    for p in Iterators.filter(x->alive(x) && isMale(x) && ageClass(x) == ageclass, model.pop)
         nAll += 1
         # only looks at legally dependent persons (which usually are underage and 
         # living in the same household)
@@ -80,11 +80,13 @@ end
 geoDistance(m, w, pars) = manhattanDistance(getHomeTown(m), getHomeTown(w))/
     (pars.mapGridXDimension + pars.mapGridYDimension)
 
-selectMarriage(p, pars) = isMale(p) && isSingle(p) && age(p) > pars.ageOfAdulthood &&
-    careNeedLevel(p) < 4
+selectMarriage(p, pars) = alive(p) && isMale(p) && isSingle(p) && 
+    age(p) > pars.ageOfAdulthood && careNeedLevel(p) < 4
 
 
 function marriage!(man, time, model, pars)
+    @assert alive(man)
+
     ageclass = ageClass(man) 
 
     manMarriageProb = pars.basicMaleMarriageProb * pars.maleMarriageModifierByDecade[ageclass]
