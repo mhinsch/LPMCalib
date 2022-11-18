@@ -46,6 +46,7 @@ function main(parOverrides...)
     graph_hhs = Graph{Float64}(RL.WHITE)
     graph_marr = Graph{Float64}(RL.BLACK)
     graph_age = Graph{Float64}(RL.RED)
+    graph_class = Graph{Float64}(RL.GREEN)
 
     pause = false
     time = Rational(simPars.startTime)
@@ -60,8 +61,9 @@ function main(parOverrides...)
             add_value!(graph_pop, data.alive.n)
             add_value!(graph_hhs, data.hh_size.mean)
             add_value!(graph_marr, data.married.n)
-            set_data!(graph_age, data.hist_age.bins, minm=0)
-            println(data.hh_size.max, " ", data.alive.n, " ", data.eligible.n, " ", data.eligible2.n)
+            set_data!(graph_age, data.age.bins, minm=0)
+            set_data!(graph_class, data.class.bins, minm=0)
+            println(data.hh_size.max, " ", data.alive.n)
         end
 
         if RL.IsKeyPressed(Raylib.KEY_SPACE)
@@ -82,10 +84,18 @@ function main(parOverrides...)
         RL.EndMode2D()
 
         # draw graphs
-        draw_graph(floor(Int, screenWidth/3), 0, floor(Int, screenWidth*2/3), screenHeight, 
-                   [graph_pop, graph_hhs, graph_marr, graph_age], 
+        draw_graph(floor(Int, screenWidth/3), 0, 
+                   floor(Int, screenWidth*2/3), floor(Int, screenHeight/2)-20, 
+                   [graph_pop, graph_marr], 
+                   single_scale = true, 
+                   labels = ["#alive", "#married"],
+                   fontsize = floor(Int, 15 * scale))
+        
+        draw_graph(floor(Int, screenWidth/3), floor(Int, screenHeight/2), 
+                   floor(Int, screenWidth*2/3), floor(Int, screenHeight/2)-20, 
+                   [graph_hhs, graph_age, graph_class], 
                    single_scale = false, 
-                   labels = ["#alive", "hh size", "#married", "age"],
+                   labels = ["hh size", "age", "class"],
                    fontsize = floor(Int, 15 * scale))
         
 
