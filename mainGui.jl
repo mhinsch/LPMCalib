@@ -46,7 +46,7 @@ function main(parOverrides...)
     graph_hhs = Graph{Float64}(RL.WHITE)
     graph_marr = Graph{Float64}(RL.BLACK)
     graph_age = Graph{Float64}(RL.RED)
-    graph_class = Graph{Float64}(RL.GREEN)
+    graph_class = Graph{Float64}(RL.PURPLE)
 
     pause = false
     time = Rational(simPars.startTime)
@@ -59,8 +59,8 @@ function main(parOverrides...)
             log_results(logfile, data)
             # add values to graph objects
             add_value!(graph_pop, data.alive.n)
-            add_value!(graph_hhs, data.hh_size.mean)
             add_value!(graph_marr, data.married.n)
+            set_data!(graph_hhs, data.hh_size.bins, minm=0)
             set_data!(graph_age, data.age.bins, minm=0)
             set_data!(graph_class, data.class.bins, minm=0)
             println(data.hh_size.max, " ", data.alive.n)

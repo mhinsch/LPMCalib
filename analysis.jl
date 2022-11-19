@@ -9,7 +9,7 @@ const MMA = MaxMinAcc{Float64}
     @for house in model.houses begin
         # format:
         # @stat(name, accumulators...) <| expression
-        @stat("hh_size", MVA, MMA) <| Float64(length(house.occupants))
+        @stat("hh_size", MVA, MMA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
     end
 
     @for person in model.pop begin
