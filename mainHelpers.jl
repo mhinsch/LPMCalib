@@ -74,6 +74,7 @@ end
 
 
 function stepModel!(model, time, simPars, pars)
+    resetCacheSocialClassShares()
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
               parameters = pars.poppars, model = model, currstep = time)

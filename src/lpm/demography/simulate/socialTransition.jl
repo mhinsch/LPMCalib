@@ -37,10 +37,21 @@ function incomeDist(person, pars)
     end
 end
 
-# TODO dummy, replace
-# or, possibly remove altogether and calibrate model 
+# TODO possibly remove altogether and calibrate model 
 # properly instead
-socialClassShares(model, class) = 0.2
+@memoize Dict function socialClassShares(model, class)
+    nAll = 0
+    nC = 0
+
+    for p in Iterators.filter(alive, model.pop)
+        nAll += 1
+        if classRank(p) == class
+            nC += 1
+        end
+    end
+
+    nC / nAll
+end
 
 function studyClassFactor(person, model, pars)
     if classRank(person) == 0 
