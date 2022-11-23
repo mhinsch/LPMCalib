@@ -1,38 +1,35 @@
 
-using Utilities: age2yearsmonths, date2yearsmonths
-
-using XAgents: Person, isMale, isFemale, alive 
-using XAgents: age
+using Utilities
+using XAgents
 
 export doDeaths!, setDead!
 
-function deathProbability(baseRate,person,parameters) 
-    #=
-        Not realized yet  / to be realized in another module? 
-        classRank = person.classRank
-        if person.status == 'child' or person.status == 'student':
-            classRank = person.parentsClassRank
-    =# 
+function deathProbability(baseRate, person, model, parameters) 
+    cRank = classRank(person)
+    if status(person) == WorkStatus.child || status(person) == WorkStatus.student
+        cRank = maxParentRank(person)
+    end
 
     if isMale(person) 
-        mortalityBias =  parameters.maleMortalityBias
+        mortalityBias = parameters.maleMortalityBias
     else 
-        mortalityBias =  parameters.femaleMortalityBias 
+        mortalityBias = parameters.femaleMortalityBias 
     end 
 
-    #= 
-    To be integrated in class modules 
     a = 0
-    for i in range(int(self.p['numberClasses'])):
-        a += self.socialClassShares[i]*math.pow(mortalityBias, i)
-    =# 
+    for i in 1:length(parameters.cumProbClasses)
+        a += socialClassShares(model, i) * mortalityBias^i
+    end
 
-    #=
-    if a > 0:
-        lowClassRate = baseRate/a
-        classRate = lowClassRate*math.pow(mortalityBias, classRank)
+    if a > 0
+        lowClassRate = baseRate / a
+        classRate = lowClassRate * mortalityBias^cRank
         deathProb = classRate
+    else
+        deathProb = baseRate
+    end
            
+        #=
         b = 0
         for i in range(int(self.p['numCareLevels'])):
             b += self.careNeedShares[classRank][i]*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - i)
@@ -40,13 +37,7 @@ function deathProbability(baseRate,person,parameters)
         if b > 0:
             higherNeedRate = classRate/b
             deathProb = higherNeedRate*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - person.careNeedLevel) # deathProb
-    =#
-
-    # assuming it is just one class and without care need, 
-    # the above code translates to: 
-
-    deathProb = baseRate * mortalityBias 
-
+=#
         ##### Temporarily by-passing the effect of Unmet Care Need   #############
         
     #   The following code is already commented in the python code 
@@ -125,7 +116,7 @@ function death!(person, currstep, model, parameters)
         Classes to be considered in a different module 
     =#
                         
-    deathProb = min(1.0, deathProbability(rawRate,person,parameters))
+    deathProb = min(1.0, deathProbability(rawRate, person, model, parameters))
                         
     #=
         The following is uncommented code in the original code < 1950
@@ -141,7 +132,6 @@ function death!(person, currstep, model, parameters)
         setDead!(person) 
         return true 
         # person.deadYear = self.year  
-        # deaths[person.classRank] += 1
     end # rand
 
     false

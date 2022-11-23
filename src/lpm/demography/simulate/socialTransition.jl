@@ -1,6 +1,6 @@
 using Distributions: Normal, LogNormal
 
-export socialTransition!, selectSocialTransition
+export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
 
 using XAgents 
 
@@ -52,6 +52,8 @@ end
 
     nC / nAll
 end
+
+resetCacheSocialClassShares() = Memoization.empty_cache!(socialClassShares)
 
 function studyClassFactor(person, model, pars)
     if classRank(person) == 0 
@@ -113,9 +115,7 @@ function startStudyProb(person, model, pars)
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
     # TODO factor out class
-    targetEL = father(person) != nothing ? 
-        max(classRank(father(person)), classRank(mother(person))) :
-        classRank(mother(person))
+    targetEL = maxParentRank(person)
     dE = targetEL - classRank(person)
     expEdu = exp(pars.eduRankSensitivity * dE)
     educationEffect = expEdu / (expEdu + pars.constantEduParam)
