@@ -106,7 +106,7 @@ function effectsOfMaternity!(woman, pars)
 end
 
 
-function birth!(woman, currstep, model, parameters)
+function birth!(woman, currstep, model, parameters, addBaby!)
 
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
@@ -150,7 +150,7 @@ function birth!(woman, currstep, model, parameters)
         end
         setAsProviderProvidee!(woman, baby)
 
-        return baby
+        addBaby!(model, baby)
     end # if rand()
 
     nothing 
