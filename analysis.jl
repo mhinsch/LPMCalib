@@ -17,7 +17,7 @@ const MMA = MaxMinAcc{Float64}
         @stat("married", CountAcc) <| (!isSingle(person))
         @stat("single", CountAcc) <| (age(person) > 18 && isSingle(person))
         @stat("alive", CountAcc) <| true
-        @stat("class", HistAcc(0.0, 1.0, 4)) <| Float64(classRank(person))
+        @stat("class", HistAcc(0.0, 1.0, 4.0)) <| Float64(classRank(person))
     end
 
     @for person in Iterators.filter(p->alive(p)&&isFemale(p), model.pop) begin

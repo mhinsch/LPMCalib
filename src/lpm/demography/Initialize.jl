@@ -87,9 +87,15 @@ function initWork!(person, pars)
         return
     end
 
+    class = classRank(person)+1
+
+    if age(person) < pars.workingAge[class]
+        status!(person, WorkStatus.student)
+        return
+    end
+
     status!(person, WorkStatus.worker)
 
-    class = classRank(person)+1
     workingTime = 0
     for i in age(person):pars.workingAge[class]
         workingTime *= pars.workDiscountingTime

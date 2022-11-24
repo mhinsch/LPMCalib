@@ -17,7 +17,8 @@ function deathProbability(baseRate, person, model, parameters)
 
     a = 0
     for i in 1:length(parameters.cumProbClasses)
-        a += socialClassShares(model, i) * mortalityBias^(i-1)
+        c = i - 1 # class is 0-based!
+        a += socialClassShares(model, c) * mortalityBias^(c)
     end
 
     if a > 0

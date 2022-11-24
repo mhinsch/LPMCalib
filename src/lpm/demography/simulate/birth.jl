@@ -69,7 +69,8 @@ function computeBirthProb(rWoman, parameters, model, currstep)
 
     a = 0
     for i in 1:length(parameters.cumProbClasses)
-        a += reprWomenSocialClassShares(model, i, parameters) * parameters.fertilityBias^(i-1)
+        c = i - 1 # class is 0-based!
+        a += reprWomenSocialClassShares(model, c, parameters) * parameters.fertilityBias^c
     end
 
     birthProb = rawRate/a * parameters.fertilityBias^womanRank
