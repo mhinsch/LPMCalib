@@ -4,6 +4,7 @@ export addClassRank!
 
 mutable struct ClassBlock
     classRank :: Int
+    parentClassRank :: Int
 end
 
-addClassRank!(class, n) = class.classRank += 1
+addClassRank!(class, n=1) = class.classRank += n

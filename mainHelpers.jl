@@ -75,6 +75,9 @@ end
 
 function stepModel!(model, time, simPars, pars)
     resetCacheSocialClassShares()
+    resetCacheReprWomenSocialClassShares()
+    resetCacheMarriedPercentage()
+
     # TODO remove dead people?
     doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
               parameters = pars.poppars, model = model, currstep = time)
@@ -83,7 +86,7 @@ function stepModel!(model, time, simPars, pars)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
     babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-                       parameters = pars.birthpars, model = model, currstep = time)
+                       parameters = fuse(pars.poppars, pars.birthpars), model = model, currstep = time)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)

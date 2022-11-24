@@ -1,4 +1,6 @@
 using Distributions: Normal, LogNormal
+using Memoization
+
 
 export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
 
@@ -115,7 +117,7 @@ function startStudyProb(person, model, pars)
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
     # TODO factor out class
-    targetEL = maxParentRank(person)
+    targetEL = parentClassRank(person)
     dE = targetEL - classRank(person)
     expEdu = exp(pars.eduRankSensitivity * dE)
     educationEffect = expEdu / (expEdu + pars.constantEduParam)
@@ -150,6 +152,8 @@ end
 function startWorking!(person, pars)
 
     resetWork!(person, pars)
+
+    status!(person, WorkStatus.worker)
 
     dKi = rand(Normal(0, pars.wageVar))
     initialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))

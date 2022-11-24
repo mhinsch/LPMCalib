@@ -47,6 +47,8 @@ function main(parOverrides...)
     graph_marr = Graph{Float64}(RL.BLACK)
     graph_age = Graph{Float64}(RL.RED)
     graph_class = Graph{Float64}(RL.PURPLE)
+    graph_f_status = Graph{Float64}(RL.DARKGREEN)
+    graph_m_status = Graph{Float64}(RL.ORANGE)
 
     pause = false
     time = Rational(simPars.startTime)
@@ -63,7 +65,9 @@ function main(parOverrides...)
             set_data!(graph_hhs, data.hh_size.bins, minm=0)
             set_data!(graph_age, data.age.bins, minm=0)
             set_data!(graph_class, data.class.bins, minm=0)
-            println(data.hh_size.max, " ", data.alive.n)
+            set_data!(graph_f_status, data.f_status.bins, minm=0)
+            set_data!(graph_m_status, data.m_status.bins, minm=0)
+            println(data.hh_size.max, " ", data.alive.n, " ", data.single.n)
         end
 
         if RL.IsKeyPressed(Raylib.KEY_SPACE)
@@ -93,9 +97,9 @@ function main(parOverrides...)
         
         draw_graph(floor(Int, screenWidth/3), floor(Int, screenHeight/2), 
                    floor(Int, screenWidth*2/3), floor(Int, screenHeight/2)-20, 
-                   [graph_hhs, graph_age, graph_class], 
+                   [graph_hhs, graph_age, graph_class, graph_f_status, graph_m_status], 
                    single_scale = false, 
-                   labels = ["hh size", "age", "class"],
+                   labels = ["hh size", "age", "class", "status f", "status m"],
                    fontsize = floor(Int, 15 * scale))
         
 

@@ -43,7 +43,7 @@ function workTransition!(person, time, model, pars)
 
     if age(person) == pars.ageOfAdulthood
         status!(person, WorkStatus.student)
-        #class!(person, 0)
+        classRank!(person, 0)
 
         if rand() < pars.probOutOfTownStudent
             outOfTownStudent!(person, true)

@@ -1,4 +1,3 @@
-
 using Utilities
 using XAgents
 
@@ -7,7 +6,7 @@ export doDeaths!, setDead!
 function deathProbability(baseRate, person, model, parameters) 
     cRank = classRank(person)
     if status(person) == WorkStatus.child || status(person) == WorkStatus.student
-        cRank = maxParentRank(person)
+        cRank = parentClassRank(person)
     end
 
     if isMale(person) 
@@ -18,7 +17,7 @@ function deathProbability(baseRate, person, model, parameters)
 
     a = 0
     for i in 1:length(parameters.cumProbClasses)
-        a += socialClassShares(model, i) * mortalityBias^i
+        a += socialClassShares(model, i) * mortalityBias^(i-1)
     end
 
     if a > 0

@@ -55,7 +55,7 @@ function marryWeight(man, woman, pars)
 
     if status(woman) == WorkStatus.student 
         studentFactor = pars.studentFactorParam
-        womanRank = maxParentRank(woman)
+        womanRank = parentClassRank(woman)
     else
         studentFactor = 1.0
         womanRank = classRank(woman)
