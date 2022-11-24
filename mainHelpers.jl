@@ -72,15 +72,22 @@ function initializeDemography!(model, poppars, workpars, mappars)
     nothing
 end
 
+function removeDead!(model)
+    for i in length(model.pop):-1:1
+        if !alive(model.pop[i])
+            remove_unsorted!(model.pop, i)
+        end
+    end
+end
+
 
 function stepModel!(model, time, simPars, pars)
     resetCacheSocialClassShares()
     resetCacheReprWomenSocialClassShares()
     resetCacheMarriedPercentage()
 
-    # TODO remove dead people?
-    doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, model = model, currstep = time)
+    applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
+    removeDead!(model)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)

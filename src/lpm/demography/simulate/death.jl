@@ -1,7 +1,7 @@
 using Utilities
 using XAgents
 
-export doDeaths!, setDead!
+export death!, setDead!
 
 function deathProbability(baseRate, person, model, parameters) 
     cRank = classRank(person)
