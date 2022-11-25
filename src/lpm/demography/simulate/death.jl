@@ -137,22 +137,3 @@ function death!(person, currstep, model, parameters)
     false
 end 
 
-"evaluate death events in a population"
-function doDeaths!(;people, currstep, model, parameters)
-
-    deads = Person[] 
-
-    for person in people 
-        if death!(person, currstep, model, parameters) 
-            push!(deads,person)
-        end 
-    end # for livingPeople
-    
-    delayedVerbose() do
-        count = length([person for person in people if alive(person)] )
-        numDeaths = length(deads)
-        println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
-    end 
-
-    deads   
-end  # function doDeaths! 
