@@ -101,7 +101,7 @@ end # struct Person
 
 @export_forward Person work [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
     wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
-    availableWorkingHours, workingPeriods, pension]
+    availableWorkingHours, workingPeriods, workExperience, pension]
 @delegate_onefield Person work [setEmptyJobSchedule!, setFullWeeklyTime!]
 
 @export_forward Person care [careNeedLevel, socialWork, childWork]

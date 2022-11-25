@@ -133,10 +133,6 @@ function birth!(woman, currstep, model, parameters, addBaby!)
                         
     if rand() < p_yearly2monthly(birthProb) 
                         
-        # parentsClassRank = max([woman.classRank, woman.partner.classRank])
-        # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
-        #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
-                        
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))

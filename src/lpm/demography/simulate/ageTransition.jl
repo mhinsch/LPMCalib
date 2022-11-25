@@ -34,6 +34,21 @@ end
 selectWorkTransition(person, pars) = 
     alive(person) && status(person) != WorkStatus.retired && hasBirthday(person)
 
+function computeWage(person, pars)
+    # original formula
+    # c = log(I/F)
+    # wage = F * exp(c * exp(-1 * r * e))
+
+    fI = finalIncome(person)
+    iI = initialIncome(person)
+
+    wage = fI * (iI/fI)^exp(-1 * pars.incomeGrowthRate[classRank(person)+1] * workExperience(person))
+
+    dK = rand(Normal(0, pars.wageVar))
+
+    wage * exp(dK)
+end
+
 
 function workTransition!(person, time, model, pars)
     if age(person) == pars.ageTeenagers
@@ -61,5 +76,17 @@ function workTransition!(person, time, model, pars)
 
         dK = rand(Normal(0, pars.wageVar))
         pension!(person, shareWorkingTime * exp(dK))
+        return
+    end
+
+    if status(person) == WorkStatus.worker && !isInMaternity(person)
+        # we assume full work load at this point
+        # in original: availableWorkingHours/workingHours
+        workingPeriods!(person, workingPeriods(person)+1)
+        # in original: availableWorkingHours/pars.weeklyHours[0]
+        workExperience!(person, workExperience(person)+1)
+        wage!(person, computeWage(person, pars))
+        # no care, therefore full time
+        income!(person, pars.weeklyHours[1])
     end
 end
