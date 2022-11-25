@@ -1,7 +1,5 @@
-export Town, undefinedTown
-# export show
-
-using Utilities: TownLocation
+export Town, undefinedTown, TownLocation
+export isAdjacent8, adjacent8Towns, manhattanDistance
 
 """
 Specification of a Town agent type.
@@ -14,8 +12,11 @@ This file is included in the module XAgents
 
 Type Town to extend from AbstractAXgent.
 """
-mutable struct Town <: AbstractXAgent
-    id
+
+const TownLocation  = NTuple{2,Int}
+
+struct Town <: AbstractXAgent
+    id::Int
     pos::TownLocation
     name::String                            # does not look necessary
     # lha::Array{Float64,1}                 # local house allowance 
@@ -23,7 +24,7 @@ mutable struct Town <: AbstractXAgent
     density::Float64                        # relative population density w.r.t. the town with the highest density 
 
     ""
-    function Town(pos::TownLocation,name::String,density) 
+    function Town(pos::TownLocation,name::String,density::Float64) 
         #global IDCOUNTER = IDCOUNTER + 1
         # idcounter = getIDCOUNTER() 
         # new(IDCOUNTER,pos,name,density)
@@ -46,9 +47,10 @@ Town(pos;name="",density=0.0) = Town(pos,name,density)
 
 const undefinedTown = Town((-1,-1),"",0.0)
 
+isAdjacent8(town1, town2) = 
+    abs(town1.pos[1] - town2.pos[1]) <= 1 &&   
+    abs(town1.pos[2] - town2.pos[2]) <= 1 
 
-
-
-
-
- 
+manhattanDistance(town1, town2) = 
+    abs(town1.pos[1] - town2.pos[1]) +   
+    abs(town1.pos[2] - town2.pos[2]) 

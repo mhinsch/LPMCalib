@@ -20,7 +20,7 @@ using XAgents: alive, setDead!, age, agestep!, agestepAlive!
 using XAgents: isFemale, isMale
 
 # Kinship Module 
-using XAgents: father, mother, partner, isSingle 
+using XAgents: father, mother, children, partner, isSingle 
 using XAgents: setAsParentChild!, setAsPartners!, resolvePartnership!, resetPartner!
 
 # Person type 
@@ -125,6 +125,12 @@ using Utilities: Gender, male, female, unknown
         setAsPartners!(person4,person6) 
         @test !isSingle(person6)
         @test !isSingle(person4)
+
+        person7 = Person(pos=person4.pos,gender=male,mother=person4,father=person6)
+        @test father(person7) === person6
+        @test mother(person7) === person4 
+        @test person7 ∈ children(person4) 
+        @test person7 ∈ children(person6)
         
         resetPartner!(person4) 
         @test isSingle(person6)

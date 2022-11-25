@@ -16,9 +16,12 @@ simulation considering death probabilities
   - v0.3.1: The abstract conceptual part of the code moved to MultiAgents.jl 
   - v0.3.2: Kinship & BasicInfo modules for the type Person 
 - **V0.4** (25.08.2022): A new module LPM containing generic implementation. In contrary, MALPM makes use of LPM & MultiAgents.jl  
+- **V0.5** (20.09.2022): Female agents giving birth, generic XAgents and flat Main simulation for agent-based modeling without other packages, re-architecturing Simulate module and implementation patterns of incldued functions, Agent Person improved declaration and implementation, DRY concept for struct fields of Agent Person, Employing Parameters.jl
+- **V0.6** (7.11.2022) : marraiges, guardians for orphans, socio-economoic status, social transition, setting parameters from files / flags, gui
+   - v0.6.1 (12.11.2022) : LPMVERSION referring to release, few functions for computing population pyramid index 
 
 
-### Source code structure 
+### Source code structure (not updated)
 - /src
   - XAgents.jl : Basic concept of an Agent
   - /agents/*       : Examples of agents 
@@ -28,11 +31,9 @@ simulation considering death probabilities
   - /lpm                  submodules for declaring, initializing and simulating lpm 
   - Utilities.jl    : util routines used across the library
 - /tests
-- MainDummy.jl    : An example of a dummy simulation
 - MainLPM.jl      : Initial (empty) translation of LPM
 - loadLibsPath    : load paths to internal libraries
 
 
 ### Running the code
-See the head documentation of RunTests.jl and MainDummy.jl 
-dummy edit 
+See the head documentation of RunTests.jl and Main*.jl 

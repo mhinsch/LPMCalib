@@ -1,10 +1,10 @@
 module Initialize
 
+using Distributions: Normal
 using Random:  shuffle 
-using XAgents: Town, Person, PersonHouse  
-using XAgents: isFemale, isMale, partner
+using XAgents 
 
-export initializeHousesInTowns, assignCouplesToHouses!
+export initializeHousesInTowns, assignCouplesToHouses!, initClass!, initWork!
 
 "initialize houses in a given set of towns"
 function initializeHousesInTowns(towns::Array{Town,1}, pars) 
@@ -36,33 +36,68 @@ end  # function initializeHousesInTwons
 
 
 "Randomly assign a population of couples to non-inhebted set of houses"
-function  assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
+function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})
+    women = [ person for person in population if isFemale(person) ]
 
-    numberOfMens   = length([ man   for man   in population if isMale(man) ])  
-    numberOfWomens = length([ woman for woman in population if isFemale(woman) ])  
+    randomhouses = shuffle(houses)
 
-    @assert(numberOfMens == numberOfWomens) 
-    @assert(length(houses) >= numberOfMens)
-    
-    numberOfMens = trunc(Int,length(population) / 2) 
+    for woman in women
+        house = pop!(randomhouses) 
+        
+        moveToHouse!(woman, house) 
+        if !isSingle(woman)
+            moveToHouse!(partner(woman), house)
+        end
 
-    randomHousesIndices = shuffle(1:length(houses))    
-    randomhouses        = houses[randomHousesIndices[1:numberOfMens]] 
-
-    for man in population
-        isFemale(man) ? continue : nothing 
-
-        house  = pop!(randomhouses) 
-        man.pos = partner(man).pos = house 
-
-        append!(house.occupants, [man, partner(man)])
+        for child in dependents(woman)
+            moveToHouse!(child, house)
+        end
     end # for person     
-    
-    length(randomhouses) > 0 ? 
-        error("random houses for occupation has length $(length(randomhouses)) > 0") : 
-        nothing 
 
+    for person in population
+        if person.pos == undefinedHouse
+            @assert isMale(person)
+            @assert length(randomhouses) >= 1
+            moveToHouse!(person, pop!(randomhouses))
+        end
+    end
 end  # function assignCouplesToHouses 
+
+
+function initClass!(person, pars)
+    p = rand()
+    class = findfirst(x->p<x, pars.cumProbClasses)-1
+    classRank!(person, class)
+
+    nothing
+end
+
+
+function initWork!(person, pars)
+    class = classRank(person)+1
+    workingTime = 0
+    for i in age(person):pars.workingAge[class]
+        workingTime *= pars.workDiscountingTime
+        workingTime += 1
+    end
+
+    dKi = rand(Normal(0, pars.wageVar))
+    initialWage = pars.incomeInitialLevels[class] * exp(dKi)
+    dKf = rand(Normal(dKi, pars.wageVar))
+    finalWage = pars.incomeFinalLevels[class] * exp(dKf)
+
+    initialIncome!(person, initialWage)
+    finalIncome!(person, finalWage)
+
+    c = log(initialWage/finalWage)
+    wage!(person, finalWage * exp(c * exp(-pars.incomeGrowthRate[class]*workingTime)))
+    income!(person, wage(person) * pars.weeklyHours[class])
+    potentialIncome!(person, income(person))
+    jobTenure!(person, rand(1:50))
+#    workExperience = workingTime
+
+    nothing
+end
 
 
 

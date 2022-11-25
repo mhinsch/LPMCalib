@@ -2,44 +2,87 @@
     Main simulation functions for the demographic aspect of LPM. 
 """ 
 
-
 module Simulate
 
-using SomeUtil: getproperty
+# using MultiAgents.Util: getproperty
 
-using XAgents: Person  
-using XAgents: alive, age
+using XAgents: Person, isFemale, alive, age
 
-using MultiAgents: ABM, allagents
-
-using MALPM.Demography.Create: LPMUKDemographyOpt
-
+using MultiAgents: ABM, AbstractMABM, AbstractABMSimulation
+using MultiAgents: allagents, add_agent!, currstep, verbose 
+using MALPM.Demography.Population: removeDead!
+using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt, 
+                    houses, towns 
 using LPM
-import LPM.Demography.Simulate: doDeaths!
-export doDeaths!
+import LPM.Demography.Simulate: doDeaths!, doBirths!, doDivorces!
+# export doDeaths!,doBirths!
 
+alivePeople(population::ABM{Person},::LPMUKDemography) = allagents(population)
 
+alivePeople(population::ABM{Person},::LPMUKDemographyOpt) = 
+               # Iterators.filter(person->alive(person),allagents(population))
+                [ person for person in allagents(population)  if alive(person) ]
 
-function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
+function removeDeads!(deadpeople,population,::LPMUKDemography)    
+    for deadperson in deadpeople
+        removeDead!(deadperson,population)
+    end
+    
+    nothing 
+end
 
-    pars = population.parameters
-    data = population.data
-    properties = population.properties
+removeDeads!(deadpeople,population,::LPMUKDemographyOpt) = nothing 
 
-    people = allagents(population)
+function doDeaths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) # argument simulation or simulation properties ? 
 
-    livingPeople = typeof(properties.example) == LPMUKDemographyOpt ? 
-        people : [person for person in people if alive(person)]
+    population = model.pop 
 
-    @assert length(livingPeople) > 0 ? 
-        typeof(age(livingPeople[1])) == Rational{Int64} :
-        true  # Assumption
-
-    (numberDeaths) = LPM.Demography.Simulate.doDeaths!(people=livingPeople,parameters=pars,data=data,currstep=properties.currstep,
-                                                       verbose=properties.verbose,sleeptime=properties.sleeptime) 
-
-    false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
-
+    (deadpeople) = LPM.Demography.Simulate.doDeaths!(
+            alivePeople(population,example),
+            currstep(sim),
+            population.data,
+            population.parameters.poppars)
+    
+    removeDeads!(deadpeople,population,example)
+    nothing 
 end # function doDeaths!
+
+
+function doBirths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
+
+    newbabies = LPM.Demography.Simulate.doBirths!(
+                        alivePeople(population,example),
+                        currstep(sim),
+                        population.data,
+                        population.parameters.birthpars) 
+
+    # false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
+    
+    for baby in newbabies
+        add_agent!(population,baby)
+    end
+
+    nothing 
+end
+
+
+function doDivorces!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
+
+    divorced = LPM.Demography.Simulate.doDivorces!(
+                        allagents(population),
+                        currstep(sim),
+                        houses(model),
+                        towns(model),
+                        population.parameters.divorcepars) 
+
+    nothing 
+end
+
+
+
 
 end # Simulate 
