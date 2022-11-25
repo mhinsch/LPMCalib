@@ -96,6 +96,8 @@ function createPyramidPopulation(pars)
         end
     end
 
+    println("$(length(men)) left unmarried")
+
     # store unmarried people in population as well
     append!(population, men)
     append!(population, women)

@@ -1,6 +1,10 @@
 module StatsAccumulator
 
+<<<<<<< HEAD
 export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, HistAcc
+=======
+export CountAcc, MeanVarAcc, add!, results, result_type, MaxMinAcc, HistAcc, SumAcc
+>>>>>>> b9690ae14b07da826eb056f0884bf83ab84b4d8d
 
 
 
@@ -15,6 +19,7 @@ results(t :: T) where {T} = t
 
 ### CountAcc
 
+"Count number of true values in input. Results are returned as `(;n)`."
 mutable struct CountAcc
 	n :: Int
 end
@@ -24,6 +29,21 @@ CountAcc() = CountAcc(0)
 add!(acc :: CountAcc, cond) = cond ? acc.n += 1 : 0
 
 
+### SumAcc
+
+"Calculate sum of input. Results are returned as `(;n)`."
+mutable struct SumAcc{T}
+	n :: T
+end
+
+SumAcc{T}() where {T} = SumAcc(T(0))
+
+add!(acc :: SumAcc, x) = acc.n += x
+
+
+### MeanVar
+
+"Calculate mean and variance of input. Results are given as `(;mean, var)`"
 mutable struct MeanVarAcc{T}
 	sum :: T
 	sum_sq :: T
@@ -37,7 +57,6 @@ function add!(acc :: MeanVarAcc{T}, v :: T) where {T}
 	acc.sum_sq += v*v
 	acc.n += 1
 end
-
 
 results(acc :: MeanVarAcc{T}) where {T} = 
 	(mean = acc.sum / acc.n, var = (acc.sum_sq - acc.sum*acc.sum/acc.n) / (acc.n - 1))
@@ -64,15 +83,15 @@ result_type(::Type{MeanVarAcc{T}}) where {T} = @NamedTuple{mean::T, var::T}
 #
 #result(acc :: MeanVarAcc2{T}) where {T} = acc.m, acc.m2 / acc.n
 
+### MaxMin
 
+"Keep track of maximum and minimum of input. Results are returned as `(;max, min)`."
 mutable struct MaxMinAcc{T}
 	max :: T
 	min :: T
 end
 
-
 MaxMinAcc{T}() where {T} = MaxMinAcc(typemin(T), typemax(T))
-
 
 function add!(acc :: MaxMinAcc{T}, v :: T) where {T}
 	acc.max = max(acc.max, v)
@@ -80,20 +99,31 @@ function add!(acc :: MaxMinAcc{T}, v :: T) where {T}
 end
 
 
+### HistAcc
+
+
+"Track a histogram of input values. Results are returned as a `Vector{Int}`."
 mutable struct HistAcc{T}
     bins :: Vector{Int}
     min :: T
+    max :: T
     width :: T
 end
 
-HistAcc(min::T = T(0), width::T = T(1)) where {T} = HistAcc{T}([], min, width)
+"Construct a histogram accumulator. Provide minimum value and bin size as `min` and `width`."
+HistAcc(min::T = T(0), width::T = T(1), max::T = T(0)) where {T} = 
+    HistAcc{T}(
+               max <= min ? T[] : zeros(T, find_bin(min, width, max)), 
+               min, max, width)
+
+find_bin(min, width, v) = floor(Int, (v - min) / width) + 1
 
 function add!(acc :: HistAcc{T}, v :: T) where {T}
     if v < acc.min
         return acc
     end
 
-    bin = floor(Int, (v - acc.min) / acc.width) + 1
+    bin = find_bin(acc.min, acc.width, v)
     n = length(acc.bins)
     if bin > n
         sizehint!(acc.bins, bin)
@@ -107,11 +137,10 @@ function add!(acc :: HistAcc{T}, v :: T) where {T}
     acc
 end
 
-#results(acc::HistAcc{T}) where {T} = (;bins = acc.bins)
 results(acc::HistAcc) = (;bins = acc.bins)
 
-#result_type(::Type{HistAcc{T}}) where {T} = @NamedTuple{bins::Vector{Int}}
 result_type(::Type{HistAcc}) = @NamedTuple{bins::Vector{Int}}
+
 
 # does not work with results/result_type, maybe rework as tuples?
 

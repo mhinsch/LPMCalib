@@ -31,12 +31,13 @@ mutable struct WorkBlock
     "sum of realised working hours"
     availableWorkingHours :: Int
     "lifetime work"
-    workingPeriods :: Int
+    workingPeriods :: Float64
+    workExperience :: Float64
     pension :: Float64
 end
 
 WorkBlock() = WorkBlock(WorkStatus.child, false, true, 0, 0, 0, 0, 0, 0, zeros(Int, 7, 24),
-                        0, zeros(Int, 7, 24), 0, 0, 0)
+                        0, zeros(Int, 7, 24), 0, 0, 0, 0)
 
 function setEmptyJobSchedule!(work)
     work.schedule = zeros(Int, 7, 24)

@@ -1,43 +1,81 @@
+using Memoization
+
+
 using Utilities
 
 using XAgents
 
-export selectBirth, doBirths!, birth!
+export selectBirth, doBirths!, birth!, 
+    reprWomenSocialClassShares, resetCacheReprWomenSocialClassShares,
+    marriedPercentage, resetCacheMarriedPercentage
 
-function computeBirthProb(rWoman,parameters,data,currstep)
+# TODO should this be here?
+@memoize Dict function reprWomenSocialClassShares(model, class, pars)
+    nAll = 0
+    nC = 0
+
+    for w in Iterators.filter(p->(alive(p)&&isFemale(p)&&
+              pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge), model.pop)
+        nAll += 1
+        
+        if classRank(w) == class
+            nC += 1
+        end
+    end
+
+    nC / nAll
+end
+
+resetCacheReprWomenSocialClassShares() = Memoization.empty_cache!(reprWomenSocialClassShares)
+
+
+@memoize Dict function marriedPercentage(model, class, pars)
+    nAll = 0
+    nM = 0
+
+    for w in Iterators.filter(p->alive(p) && isFemale(p) && classRank(p) == class && 
+                              age(p) >= pars.minPregnancyAge, model.pop)
+        nAll += 1
+        if !isSingle(w)
+            nM += 1
+        end
+    end
+
+    nAll > 0 ? nM/nAll : 0.0
+end
+
+resetCacheMarriedPercentage() = Memoization.empty_cache!(marriedPercentage)
+            
+
+
+function computeBirthProb(rWoman, parameters, model, currstep)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
-    #=
-    womanClassShares = []
-    womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 0])/float(len(womenOfReproductiveAge)))
-    womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 1])/float(len(womenOfReproductiveAge)))
-    womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 2])/float(len(womenOfReproductiveAge)))
-    womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 3])/float(len(womenOfReproductiveAge)))
-    womanClassShares.append(len([x for x in womenOfReproductiveAge if x.classRank == 4])/float(len(womenOfReproductiveAge)))
-    =#
-
+    womanRank = classRank(rWoman)
+    if status(rWoman) == WorkStatus.student
+        womanRank = parentClassRank(rWoman)
+    end
 
     if curryear < 1951
         rawRate = parameters.growingPopBirthProb
     else
         (yearold,tmp) = age2yearsmonths(age(rWoman)) 
-        rawRate = data.fertility[yearold-16,curryear-1950]
+        # division by mP happens at the very end in python version
+        rawRate = model.fertility[yearold-16,curryear-1950] /
+            marriedPercentage(model, womanRank, parameters)
     end 
 
-    #=
     a = 0
-    for i in range(int(self.p['numberClasses'])):
-        a += womanClassShares[i]*math.pow(self.p['fertilityBias'], i)
-        baseRate = rawRate/a
-        birthProb = baseRate*math.pow(self.p['fertilityBias'], womanRank)
-    =#
+    for i in 1:length(parameters.cumProbClasses)
+        c = i - 1 # class is 0-based!
+        a += reprWomenSocialClassShares(model, c, parameters) * parameters.fertilityBias^c
+    end
 
-    # The above formula with one single socio-economic class translates to: 
+    birthProb = rawRate/a * parameters.fertilityBias^womanRank
 
-    birthProb = rawRate * parameters.fertilityBias 
-    return birthProb
+    min(1.0, birthProb)
 end # computeBirthProb
 
 
@@ -68,7 +106,7 @@ function effectsOfMaternity!(woman, pars)
 end
 
 
-function birth!(woman, currstep, model, parameters)
+function birth!(woman, currstep, model, parameters, addBaby!)
 
     # womanClassRank = woman.classRank
     # if woman.status == 'student':
@@ -95,10 +133,6 @@ function birth!(woman, currstep, model, parameters)
                         
     if rand() < p_yearly2monthly(birthProb) 
                         
-        # parentsClassRank = max([woman.classRank, woman.partner.classRank])
-        # baby = Person(woman, woman.partner, self.year, 0, 'random', woman.house, woman.sec, -1, 
-        #              parentsClassRank, 0, 0, 0, 0, 0, 0, 'child', False, 0, month)
-                        
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))
@@ -112,7 +146,7 @@ function birth!(woman, currstep, model, parameters)
         end
         setAsProviderProvidee!(woman, baby)
 
-        return baby
+        addBaby!(model, baby)
     end # if rand()
 
     nothing 
@@ -173,8 +207,7 @@ Class rankes and shares are temporarily ignored.
 
 selectBirth(woman, parameters) = isFemale(woman) && 
     !isSingle(woman) && 
-    age(woman) >= parameters.minPregnancyAge && 
-    age(woman) <= parameters.maxPregnancyAge && 
+    parameters.minPregnancyAge <= age(woman) <= parameters.maxPregnancyAge && 
     ageYoungestAliveChild(woman) > 1 
 
 

@@ -1,6 +1,8 @@
 using Distributions: Normal, LogNormal
+using Memoization
 
-export socialTransition!, selectSocialTransition
+
+export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
 
 using XAgents 
 
@@ -37,10 +39,23 @@ function incomeDist(person, pars)
     end
 end
 
-# TODO dummy, replace
-# or, possibly remove altogether and calibrate model 
+# TODO possibly remove altogether and calibrate model 
 # properly instead
-socialClassShares(model, class) = 0.2
+@memoize Dict function socialClassShares(model, class)
+    nAll = 0
+    nC = 0
+
+    for p in Iterators.filter(alive, model.pop)
+        nAll += 1
+        if classRank(p) == class
+            nC += 1
+        end
+    end
+
+    nC / nAll
+end
+
+resetCacheSocialClassShares() = Memoization.empty_cache!(socialClassShares)
 
 function studyClassFactor(person, model, pars)
     if classRank(person) == 0 
@@ -102,9 +117,7 @@ function startStudyProb(person, model, pars)
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
     # TODO factor out class
-    targetEL = father(person) != nothing ? 
-        max(classRank(father(person)), classRank(mother(person))) :
-        classRank(mother(person))
+    targetEL = parentClassRank(person)
     dE = targetEL - classRank(person)
     expEdu = exp(pars.eduRankSensitivity * dE)
     educationEffect = expEdu / (expEdu + pars.constantEduParam)
@@ -139,6 +152,8 @@ end
 function startWorking!(person, pars)
 
     resetWork!(person, pars)
+
+    status!(person, WorkStatus.worker)
 
     dKi = rand(Normal(0, pars.wageVar))
     initialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))

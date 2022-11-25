@@ -22,6 +22,7 @@ mutable struct Model
     towns :: Vector{Town}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
+    babies :: Vector{Person}
 
     fertility :: Matrix{Float64}
     death_female :: Matrix{Float64}
@@ -45,7 +46,7 @@ function createDemography!(pars)
                                       dir * "/" * datp.deathFFName,
                                       dir * "/" * datp.deathMFName)
 
-    Model(ukTowns, ukHouses, ukPopulation, 
+    Model(ukTowns, ukHouses, ukPopulation, [],
             ukDemoData.fertility , ukDemoData.deathFemale, ukDemoData.deathMale)
 end
 
@@ -72,17 +73,34 @@ function initializeDemography!(model, poppars, workpars, mappars)
     nothing
 end
 
+function removeDead!(model)
+    for i in length(model.pop):-1:1
+        if !alive(model.pop[i])
+            remove_unsorted!(model.pop, i)
+        end
+    end
+end
+
+
+function addBaby!(model, baby)
+    push!(model.babies, baby)
+end
+
 
 function stepModel!(model, time, simPars, pars)
-    # TODO remove dead people?
-    doDeaths!(people = Iterators.filter(a->alive(a), model.pop),
-              parameters = pars.poppars, model = model, currstep = time)
+    resetCacheSocialClassShares()
+    resetCacheReprWomenSocialClassShares()
+    resetCacheMarriedPercentage()
+
+    applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
+    removeDead!(model)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
-    babies = doBirths!(people = Iterators.filter(a->alive(a), model.pop), 
-                       parameters = pars.birthpars, model = model, currstep = time)
+    selected = Iterators.filter(p->selectBirth(p, pars.birthpars), model.pop)
+    applyTransition!(selected, birth!, "birth", time, model, fuse(pars.poppars, pars.birthpars), 
+                    addBaby!)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
@@ -102,7 +120,8 @@ function stepModel!(model, time, simPars, pars)
     applyTransition!(selected, marriage!, "marriage", time, model, 
                      fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
 
-    append!(model.pop, babies)
+    append!(model.pop, model.babies)
+    empty!(model.babies)
 end
 
 

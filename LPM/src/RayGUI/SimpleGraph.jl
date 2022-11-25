@@ -37,7 +37,14 @@ Graph{T}(col) where {T} = Graph{T}([], typemin(T), typemax(T), col)
 
 function add_value!(graph::Graph, value)
 	push!(graph.data, value)
-	value > graph.max ? (graph.max = value) : (value < graph.min ? (graph.min = value) : value)
+    if value > graph.max
+        graph.max = value
+    end
+    # two independent checks, otherwise monotonous data will never
+    # set either min or max
+    if value < graph.min
+        graph.min = value
+    end
 end
 
 function set_data!(graph::Graph, data; maxm = data[1], minm = data[1])
@@ -114,7 +121,7 @@ function draw_graph(x_0, y_0, width, height, graphs;
     lx = x_0 + width - w
 
     for (i, l) in enumerate(labels)
-        RL.DrawText(l, lx, (i-1)*fontsize, fontsize, graphs[i].colour)
+        RL.DrawText(l, lx, y_0 + (i-1)*fontsize, fontsize, graphs[i].colour)
     end
 
 end

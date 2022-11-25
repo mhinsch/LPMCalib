@@ -82,7 +82,7 @@ mutable struct Person <: AbstractXAgent
             end
         end 
         person  
-    end # Person Cor
+    end # Person Core
 end # struct Person 
 
 # delegate functions to components
@@ -101,12 +101,12 @@ end # struct Person
 
 @export_forward Person work [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
     wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
-    availableWorkingHours, workingPeriods, pension]
+    availableWorkingHours, workingPeriods, workExperience, pension]
 @delegate_onefield Person work [setEmptyJobSchedule!, setFullWeeklyTime!]
 
 @export_forward Person care [careNeedLevel, socialWork, childWork]
 
-@export_forward Person class [classRank]
+@export_forward Person class [classRank, parentClassRank]
 @delegate_onefield Person class [addClassRank!]
 
 @export_forward Person dependencies [guardians, dependents, provider, providees]
@@ -132,7 +132,7 @@ Person(pos,age; gender=unknown,
             MaternityBlock(false, 0),
             WorkBlock(),
             CareBlock(0, 0, 0),
-            ClassBlock(0), DependencyBlock{Person}())
+            ClassBlock(0, 0), DependencyBlock{Person}())
 
 
 "Constructor with default values"
@@ -145,7 +145,7 @@ Person(;pos=undefinedHouse,age=0,
                 MaternityBlock(false, 0),
                 WorkBlock(),
                 CareBlock(0, 0, 0),
-                ClassBlock(0), DependencyBlock{Person}())
+                ClassBlock(0, 0), DependencyBlock{Person}())
 
 
 const PersonHouse = House{Person, Town}
@@ -279,6 +279,9 @@ isOrphan(person) = !canLiveAlone(person) && !isDependent(person)
 function setAsGuardianDependent!(guardian, dependent)
     push!(dependents(guardian), dependent)
     push!(guardians(dependent), guardian)
+
+    # set class rank to maximum of guardians'
+    parentClassRank!(dependent, maximum(classRank, guardians(dependent)))
     nothing
 end
 
