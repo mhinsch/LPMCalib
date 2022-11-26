@@ -14,6 +14,9 @@ using Utilities
 
 
 # TODO put into module somewhere?
+# Atiyah: Suggestion: as it is related to ParamTypes, it fits there
+#                     or another module for Data (though currently 
+#                     not that significant amount of code)
 include("src/lpm/demography/demographydata.jl")
 
 include("src/handleParams.jl")
@@ -25,10 +28,9 @@ mutable struct Model
     babies :: Vector{Person}
 
     fertility :: Matrix{Float64}
-    death_female :: Matrix{Float64}
-    death_male :: Matrix{Float64}
+    deathFemale :: Matrix{Float64}
+    deathMale :: Matrix{Float64}
 end
-
 
 function createDemography!(pars)
     ukTowns = createTowns(pars.mappars)
@@ -39,6 +41,8 @@ function createDemography!(pars)
     #ukPopulation = createPopulation(pars.poppars)
     ukPopulation = createPyramidPopulation(pars.poppars)
     
+    # Atiyah: For more DRY code, you may want to consider calling 
+    #         loadDemographyData(datapars) 
     datp = pars.datapars
     dir = datp.datadir
 
@@ -86,6 +90,10 @@ function addBaby!(model, baby)
     push!(model.babies, baby)
 end
 
+
+# Atiyah: remove this for the primative API simulation function
+# alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
+# data(model) = model 
 
 function stepModel!(model, time, simPars, pars)
     resetCacheSocialClassShares()
@@ -167,6 +175,9 @@ function loadParameters(argv, cmdl...)
         overrideParsCmdl!(getfield(pars, f), args)
     end
 
+    # Atiyah: for more DRY Code, you may consider using 
+    # LPM.ParamTypes.{seed!,reseed0!} within mainHelpers.jl 
+    # and remove the following call & the using statement 
     # set time dependent seed
     if simpars.seed == 0
         simpars.seed = floor(Int, time())
@@ -204,7 +215,7 @@ end
 
 
 function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
-    time = Rational(simPars.startTime)
+    time = simPars.startTime
 
     simPars.verbose ? setVerbose!() : unsetVerbose!()
     setDelay!(simPars.sleeptime)
@@ -220,5 +231,6 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
         time += simPars.dt
     end
 end
+
 
 

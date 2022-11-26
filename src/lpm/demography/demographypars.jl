@@ -181,7 +181,7 @@ end
     betaSocExp :: Float64                       = 2.0
     rankGenderBias :: Float64                   = 0.5
     "prob dist of age difference"
-    deltaAgeProb :: Vector{Float64}                = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
+    deltaAgeProb :: Vector{Float64}             = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
     bridesChildrenExp :: Float64                = 0.5
 end
 

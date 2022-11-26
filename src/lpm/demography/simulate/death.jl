@@ -75,7 +75,7 @@ end
 
 
 # currently leaves dead agents in population
-function death!(person, currstep, model, parameters)
+function death!(person, currstep, data, parameters)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
@@ -92,8 +92,8 @@ function death!(person, currstep, model, parameters)
                         
         agep = agep > 109 ? Rational(109) : agep 
         ageindex = trunc(Int,agep)
-        rawRate = isMale(person) ?  model.death_male[ageindex+1,curryear-1950+1] : 
-                                    model.death_female[ageindex+1,curryear-1950+1]
+        rawRate = isMale(person) ?  data.deathMale[ageindex+1,curryear-1950+1] : 
+                                    data.deathFemale[ageindex+1,curryear-1950+1]
                                    
         # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
                         

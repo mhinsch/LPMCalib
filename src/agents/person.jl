@@ -14,7 +14,7 @@ export householdIncomePerCapita
 
 export getHomeTown, getHomeTownName, agestepAlive!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
-export hasAliveChild, ageYoungestAliveChild, hasBirthday
+export hasAliveChild, ageYoungestAliveChild, hasBirthday, yearsold
 export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
 export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
 export hasDependents, isDependent, hasProvidees
@@ -91,7 +91,7 @@ end # struct Person
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
 @export_forward Person info [age, gender, alive]
-@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday]
+@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold]
 
 @export_forward Person kinship [father, mother, partner, children]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle, parents, siblings]
