@@ -77,35 +77,3 @@ end
 selectDivorce(person, pars) = alive(person) && isMale(person) && !isSingle(person)
 
 
-function doDivorces!(people, time, allHouses, allTowns, parameters)
-
-    marriedMen = [ man for man in people if selectDivorce(man, parameters) ]
-
-    divorced = Person[] 
-    
-    for man in marriedMen 
-        wife = partner(man) 
-        if applyDivorce!(man, time, allHouses, allTowns, parameters) 
-            append!(divorced,[man, wife]) 
-        end 
-    end 
-
-    delayedVerbose() do
-        println("# of divorced in current iteration $(length(divorced))")
-    end
-    
-    divorced 
-end
-
-
-#= 
-Atiyah: 
-Draft suggestion: if an API with model argument is needed (does not seem to be the case)
-an API may look like 
-doDivorces!(model,time,parameters)   
-
-doDivorces!(model,time,parameters) = 
-    doDivorces(people,time,model.houses,model.towns,parameters)
-    # better (to work for me as well) 
-    # doDivorces!(population(model),time,houses(model),towns(model),divorcePars(model)) 
-=# 

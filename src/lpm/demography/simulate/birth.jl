@@ -112,7 +112,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
     # if woman.status == 'student':
     #     womanClassRank = woman.parentsClassRank
 
-    birthProb = computeBirthProb(woman, parameters, data, currstep)
+    birthProb = computeBirthProb(woman, parameters, model, currstep)
                         
     assumption() do
         @assert isFemale(woman) 
@@ -209,123 +209,5 @@ selectBirth(woman, parameters) = isFemale(woman) &&
     !isSingle(woman) && 
     parameters.minPregnancyAge <= age(woman) <= parameters.maxPregnancyAge && 
     ageYoungestAliveChild(woman) > 1 
-
-
-function doBirths!(people, currstep, data, parameters)
-
-    assumption() do
-        for person in people  
-            @assert alive(person) 
-        end
-    end 
-
-    babies = Person[] 
-    # numBirths =  0    # instead of [0, 0, 0, 0, 0]
-
-    # TODO The following could be collapsed into one loop / not sure if it is more efficient 
-    #      there is also a potential to save alot of re-computation in each iteration by 
-    #      storing the intermediate results and modifying the computation.
-    #      However, it could be also the case that Julia compiler does something efficient any way? 
-
-    reproductiveWomen = [ woman for woman in people if selectBirth(woman, parameters) ]
-
-    # TODO @assumption 
-    assumption() do
-        allFemales = [ woman for woman in people if isFemale(woman) ]
-        adultWomen = [ aWomen for aWomen in allFemales if 
-                         age(aWomen) >= parameters.minPregnancyAge ] 
-        nonadultFemale = setdiff(Set(allFemales),Set(adultWomen)) 
-        for woman in nonadultFemale
-            @assert(isSingle(woman))   
-            @assert !hasChildren(woman) 
-        end
-
-        for woman in allFemales 
-            if woman ∉ reproductiveWomen
-                @assert isSingle(woman) || 
-                age(woman) < parameters.minPregnancyAge ||
-                age(woman) > parameters.maxPregnancyAge  ||
-                ageYoungestAliveChild(woman) <= 1
-            end
-        end
-    end
-
-    delayedVerbose() do
-        (curryear,currmonth) = date2yearsmonths(currstep)
-        currmonth += 1   # adjusting 0:11 => 1:12 
-                                
-        # TODO this generic print msg to be placed in a top function 
-        println("In iteration $curryear , month $currmonth :")
-        verboseBirthCounting(people,parameters)
-    end # verbose 
-
-
-    #=      
-    adultLadies_1 = [x for x in adultWomen if x.classRank == 0]   
-    marriedLadies_1 = len([x for x in adultLadies_1 if x.partner != None])
-    if len(adultLadies_1) > 0:
-        marriedPercentage.append(marriedLadies_1/float(len(adultLadies_1)))
-    else:
-    marriedPercentage.append(0)
-    adultLadies_2 = [x for x in adultWomen if x.classRank == 1]    
-    marriedLadies_2 = len([x for x in adultLadies_2 if x.partner != None])
-    if len(adultLadies_2) > 0:
-        marriedPercentage.append(marriedLadies_2/float(len(adultLadies_2)))
-    else:
-        marriedPercentage.append(0)
-    adultLadies_3 = [x for x in adultWomen if x.classRank == 2]   
-    marriedLadies_3 = len([x for x in adultLadies_3 if x.partner != None]) 
-    if len(adultLadies_3) > 0:
-        marriedPercentage.append(marriedLadies_3/float(len(adultLadies_3)))
-    else:
-        marriedPercentage.append(0)
-    adultLadies_4 = [x for x in adultWomen if x.classRank == 3]  
-    marriedLadies_4 = len([x for x in adultLadies_4 if x.partner != None])   
-    if len(adultLadies_4) > 0:
-        marriedPercentage.append(marriedLadies_4/float(len(adultLadies_4)))
-    else:
-        marriedPercentage.append(0)
-    adultLadies_5 = [x for x in adultWomen if x.classRank == 4]   
-    marriedLadies_5 = len([x for x in adultLadies_5 if x.partner != None]) 
-    if len(adultLadies_5) > 0:
-        marriedPercentage.append(marriedLadies_5/float(len(adultLadies_5)))
-    else:
-    marriedPercentage.append(0)
-=#
-
-    for woman in reproductiveWomen 
-
-        baby = birth!(woman, currstep, data, parameters)
-        if baby != nothing 
-            push!(babies,baby)
-        end 
-       
-    end # for woman 
-
-    delayedVerbose() do
-        println("number of births : $length(babies)")
-    end
-
-    # any reason for that?
-#    return (newbabies=babies)
-    
-    babies
-end  # function doBirths! 
-
-"This function is supposed to implement the suggested model, TODO"
-function doBirthsOpt() end
-
-# the following accessory functions to be moved to an internal module 
-population(model)    = model.pop      
-data(model)          = model 
-alivePeople(model)   = Iterators.filter(a->alive(a), population(model))  
-birthPars(pars)      = pars.birthpars                             
-
-# Generic API for doDeaths!
-doBirths!(model,time,parameters) = 
-    doBirths!(alivePeople(model),time,data(model),birthPars(parameters))
-
-
-
 
 
