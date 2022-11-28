@@ -107,8 +107,8 @@ function stepModel!(model, time, simPars, pars)
     applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
 
     selected = Iterators.filter(p->selectBirth(p, pars.birthpars), model.pop)
-    applyTransition!(selected, birth!, "birth", time, model, fuse(pars.poppars, pars.birthpars), 
-                    addBaby!)
+    applyTransition!(selected, birth!, "birth", time, model, 
+        fuse(pars.poppars, pars.birthpars), addBaby!)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
@@ -121,7 +121,7 @@ function stepModel!(model, time, simPars, pars)
 
     selected = Iterators.filter(p->selectDivorce(p, pars), model.pop)
     applyTransition!(selected, divorce!, "divorce", time, model, 
-                     fuse(pars.divorcepars, pars.workpars))
+                     fuse(pars.poppars, pars.divorcepars, pars.workpars))
 
     resetCacheMarriages()
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)

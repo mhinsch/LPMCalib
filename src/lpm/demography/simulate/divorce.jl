@@ -1,25 +1,17 @@
 export doDivorces!, selectDivorce, divorce!
 
-function divorceProbability(rawRate, pars) # ,classRank) 
-    #=
-     def computeSplitProb(self, rawRate, classRank):
-        a = 0
-        for i in range(int(self.p['numberClasses'])):
-            a += self.socialClassShares[i]*math.pow(self.p['divorceBias'], i)
-        baseRate = rawRate/a
-        splitProb = baseRate*math.pow(self.p['divorceBias'], classRank)
-        return splitProb
-    =# 
-    rawRate * pars.divorceBias 
+function divorceProbability(rawRate, classRank, model, pars) 
+    a = 0
+    for i in 1:length(pars.cumProbClasses)
+        c = i - 1 # class is 0-based!
+        a += socialClassShares(model, c) * pars.divorceBias^(c)
+    end
+    baseRate = rawRate/a
+    baseRate * pars.divorceBias^classRank
 end 
 
+
 function divorce!(man, time, model, parameters)
-    applyDivorce!(man, time, model.houses, model.towns, parameters)
-end
-
-
-function applyDivorce!(man, time, allHouses, allTowns, parameters)
-        
     agem = age(man) 
     assumption() do
         @assert isMale(man) 
@@ -36,7 +28,7 @@ function applyDivorce!(man, time, allHouses, allTowns, parameters)
         rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]           
     end
 
-    divorceProb = divorceProbability(rawRate, parameters) # TODO , man.classRank)
+    divorceProb = divorceProbability(rawRate, classRank(man), model, parameters)
 
     if rand() < p_yearly2monthly(divorceProb) 
         wife = partner(man)
@@ -64,7 +56,7 @@ function applyDivorce!(man, time, allHouses, allTowns, parameters)
             end 
         end # for 
 
-        movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), allHouses, allTowns)
+        movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), model.houses, model.towns)
 
         print("d")
         return true 
