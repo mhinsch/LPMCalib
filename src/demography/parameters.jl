@@ -1,5 +1,5 @@
 using  Parameters
-export MapPars, PopulationPars, DemographyPars, DivorcePars, WorkPars
+export MapPars, PopulationPars, DivorcePars, WorkPars, ModelPars
 
 "Parameters describing map properties"
 @with_kw mutable struct MapPars 
@@ -194,7 +194,7 @@ end
     deathMFName :: String = "deathrate.male.csv"
 end
 
-struct DemographyPars 
+struct ModelPars 
     mappars     ::  MapPars
     poppars     ::  PopulationPars
     birthpars   ::  BirthPars
@@ -205,6 +205,6 @@ struct DemographyPars
 end 
 
 
-DemographyPars() = DemographyPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
+ModelPars() = ModelPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
                                   DivorcePars(), MarriagePars(), DataPars())
 

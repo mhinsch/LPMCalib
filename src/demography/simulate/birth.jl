@@ -8,13 +8,13 @@ export selectBirth, birth!,
     marriedPercentage, resetCacheMarriedPercentage
 
 
-isReprWoman(p) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
+isReprWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
 
 
 # TODO should this be here?
 @memoize Dict function reprWomenSocialClassShares(model, class, pars)
 
-    nAll, nC = countSubset(isReprWoman, p->classRank(p) == class, model.pop)
+    nAll, nC = countSubset(p->isReprWoman(p, pars), p->classRank(p) == class, model.pop)
 
     nAll > 0 ? nC / nAll : 0.0
 end
@@ -22,7 +22,7 @@ resetCacheReprWomenSocialClassShares() = Memoization.empty_cache!(reprWomenSocia
 
 
 @memoize Dict function marriedPercentage(model, class, pars)
-    nAll, nM = countSubset(p->isReprWoman(p) && classRank(p) == class, 
+    nAll, nM = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
                            p->!isSingle(p), model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
@@ -31,7 +31,7 @@ resetCacheMarriedPercentage() = Memoization.empty_cache!(marriedPercentage)
             
 "Calculate the percentage of women with a given number of children for a given class."
 @memoize Dict function nChildrenPercentageByClass(model, nchildren, class, pars)
-    nAll, nnC = countSubset(p->isReprWoman(p) && classRank(p) == class, 
+    nAll, nnC = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
                             p->nChildren(p) == nchildren, model.pop)
 
     nAll > 0 ? nnC / nAll : 0.0
@@ -54,7 +54,7 @@ function computeBirthProb(rWoman, parameters, model, currstep)
     else
         (yearold,tmp) = age2yearsmonths(age(rWoman)) 
         # division by mP happens at the very end in python version
-        rawRate = model.fertility[yearold-16,curryear-1950] /
+        rawRate = model.fertility[yearold-parameters.minPregnancyAge+1, curryear-1950] /
             marriedPercentage(model, womanRank, parameters)
     end 
 
@@ -97,7 +97,7 @@ function effectsOfMaternity!(woman, pars)
 end
 
 
-selectBirth(person, parameters) = isReprWoman(person) && !isSingle(person) && 
+selectBirth(person, parameters) = isReprWoman(person, parameters) && !isSingle(person) && 
     ageYoungestAliveChild(person) > 1 
 
 

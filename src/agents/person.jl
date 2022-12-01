@@ -2,10 +2,6 @@ using TypedDelegation
 
 using DeclUtils
 
-include("../../loadLibsPath.jl")
-# enable using/import from local directory
-addToLoadPath!("agents_modules")
-
 export Person
 export PersonHouse, undefinedHouse
 

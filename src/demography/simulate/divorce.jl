@@ -58,7 +58,6 @@ function divorce!(man, time, model, parameters)
 
         movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), model.houses, model.towns)
 
-        print("d")
         return true 
     end
 

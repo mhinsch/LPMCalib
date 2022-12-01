@@ -1,30 +1,3 @@
-"""
-
-"""
-
-module Create 
-
-using Distributions
-
-using Utilities
-using XAgents
-
-export createTowns, createPopulation, createPyramidPopulation
-### 
-
-function createTowns(pars) 
-
-    uktowns = Town[] 
-    
-    for y in 1:pars.mapGridYDimension
-        for x in 1:pars.mapGridXDimension 
-            town = Town((x,y),density=pars.map[y,x])
-            push!(uktowns,town)
-        end
-    end
-
-    uktowns
-end
 
 # return agents with age in interval minAge, maxAge
 # assumes pop is sorted by age
@@ -151,8 +124,8 @@ function createPyramidPopulation(pars)
     population
 end
 
-function createPopulation(pars) 
 
+function createUniformPopulation(pars) 
     population = Person[] 
 
     for i in 1 : pars.initialPop
@@ -180,7 +153,61 @@ function createPopulation(pars)
 
     population
 
-end # createPopulation 
+end # createUniformPopulation 
 
 
-end # module Create 
+function initClass!(person, pars)
+    p = rand()
+    class = findfirst(x->p<x, pars.cumProbClasses)-1
+    classRank!(person, class)
+
+    nothing
+end
+
+
+function initWork!(person, pars)
+    if age(person) < pars.ageTeenagers
+        status!(person, WorkStatus.child)
+        return
+    end
+    if age(person) < pars.ageOfAdulthood
+        status!(person, WorkStatus.teenager)
+        return
+    end
+    if age(person) >= pars.ageOfRetirement
+        status!(person, WorkStatus.retired)
+        return
+    end
+
+    class = classRank(person)+1
+
+    if age(person) < pars.workingAge[class]
+        status!(person, WorkStatus.student)
+        return
+    end
+
+    status!(person, WorkStatus.worker)
+
+    workingTime = 0
+    for i in age(person):pars.workingAge[class]
+        workingTime *= pars.workDiscountingTime
+        workingTime += 1
+    end
+
+    dKi = rand(Normal(0, pars.wageVar))
+    initialWage = pars.incomeInitialLevels[class] * exp(dKi)
+    dKf = rand(Normal(dKi, pars.wageVar))
+    finalWage = pars.incomeFinalLevels[class] * exp(dKf)
+
+    initialIncome!(person, initialWage)
+    finalIncome!(person, finalWage)
+
+    c = log(initialWage/finalWage)
+    wage!(person, finalWage * exp(c * exp(-pars.incomeGrowthRate[class]*workingTime)))
+    income!(person, wage(person) * pars.weeklyHours[class])
+    potentialIncome!(person, income(person))
+    jobTenure!(person, rand(1:50))
+#    workExperience = workingTime
+
+    nothing
+end

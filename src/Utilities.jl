@@ -14,7 +14,7 @@ export createTimeStampedFolder, p_yearly2monthly, applyTransition!, remove_unsor
 export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
-export fuse
+export fuse, countSubset
 
 
 # list of types 
@@ -48,10 +48,6 @@ age2yearsmonths(age) = date2yearsmonths(age)
 
 p_yearly2monthly(p) = 1 - (1-p)^(1/12)
 
-# constants 
-
-"Folder in which simulation results are stored"
-const SimulationFolderPrefix = "Simulations_Folder"
 
 # timeStamp ... 
 
@@ -88,12 +84,12 @@ end
 
 
 "Count the elements of a subset and a subset of that subset of population."
-function countSubset(condAll, condSubset, population)
+@inline function countSubset(condAll, condSubset, population)
     nAll = 0
     nS = 0
 
     for x in Iterators.filter(condAll, population)
-        nA += 1
+        nAll += 1
         if condSubset(x)
             nS += 1
         end

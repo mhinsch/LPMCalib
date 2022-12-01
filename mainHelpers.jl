@@ -1,198 +1,33 @@
-addToLoadPath!(String(@__DIR__) * "/.", String(@__DIR__) * "/src")
+addToLoadPath!(String(@__DIR__) * "/.", 
+               String(@__DIR__) * "/lib",
+               String(@__DIR__) * "/src")
 
 using ArgParse
 
-using LPM.ParamTypes
-
 using XAgents
-
-using LPM.Demography.Create
-using LPM.Demography.Initialize
-using LPM.Demography.Simulate
 
 using Utilities
 
+using DemographyPars
+using DemographyModel
 
-# TODO put into module somewhere?
-# Atiyah: Suggestion: as it is related to ParamTypes, it fits there
-#                     or another module for Data (though currently 
-#                     not that significant amount of code)
-include("src/lpm/demography/demographydata.jl")
+
+include("src/demography/data.jl")
 
 include("src/handleParams.jl")
 
-mutable struct Model
-    towns :: Vector{Town}
-    houses :: Vector{PersonHouse}
-    pop :: Vector{Person}
-    babies :: Vector{Person}
 
-    fertility :: Matrix{Float64}
-    deathFemale :: Matrix{Float64}
-    deathMale :: Matrix{Float64}
-end
-
-function createDemography!(pars)
-    ukTowns = createTowns(pars.mappars)
-
-    ukHouses = Vector{PersonHouse}()
-
-    # maybe switch using parameter
-    #ukPopulation = createPopulation(pars.poppars)
-    ukPopulation = createPyramidPopulation(pars.poppars)
-    
-    # Atiyah: For more DRY code, you may want to consider calling 
-    #         loadDemographyData(datapars) 
+function setupModel(pars)
     datp = pars.datapars
     dir = datp.datadir
 
-    ukDemoData   = loadDemographyData(dir * "/" * datp.fertFName, 
+    demoData   = loadDemographyData(dir * "/" * datp.fertFName, 
                                       dir * "/" * datp.deathFFName,
                                       dir * "/" * datp.deathMFName)
 
-    Model(ukTowns, ukHouses, ukPopulation, [],
-            ukDemoData.fertility , ukDemoData.deathFemale, ukDemoData.deathMale)
-end
+    model = createDemographyModel!(demoData, pars)
 
-
-function initialConnectH!(houses, towns, pars)
-    newHouses = initializeHousesInTowns(towns, pars)
-    append!(houses, newHouses)
-end
-
-function initialConnectP!(pop, houses, pars)
-    assignCouplesToHouses!(pop, houses)
-end
-
-
-function initializeDemography!(model, poppars, workpars, mappars)
-    initialConnectH!(model.houses, model.towns, mappars)
-    initialConnectP!(model.pop, model.houses, mappars)
-
-    for person in model.pop
-        initClass!(person, poppars)
-        initWork!(person, workpars)
-    end
-
-    nothing
-end
-
-function removeDead!(model)
-    for i in length(model.pop):-1:1
-        if !alive(model.pop[i])
-            remove_unsorted!(model.pop, i)
-        end
-    end
-end
-
-
-function addBaby!(model, baby)
-    push!(model.babies, baby)
-end
-
-
-
-function stepModel!(model, time, simPars, pars)
-    resetCacheSocialClassShares()
-    resetCacheReprWomenSocialClassShares()
-    resetCacheMarriedPercentage()
-
-    applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
-    removeDead!(model)
-
-    orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
-    applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
-
-    selected = Iterators.filter(p->selectBirth(p, pars.birthpars), model.pop)
-    applyTransition!(selected, birth!, "birth", time, model, 
-        fuse(pars.poppars, pars.birthpars), addBaby!)
-
-    selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
-
-    selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, workTransition!, "work", time, model, pars.workpars)
-
-    selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
-    applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
-
-    selected = Iterators.filter(p->selectDivorce(p, pars), model.pop)
-    applyTransition!(selected, divorce!, "divorce", time, model, 
-                     fuse(pars.poppars, pars.divorcepars, pars.workpars))
-
-    resetCacheMarriages()
-    selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
-    applyTransition!(selected, marriage!, "marriage", time, model, 
-                     fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
-
-    append!(model.pop, model.babies)
-    empty!(model.babies)
-end
-
-
-function loadParameters(argv, cmdl...)
-	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
-
-	@add_arg_table! arg_settings begin
-		"--par-file", "-p"
-            help = "parameter file"
-            default = ""
-        "--par-out-file", "-P"
-			help = "file name for parameter output"
-			default = "parameters.run.yaml"
-	end
-
-    if ! isempty(cmdl)
-        add_arg_table!(arg_settings, cmdl...)
-    end
-
-    # setup command line arguments with docs 
-    
-	add_arg_group!(arg_settings, "Simulation Parameters")
-	fieldsAsArgs!(arg_settings, SimulationPars)
-
-    for t in fieldtypes(DemographyPars)
-        groupName =  String(nameOfParType(t)) * " Parameters"
-        add_arg_group!(arg_settings, groupName)
-        fieldsAsArgs!(arg_settings, t)
-    end
-
-    # parse command line
-	args = parse_args(argv, arg_settings, as_symbols=true)
-
-    # read parameters from file if provided or set to default
-    simpars, pars = loadParametersFromFile(args[:par_file])
-
-    # override values that were provided on command line
-
-    overrideParsCmdl!(simpars, args)
-
-    @assert typeof(pars) == DemographyPars
-    for f in fieldnames(DemographyPars)
-        overrideParsCmdl!(getfield(pars, f), args)
-    end
-
-    # Atiyah: for more DRY Code, you may consider using 
-    # LPM.ParamTypes.{seed!,reseed0!} within mainHelpers.jl 
-    # and remove the following call & the using statement 
-    # set time dependent seed
-    if simpars.seed == 0
-        simpars.seed = floor(Int, time())
-    end
-
-    if args[:par_out_file] != ""
-        # keep a record of parameters used (including seed!)
-        saveParametersToFile(simpars, pars, args[:par_out_file])
-    end
-
-    simpars, pars, args
-end
-
-
-function setupModel(pars)
-    model = createDemography!(pars)
-
-    initializeDemography!(model, pars.poppars, pars.workpars, pars.mappars)
+    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars)
 
     model
 end
@@ -218,7 +53,7 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
     setDelay!(simPars.sleeptime)
 
     while time < simPars.finishTime
-        stepModel!(model, time, simPars, pars)
+        stepModel!(model, time, pars)
 
         if logfile != nothing
             results = observe(Data, model)

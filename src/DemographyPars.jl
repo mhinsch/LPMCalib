@@ -1,19 +1,17 @@
 """
 Parameter types and values 
-
-This module is within the LPM module 
 """
 
-module ParamTypes
+module DemographyPars
 
 using Random
 using Parameters
 
 import Random.seed! 
 
-export SimulationPars, seed!, reseed0!
+export SimulationPars, reseed0!, seed!
 
-include("./demography/demographypars.jl")
+include("./demography/parameters.jl")
 
 "General simulation parameters"
 @with_kw mutable struct SimulationPars 
@@ -41,4 +39,4 @@ function seed!(simPars::SimulationPars,
 end
 
 
-end # ParamTypes
+end # DemographyPars
