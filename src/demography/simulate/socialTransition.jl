@@ -42,20 +42,13 @@ end
 # TODO possibly remove altogether and calibrate model 
 # properly instead
 @memoize Dict function socialClassShares(model, class)
-    nAll = 0
-    nC = 0
-
-    for p in Iterators.filter(alive, model.pop)
-        nAll += 1
-        if classRank(p) == class
-            nC += 1
-        end
-    end
+    nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
     nC / nAll
 end
 
 resetCacheSocialClassShares() = Memoization.empty_cache!(socialClassShares)
+
 
 doneStudying(person, pars) = classRank(person) >= 4
 

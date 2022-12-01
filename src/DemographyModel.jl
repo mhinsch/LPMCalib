@@ -89,9 +89,9 @@ end
 
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
-    resetCacheSocialClassShares()
-    resetCacheReprWomenSocialClassShares()
-    resetCacheMarriedPercentage()
+    resetCachePClassInReprWomen()
+    resetCachePMarriedInReprWAndClass()
+    resetCachePNChildrenInReprWAndClass()
 
     applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
     removeDead!(model)

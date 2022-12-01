@@ -4,67 +4,75 @@ using Memoization
 using Utilities
 
 export selectBirth, birth!, 
-    reprWomenSocialClassShares, resetCacheReprWomenSocialClassShares,
-    marriedPercentage, resetCacheMarriedPercentage
-
+    pClassInReprWomen, resetCachePClassInReprWomen,
+    pMarriedInReprWAndClass, resetCachePMarriedInReprWAndClass,
+    pNChildrenInReprWAndClass, resetCachePNChildrenInReprWAndClass
 
 isReprWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
 
 
 # TODO should this be here?
-@memoize Dict function reprWomenSocialClassShares(model, class, pars)
+@memoize Dict function pClassInReprWomen(model, class, pars)
 
     nAll, nC = countSubset(p->isReprWoman(p, pars), p->classRank(p) == class, model.pop)
 
     nAll > 0 ? nC / nAll : 0.0
 end
-resetCacheReprWomenSocialClassShares() = Memoization.empty_cache!(reprWomenSocialClassShares)
+resetCachePClassInReprWomen() = Memoization.empty_cache!(pClassInReprWomen)
 
 
-@memoize Dict function marriedPercentage(model, class, pars)
+@memoize Dict function pMarriedInReprWAndClass(model, class, pars)
     nAll, nM = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
                            p->!isSingle(p), model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
 end
-resetCacheMarriedPercentage() = Memoization.empty_cache!(marriedPercentage)
+resetCachePMarriedInReprWAndClass() = Memoization.empty_cache!(pMarriedInReprWAndClass)
             
 "Calculate the percentage of women with a given number of children for a given class."
-@memoize Dict function nChildrenPercentageByClass(model, nchildren, class, pars)
+@memoize Dict function pNChildrenInReprWAndClass(model, nchildren, class, pars)
     nAll, nnC = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
-                            p->nChildren(p) == nchildren, model.pop)
+                            p->min(4, nChildren(p)) == nchildren, model.pop)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
-resetCacheNChildrenPercentageByClass() = Memoization.empty_cache!(nChildrenPercentageByClass)
+resetCachePNChildrenInReprWAndClass() = Memoization.empty_cache!(pNChildrenInReprWAndClass)
 
 
-function computeBirthProb(rWoman, parameters, model, currstep)
+function computeBirthProb(woman, parameters, model, currstep)
 
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
-    womanRank = classRank(rWoman)
-    if status(rWoman) == WorkStatus.student
-        womanRank = parentClassRank(rWoman)
+    womanRank = classRank(woman)
+    if status(woman) == WorkStatus.student
+        womanRank = parentClassRank(woman)
     end
 
     if curryear < 1951
         rawRate = parameters.growingPopBirthProb
     else
-        (yearold,tmp) = age2yearsmonths(age(rWoman)) 
+        (yearold,tmp) = age2yearsmonths(age(woman)) 
         # division by mP happens at the very end in python version
         rawRate = model.fertility[yearold-parameters.minPregnancyAge+1, curryear-1950] /
-            marriedPercentage(model, womanRank, parameters)
+            pMarriedInReprWAndClass(model, womanRank, parameters)
     end 
 
     a = 0
     for i in 1:length(parameters.cumProbClasses)
         c = i - 1 # class is 0-based!
-        a += reprWomenSocialClassShares(model, c, parameters) * parameters.fertilityBias^c
+        a += pClassInReprWomen(model, c, parameters) * parameters.fertilityBias^c
     end
 
     birthProb = rawRate/a * parameters.fertilityBias^womanRank
+
+    a = 0
+    for c in 0:4
+        a += pNChildrenInReprWAndClass(model, c, womanRank, parameters) * 
+            parameters.prevChildFertBias^c
+    end
+
+    birthProb = birthProb/a * parameters.prevChildFertBias^min(4, nChildren(woman))
 
     min(1.0, birthProb)
 end # computeBirthProb

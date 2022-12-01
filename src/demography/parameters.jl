@@ -126,6 +126,7 @@ end # PopulationPars
 "Parameters related to reproduction"
 @with_kw mutable struct BirthPars
     fertilityBias::Float64          =  0.9
+    prevChildFertBias::Float64      =  0.9
     growingPopBirthProb::Float64    =  0.215
     maxPregnancyAge::Int            =  50
     minPregnancyAge::Int            =  16
