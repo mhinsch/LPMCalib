@@ -1,6 +1,8 @@
 export Town, undefinedTown, TownLocation
 export isAdjacent8, adjacent8Towns, manhattanDistance
 
+using XAgents
+
 """
 Specification of a Town agent type.
 

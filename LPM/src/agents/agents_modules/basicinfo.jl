@@ -1,6 +1,6 @@
 using Utilities: Gender, unknown, female, male, age2yearsmonths
 
-export isFemale, isMale, agestep!, agestepAlive!, hasBirthday
+export isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold
 
 
 # TODO think about whether to make this immutable
@@ -36,3 +36,8 @@ function agestepAlive!(person::BasicInfoBlock, dt=1//12)
 end 
 
 hasBirthday(person::BasicInfoBlock) = person.age % 1 == 0
+
+function yearsold(person::BasicInfoBlock) 
+    years, = age2yearsmonths(person.age)
+    years 
+end 

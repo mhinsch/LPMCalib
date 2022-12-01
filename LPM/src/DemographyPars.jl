@@ -1,16 +1,22 @@
+"""
+Parameter types and values 
+"""
 
-module ParamTypes
+module DemographyPars
 
+using Random
 using Parameters
 
-export SimulationPars
+import Random.seed! 
 
-include("./demography/demographypars.jl")
+export SimulationPars, reseed0!, seed!
+
+include("./demography/parameters.jl")
 
 "General simulation parameters"
 @with_kw mutable struct SimulationPars 
-    startTime :: Int  = 1920
-    finishTime :: Int = 2040 
+    startTime :: Rational{Int}  = 1920
+    finishTime :: Rational{Int} = 2040 
     dt :: Rational{Int} = 1//12      # step size 
     seed :: Int       = 42 ;   @assert seed >= 0 # 0 is random      
     verbose::Bool     = false       # whether significant intermediate info shallo be printed 
@@ -20,5 +26,17 @@ include("./demography/demographypars.jl")
     logfile :: String = "log.tsv"
 end 
 
+reseed0!(simPars) = 
+    simPars.seed = simPars.seed == 0 ?  floor(Int, time()) : 
+                                        simPars.seed 
 
-end # ParamTypes
+function seed!(simPars::SimulationPars,
+                randomizeSeedZero=true)
+    if randomizeSeedZero 
+        reseed0!(simPars)
+    end
+    Random.seed!(simPars.seed)
+end
+
+
+end # DemographyPars
