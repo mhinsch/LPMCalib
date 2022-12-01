@@ -42,36 +42,13 @@ end
 # TODO possibly remove altogether and calibrate model 
 # properly instead
 @memoize Dict function socialClassShares(model, class)
-    nAll = 0
-    nC = 0
-
-    for p in Iterators.filter(alive, model.pop)
-        nAll += 1
-        if classRank(p) == class
-            nC += 1
-        end
-    end
+    nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
     nC / nAll
 end
 
 resetCacheSocialClassShares() = Memoization.empty_cache!(socialClassShares)
 
-function studyClassFactor(person, model, pars)
-    if classRank(person) == 0 
-        return socialClassShares(model, 0) > 0.2 ?  1/0.9 : 0.85
-    end
-
-    if classRank(person) == 1 && socialClassShares(model, 1) > 0.35
-        return 1/0.8
-    end
-
-    if classRank(person) == 2 && socialClassShares(model, 2) > 0.25
-        return 1/0.85
-    end
-
-    1.0
-end
 
 doneStudying(person, pars) = classRank(person) >= 4
 
@@ -126,7 +103,7 @@ function startStudyProb(person, model, pars)
 
     pStudy = incomeEffect * educationEffect * careEffect
 
-    pStudy *= studyClassFactor(person, model, pars)
+    #pStudy *= studyClassFactor(person, model, pars)
 
     return max(0.0, pStudy)
 end

@@ -4,58 +4,59 @@
 
 module Simulate
 
-using MultiAgents.Util: getproperty
+# using MultiAgents.Util: getproperty
 
 using XAgents: Person, isFemale, alive, age
 
-using MultiAgents: ABM, allagents, add_agent!
-using MALPM.Population: removeDead!
-
-using MALPM.Demography.Create: LPMUKDemography, LPMUKDemographyOpt
-
+using MultiAgents: ABM, AbstractMABM, AbstractABMSimulation
+using MultiAgents: allagents, add_agent!, currstep, verbose 
+using MALPM.Demography.Population: removeDead!
+using MALPM.Demography: DemographyExample, LPMUKDemography, LPMUKDemographyOpt, 
+                    houses, towns 
 using LPM
-import LPM.Demography.Simulate: doDeaths!
-import LPM.Demography.Simulate: doBirths!
-export doDeaths!,doBirths!
+import LPM.Demography.Simulate: doDeaths!, doBirths!, doDivorces!
+# export doDeaths!,doBirths!
 
-alivePeople(population::ABM{Person},example::LPMUKDemography) = allagents(population)
+alivePeople(population::ABM{Person},::LPMUKDemography) = allagents(population)
 
-alivePeople(population::ABM{Person},example::LPMUKDemographyOpt) = 
+alivePeople(population::ABM{Person},::LPMUKDemographyOpt) = 
                # Iterators.filter(person->alive(person),allagents(population))
                 [ person for person in allagents(population)  if alive(person) ]
 
-function doDeaths!(population::ABM{Person}) # argument simulation or simulation properties ? 
+function removeDeads!(deadpeople,population,::LPMUKDemography)    
+    for deadperson in deadpeople
+        removeDead!(deadperson,population)
+    end
+    
+    nothing 
+end
+
+removeDeads!(deadpeople,population,::LPMUKDemographyOpt) = nothing 
+
+function doDeaths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) # argument simulation or simulation properties ? 
+
+    population = model.pop 
 
     (deadpeople) = LPM.Demography.Simulate.doDeaths!(
-            people=alivePeople(population,population.properties.example),
-            parameters=population.parameters.poppars,
-            data=population.data,
-            currstep=population.properties.currstep,
-            verbose=population.properties.verbose,
-            sleeptime=population.properties.sleeptime,
-            checkassumption=population.properties.checkassumption) 
-
-    #for deadperson in deadpeople
-    #    removeDead!(deadperson,population)
-    #end
-
+            alivePeople(population,example),
+            currstep(sim),
+            population.data,
+            population.parameters.poppars)
+    
+    removeDeads!(deadpeople,population,example)
     nothing 
-
-    # false ? population.variables[:numberDeaths] += numberDeaths : nothing # Temporarily this way till realized 
-
 end # function doDeaths!
 
 
-function doBirths!(population::ABM{Person}) 
+function doBirths!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
 
     newbabies = LPM.Demography.Simulate.doBirths!(
-                        people = alivePeople(population,population.properties.example),
-                        parameters =  population.parameters.birthpars,
-                        data = population.data,
-                        currstep = population.properties.currstep,
-                        verbose = population.properties.verbose,
-                        sleeptime = population.properties.sleeptime,
-                        checkassumption = population.properties.checkassumption) 
+                        alivePeople(population,example),
+                        currstep(sim),
+                        population.data,
+                        population.parameters.birthpars) 
 
     # false ? population.variables[:numBirths] += length(newbabies) : nothing # Temporarily this way till realized 
     
@@ -65,5 +66,23 @@ function doBirths!(population::ABM{Person})
 
     nothing 
 end
+
+
+function doDivorces!(model::AbstractMABM, sim::AbstractABMSimulation, example::DemographyExample) 
+
+    population = model.pop 
+
+    divorced = LPM.Demography.Simulate.doDivorces!(
+                        allagents(population),
+                        currstep(sim),
+                        houses(model),
+                        towns(model),
+                        population.parameters.divorcepars) 
+
+    nothing 
+end
+
+
+
 
 end # Simulate 

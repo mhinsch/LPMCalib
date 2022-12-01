@@ -1,9 +1,3 @@
-
-#= 
-An initial design for findNewHouse*(*) interfaces (subject to incremental 
-    modification, simplifcation and tuning)
-=# 
-
 using Memoization
 
 using XAgents

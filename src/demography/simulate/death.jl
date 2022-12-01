@@ -92,8 +92,8 @@ function death!(person, currstep, model, parameters)
                         
         agep = agep > 109 ? Rational(109) : agep 
         ageindex = trunc(Int,agep)
-        rawRate = isMale(person) ?  model.death_male[ageindex+1,curryear-1950+1] : 
-                                    model.death_female[ageindex+1,curryear-1950+1]
+        rawRate = isMale(person) ?  model.deathMale[ageindex+1,curryear-1950+1] : 
+                                    model.deathFemale[ageindex+1,curryear-1950+1]
                                    
         # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
                         
@@ -137,22 +137,3 @@ function death!(person, currstep, model, parameters)
     false
 end 
 
-"evaluate death events in a population"
-function doDeaths!(;people, currstep, model, parameters)
-
-    deads = Person[] 
-
-    for person in people 
-        if death!(person, currstep, model, parameters) 
-            push!(deads,person)
-        end 
-    end # for livingPeople
-    
-    delayedVerbose() do
-        count = length([person for person in people if alive(person)] )
-        numDeaths = length(deads)
-        println("# living people : $(count+numDeaths), # people died in curr iteration : $(numDeaths)") 
-    end 
-
-    deads   
-end  # function doDeaths! 
