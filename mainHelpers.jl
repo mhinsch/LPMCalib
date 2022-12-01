@@ -91,9 +91,6 @@ function addBaby!(model, baby)
 end
 
 
-# Atiyah: remove this for the primative API simulation function
-# alivePeople(model) = Iterators.filter(a->alive(a), model.pop)
-# data(model) = model 
 
 function stepModel!(model, time, simPars, pars)
     resetCacheSocialClassShares()

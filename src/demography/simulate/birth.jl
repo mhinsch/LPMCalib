@@ -5,47 +5,40 @@ using Utilities
 
 using XAgents
 
-export selectBirth, doBirths!, birth!, 
+export selectBirth, birth!, 
     reprWomenSocialClassShares, resetCacheReprWomenSocialClassShares,
     marriedPercentage, resetCacheMarriedPercentage
 
+
+isReprWoman(p) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
+
+
 # TODO should this be here?
 @memoize Dict function reprWomenSocialClassShares(model, class, pars)
-    nAll = 0
-    nC = 0
 
-    for w in Iterators.filter(p->(alive(p)&&isFemale(p)&&
-              pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge), model.pop)
-        nAll += 1
-        
-        if classRank(w) == class
-            nC += 1
-        end
-    end
+    nAll, nC = countSubset(isReprWoman, p->classRank(p) == class, model.pop)
 
-    nC / nAll
+    nAll > 0 ? nC / nAll : 0.0
 end
-
 resetCacheReprWomenSocialClassShares() = Memoization.empty_cache!(reprWomenSocialClassShares)
 
 
 @memoize Dict function marriedPercentage(model, class, pars)
-    nAll = 0
-    nM = 0
-
-    for w in Iterators.filter(p->alive(p) && isFemale(p) && classRank(p) == class && 
-                              age(p) >= pars.minPregnancyAge, model.pop)
-        nAll += 1
-        if !isSingle(w)
-            nM += 1
-        end
-    end
+    nAll, nM = countSubset(p-> isFemale(p) && classRank(p) == class && 
+                           age(p) >= pars.minPregnancyAge, p->!isSingle(p), model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
 end
-
 resetCacheMarriedPercentage() = Memoization.empty_cache!(marriedPercentage)
             
+"Calculate the percentage of women with a given number of children for a given class."
+@memoize Dict function nChildrenPercentageByClass(model, nchildren, class, pars)
+    nAll, nnC = countSubset(p->isReprWoman(p) && classRank(p) == class, 
+                            p->nChildren(p) == nchildren, model.pop)
+
+    nAll > 0 ? nnC / nAll : 0.0
+end
+resetCacheNChildrenPercentageByClass() = Memoization.empty_cache!(nChildrenPercentageByClass)
 
 
 function computeBirthProb(rWoman, parameters, model, currstep)
