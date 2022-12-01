@@ -127,8 +127,8 @@ end # PopulationPars
 @with_kw mutable struct BirthPars
     fertilityBias::Float64          =  0.9
     growingPopBirthProb::Float64    =  0.215
-    maxPregnancyAge::Int            =  42
-    minPregnancyAge::Int            =  17
+    maxPregnancyAge::Int            =  50
+    minPregnancyAge::Int            =  16
 end 
 
 

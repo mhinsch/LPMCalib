@@ -3,8 +3,6 @@ using Memoization
 
 using Utilities
 
-using XAgents
-
 export selectBirth, birth!, 
     reprWomenSocialClassShares, resetCacheReprWomenSocialClassShares,
     marriedPercentage, resetCacheMarriedPercentage
@@ -24,8 +22,8 @@ resetCacheReprWomenSocialClassShares() = Memoization.empty_cache!(reprWomenSocia
 
 
 @memoize Dict function marriedPercentage(model, class, pars)
-    nAll, nM = countSubset(p-> isFemale(p) && classRank(p) == class && 
-                           age(p) >= pars.minPregnancyAge, p->!isSingle(p), model.pop)
+    nAll, nM = countSubset(p->isReprWoman(p) && classRank(p) == class, 
+                           p->!isSingle(p), model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
 end
@@ -97,6 +95,10 @@ function effectsOfMaternity!(woman, pars)
 
     nothing
 end
+
+
+selectBirth(person, parameters) = isReprWoman(person) && !isSingle(person) && 
+    ageYoungestAliveChild(person) > 1 
 
 
 function birth!(woman, currstep, model, parameters, addBaby!)
@@ -189,18 +191,5 @@ function verboseBirthCounting(people,parameters)
 
     nothing 
 end
-"""
-Accept a population and evaluates the birth rate upon computing
-- the population of married fertile women according to 
-fixed parameters (minPregnenacyAge, maxPregnenacyAge) and 
-- the birth probability data (fertility bias and growth rates) 
-
-Class rankes and shares are temporarily ignored.
-"""
-
-selectBirth(woman, parameters) = isFemale(woman) && 
-    !isSingle(woman) && 
-    parameters.minPregnancyAge <= age(woman) <= parameters.maxPregnancyAge && 
-    ageYoungestAliveChild(woman) > 1 
 
 
