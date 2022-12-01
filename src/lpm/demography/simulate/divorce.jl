@@ -66,7 +66,6 @@ function applyDivorce!(man, time, allHouses, allTowns, parameters)
 
         movePeopleToEmptyHouse!(peopleToMove, rand([:near, :far]), allHouses, allTowns)
 
-        print("d")
         return true 
     end
 
