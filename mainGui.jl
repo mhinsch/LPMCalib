@@ -55,7 +55,7 @@ function main(parOverrides...)
     while !RL.WindowShouldClose()
 
         if !pause && time <= simPars.finishTime
-            stepModel!(model, time, simPars, pars)
+            stepModel!(model, time, pars)
             time += simPars.dt
             data = observe(Data, model)
             log_results(logfile, data)

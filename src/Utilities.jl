@@ -14,7 +14,7 @@ export createTimeStampedFolder, p_yearly2monthly, applyTransition!, remove_unsor
 export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
-export fuse
+export fuse, countSubset
 
 
 # list of types 
@@ -27,17 +27,6 @@ export fuse
 "Folder in which simulation results are stored"
 const SimulationFolderPrefix = "Simulations_Folder"
     
-# timeStamp ... 
-
-"create a folder in which simulation results are stored"
-function createTimeStampedFolder() 
-    #timeStamp = datetime.datetime.today().strftime('%Y_%m_%d-%H_%M_%S')
-    #folder = os.path.join('Simulations_Folder', timeStamp)
-    #if not os.path.exists(folder):
-    #    os.makedirs(folder)
-    # folder
-    "" 
-end
 
 "remove first occurance of e in list"
 function removefirst!(list, e)
@@ -59,10 +48,6 @@ age2yearsmonths(age) = date2yearsmonths(age)
 
 p_yearly2monthly(p) = 1 - (1-p)^(1/12)
 
-# constants 
-
-"Folder in which simulation results are stored"
-const SimulationFolderPrefix = "Simulations_Folder"
 
 # timeStamp ... 
 
@@ -95,6 +80,22 @@ function applyTransition!(people, transition, name, args...)
             println(count, " agents processed in ", name)
         end
     end
+end
+
+
+"Count the elements of a subset and a subset of that subset of population."
+@inline function countSubset(condAll, condSubset, population)
+    nAll = 0
+    nS = 0
+
+    for x in Iterators.filter(condAll, population)
+        nAll += 1
+        if condSubset(x)
+            nS += 1
+        end
+    end
+
+    nAll, nS
 end
 
  

@@ -1,5 +1,5 @@
 export KinshipBlock
-export hasChildren, addChild!, isSingle, parents, siblings
+export hasChildren, addChild!, isSingle, parents, siblings, nChildren
 
 mutable struct KinshipBlock{P} 
   father::Union{P,Nothing}
@@ -15,6 +15,8 @@ addChild!(parent::KinshipBlock{P}, child::P) where{P} = push!(parent.children, c
 isSingle(person::KinshipBlock) = person.partner == nothing 
 
 parents(person::KinshipBlock) = [person.father, person.mother]
+
+nChildren(person::KinshipBlock) = length(person.children)
 
 function siblings(person::KinshipBlock{P}) where P
     sibs = P[]

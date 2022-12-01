@@ -1,5 +1,5 @@
 using  Parameters
-export MapPars, PopulationPars, DemographyPars, DivorcePars, WorkPars
+export MapPars, PopulationPars, DivorcePars, WorkPars, ModelPars
 
 "Parameters describing map properties"
 @with_kw mutable struct MapPars 
@@ -126,9 +126,10 @@ end # PopulationPars
 "Parameters related to reproduction"
 @with_kw mutable struct BirthPars
     fertilityBias::Float64          =  0.9
+    prevChildFertBias::Float64      =  0.9
     growingPopBirthProb::Float64    =  0.215
-    maxPregnancyAge::Int            =  42
-    minPregnancyAge::Int            =  17
+    maxPregnancyAge::Int            =  50
+    minPregnancyAge::Int            =  16
 end 
 
 
@@ -194,7 +195,7 @@ end
     deathMFName :: String = "deathrate.male.csv"
 end
 
-struct DemographyPars 
+struct ModelPars 
     mappars     ::  MapPars
     poppars     ::  PopulationPars
     birthpars   ::  BirthPars
@@ -205,6 +206,6 @@ struct DemographyPars
 end 
 
 
-DemographyPars() = DemographyPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
+ModelPars() = ModelPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
                                   DivorcePars(), MarriagePars(), DataPars())
 
