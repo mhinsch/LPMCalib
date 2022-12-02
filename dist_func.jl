@@ -113,7 +113,7 @@ function dist_hh_size(dat_file, sim_data_all, obs_time)
 end
 
 
-function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_max=50)
+function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_max=49)
     emp_data = CSV.read(dat_file, DataFrame)
 
     @subset!(emp_data, :age .>= age_min, :age .<= age_max)
@@ -130,7 +130,25 @@ function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_ma
 end
 
 
-#function dist_maternity_age_SES(dat_file, sim_data_all, obs_time, age_min=16, age_max=50)
-#    emp_data = CSV.read(dat_file, DataFrame)
-#
-#    sim_data = sim_data_all[obs_time].
+function dist_maternity_age_SES(dat_file, sim_data_all, obs_time, age_min=16, age_max=50)
+    emp_data_raw = CSV.read(dat_file, DataFrame)
+
+    sim_data_raw = [sim_data_all[obs_time].class_young_mothers.bins,
+                sim_data_all[obs_time].class_mid_mothers.bins,
+                sim_data_all[obs_time].class_old_mothers.bins]
+
+    for data in sim_data_raw
+        # we have 5 classes in the sim
+        extend!(data, 5)
+        data[4] += data[5]
+        pop!(data)
+    end
+
+    sim_data = vcat(sim_data_raw...)
+    emp_data = vcat(emp_data_raw[!, 1], emp_data_raw[!, 2], emp_data_raw[!, 3])
+
+    @assert length(sim_data) == length(emp_data)
+
+    rel_mean_square_diff_prop(emp_data, sim_data)
+end
+

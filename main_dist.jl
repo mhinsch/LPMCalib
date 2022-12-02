@@ -24,7 +24,7 @@ function runDist(obsDates, args)
 
     dates = reverse(obsDates)
     while time < simPars.finishTime
-        stepModel!(model, time, simPars, pars)
+        stepModel!(model, time, pars)
 
         if !isempty(dates) && time == dates[end]
             res[time] = observe(Data, model)
@@ -47,8 +47,9 @@ function distance(args)
     d_ss = dist_soc_status("data/soc_status_by_age_2011.tsv", res, 2011//1)
     d_hhs = dist_hh_size("data/hh_size.tsv", res, obsDates)
     d_mage = dist_maternity_age("data/maternity_by_age.tsv", res, 2020//1)
+    d_mage_ss = dist_maternity_age_SES("data/shares_births_by_age_SES.tsv", res, 2020//1)
 
-    (d_pp + d_ss + d_hhs + d_mage) / 4
+    (d_pp + d_ss + d_hhs + d_mage + d_mage_ss) / 5
 end
 
 

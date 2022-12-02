@@ -19,9 +19,9 @@ const I = Iterators
         c = classRank(mother(person))
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
-        @if a < 25 @stat("class_young_mother", HistAcc(0, 1)) <| c
-        @if 25 <= a < 34 @stat("class_mid_mother", HistAcc(0, 1)) <| c
-        @if 34 <= a  @stat("class_old_mother", HistAcc(0, 1)) <| c
+        @if a < 25 @stat("class_young_mothers", HistAcc(0, 1)) <| c
+        @if 25 <= a < 34 @stat("class_mid_mothers", HistAcc(0, 1)) <| c
+        @if 34 <= a  @stat("class_old_mothers", HistAcc(0, 1)) <| c
     end
 
     # age and class histograms for the full population
