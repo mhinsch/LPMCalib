@@ -175,3 +175,24 @@ function dist_couples_age_diff(dat_file, sim_data_all, obs_time)
 end
 
 
+function dist_num_prev_children(dat_file, sim_data_all, obs_time)
+    emp_data_raw = CSV.read(dat_file, DataFrame)
+
+    sim_data = sim_dat_all[obs_time].n_prev_children.bins
+
+    n_emp = nrow(emp_data_raw)
+
+    # make sure we have at least as many bins
+    extend!(sim_data, n_emp)
+
+    # if we have more, add them to the last one
+    for i in (n_emp+1):length(sim_data)
+        sim_data[n_emp] += sim_data[i]
+    end
+
+    # if the sim data was bigger, make it the same size as emp
+    resize!(sim_data, n_emp)
+
+    rel_mean_square_diff_prop(emp_data_raw[!, :Births], sim_data)
+end
+

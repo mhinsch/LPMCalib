@@ -49,8 +49,9 @@ function distance(args)
     d_mage = dist_maternity_age("data/maternity_by_age.tsv", res, 2020//1)
     d_mage_ss = dist_maternity_age_SES("data/shares_births_by_age_SES.tsv", res, 2020//1)
     d_c_age = dist_couples_age_diff("data/couple_age_diff.tsv", res, 2001//1)
+    d_npc = dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1)
 
-    (d_pp + d_ss + d_hhs + d_mage + d_mage_ss + d_c_age) / 6
+    (d_pp + d_ss + d_hhs + d_mage + d_mage_ss + d_c_age + d_npc) / 7
 end
 
 

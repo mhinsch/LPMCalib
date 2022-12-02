@@ -15,13 +15,18 @@ const I = Iterators
 
     # mothers' ages for all children born in the last year
     @for person in I.filter(p->age(p) < 1, model.pop) begin
+        # age histogram
         a = Float64(age(mother(person)))
-        c = classRank(mother(person))
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
+        # age x class
+        c = classRank(mother(person))
         @if a < 25 @stat("class_young_mothers", HistAcc(0, 1)) <| c
         @if 25 <= a < 34 @stat("class_mid_mothers", HistAcc(0, 1)) <| c
         @if 34 <= a  @stat("class_old_mothers", HistAcc(0, 1)) <| c
+
+        # no. of previous children
+        @stat("n_prev_children", HistAcc(0, 1)) <| (nChildren(person)-1)
     end
 
     # age and class histograms for the full population
