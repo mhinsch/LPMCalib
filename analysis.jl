@@ -14,30 +14,29 @@ const I = Iterators
     end
 
     # mothers' ages for all children born in the last year
-    @for person in I.filter(p->alive(p) && age(p) < 1, model.pop) begin
-        @stat("age_mother", HistAcc(0.0, 1.0)) <| Float64(age(mother(person)))
+    @for person in I.filter(p->age(p) < 1, model.pop) begin
+        a = Float64(age(mother(person)))
+        c = classRank(mother(person))
+        @stat("age_mother", HistAcc(0.0, 1.0)) <| a
+
+        @if a < 25 @stat("class_young_mother", HistAcc(0, 1)) <| c
+        @if 25 <= a < 34 @stat("class_mid_mother", HistAcc(0, 1)) <| c
+        @if 34 <= a  @stat("class_old_mother", HistAcc(0, 1)) <| c
     end
 
     # age and class histograms for the full population
-    @for person in I.filter(p->alive(p), model.pop) begin
+    @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
         @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(classRank(person))
+
+        class = classRank(person)
+
+        @if class==0 @stat("hist_age_c0", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if class==1 @stat("hist_age_c1", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if class==2 @stat("hist_age_c2", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if class==3 @stat("hist_age_c3", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if class==4 @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(age(person))
     end
 
     # age histogram by class
-    @for person in I.filter(p->alive(p)&&classRank(p)==0, model.pop) begin
-        @stat("hist_age_c0", HistAcc(0.0, 1.0)) <| Float64(age(person))
-    end
-    @for person in I.filter(p->alive(p)&&classRank(p)==1, model.pop) begin
-        @stat("hist_age_c1", HistAcc(0.0, 1.0)) <| Float64(age(person))
-    end
-    @for person in I.filter(p->alive(p)&&classRank(p)==2, model.pop) begin
-        @stat("hist_age_c2", HistAcc(0.0, 1.0)) <| Float64(age(person))
-    end
-    @for person in I.filter(p->alive(p)&&classRank(p)==3, model.pop) begin
-        @stat("hist_age_c3", HistAcc(0.0, 1.0)) <| Float64(age(person))
-    end
-    @for person in I.filter(p->alive(p)&&classRank(p)==4, model.pop) begin
-        @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(age(person))
-    end
 end
