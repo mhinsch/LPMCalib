@@ -38,5 +38,8 @@ const I = Iterators
         @if class==4 @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(age(person))
     end
 
-    # age histogram by class
+    @for person in Iterators.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
+        agediff = Float64(age(partner(person)) - age(person))
+        @stat("couple_age_diff", HistAcc(-5.0, 1.0, count_below_min=true)) <| agediff
+    end
 end

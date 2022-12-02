@@ -152,3 +152,26 @@ function dist_maternity_age_SES(dat_file, sim_data_all, obs_time, age_min=16, ag
     rel_mean_square_diff_prop(emp_data, sim_data)
 end
 
+
+function dist_couples_age_diff(dat_file, sim_data_all, obs_time)
+    emp_data_raw = CSV.read(dat_file, DataFrame)
+
+    sim_data_raw = sim_data_all[obs_time].couple_age_diff.bins
+
+    sim_data = zeros(nrow(emp_data_raw))
+
+    limits = emp_data_raw[!, :AgeDifference]
+
+    for (i, n) in enumerate(sim_data_raw)
+        # bin 1 is actually age diff <= -5
+        ad = i-6
+        # find the bin this age diff belongs to in the emp data
+        idx = searchsortedfirst(limits, ad)
+        sim_data[idx] += n
+    end
+
+    emp_data = emp_data_raw[!, :Share]
+    rel_mean_square_diff_prop(emp_data, sim_data)
+end
+
+
