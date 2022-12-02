@@ -178,7 +178,7 @@ end
 function dist_num_prev_children(dat_file, sim_data_all, obs_time)
     emp_data_raw = CSV.read(dat_file, DataFrame)
 
-    sim_data = sim_dat_all[obs_time].n_prev_children.bins
+    sim_data = sim_data_all[obs_time].n_prev_children.bins
 
     n_emp = nrow(emp_data_raw)
 
