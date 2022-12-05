@@ -190,7 +190,7 @@ function dist_num_prev_children(dat_file, sim_data_all, obs_time)
         sim_data[n_emp] += sim_data[i]
     end
 
-    # if the sim data was bigger, make it the same size as emp
+    # in case the sim data was actually bigger
     resize!(sim_data, n_emp)
 
     rel_mean_square_diff_prop(emp_data_raw[!, :Births], sim_data)

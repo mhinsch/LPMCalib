@@ -43,15 +43,17 @@ function distance(args)
 
     res, _ = runDist(obsDates, args)
 
-    d_pp = dist_pop_pyramid("data/pop_pyramid_2020.tsv", res, 2020//1)
-    d_ss = dist_soc_status("data/soc_status_by_age_2011.tsv", res, 2011//1)
-    d_hhs = dist_hh_size("data/hh_size.tsv", res, obsDates)
-    d_mage = dist_maternity_age("data/maternity_by_age.tsv", res, 2020//1)
-    d_mage_ss = dist_maternity_age_SES("data/shares_births_by_age_SES.tsv", res, 2020//1)
-    d_c_age = dist_couples_age_diff("data/couple_age_diff.tsv", res, 2001//1)
-    d_npc = dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1)
+    dists = Float64[]
 
-    (d_pp + d_ss + d_hhs + d_mage + d_mage_ss + d_c_age + d_npc) / 7
+    push!(dists, dist_pop_pyramid("data/pop_pyramid_2020.tsv", res, 2020//1))
+    push!(dists, dist_soc_status("data/soc_status_by_age_2011.tsv", res, 2011//1))
+    push!(dists, dist_hh_size("data/hh_size.tsv", res, obsDates))
+    push!(dists, dist_maternity_age("data/maternity_by_age.tsv", res, 2020//1))
+    push!(dists, dist_maternity_age_SES("data/shares_births_by_age_SES.tsv", res, 2020//1))
+    push!(dists, dist_couples_age_diff("data/couple_age_diff.tsv", res, 2001//1))
+    push!(dists, dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1))
+
+    sum(dists) / length(dists)
 end
 
 
