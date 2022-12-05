@@ -24,7 +24,7 @@ function runDist(obsDates, args)
 
     dates = reverse(obsDates)
     while time < simPars.finishTime
-        stepModel!(model, time, simPars, pars)
+        stepModel!(model, time, pars)
 
         if !isempty(dates) && time == dates[end]
             res[time] = observe(Data, model)
