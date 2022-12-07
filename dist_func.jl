@@ -196,3 +196,14 @@ function dist_num_prev_children(dat_file, sim_data_all, obs_time)
     rel_mean_square_diff_prop(emp_data_raw[!, :Births], sim_data)
 end
 
+
+function dist_income_deciles(dat_file, sim_data_all, obs_time)
+    emp_data_raw = CSV.read(dat_file, DataFrame)[1:9, :income]
+
+    sim_data_raw = sim_data_all[obs_time].income_deciles
+
+    rel_mean_square_diff_prop(emp_data_raw, sim_data_raw)
+end
+
+
+

@@ -7,6 +7,24 @@ const MMA = MaxMinAcc{Float64}
 
 const I = Iterators
 
+
+# 9 bins since we throw away the top decile in the empirical data
+function income_deciles(pop, n_bins = 9)
+    incomes = [ income(p) for p in pop ]
+    sort!(incomes)
+
+    dec_size = length(pop) ÷ n_bins
+    inc_decs = zeros(n_bins)
+    
+    for i in 1:(n_bins*dec_size)
+        inc = incomes[i]
+        inc_decs[(i-1) ÷ dec_size + 1] += inc
+    end
+
+    inc_decs ./ dec_size
+end
+
+
 @observe Data model begin
     # all occupied houses
     @for house in I.filter(h->!isEmpty(h), model.houses) begin
@@ -44,6 +62,8 @@ const I = Iterators
         @if class==3 @stat("hist_age_c3", HistAcc(0.0, 1.0)) <| Float64(age(person))
         @if class==4 @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(age(person))
     end
+
+    @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
     @for person in Iterators.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
         agediff = Float64(age(partner(person)) - age(person))
