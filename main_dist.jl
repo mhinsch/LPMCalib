@@ -58,6 +58,6 @@ function distance(args)
 end
 
 
-if !isinteractive()
+if !isinteractive() && abspath(PROGRAM_FILE) == @__FILE__
     println(distance(ARGS))
 end
