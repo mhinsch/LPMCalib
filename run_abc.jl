@@ -19,7 +19,7 @@ function run_sim_threaded(args)
     distance(split(args))
 end
 
-function simulate(param_values)
+function simulate(param_values, names)
     @assert length(names) == length(param_values)
     
     # TODO seeding
