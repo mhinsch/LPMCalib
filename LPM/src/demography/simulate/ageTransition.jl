@@ -87,6 +87,6 @@ function workTransition!(person, time, model, pars)
         workExperience!(person, workExperience(person)+1)
         wage!(person, computeWage(person, pars))
         # no care, therefore full time
-        income!(person, pars.weeklyHours[1])
+        income!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)+1])
     end
 end

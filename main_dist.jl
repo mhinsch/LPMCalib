@@ -23,10 +23,10 @@ function runDist(obsDates, args)
     res = Dict{Rational{Int}, Data}()
 
     dates = reverse(obsDates)
-    while time < simPars.finishTime
+    while ! isempty(dates)
         stepModel!(model, time, pars)
 
-        if !isempty(dates) && time == dates[end]
+        if time == dates[end]
             res[time] = observe(Data, model)
             pop!(dates)
         end
@@ -52,6 +52,7 @@ function distance(args)
     push!(dists, dist_maternity_age_SES("data/shares_births_by_age_SES.tsv", res, 2020//1))
     push!(dists, dist_couples_age_diff("data/couple_age_diff.tsv", res, 2001//1))
     push!(dists, dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1))
+    push!(dists, dist_income_deciles("data/income_deciles.tsv", res, 2020//1))
 
     sum(dists) / length(dists)
 end
