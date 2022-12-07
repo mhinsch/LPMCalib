@@ -156,7 +156,7 @@ end # createUniformPopulation
 
 function initClass!(person, pars)
     p = rand()
-    class = findfirst(x->p<x, pars.cumProbClasses)-1
+    class = searchsortedfirst(pars.cumProbClasses, p)-1
     classRank!(person, class)
 
     nothing
@@ -187,10 +187,13 @@ function initWork!(person, pars)
     status!(person, WorkStatus.worker)
 
     workingTime = 0
-    for i in age(person):pars.workingAge[class]
+    for i in pars.workingAge[class]:floor(Int, age(person))
         workingTime *= pars.workDiscountingTime
         workingTime += 1
     end
+
+    workExperience!(person, workingTime)
+    workingPeriods!(person, workingTime)
 
     dKi = rand(Normal(0, pars.wageVar))
     initialWage = pars.incomeInitialLevels[class] * exp(dKi)
@@ -200,12 +203,10 @@ function initWork!(person, pars)
     initialIncome!(person, initialWage)
     finalIncome!(person, finalWage)
 
-    c = log(initialWage/finalWage)
-    wage!(person, finalWage * exp(c * exp(-pars.incomeGrowthRate[class]*workingTime)))
-    income!(person, wage(person) * pars.weeklyHours[class])
+    wage!(person, computeWage(person, pars))
+    income!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)+1])
     potentialIncome!(person, income(person))
     jobTenure!(person, rand(1:50))
-#    workExperience = workingTime
 
     nothing
 end
