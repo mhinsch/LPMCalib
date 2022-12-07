@@ -45,9 +45,7 @@ function readParamConfig(fname)
 end
     
 
-function run_abc(n_iters)
-    names, priors = readParamConfig("params/parameters.tsv");
-
+function run_abc(n_iters, names, priors)
     noise = [0.05 for p in priors];
 
     particles = Particle[]
@@ -59,7 +57,8 @@ function run_abc(n_iters)
     #abc(priors, dist, 4, 0.5, noise, 2, verbose=true, scale_noise=true, parallel=true)
     for i in 1:n_iters
         println("starting iteration $i")
-        result = abc_iter!(particles, simulate, 200, remv, creat, verbose=true, parallel = true)
+        result = abc_iter!(particles, pars->simulate(pars, names), 
+                           200, remv, creat, verbose=true, parallel = true)
         #sort!(particles, by=p->p.dist)
         #push!(meds, particles[end ÷ 2].dist)
         #for i in 1:4
@@ -71,3 +70,18 @@ function run_abc(n_iters)
 end
 
 
+if !isinteractive()
+    const names, priors = readParamConfig("params/parameters.tsv");
+
+    const res = run_abc(30, names, priors)
+
+    const res_s = sort(res, by=p->p.dist)
+
+    open("calib_latest.tsv", "w") do f
+            println(f, "dist\t", join(names, "\t"))
+            for p in res_s
+                print(f, p.dist, "\t")
+                println(f, join(p.params, "\t"))
+            end
+        end
+end
