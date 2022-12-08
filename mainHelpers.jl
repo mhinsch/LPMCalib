@@ -58,6 +58,7 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
         if logfile != nothing
             results = observe(Data, model)
             log_results(logfile, results; FS)
+            println(results.n_orphans.n, "\t", results.lphh.n / results.chhh.n)
         end
 
         time += simPars.dt
