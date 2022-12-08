@@ -53,6 +53,7 @@ function distance(args)
     push!(dists, dist_couples_age_diff("data/couple_age_diff.tsv", res, 2001//1))
     push!(dists, dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1))
     push!(dists, dist_income_deciles("data/income_deciles.tsv", res, 2020//1))
+    push!(dists, dist_prop_lphh(res, 2021//1))
 
     sum(dists) / length(dists)
 end

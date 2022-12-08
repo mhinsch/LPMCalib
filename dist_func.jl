@@ -206,4 +206,8 @@ function dist_income_deciles(dat_file, sim_data_all, obs_time)
 end
 
 
-
+function dist_prop_lphh(sim_data_all, obs_time)
+    data = sim_data_all[obs_time]
+    lphh_prop = data.n_lp_chhh.n / data.n_all_chhh.n
+    rel_mean_square_diff_prop([lphh_prop], [0.23])
+end

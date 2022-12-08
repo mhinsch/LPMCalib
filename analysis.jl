@@ -31,6 +31,24 @@ end
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
     end
 
+    # households with children
+    @for house in Iterators.filter(h->!isEmpty(h), model.houses) begin
+        i_c = findfirst(p->age(p)<18, house.occupants)
+        if i_c != nothing
+            child = house.occupants[i_c]
+            is_lp = !isOrphan(child) && isSingle(guardians(child)[1])
+        else
+            is_lp = false
+        end
+
+        # all hh with children
+        @stat("n_all_chhh", CountAcc) <| (i_c != nothing) 
+        # hh with children with lone parents
+        @stat("n_lp_chhh", CountAcc) <| is_lp
+        # number of siblings in lp households
+        @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->age(p)<18, house.occupants)
+    end
+
     # mothers' ages for all children born in the last year
     @for person in I.filter(p->age(p) < 1, model.pop) begin
         m = mother(person)
