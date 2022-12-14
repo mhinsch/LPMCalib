@@ -4,10 +4,10 @@ using Random
 # load main simulation code
 include("lpm.jl")
 
-include("analysis.jl")
-
 # create parameters
 const simPars, pars = loadParameters(ARGS)
+
+include(simPars.analysisFile)
 
 Random.seed!(simPars.seed)
 
