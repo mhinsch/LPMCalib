@@ -24,6 +24,7 @@ include("./demography/parameters.jl")
                                    # how long simulation is suspended after printing info 
     checkassumption :: Bool = false # whether assumptions in unit functions should be checked
     logfile :: String = "log.tsv"
+	analysisFile :: String = "analysis.jl"
 end 
 
 reseed0!(simPars) = 
