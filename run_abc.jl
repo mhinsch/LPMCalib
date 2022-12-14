@@ -53,17 +53,18 @@ function run_abc(n_iters, names, priors)
     creat = OwnCreator(true, 1.0, priors, noise)
 
     result = nothing
-    #abc(priors, dist, 200, 0.5, noise, 10, verbose=true, scale_noise=true, parallel=true)
+    #abc(priors, dist, 400, 0.5, noise, 10, verbose=true, scale_noise=true, parallel=true)
     #abc(priors, dist, 4, 0.5, noise, 2, verbose=true, scale_noise=true, parallel=true)
     for i in 1:n_iters
         println("starting iteration $i")
         result = abc_iter!(particles, pars->simulate(pars, names), 
-                           200, remv, creat, verbose=true, parallel = true)
+                           400, remv, creat, verbose=true, parallel = true)
         #sort!(particles, by=p->p.dist)
         #push!(meds, particles[end ÷ 2].dist)
         #for i in 1:4
         #    push!(devs[i], std(map(p->p.params[i], particles)))
         #end
+	flush(stdout)
     end
 
     result
@@ -73,7 +74,7 @@ end
 if !isinteractive()
     const names, priors = readParamConfig("params/parameters.tsv");
 
-    const res = run_abc(30, names, priors)
+    const res = run_abc(50, names, priors)
 
     const res_s = sort(res, by=p->p.dist)
 
