@@ -49,15 +49,16 @@ function main(parOverrides...)
     graph_class = Graph{Float64}(RL.PURPLE)
     graph_f_status = Graph{Float64}(RL.DARKGREEN)
     graph_m_status = Graph{Float64}(RL.ORANGE)
+    graph_inc_dec = Graph{Float64}(RL.BROWN)
 
     pause = false
-    time = Rational(simPars.startTime)
+    time = Rational(pars.poppars.startTime)
     while !RL.WindowShouldClose()
 
-        if !pause && time <= simPars.finishTime
+        if !pause && time <= pars.poppars.finishTime
             stepModel!(model, time, pars)
             time += simPars.dt
-            data = observe(Data, model)
+            data = observe(Data, model, time)
             log_results(logfile, data)
             # add values to graph objects
             add_value!(graph_pop, data.alive.n)
@@ -67,7 +68,9 @@ function main(parOverrides...)
             set_data!(graph_class, data.class.bins, minm=0)
             set_data!(graph_f_status, data.f_status.bins, minm=0)
             set_data!(graph_m_status, data.m_status.bins, minm=0)
-            println(data.hh_size.max, " ", data.alive.n, " ", data.single.n)
+            set_data!(graph_inc_dec, data.income_deciles)
+            println(data.hh_size.max, " ", data.alive.n, " ", data.single.n, 
+                    " ", data.income.mean)
         end
 
         if RL.IsKeyPressed(Raylib.KEY_SPACE)
@@ -97,9 +100,10 @@ function main(parOverrides...)
         
         draw_graph(floor(Int, screenWidth/3), floor(Int, screenHeight/2), 
                    floor(Int, screenWidth*2/3), floor(Int, screenHeight/2)-20, 
-                   [graph_hhs, graph_age, graph_class, graph_f_status, graph_m_status], 
+                   [graph_hhs, graph_age, graph_class, graph_f_status, graph_m_status,
+                   graph_inc_dec], 
                    single_scale = false, 
-                   labels = ["hh size", "age", "class", "status f", "status m"],
+                   labels = ["hh size", "age", "class", "status f", "status m", "income dec."],
                    fontsize = floor(Int, 15 * scale))
         
 

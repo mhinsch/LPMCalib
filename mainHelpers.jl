@@ -21,9 +21,12 @@ function setupModel(pars)
     datp = pars.datapars
     dir = datp.datadir
 
-    demoData   = loadDemographyData(dir * "/" * datp.fertFName, 
-                                      dir * "/" * datp.deathFFName,
-                                      dir * "/" * datp.deathMFName)
+    demoData   = loadDemographyData(dir * "/" * datp.iniAgeFName,
+                                dir * "/" * datp.pre51FertFName,
+                                dir * "/" * datp.fertFName, 
+                                dir * "/" * datp.pre51DeathsFName,
+                                dir * "/" * datp.deathFFName,
+                                dir * "/" * datp.deathMFName)
 
     model = createDemographyModel!(demoData, pars)
 
@@ -47,20 +50,23 @@ end
 
 
 function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
-    time = simPars.startTime
+    curTime = pars.poppars.startTime
 
     simPars.verbose ? setVerbose!() : unsetVerbose!()
     setDelay!(simPars.sleeptime)
 
-    while time < simPars.finishTime
-        stepModel!(model, time, pars)
+    # no point in continuing with the simulation if we are not recording results
+    finishTime = min(pars.poppars.finishTime, simPars.endLogTime)
 
-        if logfile != nothing
-            results = observe(Data, model)
+    while curTime <= finishTime
+        stepModel!(model, curTime, pars)
+
+        if logfile != nothing && curTime >= simPars.startLogTime
+            results = observe(Data, model, curTime)
             log_results(logfile, results; FS)
         end
 
-        time += simPars.dt
+        curTime += simPars.dt
     end
 end
 

@@ -100,15 +100,10 @@ end # UKMapPars
     
 "Parameters related to population setup and dynamics"
 @with_kw mutable struct PopulationPars
-    baseDieProb::Float64            = 0.0001 
-    babyDieProb::Float64            = 0.005 
-    femaleAgeDieProb::Float64       = 0.00019   
-    femaleAgeScaling::Float64       = 15.5 
-    femaleMortalityBias::Float64    = 0.85  
+    startTime :: Rational{Int}  	= 1920
+    finishTime :: Rational{Int} 	= 2040 
     initialPop::Int                 = 5000    # Number of females or males  in the initial population
-    maleAgeDieProb::Float64         = 0.00021 
-    maleAgeScaling::Float64         = 14.0 
-    maleMortalityBias::Float64      = 0.8 
+    initialPMales :: Float64		= 0.477   # from 1921 census
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
     maxStartAge::Int                = 45  
@@ -117,6 +112,15 @@ end # UKMapPars
     startBabySurplus::Int           = 100
     startProbMarried::Float64       = 0.8
     startProbOrphan::Float64        = 0.01
+
+    baseDieProb::Float64            = 0.0001 
+    babyDieProb::Float64            = 0.005 
+    femaleAgeDieProb::Float64       = 0.00019   
+    femaleAgeScaling::Float64       = 15.5 
+    femaleMortalityBias::Float64    = 0.85  
+    maleAgeDieProb::Float64         = 0.00021 
+    maleAgeScaling::Float64         = 14.0 
+    maleMortalityBias::Float64      = 0.8 
 
     cumProbClasses::Vector{Float64} = cumsum([0.2, 0.2, 0.2, 0.2, 0.2])
 #    cumProbClasses::Vector{Float64} = cumsum([0.2, 0.35, 0.25, 0.15, 0.05])
@@ -146,6 +150,7 @@ end
     incomeFinalLevels :: Vector{Float64} = [12.0, 16.0, 25.0, 40.0, 60.0]
     incomeGrowthRate :: Vector{Float64} = [0.4/12.0, 0.35/12.0, 0.3/12.0, 0.25/12.0, 0.2/12.0]
     workingAge :: Vector{Int}           = [16, 18, 20, 22, 24]
+    "working hours by care requirement"
     weeklyHours :: Vector{Float64}      = [40.0, 20.0, 10.0, 0.0, 0.0]
     constantIncomeParam :: Float64      = 50.0
     constantEduParam :: Float64         = 4.0
@@ -190,7 +195,10 @@ end
 "Data files"
 @with_kw mutable struct DataPars
     datadir     :: String = "data"
+    iniAgeFName :: String = "age_pyramid_1921_5y.csv"
+    pre51FertFName :: String = "birthrate_early.csv"
     fertFName   :: String = "babyrate.txt.csv"
+    pre51DeathsFName :: String = "deathrates_early.csv"
     deathFFName :: String = "deathrate.fem.csv"
     deathMFName :: String = "deathrate.male.csv"
 end

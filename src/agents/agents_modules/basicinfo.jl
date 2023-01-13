@@ -38,6 +38,5 @@ end
 hasBirthday(person::BasicInfoBlock) = person.age % 1 == 0
 
 function yearsold(person::BasicInfoBlock) 
-    years, = age2yearsmonths(person.age)
-    years 
+    trunc(Int, person.age)
 end 

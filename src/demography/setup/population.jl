@@ -24,24 +24,34 @@ function ageInterval(pop, minAge, maxAge)
     idx_start, idx_end
 end
 
+function randAge(pyramid, gender)
+    data = pyramid[gender == male ? 1 : 2]
+    r = rand() * data[end]
+    i = searchsortedfirst(data, r)
+    mi = (i-1) * 5 * 12 # we are working in months
+    ma = i * 5 * 12 - 1
+    rand(mi:ma) // 12
+    end
 
-function createPyramidPopulation(pars)
+
+function createPyramidPopulation(pars, pyramid)
     population = Person[]
     men = Person[]
     women = Person[]
 
     # age pyramid
-    dist = TriangularDist(0, pars.maxStartAge * 12, 0)
+    #dist = TriangularDist(0, pars.maxStartAge * 12, 0)
 
     for i in 1:pars.initialPop
         # surplus of babies and toddlers, lower bit of age pyramid
-        if i < pars.startBabySurplus
-            age = rand(1:36) // 12
-        else
-            age = floor(Int, rand(dist)) // 12
-        end
+        #if i < pars.startBabySurplus
+        #    age = rand(1:36) // 12
+        #else
+        #    age = floor(Int, rand(dist)) // 12
+        #end
         
-        gender = Bool(rand(0:1)) ? male : female
+        gender = rand() < pars.initialPMales ? male : female
+        age = randAge(pyramid, gender)
 
         person = Person(undefinedHouse, age; gender)
         if age < 18
@@ -68,8 +78,6 @@ function createPyramidPopulation(pars)
             end
         end
     end
-
-    println("$(length(men)) left unmarried")
 
     # store unmarried people in population as well
     append!(population, men)
@@ -158,7 +166,7 @@ end # createUniformPopulation
 
 function initClass!(person, pars)
     p = rand()
-    class = findfirst(x->p<x, pars.cumProbClasses)-1
+    class = searchsortedfirst(pars.cumProbClasses, p)-1
     classRank!(person, class)
 
     nothing
@@ -189,10 +197,13 @@ function initWork!(person, pars)
     status!(person, WorkStatus.worker)
 
     workingTime = 0
-    for i in age(person):pars.workingAge[class]
+    for i in pars.workingAge[class]:floor(Int, age(person))
         workingTime *= pars.workDiscountingTime
         workingTime += 1
     end
+
+    workExperience!(person, workingTime)
+    workingPeriods!(person, workingTime)
 
     dKi = rand(Normal(0, pars.wageVar))
     initialWage = pars.incomeInitialLevels[class] * exp(dKi)
@@ -202,12 +213,10 @@ function initWork!(person, pars)
     initialIncome!(person, initialWage)
     finalIncome!(person, finalWage)
 
-    c = log(initialWage/finalWage)
-    wage!(person, finalWage * exp(c * exp(-pars.incomeGrowthRate[class]*workingTime)))
-    income!(person, wage(person) * pars.weeklyHours[class])
+    wage!(person, computeWage(person, pars))
+    income!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)+1])
     potentialIncome!(person, income(person))
     jobTenure!(person, rand(1:50))
-#    workExperience = workingTime
 
     nothing
 end

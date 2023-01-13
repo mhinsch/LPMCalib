@@ -15,8 +15,6 @@ include("./demography/parameters.jl")
 
 "General simulation parameters"
 @with_kw mutable struct SimulationPars 
-    startTime :: Rational{Int}  = 1920
-    finishTime :: Rational{Int} = 2040 
     dt :: Rational{Int} = 1//12      # step size 
     seed :: Int       = 42 ;   @assert seed >= 0 # 0 is random      
     verbose::Bool     = false       # whether significant intermediate info shallo be printed 
@@ -24,6 +22,9 @@ include("./demography/parameters.jl")
                                    # how long simulation is suspended after printing info 
     checkassumption :: Bool = false # whether assumptions in unit functions should be checked
     logfile :: String = "log.tsv"
+    analysisFile :: String = "analysis.jl"
+    startLogTime :: Rational{Int} = 0
+    endLogTime :: Rational{Int} = 10000
 end 
 
 reseed0!(simPars) = 
