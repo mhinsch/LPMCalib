@@ -24,6 +24,7 @@ function setupModel(pars)
     demoData   = loadDemographyData(dir * "/" * datp.iniAgeFName,
                                 dir * "/" * datp.pre51FertFName,
                                 dir * "/" * datp.fertFName, 
+                                dir * "/" * datp.pre51DeathsFName,
                                 dir * "/" * datp.deathFFName,
                                 dir * "/" * datp.deathMFName)
 

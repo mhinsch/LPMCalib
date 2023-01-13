@@ -1,7 +1,7 @@
 using Utilities
 using XAgents
 
-export death!, setDead!
+export death!, setDead!, resetCacheDeath
 
 function deathProbability(baseRate, person, model, parameters) 
     cRank = classRank(person)
@@ -73,6 +73,28 @@ function setDead!(person)
     nothing
 end 
 
+ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ? 
+                            exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
+                            exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
+                            
+@memoize Dict function avgAgeDieProb(model, pars, male)
+    s = 0.0
+    n = 0
+    for p in model.pop
+        if male != isMale(p)
+            continue
+        end
+       
+        s += ageDieProb(pars, yearsold(p), male)
+        n += 1
+    end
+   
+    s / n
+end
+
+function resetCacheDeath()
+    Memoization.empty_cache!(avgAgeDieProb)
+end
 
 # currently leaves dead agents in population
 function death!(person, currstep, model, parameters)
@@ -87,14 +109,16 @@ function death!(person, currstep, model, parameters)
         @assert isMale(person) || isFemale(person) # Assumption 
     end
  
-    if curryear < 1950 # made-up probabilities 
+    if curryear < 1950 # made-up probabilities
+        yearIdx = trunc(Int, curryear - parameters.startTime + 1)
                         
-        babyDieProb = agep < 1 ? parameters.babyDieProb : 0.0 
-        ageDieProb  = isMale(person) ? 
-                        exp(agep / parameters.maleAgeScaling)  * parameters.maleAgeDieProb : 
-                        exp(agep / parameters.femaleAgeScaling) * parameters.femaleAgeDieProb
-        rawRate = parameters.baseDieProb + babyDieProb + ageDieProb
-                                    
+        if agep < 1
+            rawRate = model.pre51Deaths[yearIdx, 2] / 1000.0 # infant mortality is per 1k
+        else
+            rawRate = model.pre51Deaths[yearIdx, 1] * 
+                ageDieProb(parameters, agep, isMale(person)) / 
+                    avgAgeDieProb(model, parameters, isMale(person))
+        end 
         # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
                         
     else                         

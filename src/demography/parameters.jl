@@ -198,6 +198,7 @@ end
     iniAgeFName :: String = "age_pyramid_1921_5y.csv"
     pre51FertFName :: String = "birthrate_early.csv"
     fertFName   :: String = "babyrate.txt.csv"
+    pre51DeathsFName :: String = "deathrates_early.csv"
     deathFFName :: String = "deathrate.fem.csv"
     deathMFName :: String = "deathrate.male.csv"
 end
