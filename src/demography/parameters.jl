@@ -100,6 +100,8 @@ end # UKMapPars
     
 "Parameters related to population setup and dynamics"
 @with_kw mutable struct PopulationPars
+    startTime :: Rational{Int}  = 1920
+    finishTime :: Rational{Int} = 2040 
     baseDieProb::Float64            = 0.0001 
     babyDieProb::Float64            = 0.005 
     femaleAgeDieProb::Float64       = 0.00019   
@@ -191,6 +193,7 @@ end
 "Data files"
 @with_kw mutable struct DataPars
     datadir     :: String = "data"
+    pre51FertFName :: String = "birthrate_early.csv"
     fertFName   :: String = "babyrate.txt.csv"
     deathFFName :: String = "deathrate.fem.csv"
     deathMFName :: String = "deathrate.male.csv"

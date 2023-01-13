@@ -31,6 +31,7 @@ mutable struct Model
     babies :: Vector{Person}
 
     fertility :: Matrix{Float64}
+    pre51Fertility :: Vector{Float64}
     deathFemale :: Matrix{Float64}
     deathMale :: Matrix{Float64}
 end
@@ -45,8 +46,11 @@ function createDemographyModel!(data, pars)
     #ukPopulation = createPopulation(pars.poppars)
     population = createPyramidPopulation(pars.poppars)
     
+    years = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
+        for y in 1:size(data.pre51Fertility)[1]]
+    
     Model(towns, houses, population, [],
-            data.fertility , data.deathFemale, data.deathMale)
+            data.fertility, data.pre51Fertility[years, 2], data.deathFemale, data.deathMale)
 end
 
 
@@ -90,9 +94,7 @@ end
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
     resetCacheSocialClassShares()
-    resetCachePClassInReprWomen()
-    resetCachePMarriedInReprWAndClass()
-    resetCachePNChildrenInReprWAndClass()
+    resetCachesBirth()
 
     applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
     removeDead!(model)

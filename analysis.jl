@@ -20,7 +20,7 @@ function income_deciles(pop)
     inc_decs ./ dec_size
 end
 
-@observe Data model begin
+@observe Data model t begin
     @for house in model.houses begin
         # format:
         # @stat(name, accumulators...) <| expression

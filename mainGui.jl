@@ -52,13 +52,13 @@ function main(parOverrides...)
     graph_inc_dec = Graph{Float64}(RL.BROWN)
 
     pause = false
-    time = Rational(simPars.startTime)
+    time = Rational(pars.poppars.startTime)
     while !RL.WindowShouldClose()
 
-        if !pause && time <= simPars.finishTime
+        if !pause && time <= pars.poppars.finishTime
             stepModel!(model, time, pars)
             time += simPars.dt
-            data = observe(Data, model)
+            data = observe(Data, model, time)
             log_results(logfile, data)
             # add values to graph objects
             add_value!(graph_pop, data.alive.n)
