@@ -24,24 +24,34 @@ function ageInterval(pop, minAge, maxAge)
     idx_start, idx_end
 end
 
+function randAge(pyramid, gender)
+    data = pyramid[gender == male ? 1 : 2]
+    r = rand() * data[end]
+    i = searchsortedfirst(data, r)
+    mi = (i-1) * 5 * 12 # we are working in months
+    ma = i * 5 * 12 - 1
+    rand(mi:ma) // 12
+    end
 
-function createPyramidPopulation(pars)
+
+function createPyramidPopulation(pars, pyramid)
     population = Person[]
     men = Person[]
     women = Person[]
 
     # age pyramid
-    dist = TriangularDist(0, pars.maxStartAge * 12, 0)
+    #dist = TriangularDist(0, pars.maxStartAge * 12, 0)
 
     for i in 1:pars.initialPop
         # surplus of babies and toddlers, lower bit of age pyramid
-        if i < pars.startBabySurplus
-            age = rand(1:36) // 12
-        else
-            age = floor(Int, rand(dist)) // 12
-        end
+        #if i < pars.startBabySurplus
+        #    age = rand(1:36) // 12
+        #else
+        #    age = floor(Int, rand(dist)) // 12
+        #end
         
-        gender = Bool(rand(0:1)) ? male : female
+        gender = rand() < pars.initialPMales ? male : female
+        age = randAge(pyramid, gender)
 
         person = Person(undefinedHouse, age; gender)
         if age < 18

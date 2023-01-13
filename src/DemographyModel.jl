@@ -44,7 +44,7 @@ function createDemographyModel!(data, pars)
 
     # maybe switch using parameter
     #ukPopulation = createPopulation(pars.poppars)
-    population = createPyramidPopulation(pars.poppars)
+    population = createPyramidPopulation(pars.poppars, data.initialAgePyramid)
     
     years = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
         for y in 1:size(data.pre51Fertility)[1]]

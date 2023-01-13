@@ -21,7 +21,8 @@ function setupModel(pars)
     datp = pars.datapars
     dir = datp.datadir
 
-    demoData   = loadDemographyData(dir * "/" * datp.pre51FertFName,
+    demoData   = loadDemographyData(dir * "/" * datp.iniAgeFName,
+                                dir * "/" * datp.pre51FertFName,
                                 dir * "/" * datp.fertFName, 
                                 dir * "/" * datp.deathFFName,
                                 dir * "/" * datp.deathMFName)
