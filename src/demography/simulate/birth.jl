@@ -59,16 +59,20 @@ function computeBirthProb(woman, parameters, model, currstep)
     if status(woman) == WorkStatus.student
         womanRank = parentClassRank(woman)
     end
-
+    
+    ageYears = yearsold(woman)
+    fertAge = ageYears-parameters.minPregnancyAge+1
+    
     if curryear < 1951
         # number of children per uk resident and year
         rawRate = model.pre51Fertility[Int(curryear-parameters.startTime+1)] /
             # scale by number of women that can actually get pregnant
-            pPotentialMotherInAllPop(model, parameters)
+            pPotentialMotherInAllPop(model, parameters) * 
+            # and multiply with age-specific fertility factor 
+            model.fertFByAge51[fertAge]
     else
-        ageYears = yearsold(woman)
         # fertility rates are stored as P(pregnant) per year and age
-        rawRate = model.fertility[ageYears-parameters.minPregnancyAge+1, curryear-1950] /
+        rawRate = model.fertility[fertAge, curryear-1950] /
             pPotentialMotherInFertWAndAge(model, ageYears, parameters)
     end 
     

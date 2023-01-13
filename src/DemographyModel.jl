@@ -29,7 +29,8 @@ mutable struct Model
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
-
+    
+    fertFByAge51 :: Vector{Float64}
     fertility :: Matrix{Float64}
     pre51Fertility :: Vector{Float64}
     deathFemale :: Matrix{Float64}
@@ -49,8 +50,11 @@ function createDemographyModel!(data, pars)
     years = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
         for y in 1:size(data.pre51Fertility)[1]]
     
+    fert = data.fertility[:, 1] # age-specific fertility in 1951
+    byAgeF = fert ./ (sum(fert)/length(fert)) 
+    
     Model(towns, houses, population, [],
-            data.fertility, data.pre51Fertility[years, 2], data.deathFemale, data.deathMale)
+            byAgeF, data.fertility, data.pre51Fertility[years, 2], data.deathFemale, data.deathMale)
 end
 
 
