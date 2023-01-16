@@ -3,44 +3,55 @@ using Memoization
 
 using Utilities
 
-export selectBirth, birth!, 
-    pClassInReprWomen, resetCachePClassInReprWomen,
-    pMarriedInReprWAndClass, resetCachePMarriedInReprWAndClass,
-    pNChildrenInReprWAndClass, resetCachePNChildrenInReprWAndClass
+export selectBirth, birth!, resetCachesBirth 
 
-isReprWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
+isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
+canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
+isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
-
-# TODO should this be here?
-@memoize Dict function pClassInReprWomen(model, class, pars)
-
-    nAll, nC = countSubset(p->isReprWoman(p, pars), p->classRank(p) == class, model.pop)
-
-    nAll > 0 ? nC / nAll : 0.0
+"Proportion of women that can get pregnant in entire population."
+@memoize Dict function pPotentialMotherInAllPop(model, pars)
+    n = count(p -> isPotentialMother(p, pars), model.pop)
+    
+    n / length(model.pop)
 end
-resetCachePClassInReprWomen() = Memoization.empty_cache!(pClassInReprWomen)
+resetCachePPotentialMotherInAllPop() = Memoization.empty_cache!(pPotentialMotherInAllPop)
 
-
-@memoize Dict function pMarriedInReprWAndClass(model, class, pars)
-    nAll, nM = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
-                           p->!isSingle(p), model.pop)
+"Proportion of women that can be mothers within all reproductive women of a given age."
+@memoize Dict function pPotentialMotherInFertWAndAge(model, years, pars)
+    nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
+                           canBePregnant, model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
 end
-resetCachePMarriedInReprWAndClass() = Memoization.empty_cache!(pMarriedInReprWAndClass)
+resetCachePPotentialMotherInFertWAndAge() = Memoization.empty_cache!(pPotentialMotherInFertWAndAge)
             
+"Proportion of women of a given class within all reproductive women."
+@memoize Dict function pClassInPotentialMothers(model, class, pars)
+    nAll, nC = countSubset(p->isPotentialMother(p, pars), p->classRank(p) == class, model.pop)
+
+    nAll > 0 ? nC / nAll : 0.0
+end
+resetCachePClassInPotentialMothers() = Memoization.empty_cache!(pClassInPotentialMothers)
+
 "Calculate the percentage of women with a given number of children for a given class."
-@memoize Dict function pNChildrenInReprWAndClass(model, nchildren, class, pars)
-    nAll, nnC = countSubset(p->isReprWoman(p, pars) && classRank(p) == class, 
+@memoize Dict function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
+    nAll, nnC = countSubset(p->isPotentialMother(p, pars) && classRank(p) == class, 
                             p->min(4, nChildren(p)) == nchildren, model.pop)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
-resetCachePNChildrenInReprWAndClass() = Memoization.empty_cache!(pNChildrenInReprWAndClass)
+resetCachePNChildrenInPotMotherAndClass() = Memoization.empty_cache!(pNChildrenInPotMotherAndClass)
+
+function resetCachesBirth()
+    resetCachePClassInPotentialMothers()
+    resetCachePPotentialMotherInFertWAndAge()
+    resetCachePNChildrenInPotMotherAndClass()
+    resetCachePPotentialMotherInAllPop()
+end
 
 
 function computeBirthProb(woman, parameters, model, currstep)
-
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
@@ -48,31 +59,37 @@ function computeBirthProb(woman, parameters, model, currstep)
     if status(woman) == WorkStatus.student
         womanRank = parentClassRank(woman)
     end
-
+    
+    ageYears = yearsold(woman)
+    fertAge = ageYears-parameters.minPregnancyAge+1
+    
     if curryear < 1951
-        rawRate = parameters.growingPopBirthProb
+        # number of children per uk resident and year
+        rawRate = model.pre51Fertility[Int(curryear-parameters.startTime+1)] /
+            # scale by number of women that can actually get pregnant
+            pPotentialMotherInAllPop(model, parameters) * 
+            # and multiply with age-specific fertility factor 
+            model.fertFByAge51[fertAge]
     else
-        (yearold,tmp) = age2yearsmonths(age(woman)) 
-        # division by mP happens at the very end in python version
-        rawRate = model.fertility[yearold-parameters.minPregnancyAge+1, curryear-1950] /
-            pMarriedInReprWAndClass(model, womanRank, parameters)
+        # fertility rates are stored as P(pregnant) per year and age
+        rawRate = model.fertility[fertAge, curryear-1950] /
+            pPotentialMotherInFertWAndAge(model, ageYears, parameters)
     end 
-
-    a = 0
-    for i in 1:length(parameters.cumProbClasses)
-        c = i - 1 # class is 0-based!
-        a += pClassInReprWomen(model, c, parameters) * parameters.fertilityBias^c
-    end
-
+    
+    # fertility bias by class
+    a = sum(0:(length(parameters.cumProbClasses)-1)) do class
+            pClassInPotentialMothers(model, class, parameters) * parameters.fertilityBias^class
+        end
     birthProb = rawRate/a * parameters.fertilityBias^womanRank
-
-    a = 0
-    for c in 0:4
-        a += pNChildrenInReprWAndClass(model, c, womanRank, parameters) * 
-            parameters.prevChildFertBias^c
-    end
-
+    
+    
+    # fertility bias by number of previous children
+    a = sum(0:4) do nch 
+            pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
+                parameters.prevChildFertBias^nch
+        end  
     birthProb = birthProb/a * parameters.prevChildFertBias^min(4, nChildren(woman))
+        
 
     min(1.0, birthProb)
 end # computeBirthProb
@@ -105,16 +122,11 @@ function effectsOfMaternity!(woman, pars)
 end
 
 
-selectBirth(person, parameters) = isReprWoman(person, parameters) && !isSingle(person) && 
+selectBirth(person, parameters) = isFertileWoman(person, parameters) && !isSingle(person) && 
     ageYoungestAliveChild(person) > 1 
 
 
 function birth!(woman, currstep, model, parameters, addBaby!)
-
-    # womanClassRank = woman.classRank
-    # if woman.status == 'student':
-    #     womanClassRank = woman.parentsClassRank
-
     birthProb = computeBirthProb(woman, parameters, model, currstep)
                         
     assumption() do
