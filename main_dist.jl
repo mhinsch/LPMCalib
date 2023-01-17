@@ -15,7 +15,7 @@ function runDist(obsDates, args)
     Random.seed!(simPars.seed)
 
     model = setupModel(pars)
-    time = Rational(simPars.startTime)
+    time = Rational(pars.poppars.startTime)
 
     unsetVerbose!()
     setDelay!(0)
