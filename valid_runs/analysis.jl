@@ -31,6 +31,7 @@ end
     # all occupied houses
     @for house in I.filter(h->!isEmpty(h), model.houses) begin
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
+        @if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| Float64(age(house.occupants[1]))
     end
 
     # households with children
