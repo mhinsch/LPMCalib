@@ -1,4 +1,4 @@
-export doDivorces!, selectDivorce, divorce!
+export selectDivorce, divorce!
 
 function divorceProbability(rawRate, classRank, model, pars) 
     a = 0

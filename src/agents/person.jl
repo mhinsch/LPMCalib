@@ -171,6 +171,17 @@ end
 
 livingTogether(person1, person2) = person1.pos == person2.pos
 
+"Whether the person shares their house with a non-dependent, non-guardian. Note that this includes spouses and spouses' children."
+function livesInSharedHouse(person)
+    for p in person.pos.occupants
+        if p != person && ! (p in guardians(person)) && ! (p in dependents(person))
+            return true
+        end
+    end
+    
+    false
+end
+
 
 areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
 areSiblings(person1, person2) = father(person1) == father(person2) != nothing || 

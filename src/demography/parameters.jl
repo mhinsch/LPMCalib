@@ -158,6 +158,7 @@ end
     eduRankSensitivity :: Float64       = 4.0
     careEducationParam :: Float64       = 0.0
     workDiscountingTime :: Float64      = 1.0
+    moveOutProb :: Float64				= 0.1
 end
     
 
