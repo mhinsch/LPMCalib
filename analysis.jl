@@ -10,7 +10,7 @@ const I = Iterators
 
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
-    incomes = [ income(p) for p in pop ]
+    incomes = [ income(p) for p in pop if status(p) != WorkStatus.student ]
     sort!(incomes)
 
     dec_size = length(pop) ÷ n_bins
