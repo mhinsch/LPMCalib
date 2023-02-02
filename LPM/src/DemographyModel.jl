@@ -17,6 +17,7 @@ include("demography/simulate/birth.jl")
 include("demography/simulate/divorce.jl")       
 include("demography/simulate/ageTransition.jl")
 include("demography/simulate/socialTransition.jl")
+include("demography/simulate/relocate.jl")
 include("demography/simulate/marriages.jl")
 include("demography/simulate/dependencies.jl")
 
@@ -121,6 +122,9 @@ function stepModel!(model, time, pars)
 
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, workTransition!, "work", time, model, pars.workpars)
+    
+    selected = Iterators.filter(p->selectRelocate(p, pars.workpars), model.pop)
+    applyTransition!(selected, relocate!, "relocate", time, model, pars.workpars)
 
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
     applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
