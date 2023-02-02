@@ -26,13 +26,11 @@ end
 
 
 @observe Data model begin
-    # all occupied houses
     @for house in I.filter(h->!isEmpty(h), model.houses) begin
+	    # all occupied houses
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
-    end
-
-    # households with children
-    @for house in Iterators.filter(h->!isEmpty(h), model.houses) begin
+        
+	    # households with children
         i_c = findfirst(p->age(p)<18, house.occupants)
         if i_c != nothing
             child = house.occupants[i_c]
