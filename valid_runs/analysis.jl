@@ -10,7 +10,11 @@ const I = Iterators
 
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
-    incomes = [ income(p) for p in pop ]
+    incomes = [ income(p) for p in pop if 
+	    status(p) != WorkStatus.student && 
+	    status(p) != WorkStatus.child && 
+	    status(p) != WorkStatus.teenager ]
+	    
     sort!(incomes)
 
     dec_size = length(pop) ÷ n_bins
@@ -26,16 +30,14 @@ end
 
 
 @observe Data model ctime begin
-    @record "time" ctime
 
-    # all occupied houses
-    @for house in I.filter(h->!isEmpty(h), model.houses) begin
+	@record "time" ctime
+	
+	@for house in I.filter(h->!isEmpty(h), model.houses) begin
+	    # all occupied houses
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
-        @if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| Float64(age(house.occupants[1]))
-    end
-
-    # households with children
-    @for house in Iterators.filter(h->!isEmpty(h), model.houses) begin
+        
+	    # households with children
         i_c = findfirst(p->age(p)<18, house.occupants)
         if i_c != nothing
             child = house.occupants[i_c]
@@ -50,6 +52,9 @@ end
         @stat("n_lp_chhh", CountAcc) <| is_lp
         # number of siblings in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->age(p)<18, house.occupants)
+        # age histo of one-person hhs
+		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
+			Float64(age(house.occupants[1]))
     end
 
     # mothers' ages for all children born in the last year
@@ -88,6 +93,7 @@ end
 
     @for person in Iterators.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
         agediff = Float64(age(partner(person)) - age(person))
-        @stat("couple_age_diff", HistAcc(-5.0, 1.0, count_below_min=true)) <| agediff
+        # -6, so that the lowest bin is [-Inf, -5]
+        @stat("couple_age_diff", HistAcc(-6.0, 1.0, count_below_min=true)) <| agediff
     end
 end

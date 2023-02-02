@@ -10,7 +10,11 @@ const I = Iterators
 
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
-    incomes = [ income(p) for p in pop if status(p) != WorkStatus.student ]
+    incomes = [ income(p) for p in pop if 
+	    status(p) != WorkStatus.student && 
+	    status(p) != WorkStatus.child && 
+	    status(p) != WorkStatus.teenager ]
+	    
     sort!(incomes)
 
     dec_size = length(pop) ÷ n_bins
@@ -45,6 +49,9 @@ end
         @stat("n_lp_chhh", CountAcc) <| is_lp
         # number of siblings in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->age(p)<18, house.occupants)
+        # age histo of one-person hhs
+		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
+			Float64(age(house.occupants[1]))
     end
 
     # mothers' ages for all children born in the last year
