@@ -64,7 +64,7 @@ end
         m = mother(person)
 
         # age histogram
-        a = Float64(age(m)) - Float(age(person))
+        a = Float64(age(m)) - Float64(age(person))
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
         # age x class
