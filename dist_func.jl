@@ -119,10 +119,11 @@ function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_ma
     @subset!(emp_data, :age .>= age_min, :age .<= age_max)
     emp_births = emp_data[!, :births]
     sim_births = sim_data_all[obs_time].age_mother.bins
+    
+    # idx is upper age limit of bin in sim data
+    extend!(sim_births, age_max+1)
 
-    extend!(sim_births, age_max)
-
-    sim_births = sim_births[age_min:age_max]
+    sim_births = sim_births[(age_min+1):(age_max+1)]
 
     @assert length(sim_births) == length(emp_births)
 
