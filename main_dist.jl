@@ -27,7 +27,7 @@ function runDist(obsDates, args)
         stepModel!(model, time, pars)
 
         if time == dates[end]
-            res[time] = observe(Data, model)
+            res[time] = observe(Data, model, time)
             pop!(dates)
         end
 
