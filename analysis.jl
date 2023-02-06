@@ -8,12 +8,14 @@ const MMA = MaxMinAcc{Float64}
 const I = Iterators
 
 
+not_in_education(person) = 
+	    status(person) != WorkStatus.student && 
+	    status(person) != WorkStatus.child && 
+	    status(person) != WorkStatus.teenager 
+
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
-    incomes = [ income(p) for p in pop if 
-	    status(p) != WorkStatus.student && 
-	    status(p) != WorkStatus.child && 
-	    status(p) != WorkStatus.teenager ]
+    incomes = [ income(p) for p in pop if not_in_education(p) ]
 	    
     sort!(incomes)
 
@@ -29,8 +31,11 @@ function income_deciles(pop, n_bins = 9)
 end
 
 
-@observe Data model begin
-    @for house in I.filter(h->!isEmpty(h), model.houses) begin
+@observe Data model ctime begin
+
+	@record "time" ctime
+	
+	@for house in I.filter(h->!isEmpty(h), model.houses) begin
 	    # all occupied houses
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
         
@@ -59,7 +64,7 @@ end
         m = mother(person)
 
         # age histogram
-        a = Float64(age(m))
+        a = Float64(age(m)) - Float(age(person))
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
         # age x class
@@ -72,12 +77,16 @@ end
         @stat("n_prev_children", HistAcc(0, 1)) <| (nChildren(m)-1)
     end
 
-    # age and class histograms for the full population
+    # age histograms for the full population
     @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(classRank(person))
-
+    end
+    
+    # class histograms for the full population (sans children and students)
+    @for person in I.filter(not_in_education, model.pop) begin
         class = classRank(person)
+        
+        @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(classRank(person))
 
         @if class==0 @stat("hist_age_c0", HistAcc(0.0, 1.0)) <| Float64(age(person))
         @if class==1 @stat("hist_age_c1", HistAcc(0.0, 1.0)) <| Float64(age(person))
@@ -88,7 +97,7 @@ end
 
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
-    @for person in Iterators.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
+    @for person in I.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
         agediff = Float64(age(partner(person)) - age(person))
         # -6, so that the lowest bin is [-Inf, -5]
         @stat("couple_age_diff", HistAcc(-6.0, 1.0, count_below_min=true)) <| agediff
