@@ -19,7 +19,7 @@ function income_deciles(pop, n_bins = 9)
 	    
     sort!(incomes)
 
-    dec_size = length(pop) ÷ n_bins
+    dec_size = length(incomes) ÷ n_bins
     inc_decs = zeros(n_bins)
     
     for i in 1:(n_bins*dec_size)
