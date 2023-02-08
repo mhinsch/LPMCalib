@@ -19,7 +19,7 @@ function income_deciles(pop, n_bins = 9)
 	    
     sort!(incomes)
 
-    dec_size = length(pop) ÷ n_bins
+    dec_size = length(incomes) ÷ n_bins
     inc_decs = zeros(n_bins)
     
     for i in 1:(n_bins*dec_size)
@@ -64,7 +64,7 @@ end
         m = mother(person)
 
         # age histogram
-        a = Float64(age(m)) - Float(age(person))
+        a = Float64(age(m)) - Float64(age(person))
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
         # age x class
