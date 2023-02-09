@@ -17,3 +17,4 @@ eduRankSensitivity	4	0.0	10.0
 constantEduParam	4	1.0	20
 divorceBias	0.9	0.5	1.0
 probChildrenWithFather	0.1	0.05	0.2
+moveOutProb	0.1	0.0	0.5
