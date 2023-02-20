@@ -33,7 +33,9 @@ function resetCacheMarriages()
 end
 
 
+# TODO remove, deprecated
 function deltaAge(delta)
+    error("deltaAge is deprecated!")
     if delta <= -10
         0
     elseif -10 < delta < -2
@@ -47,6 +49,14 @@ function deltaAge(delta)
     else
         5
     end
+end
+
+
+function ageFactor(agem, agew, pars)
+    diff = Float64(agem - agew)
+    diff > pars.modeAgeDiff ? 
+        1/exp(pars.maleOlderFactor * diff^2) :
+        1/exp(pars.maleYoungerFactor * diff^2)
 end
 
 
@@ -67,14 +77,14 @@ function marryWeight(man, woman, pars)
 
     socFactor = 1/exp(betaExponent * statusDistance)
 
-    ageFactor = pars.deltaAgeProb[deltaAge(age(man) - age(woman))]
+    #ageFactor = pars.deltaAgeProb[deltaAge(age(man) - age(woman))]
 
     # legal dependents (i.e. usually underage persons living at the same house)
     numChildrenWithWoman = length(dependents(woman))
 
     childrenFactor = 1/exp(pars.bridesChildrenExp * numChildrenWithWoman)
 
-    geoFactor * socFactor * ageFactor * childrenFactor * studentFactor
+    geoFactor * socFactor * ageFactor(age(man), age(woman), pars) * childrenFactor * studentFactor
 end
 
 geoDistance(m, w, pars) = manhattanDistance(getHomeTown(m), getHomeTown(w))/
