@@ -22,8 +22,7 @@ end
 function simulate(param_values, names)
     @assert length(names) == length(param_values)
     
-    # TODO seeding
-    args = "--datadir LPM/data -P \"\""
+    args = "--seed $(rand(1:10000)) --datadir LPM/data -P \"\""
     
     for (name, value) in zip(names, param_values)
         args *= " --$name $value" 
