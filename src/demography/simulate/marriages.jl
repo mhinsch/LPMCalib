@@ -122,6 +122,9 @@ function marriage!(man, time, model, pars)
     # get cached list
     # note: this is getting updated as we go
     women = eligibleWomen(model, pars)
+    if isempty(women)
+        return nothing
+    end
     
     # keep array across fun calls
     weights = @static_var Float64[]
@@ -134,12 +137,11 @@ function marriage!(man, time, model, pars)
     
     if weights[end] == 0
         return nothing
-    else
-        r = rand() * weights[end]
-        selected = findfirst(>(r), weights)
-        @assert selected != nothing
     end
-
+    
+    r = rand() * weights[end]
+    selected = searchsortedfirst(weights, r)
+    @assert selected <= length(women)
     selectedWoman = women[selected]
 
     setAsPartners!(man, selectedWoman)
