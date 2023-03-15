@@ -1,6 +1,6 @@
 export resetCacheMarriages, marriage!, selectMarriage
 
-using XAgents
+using Utilities
 
 ageClass(person) = trunc(Int, age(person)/10)
 
@@ -61,6 +61,10 @@ end
 
 
 function marryWeight(man, woman, pars)
+    if livingTogether(man, woman) || related1stDegree(man, woman)
+        return 0.0
+    end
+        
     geoFactor = 1/exp(pars.betaGeoExp * geoDistance(man, woman, pars))
 
     if status(woman) == WorkStatus.student 
@@ -118,33 +122,31 @@ function marriage!(man, time, model, pars)
     # get cached list
     # note: this is getting updated as we go
     women = eligibleWomen(model, pars)
-
-    # we store candidates as indices, so that we can efficiently remove married women 
-    candidates = [i for (i,w) in enumerate(women) if (age(man)-10 < age(w) < age(man)+5)  &&
-                                                # exclude siblings as well
-                          !livingTogether(man, w) && !related1stDegree(man, w) ]
-    
-    if length(candidates) == 0
+    if isempty(women)
         return nothing
     end
-
-    weights = [marryWeight(man, women[idx], pars) for idx in candidates]
-
-    cumsum!(weights, weights)
-    if weights[end] == 0
-        selected = rand(1:length(weights))
-    else
-        r = rand() * weights[end]
-        selected = findfirst(>(r), weights)
-        @assert selected != nothing
+    
+    # keep array across fun calls
+    weights = @static_var Float64[]
+    resize!(weights, length(women))
+    sum = 0.0
+    for (i,woman) in enumerate(women) 
+        w = marryWeight(man, woman, pars)
+        weights[i] = sum += w
     end
-
-    selectedIdx = candidates[selected]
-    selectedWoman = women[selectedIdx]
+    
+    if weights[end] == 0
+        return nothing
+    end
+    
+    r = rand() * weights[end]
+    selected = searchsortedfirst(weights, r)
+    @assert selected <= length(women)
+    selectedWoman = women[selected]
 
     setAsPartners!(man, selectedWoman)
     # remove from cached list
-    remove_unsorted!(women, selectedIdx)
+    remove_unsorted!(women, selected)
 
     joinCouple!(man, selectedWoman, model, pars)
 
