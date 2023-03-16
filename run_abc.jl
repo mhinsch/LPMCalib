@@ -2,6 +2,7 @@ using Distributions
 using CSV
 using DataFrames
 using Random
+using Dates
 
 include("main_dist.jl")
 include("abc_hpc/abc/ownabc.jl")
@@ -55,7 +56,7 @@ function run_abc(n_iters, names, priors)
     #abc(priors, dist, 400, 0.5, noise, 10, verbose=true, scale_noise=true, parallel=true)
     #abc(priors, dist, 4, 0.5, noise, 2, verbose=true, scale_noise=true, parallel=true)
     for i in 1:n_iters
-        println("starting iteration $i")
+        println("$(now()) starting iteration $i")
         result = abc_iter!(particles, pars->simulate(pars, names), 
                            400, remv, creat, verbose=true, parallel = true)
         #sort!(particles, by=p->p.dist)
