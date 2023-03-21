@@ -1,11 +1,12 @@
 export resetCacheMarriages, marriage!, selectMarriage
 
 using Utilities
+using Cached
 
 ageClass(person) = trunc(Int, age(person)/10)
 
 
-@memoize Dict function shareMenNoChildren(model, ageclass :: Int)
+@cached Dict{@ARGS()..., @RET()} (ageclass,) function shareMenNoChildren(model, ageclass)
     nAll = 0
     nNoC = 0
 
@@ -27,8 +28,9 @@ end
 
 # reset memoization caches
 # needs to be done on every time step
-function resetCacheMarriages()
-    Memoization.empty_cache!(shareMenNoChildren)
+function resetCacheMarriages()    
+    reset_all_caches!(shareMenNoChildren) 
+    #Memoization.empty_cache!(shareMenNoChildren)
     Memoization.empty_cache!(eligibleWomen)
 end
 

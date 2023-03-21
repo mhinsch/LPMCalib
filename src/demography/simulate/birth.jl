@@ -1,4 +1,5 @@
 using Memoization
+using Cached
 
 
 using Utilities
@@ -9,7 +10,7 @@ isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
-"Proportion of women that can get pregnant in entire population."
+#"Proportion of women that can get pregnant in entire population."
 @memoize Dict function pPotentialMotherInAllPop(model, pars)
     n = count(p -> isPotentialMother(p, pars), model.pop)
     
@@ -17,31 +18,31 @@ isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 end
 resetCachePPotentialMotherInAllPop() = Memoization.empty_cache!(pPotentialMotherInAllPop)
 
-"Proportion of women that can be mothers within all reproductive women of a given age."
-@memoize Dict function pPotentialMotherInFertWAndAge(model, years, pars)
+#"Proportion of women that can be mothers within all reproductive women of a given age."
+@cached Dict{@ARGS()..., @RET} (years,) function pPotentialMotherInFertWAndAge(model, years, pars)
     nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
                            canBePregnant, model.pop)
 
     nAll > 0 ? nM/nAll : 0.0
 end
-resetCachePPotentialMotherInFertWAndAge() = Memoization.empty_cache!(pPotentialMotherInFertWAndAge)
+resetCachePPotentialMotherInFertWAndAge() = reset_all_caches!(pPotentialMotherInFertWAndAge)
             
-"Proportion of women of a given class within all reproductive women."
-@memoize Dict function pClassInPotentialMothers(model, class, pars)
+#"Proportion of women of a given class within all reproductive women."
+@cached Dict{@ARGS()..., @RET} (class,) function pClassInPotentialMothers(model, class, pars)
     nAll, nC = countSubset(p->isPotentialMother(p, pars), p->classRank(p) == class, model.pop)
 
     nAll > 0 ? nC / nAll : 0.0
 end
-resetCachePClassInPotentialMothers() = Memoization.empty_cache!(pClassInPotentialMothers)
+resetCachePClassInPotentialMothers() = reset_all_caches!(pClassInPotentialMothers)
 
-"Calculate the percentage of women with a given number of children for a given class."
-@memoize Dict function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
+#"Calculate the percentage of women with a given number of children for a given class."
+@cached Dict (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
     nAll, nnC = countSubset(p->isPotentialMother(p, pars) && classRank(p) == class, 
                             p->min(4, nChildren(p)) == nchildren, model.pop)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
-resetCachePNChildrenInPotMotherAndClass() = Memoization.empty_cache!(pNChildrenInPotMotherAndClass)
+resetCachePNChildrenInPotMotherAndClass() = reset_all_caches!(pNChildrenInPotMotherAndClass)
 
 function resetCachesBirth()
     resetCachePClassInPotentialMothers()
