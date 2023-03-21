@@ -1,5 +1,6 @@
+using Cached
+
 using Utilities
-using XAgents
 
 export death!, setDead!, resetCacheDeath
 
@@ -77,7 +78,7 @@ ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ?
                             exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
                             exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
                             
-@memoize Dict function avgAgeDieProb(model, pars, male)
+@cached Dict (male,) function avgAgeDieProb(model, pars, male)
     s = 0.0
     n = 0
     for p in model.pop
@@ -93,7 +94,7 @@ ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ?
 end
 
 function resetCacheDeath()
-    Memoization.empty_cache!(avgAgeDieProb)
+    reset_all_caches!(avgAgeDieProb)
 end
 
 # currently leaves dead agents in population

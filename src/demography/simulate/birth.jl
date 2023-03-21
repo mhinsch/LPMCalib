@@ -1,4 +1,3 @@
-using Memoization
 using Cached
 
 
@@ -11,7 +10,7 @@ canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
 #"Proportion of women that can get pregnant in entire population."
-@memoize Dict function pPotentialMotherInAllPop(model, pars)
+@cached Dict () function pPotentialMotherInAllPop(model, pars)
     n = count(p -> isPotentialMother(p, pars), model.pop)
     
     n / length(model.pop)

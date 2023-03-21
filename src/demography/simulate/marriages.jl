@@ -1,7 +1,8 @@
+using Cached
+
 export resetCacheMarriages, marriage!, selectMarriage
 
 using Utilities
-using Cached
 
 ageClass(person) = trunc(Int, age(person)/10)
 
@@ -23,15 +24,14 @@ ageClass(person) = trunc(Int, age(person)/10)
 end
 
 
-@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
+@cached Dict () eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
                                        isSingle(f) && age(f) > pars.minPregnancyAge]
 
 # reset memoization caches
 # needs to be done on every time step
 function resetCacheMarriages()    
     reset_all_caches!(shareMenNoChildren) 
-    #Memoization.empty_cache!(shareMenNoChildren)
-    Memoization.empty_cache!(eligibleWomen)
+    reset_all_caches!(eligibleWomen)
 end
 
 
