@@ -1,4 +1,4 @@
-using Cached
+using TypedMemo
 
 export adjacent8Towns, findHousesInTown, emptyHouses, emptyHousesInTown
 

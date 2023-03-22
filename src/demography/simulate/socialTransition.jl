@@ -1,5 +1,5 @@
 using Distributions: Normal, LogNormal
-using Cached
+using TypedMemo
 
 
 export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
@@ -41,7 +41,7 @@ end
 
 # TODO possibly remove altogether and calibrate model 
 # properly instead
-@cached Dict (class,) function socialClassShares(model, class)
+@cached OffsetArrayDict{@RET()}(10, 0) class function socialClassShares(model, class)
     nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
     nC / nAll

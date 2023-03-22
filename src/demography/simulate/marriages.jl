@@ -1,4 +1,4 @@
-using Cached
+using TypedMemo
 
 export resetCacheMarriages, marriage!, selectMarriage
 
@@ -7,7 +7,7 @@ using Utilities
 ageClass(person) = trunc(Int, age(person)/10)
 
 
-@cached Dict{@ARGS()..., @RET()} (ageclass,) function shareMenNoChildren(model, ageclass)
+@cached ArrayDict{@RET()}(20) ageclass function shareMenNoChildren(model, ageclass)
     nAll = 0
     nNoC = 0
 

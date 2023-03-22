@@ -1,4 +1,4 @@
-using Cached
+using TypedMemo
 
 using Utilities
 
@@ -78,15 +78,16 @@ ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ?
                             exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
                             exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
                             
-@cached Dict (male,) function avgAgeDieProb(model, pars, male)
+@cached OffsetArrayDict{@RET}(2, 0) male function avgAgeDieProb(model, pars, male)
     s = 0.0
     n = 0
+    ismale = Bool(male)
     for p in model.pop
-        if male != isMale(p)
+        if ismale != isMale(p)
             continue
         end
        
-        s += ageDieProb(pars, yearsold(p), male)
+        s += ageDieProb(pars, yearsold(p), ismale)
         n += 1
     end
    
@@ -118,7 +119,7 @@ function death!(person, currstep, model, parameters)
         else
             rawRate = model.pre51Deaths[yearIdx, 1] * 
                 ageDieProb(parameters, agep, isMale(person)) / 
-                    avgAgeDieProb(model, parameters, isMale(person))
+                    avgAgeDieProb(model, parameters, Int(isMale(person)))
         end 
         # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
                         
