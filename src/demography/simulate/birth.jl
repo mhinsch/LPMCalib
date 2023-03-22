@@ -15,10 +15,10 @@ isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
     
     n / length(model.pop)
 end
-resetCachePPotentialMotherInAllPop() = Memoization.empty_cache!(pPotentialMotherInAllPop)
+resetCachePPotentialMotherInAllPop() = reset_all_caches!(pPotentialMotherInAllPop)
 
 #"Proportion of women that can be mothers within all reproductive women of a given age."
-@cached Dict{@ARGS()..., @RET} (years,) function pPotentialMotherInFertWAndAge(model, years, pars)
+@cached ArrayDict{@RET}(150, Inf) (years,) function pPotentialMotherInFertWAndAge(model, years, pars)
     nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
                            canBePregnant, model.pop)
 
