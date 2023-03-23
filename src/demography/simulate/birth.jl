@@ -1,5 +1,4 @@
 using TypedMemo
-using Memoization
 
 
 using Utilities
@@ -10,7 +9,7 @@ isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
-#"Proportion of women that can get pregnant in entire population."
+"Proportion of women that can get pregnant in entire population."
 @cached Dict () function pPotentialMotherInAllPop(model, pars)
     n = count(p -> isPotentialMother(p, pars), model.pop)
     
@@ -18,7 +17,7 @@ isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 end
 resetCachePPotentialMotherInAllPop() = reset_all_caches!(pPotentialMotherInAllPop)
 
-#"Proportion of women that can be mothers within all reproductive women of a given age."
+"Proportion of women that can be mothers within all reproductive women of a given age."
 @cached ArrayDict{@RET()}(150) years function pPotentialMotherInFertWAndAge(model, years, pars)
     nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
                            canBePregnant, model.pop)
@@ -27,7 +26,7 @@ resetCachePPotentialMotherInAllPop() = reset_all_caches!(pPotentialMotherInAllPo
 end
 resetCachePPotentialMotherInFertWAndAge() = reset_all_caches!(pPotentialMotherInFertWAndAge)
             
-#"Proportion of women of a given class within all reproductive women."
+"Proportion of women of a given class within all reproductive women."
 @cached OffsetArrayDict{@RET()}(10, 0) class function pClassInPotentialMothers(model, class, pars)
     nAll, nC = countSubset(p->isPotentialMother(p, pars), p->classRank(p) == class, model.pop)
 
@@ -35,17 +34,14 @@ resetCachePPotentialMotherInFertWAndAge() = reset_all_caches!(pPotentialMotherIn
 end
 resetCachePClassInPotentialMothers() = reset_all_caches!(pClassInPotentialMothers)
 
-#"Calculate the percentage of women with a given number of children for a given class."
-#@cached OffsetArrayDict{@RET()}((20,10), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
-@cached Dict function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
-#@memoize Dict function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
+"Calculate the percentage of women with a given number of children for a given class."
+@cached OffsetArrayDict{@RET()}((20,10), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
     nAll, nnC = countSubset(p->isPotentialMother(p, pars) && classRank(p) == class, 
                             p->min(4, nChildren(p)) == nchildren, model.pop)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
 resetCachePNChildrenInPotMotherAndClass() = reset_all_caches!(pNChildrenInPotMotherAndClass)
-#resetCachePNChildrenInPotMotherAndClass() = Memoization.empty_cache!(pNChildrenInPotMotherAndClass)
 
 
 function resetCachesBirth()
@@ -88,15 +84,16 @@ function computeBirthProb(woman, parameters, model, currstep)
     birthProb = rawRate/a * parameters.fertilityBias^womanRank
     
     
+    # sum is not type stable here for some reason
     a = 0.0
     for nch in 0:4 
-        @noinline a += pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
-        parameters.prevChildFertBias^nch
+        a += pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
+            parameters.prevChildFertBias^nch
     end  
     # fertility bias by number of previous children
     #a = sum(0:4) do nch 
-    #        pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
-    #            parameters.prevChildFertBias^nch
+    #    pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
+    #        parameters.prevChildFertBias^nch
     #    end  
     #@assert a2 == a
     birthProb = birthProb/a * parameters.prevChildFertBias^min(4, nChildren(woman))
