@@ -1,3 +1,5 @@
+using TypedMemo
+
 export resetCacheMarriages, marriage!, selectMarriage
 
 using Utilities
@@ -5,7 +7,7 @@ using Utilities
 ageClass(person) = trunc(Int, age(person)/10)
 
 
-@memoize Dict function shareMenNoChildren(model, ageclass :: Int)
+@cached ArrayDict{@RET()}(20) ageclass function shareMenNoChildren(model, ageclass)
     nAll = 0
     nNoC = 0
 
@@ -22,14 +24,14 @@ ageClass(person) = trunc(Int, age(person)/10)
 end
 
 
-@memoize eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
+@cached Dict () eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
                                        isSingle(f) && age(f) > pars.minPregnancyAge]
 
 # reset memoization caches
 # needs to be done on every time step
-function resetCacheMarriages()
-    Memoization.empty_cache!(shareMenNoChildren)
-    Memoization.empty_cache!(eligibleWomen)
+function resetCacheMarriages()    
+    reset_all_caches!(shareMenNoChildren) 
+    reset_all_caches!(eligibleWomen)
 end
 
 

@@ -1,7 +1,3 @@
-using Memoization
-
-using XAgents
-
 export findEmptyHouseInTown, findEmptyHouseInOrdAdjacentTown, 
         findEmptyHouseAnywhere, movePeopleToEmptyHouse!, movePeopleToHouse!
 

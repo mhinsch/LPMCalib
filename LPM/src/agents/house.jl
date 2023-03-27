@@ -34,28 +34,28 @@ town(house) = house.town
 
 # to replace the functions below in order to unify style across agents APIs
 "town associated with house"
-function getHomeTown(house::House)
+function getHomeTown(house)
     house.town
 end
 
 "town name associated with house"
-function getHomeTownName(house::House)
+function getHomeTownName(house)
     house.town.name
 end
 
 "house location in the associated town"
-function getHouseLocation(house::House)
+function getHouseLocation(house)
     house.pos
 end
 
 "add an occupant to a house"
-function addOccupant!(house::House{P}, person::P) where {P}
+function addOccupant!(house, person)
 	push!(house.occupants, person) 
 	nothing
 end
 
 "remove an occupant from a house"
-function removeOccupant!(house::House{P}, person::P) where {P}
+function removeOccupant!(house, person)
     removefirst!(house.occupants, person) 
 	# we can't assume anything about the layout of typeof(person)
 	#person.pos = undefinedHouse 
@@ -63,7 +63,7 @@ function removeOccupant!(house::House{P}, person::P) where {P}
 end
 
 "Costum print function for agents"
-function Base.show(io::IO, house::House{P}) where P
+function Base.show(io::IO, house::House) 
     townName = getHomeTownName(house)
     print("House $(house.id) @ town $(townName) @ $(house.pos)")
     length(house.occupants) == 0 ? nothing : print(" occupants: ") 

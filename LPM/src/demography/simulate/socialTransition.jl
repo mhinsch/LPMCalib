@@ -1,5 +1,5 @@
 using Distributions: Normal, LogNormal
-using Memoization
+using TypedMemo
 
 
 export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
@@ -41,13 +41,13 @@ end
 
 # TODO possibly remove altogether and calibrate model 
 # properly instead
-@memoize Dict function socialClassShares(model, class)
+@cached OffsetArrayDict{@RET()}(10, 0) class function socialClassShares(model, class)
     nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
     nC / nAll
 end
 
-resetCacheSocialClassShares() = Memoization.empty_cache!(socialClassShares)
+resetCacheSocialClassShares() = reset_all_caches!(socialClassShares)
 
 
 doneStudying(person, pars) = classRank(person) >= 4

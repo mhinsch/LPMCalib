@@ -107,36 +107,52 @@ function stepModel!(model, time, pars)
     resetCachesBirth()
     resetCacheDeath()
 
-    applyTransition!(model.pop, death!, "death", time, model, pars.poppars)
+    applyTransition!(model.pop, "death") do person
+        death!(person, time, model, pars.poppars)
+    end
     removeDead!(model)
 
     orphans = Iterators.filter(p->selectAssignGuardian(p), model.pop)
-    applyTransition!(orphans, assignGuardian!, "adoption", time, model, pars)
+    applyTransition!(orphans, "adoption") do person
+        assignGuardian!(person, time, model, pars)
+    end
 
     selected = Iterators.filter(p->selectBirth(p, pars.birthpars), model.pop)
-    applyTransition!(selected, birth!, "birth", time, model, 
-        fuse(pars.poppars, pars.birthpars), addBaby!)
+    applyTransition!(selected, "birth") do person
+        birth!(person, time, model, fuse(pars.poppars, pars.birthpars), addBaby!)
+    end
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, ageTransition!, "age", time, model, pars.workpars)
+    applyTransition!(selected, "age") do person
+        ageTransition!(person, time, model, pars.workpars)
+    end
 
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, workTransition!, "work", time, model, pars.workpars)
+    applyTransition!(selected, "work") do person
+        workTransition!(person, time, model, pars.workpars)
+    end
     
     selected = Iterators.filter(p->selectRelocate(p, pars.workpars), model.pop)
-    applyTransition!(selected, relocate!, "relocate", time, model, pars.workpars)
+    applyTransition!(selected, "relocate") do person
+        relocate!(person, time, model, pars.workpars)
+    end
 
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
-    applyTransition!(selected, socialTransition!, "social", time, model, pars.workpars) 
+    applyTransition!(selected, "social") do person
+        socialTransition!(person, time, model, pars.workpars) 
+    end
 
     selected = Iterators.filter(p->selectDivorce(p, pars), model.pop)
-    applyTransition!(selected, divorce!, "divorce", time, model, 
-                     fuse(pars.poppars, pars.divorcepars, pars.workpars))
+    applyTransition!(selected, "divorce") do person
+        divorce!(person, time, model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
+    end
 
     resetCacheMarriages()
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
-    applyTransition!(selected, marriage!, "marriage", time, model, 
-                     fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
+    applyTransition!(selected, "marriage") do person
+        marriage!(person, time, model, 
+            fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
+    end
 
     append!(model.pop, model.babies)
     empty!(model.babies)

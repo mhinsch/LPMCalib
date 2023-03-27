@@ -68,10 +68,10 @@ function remove_unsorted!(list, index)
 end
 
 "Apply a transition function to an iterator."
-function applyTransition!(people, transition, name, args...)
+function applyTransition!(transition, people, name)
     count = 0
     for p in people 
-        transition(p, args...)
+        transition(p)
         count += 1
     end
 
