@@ -46,7 +46,7 @@ mutable struct Person <: AbstractXAgent
     - (x-y coordinates of a house)
     - (town::Town, x-y location in the map)
     """ 
-    pos::House{Person}
+    pos::House{Person, Town}
     info::BasicInfoBlock     
     kinship::KinshipBlock{Person}
     maternity :: MaternityBlock

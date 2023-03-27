@@ -14,7 +14,7 @@ export createTimeStampedFolder, p_yearly2monthly, applyTransition!, remove_unsor
 export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
-export fuse, countSubset
+export fuse, countSubset, @static_var
 
 
 # list of types 
@@ -80,6 +80,16 @@ function applyTransition!(transition, people, name)
             println(count, " agents processed in ", name)
         end
     end
+end
+
+"keep variable across function calls"
+macro static_var(init)
+  var = gensym()
+  Base.eval(__module__, :(const $var = $init))
+  quote
+    global $var
+    $var
+  end |> esc
 end
 
 
