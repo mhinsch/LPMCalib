@@ -187,7 +187,7 @@ function dist_couples_age_diff_fr(dat_file, sim_data_all, obs_time)
         # bin 1 is actually age diff < -19
         ad = i-21
         # find the bin this age diff belongs to in the emp data
-        idx = searchsortedfirst(limits, ad)
+        idx = min(searchsortedfirst(limits, ad), length(sim_data))
         sim_data[idx] += n
     end
 
