@@ -24,7 +24,12 @@ resetCachePPotentialMotherInAllPop() = reset_all_caches!(pPotentialMotherInAllPo
 
     nAll > 0 ? nM/nAll : 0.0
 end
-resetCachePPotentialMotherInFertWAndAge() = reset_all_caches!(pPotentialMotherInFertWAndAge)
+function resetCachePPotentialMotherInFertWAndAge(model, pars)
+    reset_all_caches!(pPotentialMotherInFertWAndAge)
+    for y in 1:150
+        pPotentialMotherInFertWAndAge(model, y, pars)
+    end
+end
             
 "Proportion of women of a given class within all reproductive women."
 @cached OffsetArrayDict{@RET()}(10, 0) class function pClassInPotentialMothers(model, class, pars)
@@ -32,7 +37,12 @@ resetCachePPotentialMotherInFertWAndAge() = reset_all_caches!(pPotentialMotherIn
 
     nAll > 0 ? nC / nAll : 0.0
 end
-resetCachePClassInPotentialMothers() = reset_all_caches!(pClassInPotentialMothers)
+function resetCachePClassInPotentialMothers(model, pars)
+    reset_all_caches!(pClassInPotentialMothers)
+    for c in 0:9
+        pClassInPotentialMothers(model, c, pars)
+    end
+end
 
 "Calculate the percentage of women with a given number of children for a given class."
 @cached OffsetArrayDict{@RET()}((20,10), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
@@ -41,13 +51,18 @@ resetCachePClassInPotentialMothers() = reset_all_caches!(pClassInPotentialMother
 
     nAll > 0 ? nnC / nAll : 0.0
 end
-resetCachePNChildrenInPotMotherAndClass() = reset_all_caches!(pNChildrenInPotMotherAndClass)
+function resetCachePNChildrenInPotMotherAndClass(model, pars)
+    reset_all_caches!(pNChildrenInPotMotherAndClass)
+    for nc in 0:19, c in 0:9
+        pNChildrenInPotMotherAndClass(model, nc, c, pars)
+    end
+end
 
 
-function resetCachesBirth()
-    resetCachePClassInPotentialMothers()
-    resetCachePPotentialMotherInFertWAndAge()
-    resetCachePNChildrenInPotMotherAndClass()
+function resetCachesBirth(model, pars)
+    resetCachePClassInPotentialMothers(model, pars)
+    resetCachePPotentialMotherInFertWAndAge(model, pars)
+    resetCachePNChildrenInPotMotherAndClass(model, pars)
     resetCachePPotentialMotherInAllPop()
 end
 

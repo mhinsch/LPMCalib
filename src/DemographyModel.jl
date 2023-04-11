@@ -103,8 +103,8 @@ end
 
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
-    resetCacheSocialClassShares()
-    resetCachesBirth()
+    resetCacheSocialClassShares(model)
+    resetCachesBirth(model, fuse(pars.poppars, pars.birthpars))
     resetCacheDeath()
 
     applyTransition!(model.pop, "death") do person

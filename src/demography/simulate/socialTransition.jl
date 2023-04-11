@@ -47,7 +47,12 @@ end
     nC / nAll
 end
 
-resetCacheSocialClassShares() = reset_all_caches!(socialClassShares)
+function resetCacheSocialClassShares(model)
+    reset_all_caches!(socialClassShares)
+    for c in 0:9
+        socialClassShares(model, c)
+    end
+end
 
 
 doneStudying(person, pars) = classRank(person) >= 4
