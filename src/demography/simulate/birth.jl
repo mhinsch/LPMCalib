@@ -34,7 +34,7 @@ end
 end
 function resetCachePPotentialMotherInFertWAndAge(model, pars)
     reset_all_caches!(pPotentialMotherInFertWAndAge)
-    for y in 1:150
+    for y in pars.minPregnancyAge:pars.maxPregnancyAge
         pPotentialMotherInFertWAndAge(model, y, pars)
     end
 end
@@ -47,25 +47,20 @@ end
 
     nAll > 0 ? nC / nAll : 0.0
 end
-function resetCachePClassInPotentialMothers(model, pars)
-    reset_all_caches!(pClassInPotentialMothers)
-    for c in 0:4
-        p1 = pClassInPotentialMothers(model, c, pars)
-    end
-end
+# no need to pre-calc, depends only on potentialMothers
+resetCachePClassInPotentialMothers(model, pars) = reset_all_caches!(pClassInPotentialMothers)
 
 "Calculate the percentage of women with a given number of children for a given class."
-@cached OffsetArrayDict{@RET()}((20,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
+@cached OffsetArrayDict{@RET()}((5,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
     pm = potentialMothers(model, pars)
     nAll, nnC = countSubset(p->classRank(p) == class, p->min(4, nChildren(p)) == nchildren, pm)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
-
 function resetCachePNChildrenInPotMotherAndClass(model, pars)
     reset_all_caches!(pNChildrenInPotMotherAndClass)
-    for nc in 0:19, c in 0:4
-        p1 = pNChildrenInPotMotherAndClass(model, nc, c, pars)
+    for nc in 0:4, c in 0:4
+        pNChildrenInPotMotherAndClass(model, nc, c, pars)
     end
 end
 
