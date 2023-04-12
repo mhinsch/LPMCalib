@@ -9,13 +9,21 @@ isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
+
+@cached Dict () function potentialMothers(model, pars)
+    [ a for a in model.pop if isPotentialMother(a, pars) ]
+end
+function resetCachePotentialMothers(model, pars)
+    reset_all_caches!(potentialMothers)
+    potentialMothers(model, pars)
+end
+
 "Proportion of women that can get pregnant in entire population."
-@cached Dict () function pPotentialMotherInAllPop(model, pars)
-    n = count(p -> isPotentialMother(p, pars), model.pop)
+function pPotentialMotherInAllPop(model, pars)
+    n = length(potentialMothers(model, pars))
     
     n / length(model.pop)
 end
-resetCachePPotentialMotherInAllPop() = reset_all_caches!(pPotentialMotherInAllPop)
 
 "Proportion of women that can be mothers within all reproductive women of a given age."
 @cached ArrayDict{@RET()}(150) years function pPotentialMotherInFertWAndAge(model, years, pars)
@@ -32,38 +40,41 @@ function resetCachePPotentialMotherInFertWAndAge(model, pars)
 end
             
 "Proportion of women of a given class within all reproductive women."
-@cached OffsetArrayDict{@RET()}(10, 0) class function pClassInPotentialMothers(model, class, pars)
-    nAll, nC = countSubset(p->isPotentialMother(p, pars), p->classRank(p) == class, model.pop)
+@cached OffsetArrayDict{@RET()}(5, 0) class function pClassInPotentialMothers(model, class, pars)
+    pm = potentialMothers(model, pars)
+    nAll = length(pm)
+    nC = count(p->classRank(p) == class, pm)
 
     nAll > 0 ? nC / nAll : 0.0
 end
 function resetCachePClassInPotentialMothers(model, pars)
     reset_all_caches!(pClassInPotentialMothers)
-    for c in 0:9
-        pClassInPotentialMothers(model, c, pars)
+    for c in 0:4
+        p1 = pClassInPotentialMothers(model, c, pars)
     end
 end
 
 "Calculate the percentage of women with a given number of children for a given class."
-@cached OffsetArrayDict{@RET()}((20,10), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
-    nAll, nnC = countSubset(p->isPotentialMother(p, pars) && classRank(p) == class, 
-                            p->min(4, nChildren(p)) == nchildren, model.pop)
+@cached OffsetArrayDict{@RET()}((20,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
+    pm = potentialMothers(model, pars)
+    nAll, nnC = countSubset(p->classRank(p) == class, p->min(4, nChildren(p)) == nchildren, pm)
 
     nAll > 0 ? nnC / nAll : 0.0
 end
+
 function resetCachePNChildrenInPotMotherAndClass(model, pars)
     reset_all_caches!(pNChildrenInPotMotherAndClass)
-    for nc in 0:19, c in 0:9
-        pNChildrenInPotMotherAndClass(model, nc, c, pars)
+    for nc in 0:19, c in 0:4
+        p1 = pNChildrenInPotMotherAndClass(model, nc, c, pars)
     end
 end
 
 
 function resetCachesBirth(model, pars)
+    resetCachePotentialMothers(model, pars)
     resetCachePClassInPotentialMothers(model, pars)
     resetCachePPotentialMotherInFertWAndAge(model, pars)
     resetCachePNChildrenInPotMotherAndClass(model, pars)
-    resetCachePPotentialMotherInAllPop()
 end
 
 

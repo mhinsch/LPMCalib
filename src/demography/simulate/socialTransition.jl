@@ -41,7 +41,7 @@ end
 
 # TODO possibly remove altogether and calibrate model 
 # properly instead
-@cached OffsetArrayDict{@RET()}(10, 0) class function socialClassShares(model, class)
+@cached OffsetArrayDict{@RET()}(5, 0) class function socialClassShares(model, class)
     nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
     nC / nAll
@@ -49,7 +49,7 @@ end
 
 function resetCacheSocialClassShares(model)
     reset_all_caches!(socialClassShares)
-    for c in 0:9
+    for c in 0:4
         socialClassShares(model, c)
     end
 end
