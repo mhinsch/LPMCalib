@@ -80,6 +80,7 @@ end
     # age histograms for the full population
     @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if isFemale(person) @stat("hist_age_f", HistAcc(0.0, 1.0)) <| Float64(age(person))
     end
     
     # class histograms for the full population (sans children and students)
