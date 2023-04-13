@@ -25,7 +25,8 @@ function run_random(post, prefix, seed)
 
 	mkpath(prefix)
 	cd(prefix) do
-        run(`julia ../../../LPM/main.jl $cmdl --datadir ../../../LPM/data --analysisFile ../valid_runs/analysis.jl --seed $seed --startLogTime 2001//1 --endLogTime 2021//1`)
+        cmd = `julia ../../../LPM/main.jl $cmdl --datadir ../../../LPM/data --analysisFile ../valid_runs/analysis.jl --seed $seed --startLogTime 2001//1 --endLogTime 2021//1`
+        pipeline(cmd, stdout="out", stderr="err") |> run
 	end
 end
 
