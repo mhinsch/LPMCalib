@@ -55,8 +55,8 @@ end
 
 
 function ageFactor(agem, agew, pars)
-    diff = Float64(agem - agew)
-    diff > pars.modeAgeDiff ? 
+    diff = Float64(agem - agew) - pars.modeAgeDiff
+    diff > 0 ? 
         1/exp(pars.maleOlderFactor * diff^2) :
         1/exp(pars.maleYoungerFactor * diff^2)
 end

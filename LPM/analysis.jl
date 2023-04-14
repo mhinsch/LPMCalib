@@ -52,15 +52,12 @@ end
         @stat("class", HistAcc(0.0, 1.0, 4.0)) <| Float64(classRank(person))
         @stat("income", MVA) <| income(person)
         @stat("n_orphans", CountAcc) <| isOrphan(person)
+        @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(status(person))
+        @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(status(person))
     end
-
-    @for person in Iterators.filter(p->alive(p)&&isFemale(p), model.pop) begin
-        @stat("f_status", HistAcc(0, 1, 5)) <| Int(status(person))
+    
+    @for person in Iterators.filter(p -> isFemale(p) && ! isSingle(p), model.pop) begin
+        @stat("age_diff", HistAcc(-10.0, 1.0)) <| Float64(age(partner(person)) - age(person))
     end
-
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
-
-    @for person in Iterators.filter(p->alive(p)&&isMale(p), model.pop) begin
-        @stat("m_status", HistAcc(0, 1, 5)) <| Int(status(person))
-    end
 end

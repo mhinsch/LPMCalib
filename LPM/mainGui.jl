@@ -50,6 +50,7 @@ function main(parOverrides...)
     graph_f_status = Graph{Float64}(RL.DARKGREEN)
     graph_m_status = Graph{Float64}(RL.ORANGE)
     graph_inc_dec = Graph{Float64}(RL.BROWN)
+    graph_age_diff = Graph{Float64}(RL.BROWN)
 
     pause = false
     time = Rational(pars.poppars.startTime)
@@ -69,6 +70,7 @@ function main(parOverrides...)
             set_data!(graph_f_status, data.f_status.bins, minm=0)
             set_data!(graph_m_status, data.m_status.bins, minm=0)
             set_data!(graph_inc_dec, data.income_deciles)
+            set_data!(graph_age_diff, data.age_diff.bins, minm=0)
             println(data.hh_size.max, " ", data.alive.n, " ", data.single.n, 
                     " ", data.income.mean)
         end
@@ -101,9 +103,9 @@ function main(parOverrides...)
         draw_graph(floor(Int, screenWidth/3), floor(Int, screenHeight/2), 
                    floor(Int, screenWidth*2/3), floor(Int, screenHeight/2)-20, 
                    [graph_hhs, graph_age, graph_class, graph_f_status, graph_m_status,
-                   graph_inc_dec], 
+                   graph_age_diff], 
                    single_scale = false, 
-                   labels = ["hh size", "age", "class", "status f", "status m", "income dec."],
+                   labels = ["hh size", "age", "class", "status f", "status m", "age diff"],
                    fontsize = floor(Int, 15 * scale))
         
 

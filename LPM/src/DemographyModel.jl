@@ -103,6 +103,7 @@ end
 
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
+    shuffle!(model.pop)
     resetCacheSocialClassShares(model)
     resetCachesBirth(model, fuse(pars.poppars, pars.birthpars))
     resetCacheDeath()
