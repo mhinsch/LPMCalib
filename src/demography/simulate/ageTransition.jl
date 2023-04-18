@@ -24,6 +24,11 @@ function ageTransition!(person, time, model, pars)
         #    person.yearInTown += 1
         #end
     agestep!(person)
+    
+    # TODO parameterise dt
+    if !isSingle(person)
+        pTime!(person, pTime(person) + 1//12)
+    end
 
     if age(person) == 18
         # also updates guardian
