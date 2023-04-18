@@ -89,7 +89,7 @@ end # struct Person
 @export_forward Person info [age, gender, alive]
 @delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold]
 
-@export_forward Person kinship [father, mother, partner, children]
+@export_forward Person kinship [father, mother, partner, children, pTime]
 @delegate_onefield Person kinship [hasChildren, addChild!, isSingle, parents, siblings, 
                                    nChildren]
 
@@ -125,7 +125,7 @@ Person(pos,age; gender=unknown,
     father=nothing,mother=nothing,
     partner=nothing,children=Person[]) = 
         Person(pos,BasicInfoBlock(;age, gender), 
-               KinshipBlock{Person}(father,mother,partner,children), 
+               KinshipBlock{Person}(father,mother,partner,0,children), 
             MaternityBlock(false, 0),
             WorkBlock(),
             CareBlock(0, 0, 0),
@@ -138,7 +138,7 @@ Person(;pos=undefinedHouse,age=0,
         father=nothing,mother=nothing,
         partner=nothing,children=Person[]) = 
             Person(pos,BasicInfoBlock(;age,gender), 
-                   KinshipBlock{Person}(father,mother,partner,children),
+                   KinshipBlock{Person}(father,mother,partner,0,children),
                 MaternityBlock(false, 0),
                 WorkBlock(),
                 CareBlock(0, 0, 0),
@@ -214,7 +214,9 @@ function resetPartner!(person)
     other = partner(person)
     if other != nothing 
         partner!(person, nothing)
+        pTime!(person, 0)
         partner!(other, nothing)
+        pTime!(other, 0)
     end
     nothing 
 end

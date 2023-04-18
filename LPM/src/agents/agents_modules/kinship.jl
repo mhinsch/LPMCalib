@@ -5,6 +5,7 @@ mutable struct KinshipBlock{P}
   father::Union{P,Nothing}
   mother::Union{P,Nothing} 
   partner::Union{P,Nothing}
+  pTime :: Rational{Int}
   children::Vector{P}
 end 
 
