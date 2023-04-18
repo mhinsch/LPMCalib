@@ -80,7 +80,6 @@ end
     # age histograms for the full population
     @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @if isFemale(person) @stat("hist_age_f", HistAcc(0.0, 1.0)) <| Float64(age(person))
     end
     
     # class histograms for the full population (sans children and students)
@@ -98,7 +97,7 @@ end
 
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
-    @for person in I.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
+    @for person in I.filter(p->isFemale(p) && !isSingle(p) && pTime(p) <= 1, model.pop) begin
         agediff = Float64(age(partner(person)) - age(person))
         # -20.5, so that the lowest bin is [-Inf, -19.5]
         @stat("couple_age_diff", HistAcc(-20.5, 1.0, count_below_min=true)) <| agediff

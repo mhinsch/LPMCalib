@@ -97,7 +97,7 @@ end
 
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
-    @for person in I.filter(p->isFemale(p) && !isSingle(p), model.pop) begin
+    @for person in I.filter(p->isFemale(p) && !isSingle(p) && pTime(p) <= 1, model.pop) begin
         agediff = Float64(age(partner(person)) - age(person))
         # -20.5, so that the lowest bin is [-Inf, -19.5]
         @stat("couple_age_diff", HistAcc(-20.5, 1.0, count_below_min=true)) <| agediff
