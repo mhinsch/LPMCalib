@@ -39,8 +39,7 @@ Person ties various agent modules into one compound agent type.
 """ 
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
-mutable struct Person <: AbstractXAgent
-    id::Int
+mutable struct Person 
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -55,10 +54,9 @@ mutable struct Person <: AbstractXAgent
     class :: ClassBlock
     dependencies :: DependencyBlock{Person}
 
-    # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
     function Person(pos, info, kinship, maternity, work, care, class, dependencies)
-        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class, dependencies)
+        person = new(pos,info,kinship, maternity, work, care, class, dependencies)
         if !undefined(pos)
             addOccupant!(pos, person)
         end

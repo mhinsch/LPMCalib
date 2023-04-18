@@ -1,7 +1,6 @@
 export Town, undefinedTown, TownLocation
 export isAdjacent8, adjacent8Towns, manhattanDistance
 
-using XAgents
 
 """
 Specification of a Town agent type.
@@ -17,8 +16,7 @@ Type Town to extend from AbstractAXgent.
 
 const TownLocation  = NTuple{2,Int}
 
-struct Town <: AbstractXAgent
-    id::Int
+struct Town 
     pos::TownLocation
     name::String                            # does not look necessary
     # lha::Array{Float64,1}                 # local house allowance 
@@ -27,10 +25,7 @@ struct Town <: AbstractXAgent
 
     ""
     function Town(pos::TownLocation,name::String,density::Float64) 
-        #global IDCOUNTER = IDCOUNTER + 1
-        # idcounter = getIDCOUNTER() 
-        # new(IDCOUNTER,pos,name,density)
-        new(getIDCOUNTER(),pos,name,density)
+        new(pos,name,density)
     end 
 
 end  # Town 

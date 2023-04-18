@@ -15,14 +15,13 @@ This file is included in the module XAgents
 Type House to extend from AbstracXAgent.
 """ 
 
-mutable struct House{P, T} <: AbstractXAgent
-    id :: Int
+mutable struct House{P, T} 
     town :: T
     pos :: HouseLocation     # location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
 
-    House{P, T}(town, pos) where {P, T} = new(getIDCOUNTER(),town, pos,P[])
+    House{P, T}(town, pos) where {P, T} = new(town, pos,P[])
 end # House 
 
 

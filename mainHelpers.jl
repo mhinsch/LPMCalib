@@ -4,8 +4,6 @@ addToLoadPath!(String(@__DIR__) * "/.",
 
 using ArgParse
 
-using XAgents
-
 using Utilities
 
 using DemographyPars
