@@ -191,8 +191,18 @@ end
     modeAgeDiff	:: Float64						= 2.0
     maleOlderFactor :: Float64					= 0.1
     maleYoungerFactor :: Float64				= 0.3
-    #deltaAgeProb :: Vector{Float64}             = [0.0, 0.1, 0.25, 0.4, 0.2, 0.05]
     bridesChildrenExp :: Float64                = 0.5
+end
+
+"Social care"
+@with_kw mutable struct CarePars
+    careBias :: Float64 						= 0.9
+    femaleAgeCareScaling :: Float64				= 19.0
+    maleAgeCareScaling :: Float64				= 18.0
+    personCareProb :: Float64					= 0.0008
+    baseCareProb :: Float64						= 0.0002
+    careDemandInHours :: Vector{Float64}		= [ 0.0, 14.0, 28.0, 56.0, 84.0 ]
+    careTransitionRate :: Float64				= 0.7
 end
 
 
@@ -207,6 +217,8 @@ end
     deathMFName :: String = "deathrate.male.csv"
 end
 
+
+
 struct ModelPars 
     mappars     ::  MapPars
     poppars     ::  PopulationPars
@@ -214,10 +226,11 @@ struct ModelPars
     workpars    ::  WorkPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
+    carepars :: CarePars
     datapars    :: DataPars
 end 
 
 
 ModelPars() = ModelPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-                                  DivorcePars(), MarriagePars(), DataPars())
+                                  DivorcePars(), MarriagePars(), CarePars(), DataPars())
 
