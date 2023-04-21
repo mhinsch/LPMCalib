@@ -50,6 +50,15 @@ end
 # no need to pre-calc, depends only on potentialMothers
 resetCachePClassInPotentialMothers(model, pars) = reset_all_caches!(pClassInPotentialMothers)
 
+function classBirthRateBias(model, parameters, womanRank)
+    classes = 0:(length(parameters.cumProbClasses)-1)
+    fn = let model = model,
+            parameters = parameters
+            class -> pClassInPotentialMothers(model, class, parameters)
+            end
+    rateBias(fn, classes, parameters.fertilityBias, womanRank) 
+end
+
 "Calculate the percentage of women with a given number of children for a given class."
 @cached OffsetArrayDict{@RET()}((5,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
     pm = potentialMothers(model, pars)
@@ -61,6 +70,14 @@ function resetCachePNChildrenInPotMotherAndClass(model, pars)
     reset_all_caches!(pNChildrenInPotMotherAndClass)
     for nc in 0:4, c in 0:4
         pNChildrenInPotMotherAndClass(model, nc, c, pars)
+    end
+end
+
+# TODO: some of this could be cached as well, but profile first
+function nchBirthRateBias(model, parameters, womanRank, nch)
+    # caution: womanRank would get boxed in standalone expression
+    rateBias(0:4, parameters.prevChildFertBias, nch) do n
+        pNChildrenInPotMotherAndClass(model, n, womanRank, parameters)
     end
 end
 
@@ -99,27 +116,11 @@ function computeBirthProb(woman, parameters, model, currstep)
     end 
     
     # fertility bias by class
-    a = sum(0:(length(parameters.cumProbClasses)-1)) do class
-            pClassInPotentialMothers(model, class, parameters) * parameters.fertilityBias^class
-        end
-    birthProb = rawRate/a * parameters.fertilityBias^womanRank
-    
-    
-    # sum is not type stable here for some reason
-    a = 0.0
-    for nch in 0:4 
-        a += pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
-            parameters.prevChildFertBias^nch
-    end  
-    # fertility bias by number of previous children
-    #a = sum(0:4) do nch 
-    #    pNChildrenInPotMotherAndClass(model, nch, womanRank, parameters) * 
-    #        parameters.prevChildFertBias^nch
-    #    end  
-    #@assert a2 == a
-    birthProb = birthProb/a * parameters.prevChildFertBias^min(4, nChildren(woman))
+    birthProb = rawRate * classBirthRateBias(model, parameters, womanRank) 
         
-
+    # fertility bias by number of previous children
+    birthProb *= nchBirthRateBias(model, parameters, womanRank, min(4,nChildren(woman)))
+        
     min(1.0, birthProb)
 end # computeBirthProb
 

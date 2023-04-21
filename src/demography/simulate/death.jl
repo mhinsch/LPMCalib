@@ -16,11 +16,8 @@ function deathProbability(baseRate, person, model, parameters)
         mortalityBias = parameters.femaleMortalityBias 
     end 
 
-    a = 0
-    for i in 1:length(parameters.cumProbClasses)
-        c = i - 1 # class is 0-based!
-        a += socialClassShares(model, c) * mortalityBias^(c)
-    end
+    a = sumClassBias(c -> socialClassShares(model, c), 0:(length(parameters.cumProbClasses)-1), 
+            mortalityBias)
 
     if a > 0
         lowClassRate = baseRate / a

@@ -14,6 +14,7 @@ export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset, @static_var
 export dump, dump_property
+export sumClassBias, rateBias
 
 
 # list of types 
@@ -93,6 +94,17 @@ end
 end
 
  
+@inline function sumClassBias(classFn, range, bias)
+    sum(range) do c
+        classFn(c) * bias^c
+    end
+end
+
+@inline function rateBias(classFn, range, bias, thisClass)
+    bias^thisClass / sumClassBias(classFn, range, bias)  
+end
+
+
 mutable struct Debug
     checkAssumptions :: Bool
     verbose :: Bool
