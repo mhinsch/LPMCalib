@@ -1,10 +1,8 @@
+using Distributions
 using Utilities
 
 export selectSocialCareTransition, socialCareTransition!
 
-socialCareDemand(person, pars) = pars.careDemandInHours[careNeedLevel(person)+1]
-
-numCareLevels(pars) = length(pars.careDemandInHours)
 
 function selectSocialCareTransition(p, pars)
     true
@@ -31,18 +29,14 @@ function socialCareTransition!(person, time, model, pars)
     baseProb *= classSocialCareBias(model, pars, class)
     
     if rand() > p_yearly2monthly(baseProb)
-        return nothing
+        return false
     end
    
-    baseTransition = (1.0 - pars.careTransitionRate) * classSocialCareBias(model, pars, class)
-    transitionRate = 1.0 - baseTransition
+    transitionRate = pars.careTransitionRate * classSocialCareBias(model, pars, class)
     
-    careNeed = careNeedLevel(person)
-    bound = transitionRate
-    while rand() > bound && careNeed < numCareLevels(pars)
-        careNeed += 1
-        bound += (1.0 - bound) * transitionRate
-    end
-    
-    careNeedLevel!(person, careNeed)
+    careNeed = careNeedLevel(person) + rand(Geometric(1.0-transitionRate)) + 1
+    careNeedLevel!(person, min(careNeed, numCareLevels(pars)))
+    true
 end
+
+    

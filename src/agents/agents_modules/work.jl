@@ -46,3 +46,4 @@ end
 function setFullWeeklyTime!(work)
     work.weeklyTime = ones(Int, 7, 24)
 end
+
