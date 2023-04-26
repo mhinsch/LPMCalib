@@ -22,4 +22,8 @@ const logfile = setupLogging(simPars)
 # @time runModel!(model, simPars, pars, logfile, FS=",")
 @time runModel!(model, simPars, pars, logfile)
 
+open("agents.txt", "w") do f
+    save_agents(f, model.pop)
+end
+
 close(logfile)

@@ -375,6 +375,17 @@ function maxParentRank(person)
     end
 end
 
+function Utilities.dump_header(io, p::Person, FS)
+    print(io, "house", FS)
+    Utilities.dump_header(io, p.info, FS); print(io, FS)
+    Utilities.dump_header(io, p.kinship, FS); print(io, FS)
+    Utilities.dump_header(io, p.maternity, FS); print(io, FS)
+    Utilities.dump_header(io, p.work, FS); print(io, FS)
+    Utilities.dump_header(io, p.care, FS); print(io, FS)
+    Utilities.dump_header(io, p.class, FS); print(io, FS)
+    Utilities.dump_header(io, p.dependencies, FS)
+end
+
 # links to objects are dumped as object id
 function Utilities.dump_property(io, prop::Person, FS="\t", ES=",")
     print(io, objectid(prop))
