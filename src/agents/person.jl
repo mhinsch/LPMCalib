@@ -376,7 +376,7 @@ function maxParentRank(person)
 end
 
 function Utilities.dump_header(io, p::Person, FS)
-    print(io, "house", FS)
+    print(io, "id", FS, "house", FS)
     Utilities.dump_header(io, p.info, FS); print(io, FS)
     Utilities.dump_header(io, p.kinship, FS); print(io, FS)
     Utilities.dump_header(io, p.maternity, FS); print(io, FS)
@@ -404,6 +404,7 @@ function Utilities.dump_property(io, prop::Union{Person, Nothing}, FS="\t", ES="
 end
 
 function Utilities.dump(io, person::Person, FS="\t", ES=",")
+    print(io, objectid(person), FS)
     Utilities.dump_property(io, person.pos, FS, ES); print(io, FS)
     Utilities.dump(io, person.info, FS, ES); print(io, FS)
     Utilities.dump(io, person.kinship, FS, ES); print(io, FS)
