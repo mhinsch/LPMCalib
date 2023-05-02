@@ -201,8 +201,16 @@ end
     maleAgeCareScaling :: Float64				= 18.0
     personCareProb :: Float64					= 0.0008
     baseCareProb :: Float64						= 0.0002
-    careDemandInHours :: Vector{Float64}		= [ 0.0, 14.0, 28.0, 56.0, 84.0 ]
+    "care demand dependent on need level"
+    careDemandInHours :: Vector{Int}			= [ 0, 14, 28, 56, 84 ]
     careTransitionRate :: Float64				= 0.7
+    zeroYearCare :: Int							= 80
+    childCareDemand :: Int						= 168
+    freeChildCareHoursPreSchool :: Int			= 24
+    freeChildCareHoursSchool :: Int				= 32
+    "weekly care supply for child, teenager, student, worker, retired, unemployed"
+    careSupplyByStatus :: Vector{Int}			= [ 0, 10, 24, 32, 60, 48 ]
+    careQuantum :: Int							= 2
 end
 
 

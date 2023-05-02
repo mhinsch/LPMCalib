@@ -2,27 +2,28 @@ export  House, HouseLocation
 
 export getHomeTown, getHouseLocation, undefined, isEmpty, town 
 
-using Utilities: removefirst!
+using Utilities
+
+include("agents_modules/carehouse.jl")
 
 
 const HouseLocation  = NTuple{2,Int}
 
-"""
-Specification of a House Agent Type. 
-
-This file is included in the module XAgents 
-
-Type House to extend from AbstracXAgent.
-""" 
 
 mutable struct House{P, T} 
     town :: T
     pos :: HouseLocation     # location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
-
-    House{P, T}(town, pos) where {P, T} = new(town, pos,P[])
+    
+    care :: CareHouse
 end # House 
+
+House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse(0))
+
+
+@delegate_onefield House care [addCareSupply!, removeCareSupply!]
+@export_forward House care [netCareSupply]
 
 
 undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)

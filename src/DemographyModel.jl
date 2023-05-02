@@ -21,7 +21,7 @@ include("demography/simulate/relocate.jl")
 include("demography/simulate/marriages.jl")
 include("demography/simulate/dependencies.jl")
 include("demography/simulate/socialCareTransition.jl")
-
+include("demography/simulate/care.jl")
 
 using Utilities
 
@@ -160,7 +160,9 @@ function stepModel!(model, time, pars)
         marriage!(person, time, model, 
             fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
     end
-
+    
+    socialCare!(model, pars.carepars)
+    
     append!(model.pop, model.babies)
     empty!(model.babies)
 end

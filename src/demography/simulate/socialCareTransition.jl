@@ -35,7 +35,8 @@ function socialCareTransition!(person, time, model, pars)
     transitionRate = pars.careTransitionRate * classSocialCareBias(model, pars, class)
     
     careNeed = careNeedLevel(person) + rand(Geometric(1.0-transitionRate)) + 1
-    careNeedLevel!(person, min(careNeed, numCareLevels(pars)))
+    # careLevel is 0-based
+    careNeedLevel!(person, min(careNeed, numCareLevels(pars)-1))
     true
 end
 
