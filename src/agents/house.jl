@@ -19,11 +19,11 @@ mutable struct House{P, T}
     care :: CareHouse
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse(0))
+House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse())
 
 
-@delegate_onefield House care [addCareSupply!, removeCareSupply!]
-@export_forward House care [netCareSupply]
+@delegate_onefield House care [provideCare!, receiveCare!, resetCare!, careBalance]
+@export_forward House care [netCareSupply, careProvided]
 
 
 undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)

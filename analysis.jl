@@ -42,6 +42,8 @@ end
         @stat("n_lp_hh", CountAcc) <| is_lp
         # number of children in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->age(p)<18, house.occupants)
+        @stat("care_supply", MVA) <| Float64(netCareSupply(house))
+        @stat("unmet_care", MVA) <| Float64(min(careBalance(house), 0))
     end
 
     @for person in model.pop begin
@@ -50,6 +52,7 @@ end
         @stat("single", CountAcc) <| (age(person) > 18 && isSingle(person))
         @stat("alive", CountAcc) <| true
         @stat("class", HistAcc(0.0, 1.0, 4.0)) <| Float64(classRank(person))
+        @stat("careneed", HistAcc(0.0, 1.0)) <| Float64(careNeedLevel(person))
         @stat("income", MVA) <| income(person)
         @stat("n_orphans", CountAcc) <| isOrphan(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(status(person))

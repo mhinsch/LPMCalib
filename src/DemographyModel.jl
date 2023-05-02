@@ -134,6 +134,8 @@ function stepModel!(model, time, pars)
         socialCareTransition!(person, time, model, fuse(pars.poppars, pars.carepars))
     end
     
+    socialCare!(model, pars.carepars)
+    
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "work") do person
         workTransition!(person, time, model, pars.workpars)
@@ -161,7 +163,6 @@ function stepModel!(model, time, pars)
             fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
     end
     
-    socialCare!(model, pars.carepars)
     
     append!(model.pop, model.babies)
     empty!(model.babies)

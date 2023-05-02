@@ -4,7 +4,7 @@ struct Link{T}
 end
 
 
-function kinshipNetwork(filter, house, model, pars, make_unique=false)
+function kinshipNetwork(filter, house, model, pars)
     LinkT = Link{typeof(house)}
     conns = Vector{LinkT}()
 
@@ -16,7 +16,7 @@ function kinshipNetwork(filter, house, model, pars, make_unique=false)
     
     for person in house.occupants
         if !isSingle(person) 
-            checkAndAdd!(person.pos)
+            checkAndAdd!(partner(person).pos)
         end
         
         for child in children(person)
@@ -32,11 +32,6 @@ function kinshipNetwork(filter, house, model, pars, make_unique=false)
         if m != nothing 
             checkAndAdd!(m.pos)
         end
-    end
-    
-    if make_unique
-        sort!(conns)
-        unique!(conns)
     end
     
     conns

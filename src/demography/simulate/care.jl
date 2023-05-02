@@ -31,7 +31,7 @@ function childCareNeed(child, model, pars)
             pars.freeChildCareHoursSchool
         end
      
-     childCare = max(0, childCare - schoolHours)
+    max(0, childCare - schoolHours)
 end
      
         
@@ -42,6 +42,7 @@ function householdChildCareNeed(house, model, pars)
             continue
         end
         care = childCareNeed(person, model, pars)
+        @assert care >= 0
         maxChildCare = max(care, maxChildCare)
     end
     maxChildCare
@@ -83,9 +84,7 @@ function calcHouseholdNetSupply!(house, model, pars)
     sn = householdSocialCareNeed(house, model, pars)
     s = householdSocialCareSupply(house, model, pars)
     
-    s - cn - sn
-    
-    netCareSupply!(house, s)
+    resetCare!(house, s - cn - sn)
 end
 
 "Find all households that have positive net care supply"
@@ -100,7 +99,7 @@ function buildSupplyDemandNetwork(model, pars)
     
     for house in suppliers
         # we remove replicate links for now
-        l = kinshipNetwork(house, model, pars, true) do h
+        l = kinshipNetwork(house, model, pars) do h
             # only look at households that require care
             netCareSupply(h) < 0
             end
@@ -116,17 +115,21 @@ function resolveCareSupply!(network, model, pars)
         l = rand(1:length(network))
         link = network[l]
         
-        if netCareSupply(link.t1) <= pars.careQuantum ||
-            netCareSupply(link.t2) >= 0
+            # provider doesn't have enough care left
+        if careBalance(link.t1) <= pars.careQuantum ||
+            # providee is already fine
+            careBalance(link.t2) >= 0
             remove_unsorted!(network, l)
             continue
         end
         
-        addCareSupply!(link.t2, pars.careQuantum)
-        removeCareSupply!(link.t1, pars.careQuantum)
+        receiveCare!(link.t2, pars.careQuantum)
+        provideCare!(link.t1, pars.careQuantum)
         
-        if netCareSupply(link.t1) <= pars.careQuantum ||
-            netCareSupply(link.t2) >= 0
+            # provider doesn't have enough care left
+        if careBalance(link.t1) <= pars.careQuantum ||
+            # providee is already fine
+            careBalance(link.t2) >= 0
             remove_unsorted!(network, l)
         end
     end
