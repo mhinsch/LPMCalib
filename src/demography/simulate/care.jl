@@ -79,7 +79,7 @@ function householdSocialCareSupply(house, model, pars)
 end
 
 
-function calcHouseholdNetSupply!(house, model, pars)
+function resetHouseholdCare!(house, model, pars)
     cn = householdChildCareNeed(house, model, pars)
     sn = householdSocialCareNeed(house, model, pars)
     s = householdSocialCareSupply(house, model, pars)
@@ -138,7 +138,7 @@ end
 
 function socialCare!(model, pars)
     for h in model.houses
-        calcHouseholdNetSupply!(h, model, pars)
+        resetHouseholdCare!(h, model, pars)
     end
     
     network = buildSupplyDemandNetwork(model, pars)

@@ -16,14 +16,14 @@ mutable struct House{P, T}
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
     
-    care :: CareHouse
+    care :: CareHouse{House{P, T}}
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse())
+House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse{House{P, T}}())
 
 
 @delegate_onefield House care [provideCare!, receiveCare!, resetCare!, careBalance]
-@export_forward House care [netCareSupply, careProvided]
+@export_forward House care [netCareSupply, careProvided, careConnections]
 
 
 undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)
@@ -72,3 +72,10 @@ function Base.show(io::IO, house::House)
     end
     println() 
 end 
+
+
+function Utilities.dump(io, house::House, FS="\t", ES=",")
+    Utilities.dump_property(io, house.pos, FS, ES); print(io, FS)
+    # no need to dump inhabitants as well, they link back anyway
+    Utilities.dump(io, house.care, FS, ES); print(io, FS)
+end
