@@ -64,3 +64,23 @@ end
     end
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 end
+
+
+function saveHouses(io, houses)
+    dump_header(io, houses[1])
+    println(io)
+    for h in houses
+        Utilities.dump(io, h)
+        println(io)
+    end
+end
+
+
+function saveAgents(io, pop)
+    dump_header(io, pop[1])
+    println(io)
+    for p in pop
+        Utilities.dump(io, p)
+        println(io)
+    end
+end

@@ -75,6 +75,7 @@ end
 
 
 function Utilities.dump(io, house::House, FS="\t", ES=",")
+    print(io, objectid(house), FS)
     Utilities.dump_property(io, house.pos, FS, ES); print(io, FS)
     # no need to dump inhabitants as well, they link back anyway
     Utilities.dump(io, house.care, FS, ES); print(io, FS)

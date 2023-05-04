@@ -13,7 +13,7 @@ export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset, @static_var
-export dump, dump_property
+export dump, dump_property, dump_header
 export sumClassBias, rateBias
 
 
@@ -170,6 +170,11 @@ end
 end
 
 
+function dump_header(io, obj, FS="\t")
+    fns = join(fieldnames(typeof(obj)), FS)
+    print(io, fns)
+end
+
 function dump_property(io, prop, FS="\t", ES=",")
     print(io, prop)
 end
@@ -179,7 +184,7 @@ function dump_property(io, prop::Vector, FS="\t", ES=",")
     for (i, el) in enumerate(prop)
         dump_property(io, el, FS, ES)
         if i != length(prop)
-        	print(io, FS)
+        	print(io, ES)
         end
     end
     print(io, ")")
