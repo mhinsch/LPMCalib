@@ -74,6 +74,11 @@ function Base.show(io::IO, house::House)
 end 
 
 
+function Utilities.dump_header(io, h::House, FS)
+    print(io, "id", FS, "pos", FS)
+    Utilities.dump_header(io, h.care, FS); print(io, FS)
+end
+
 function Utilities.dump(io, house::House, FS="\t", ES=",")
     print(io, objectid(house), FS)
     Utilities.dump_property(io, house.pos, FS, ES); print(io, FS)

@@ -123,8 +123,8 @@ function resolveCareSupply!(network, model, pars)
             continue
         end
         
-        receiveCare!(link.t2, pars.careQuantum)
-        provideCare!(link.t1, pars.careQuantum)
+        receiveCare!(link.t2, pars.careQuantum, link.t1)
+        provideCare!(link.t1, pars.careQuantum, link.t2)
         
             # provider doesn't have enough care left
         if careBalance(link.t1) <= pars.careQuantum ||

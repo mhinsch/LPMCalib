@@ -19,11 +19,15 @@ CareHouse{H}() where{H} = CareHouse(0, 0, H[])
 function provideCare!(house::CareHouse, care, to)
     house.careProvided += care
     push!(house.careConnections, to) 
+    sort!(house.careConnections, by=objectid)
+    unique!(house.careConnections)
 end
 
 function receiveCare!(house::CareHouse, care, from)
     house.careProvided -= care
     push!(house.careConnections, from)
+    sort!(house.careConnections, by=objectid)
+    unique!(house.careConnections)
 end
 
 function resetCare!(house::CareHouse, ncs)
