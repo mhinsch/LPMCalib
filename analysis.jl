@@ -20,7 +20,10 @@ function income_deciles(pop)
     inc_decs ./ dec_size
 end
 
-@observe Data model t begin
+@observe Data model t pars begin
+    @record "time" Float64 t
+    @record "N" Int length(model.pop)
+    
     @for house in model.houses begin
         # format:
         # @stat(name, accumulators...) <| expression
@@ -57,6 +60,10 @@ end
         @stat("n_orphans", CountAcc) <| isOrphan(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(status(person))
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(status(person))
+        @stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
+            Float64(socialCareSupply(person, pars.carepars))
+        @stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 
+            Float64(socialCareDemand(person, pars.carepars))
     end
     
     @for person in Iterators.filter(p -> isFemale(p) && ! isSingle(p), model.pop) begin

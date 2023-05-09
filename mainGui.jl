@@ -66,7 +66,7 @@ function main(parOverrides...)
         if !pause && time <= pars.poppars.finishTime
             stepModel!(model, time, pars)
             time += simPars.dt
-            data = observe(Data, model, time)
+            data = observe(Data, model, time, pars)
             log_results(logfile, data)
             
             add_value!(graph_null, 0.0)

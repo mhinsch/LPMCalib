@@ -1,5 +1,6 @@
 include("kinship.jl")
 
+export socialCareSupply, socialCareDemand
 
 socialCareDemand(person, pars) = pars.careDemandInHours[careNeedLevel(person)+1]
 
@@ -59,7 +60,7 @@ function householdSocialCareNeed(house, model, pars)
 end
 
 
-function careSupply(person, pars)
+function socialCareSupply(person, pars)
     if careNeedLevel(person) > 0
         return 0
     end
@@ -72,7 +73,7 @@ end
 function householdSocialCareSupply(house, model, pars)
     supply = 0
     for person in house.occupants
-        supply += careSupply(person, pars)
+        supply += socialCareSupply(person, pars)
     end
     
     supply
