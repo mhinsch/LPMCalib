@@ -179,6 +179,10 @@ function dump_property(io, prop, FS="\t", ES=",")
     print(io, prop)
 end
 
+function dump_property(io, prop::Rational, FS="\t", ES=",")
+    print(io, Float64(prop))
+end
+
 function dump_property(io, prop::Vector, FS="\t", ES=",")
     print(io, "(") 
     for (i, el) in enumerate(prop)
