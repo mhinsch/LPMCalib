@@ -4,7 +4,7 @@ using Raylib: rayvector
 # make this less annoying
 const RL = Raylib
 
-include("lpm.jl")
+include("mainHelpers.jl")
 
 include("analysis.jl")
 

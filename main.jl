@@ -2,7 +2,7 @@
 using Random
 
 # load main simulation code
-include("lpm.jl")
+include("mainHelpers.jl")
 
 # create parameters
 const simPars, pars = loadParameters(ARGS)
