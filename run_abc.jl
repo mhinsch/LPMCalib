@@ -23,7 +23,7 @@ end
 function simulate(param_values, names)
     @assert length(names) == length(param_values)
     
-    args = "--seed $(rand(1:10000)) --datadir LPM/data -P \"\""
+    args = "--seed $(rand(1:100000)) --datadir LPM/data -P \"\""
     
     for (name, value) in zip(names, param_values)
         args *= " --$name $value" 
@@ -58,7 +58,7 @@ function run_abc(n_iters, names, priors)
     for i in 1:n_iters
         println("$(now()) starting iteration $i")
         result = abc_iter!(particles, pars->simulate(pars, names), 
-                           400, remv, creat, verbose=true, parallel = true)
+                           800, remv, creat, verbose=true, parallel = true)
         #sort!(particles, by=p->p.dist)
         #push!(meds, particles[end ÷ 2].dist)
         #for i in 1:4
@@ -72,6 +72,7 @@ end
 
 
 if !isinteractive()
+    Random.seed!(42)
     const names, priors = readParamConfig("params/parameters.tsv");
 
     const res = run_abc(50, names, priors)
