@@ -1,6 +1,6 @@
 include("kinship.jl")
 
-export socialCareSupply, socialCareDemand
+export socialCareSupply, socialCareDemand, householdSocialCareNeed
 
 socialCareDemand(person, pars) = pars.careDemandInHours[careNeedLevel(person)+1]
 
