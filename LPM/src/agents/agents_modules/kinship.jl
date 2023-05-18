@@ -1,3 +1,6 @@
+using Utilities
+
+
 export KinshipBlock
 export hasChildren, addChild!, isSingle, parents, siblings, nChildren
 
@@ -46,4 +49,6 @@ function Base.show(io::IO, kinship::KinshipBlock)
   end 
   println() 
 end
+
+
 

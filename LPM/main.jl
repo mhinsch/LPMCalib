@@ -2,7 +2,7 @@
 using Random
 
 # load main simulation code
-include("lpm.jl")
+include("mainHelpers.jl")
 
 # create parameters
 const simPars, pars = loadParameters(ARGS)
@@ -23,3 +23,12 @@ const logfile = setupLogging(simPars)
 @time runModel!(model, simPars, pars, logfile)
 
 close(logfile)
+
+open("agents.txt", "w") do f
+    saveAgents(f, model.pop)
+end
+
+open("houses.txt", "w") do f
+    saveHouses(f, model.houses)
+end
+

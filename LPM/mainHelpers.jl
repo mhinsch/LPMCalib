@@ -1,10 +1,10 @@
+include("lib/loadLibsPath.jl")
+
 addToLoadPath!(String(@__DIR__) * "/.", 
                String(@__DIR__) * "/lib",
                String(@__DIR__) * "/src")
 
 using ArgParse
-
-using XAgents
 
 using Utilities
 
@@ -62,7 +62,7 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
         stepModel!(model, curTime, pars)
 
         if logfile != nothing && curTime >= simPars.startLogTime
-            results = observe(Data, model, curTime)
+            results = observe(Data, model, curTime, pars)
             log_results(logfile, results; FS)
         end
 

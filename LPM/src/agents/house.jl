@@ -2,28 +2,28 @@ export  House, HouseLocation
 
 export getHomeTown, getHouseLocation, undefined, isEmpty, town 
 
-using Utilities: removefirst!
+using Utilities
+
+include("agents_modules/carehouse.jl")
 
 
 const HouseLocation  = NTuple{2,Int}
 
-"""
-Specification of a House Agent Type. 
 
-This file is included in the module XAgents 
-
-Type House to extend from AbstracXAgent.
-""" 
-
-mutable struct House{P, T} <: AbstractXAgent
-    id :: Int
+mutable struct House{P, T} 
     town :: T
     pos :: HouseLocation     # location in the town    
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
-
-    House{P, T}(town, pos) where {P, T} = new(getIDCOUNTER(),town, pos,P[])
+    
+    care :: CareHouse{House{P, T}}
 end # House 
+
+House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse{House{P, T}}())
+
+
+@delegate_onefield House care [provideCare!, receiveCare!, resetCare!, careBalance]
+@export_forward House care [netCareSupply, careProvided, careConnections]
 
 
 undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)
@@ -72,3 +72,16 @@ function Base.show(io::IO, house::House)
     end
     println() 
 end 
+
+
+function Utilities.dump_header(io, h::House, FS)
+    print(io, "id", FS, "pos", FS)
+    Utilities.dump_header(io, h.care, FS); print(io, FS)
+end
+
+function Utilities.dump(io, house::House, FS="\t", ES=",")
+    print(io, objectid(house), FS)
+    Utilities.dump_property(io, house.pos, FS, ES); print(io, FS)
+    # no need to dump inhabitants as well, they link back anyway
+    Utilities.dump(io, house.care, FS, ES); print(io, FS)
+end

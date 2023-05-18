@@ -39,8 +39,7 @@ Person ties various agent modules into one compound agent type.
 """ 
 
 # vvv More classification of attributes (Basic, Demography, Relatives, Economy )
-mutable struct Person <: AbstractXAgent
-    id::Int
+mutable struct Person 
     """
     location of a parson's house in a map which implicitly  
     - (x-y coordinates of a house)
@@ -55,10 +54,9 @@ mutable struct Person <: AbstractXAgent
     class :: ClassBlock
     dependencies :: DependencyBlock{Person}
 
-    # Person(id,pos,age) = new(id,pos,age)
     "Internal constructor" 
     function Person(pos, info, kinship, maternity, work, care, class, dependencies)
-        person = new(getIDCOUNTER(),pos,info,kinship, maternity, work, care, class, dependencies)
+        person = new(pos,info,kinship, maternity, work, care, class, dependencies)
         if !undefined(pos)
             addOccupant!(pos, person)
         end
@@ -376,3 +374,44 @@ function maxParentRank(person)
         max(classRank(m), classRank(f))
     end
 end
+
+function Utilities.dump_header(io, p::Person, FS)
+    print(io, "id", FS, "house", FS)
+    Utilities.dump_header(io, p.info, FS); print(io, FS)
+    Utilities.dump_header(io, p.kinship, FS); print(io, FS)
+    Utilities.dump_header(io, p.maternity, FS); print(io, FS)
+    Utilities.dump_header(io, p.work, FS); print(io, FS)
+    Utilities.dump_header(io, p.care, FS); print(io, FS)
+    Utilities.dump_header(io, p.class, FS); print(io, FS)
+    Utilities.dump_header(io, p.dependencies, FS)
+end
+
+# links to objects are dumped as object id
+function Utilities.dump_property(io, prop::Person, FS="\t", ES=",")
+    print(io, objectid(prop))
+end
+
+function Utilities.dump_property(io, prop::House, FS="\t", ES=",")
+    print(io, objectid(prop))
+end
+
+function Utilities.dump_property(io, prop::Union{Person, Nothing}, FS="\t", ES=",") 
+    if prop == nothing
+        print(io, 0)
+    else
+        Utilities.dump_property(io, prop, FS, ES)
+    end
+end
+
+function Utilities.dump(io, person::Person, FS="\t", ES=",")
+    print(io, objectid(person), FS)
+    Utilities.dump_property(io, person.pos, FS, ES); print(io, FS)
+    Utilities.dump(io, person.info, FS, ES); print(io, FS)
+    Utilities.dump(io, person.kinship, FS, ES); print(io, FS)
+    Utilities.dump(io, person.maternity, FS, ES); print(io, FS)
+    Utilities.dump(io, person.work, FS, ES); print(io, FS)
+    Utilities.dump(io, person.care, FS, ES); print(io, FS)
+    Utilities.dump(io, person.class, FS, ES); print(io, FS)
+    Utilities.dump(io, person.dependencies, FS, ES)
+end
+  

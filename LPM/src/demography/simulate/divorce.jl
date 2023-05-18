@@ -1,13 +1,9 @@
 export selectDivorce, divorce!
 
 function divorceProbability(rawRate, classRank, model, pars) 
-    a = 0
-    for i in 1:length(pars.cumProbClasses)
-        c = i - 1 # class is 0-based!
-        a += socialClassShares(model, c) * pars.divorceBias^(c)
+    rawRate * rateBias(0:(length(pars.cumProbClasses)-1), pars.divorceBias, classRank) do c
+        socialClassShares(model, c)
     end
-    baseRate = rawRate/a
-    baseRate * pars.divorceBias^classRank
 end 
 
 

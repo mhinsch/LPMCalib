@@ -35,25 +35,6 @@ function resetCacheMarriages()
 end
 
 
-# TODO remove, deprecated
-function deltaAge(delta)
-    error("deltaAge is deprecated!")
-    if delta <= -10
-        0
-    elseif -10 < delta < -2
-        1
-    elseif -2 < delta < 1
-        2
-    elseif 1 < delta < 5
-        3
-    elseif 5 < delta < 10
-        4
-    else
-        5
-    end
-end
-
-
 function ageFactor(agem, agew, pars)
     diff = Float64(agem - agew) - pars.modeAgeDiff
     diff > 0 ? 

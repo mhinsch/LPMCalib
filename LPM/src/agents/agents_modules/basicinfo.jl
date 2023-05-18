@@ -1,4 +1,4 @@
-using Utilities: Gender, unknown, female, male, age2yearsmonths
+using Utilities
 
 export isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold
 
@@ -40,3 +40,4 @@ hasBirthday(person::BasicInfoBlock) = person.age % 1 == 0
 function yearsold(person::BasicInfoBlock) 
     trunc(Int, person.age)
 end 
+

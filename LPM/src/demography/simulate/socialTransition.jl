@@ -4,8 +4,6 @@ using TypedMemo
 
 export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
 
-using XAgents 
-
 
 function selectSocialTransition(p, pars)
     alive(p) && hasBirthday(p) && 

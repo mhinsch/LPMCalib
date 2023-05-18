@@ -1,7 +1,5 @@
 using Distributions
 
-using XAgents
-
 export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition!
 
 
