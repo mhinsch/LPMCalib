@@ -14,9 +14,10 @@ function deathProbability(baseRate, person, model, parameters)
         mortalityBias = parameters.femaleMortalityBias 
     end 
 
-    a = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
-            0:(length(parameters.cumProbClasses)-1), 
-            mortalityBias)
+    a = isMale(person) ? model.deathCache.classBias_m : model.deathCache.classBias_f
+    #sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+    #        0:(length(parameters.cumProbClasses)-1), 
+    #        mortalityBias)
 
     if a > 0
         lowClassRate = baseRate / a
@@ -73,11 +74,15 @@ end
 mutable struct DeathCache
     avgDieProb_m :: Float64
     avgDieProb_f :: Float64
+    classBias_m :: Float64
+    classBias_f :: Float64
 end
 
-DeathCache() = DeathCache(0.0, 0.0)
+DeathCache() = DeathCache(0.0, 0.0, 0.0, 0.0)
 
 function deathPreCalc!(model, pars)
+    pc = model.deathCache
+    
     s_m = 0.0
     s_f = 0.0
     n_m = 0
@@ -92,8 +97,15 @@ function deathPreCalc!(model, pars)
         end
     end
    
-    model.deathCache.avgDieProb_m = s_m / n_m
-    model.deathCache.avgDieProb_f = s_f / n_f
+    pc.avgDieProb_m = s_m / n_m
+    pc.avgDieProb_f = s_f / n_f
+    
+    pc.classBias_m = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+        0:(length(pars.cumProbClasses)-1), 
+        pars.maleMortalityBias)
+    pc.classBias_f = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+        0:(length(pars.cumProbClasses)-1), 
+        pars.femaleMortalityBias)
 end
 
 

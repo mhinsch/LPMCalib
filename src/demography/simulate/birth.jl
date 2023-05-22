@@ -9,11 +9,11 @@ isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 mutable struct BirthCache{PERSON}
     potentialMothers :: Vector{PERSON}
     pPotentialMotherInFertWAndAge :: Vector{Float64}
-    pClassInPotentialMothers :: Vector{Float64}
-    pNChildrenInPotMotherAndClass :: Matrix{Float64}
+    classBias :: Vector{Float64}
+    nChBias :: Matrix{Float64}
 end
 
-BirthCache{T}() where {T} = BirthCache(T[], Float64[], Float64[], zeros((5, 5)))
+BirthCache{T}() where {T} = BirthCache(T[], Float64[], Float64[], zeros(5, 5))
 
 function birthPreCalc!(model, pars)
     pc = model.birthCache
@@ -40,21 +40,37 @@ function birthPreCalc!(model, pars)
         pc.pPotentialMotherInFertWAndAge[i] /= n > 0 ? n : Inf 
     end
     
-    resize!(pc.pClassInPotentialMothers, 5)
-    for c in 0:4
-        pm = pc.potentialMothers
-        nAll = length(pm)
-        nC = count(p->classRank(p) == c, pm)
-
-        pc.pClassInPotentialMothers[c+1] = nAll > 0 ? nC / nAll : 0.0
+    nPerClass = zeros(5)
+    for p in pc.potentialMothers
+        nPerClass[classRank(p)+1] += 1
     end
     
-    pc.pNChildrenInPotMotherAndClass = zeros((5, 5))
-    for c in 0:4, nc in 0:4
-        pm = pc.potentialMothers
-        nAll, nnC = countSubset(p->classRank(p) == c, p->min(4, nChildren(p)) == nc, pm)
-
-        pc.pNChildrenInPotMotherAndClass[c+1, nc+1] = nAll > 0 ? nnC / nAll : 0.0
+    pcpm = copy(nPerClass)
+    if length(pc.potentialMothers) > 0
+        pcpm ./= length(pc.potentialMothers)
+    end
+    resize!(pc.classBias, 5)
+    sumFertClassBias = sumClassBias(c->pcpm[c+1], 0:4, pars.fertilityBias)
+    for c in 0:4
+        pc.classBias[c+1] = pars.fertilityBias^c/sumFertClassBias
+    end
+    
+    pncpmc = zeros(5, 5)
+    for p in pc.potentialMothers
+        c = classRank(p)
+        nc = min(4, nChildren(p))
+        pncpmc[c+1, nc+1] += 1
+    end
+    
+    fill!(pc.nChBias, 0.0)
+    for class in 0:4
+        for n in 0:4
+            pncpmc[class+1, n+1] /= nPerClass[class+1]
+        end
+        sumNChBias = sumClassBias(n -> pncpmc[class+1, n+1], 0:4, pars.prevChildFertBias)
+        for n in 0:4
+            pc.nChBias[class+1, n+1] = pars.prevChildFertBias^n/sumNChBias
+        end
     end
 end
 
@@ -63,23 +79,6 @@ function pPotentialMotherInAllPop(model, pars)
     n = length(model.birthCache.potentialMothers)
     
     n / length(model.pop)
-end
-
-function classBirthRateBias(model, parameters, womanRank)
-    classes = 0:(length(parameters.cumProbClasses)-1)
-    fn = let model = model,
-            parameters = parameters
-            class -> model.birthCache.pClassInPotentialMothers[class+1]
-            end
-    rateBias(fn, classes, parameters.fertilityBias, womanRank) 
-end
-
-# TODO: some of this could be cached as well, but profile first
-function nchBirthRateBias(model, parameters, womanRank, nch)
-    # caution: womanRank would get boxed in standalone expression
-    rateBias(0:4, parameters.prevChildFertBias, nch) do n
-        model.birthCache.pNChildrenInPotMotherAndClass[womanRank+1, n+1]
-    end
 end
 
 
@@ -109,10 +108,10 @@ function computeBirthProb(woman, parameters, model, currstep)
     end 
     
     # fertility bias by class
-    birthProb = rawRate * classBirthRateBias(model, parameters, womanRank) 
+    birthProb = rawRate * model.birthCache.classBias[womanRank+1] 
         
     # fertility bias by number of previous children
-    birthProb *= nchBirthRateBias(model, parameters, womanRank, min(4,nChildren(woman)))
+    birthProb *= model.birthCache.nChBias[womanRank+1, min(4,nChildren(woman))+1]
         
     min(1.0, birthProb)
 end # computeBirthProb
