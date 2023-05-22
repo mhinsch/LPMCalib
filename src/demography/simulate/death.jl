@@ -71,10 +71,37 @@ function setDead!(person)
     nothing
 end 
 
+mutable struct DeathCache
+    avgDieProb_m :: Float64
+    avgDieProb_f :: Float64
+end
+
+DeathCache() = DeathCache(0.0, 0.0)
+
+function deathPreCalc!(model, pars)
+    s_m = 0.0
+    s_f = 0.0
+    n_m = 0
+    n_f = 0
+    for p in model.pop
+        if isMale(p)
+            s_m += ageDieProb(pars, yearsold(p), true)
+            n_m += 1
+        else
+            s_f += ageDieProb(pars, yearsold(p), false)
+            n_f += 1
+        end
+    end
+   
+    model.deathCache.avgDieProb_m = s_m / n_m
+    model.deathCache.avgDieProb_f = s_f / n_f
+end
+
+
 ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ? 
                             exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
                             exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
-                            
+#=                   
 @cached OffsetArrayDict{@RET}(2, 0) male function avgAgeDieProb(model, pars, male)
     s = 0.0
     n = 0
@@ -94,6 +121,7 @@ end
 function resetCacheDeath()
     reset_all_caches!(avgAgeDieProb)
 end
+=#
 
 # currently leaves dead agents in population
 function death!(person, currstep, model, parameters)
@@ -116,18 +144,15 @@ function death!(person, currstep, model, parameters)
         else
             rawRate = model.pre51Deaths[yearIdx, 1] * 
                 ageDieProb(parameters, agep, isMale(person)) / 
-                    avgAgeDieProb(model, parameters, Int(isMale(person)))
+                    (isMale(person) ? 
+                        model.deathCache.avgDieProb_m : model.deathCache.avgDieProb_f) 
         end 
-        # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
-                        
     else                         
             
         agep = min(agep, 109)
         rawRate = isMale(person) ?  model.deathMale[agep+1,curryear-1950+1] : 
                                     model.deathFemale[agep+1,curryear-1950+1]
                                    
-        # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
-                        
     end # currYear < 1950 
                         
     #=
