@@ -137,7 +137,7 @@ function death!(person, currstep, model, parameters)
         Classes to be considered in a different module 
     =#
                         
-    deathProb = min(1.0, deathProbability(rawRate, person, model, parameters))
+    deathProb = limit(0.0, deathProbability(rawRate, person, model, parameters), 1.0)
                         
     #=
         The following is uncommented code in the original code < 1950

@@ -26,7 +26,7 @@ function divorce!(man, time, model, parameters)
 
     divorceProb = divorceProbability(rawRate, classRank(man), model, parameters)
 
-    if rand() < p_yearly2monthly(divorceProb) 
+    if rand() < p_yearly2monthly(limit(0.0, divorceProb, 1.0)) 
         wife = partner(man)
         resolvePartnership!(man, wife)
         

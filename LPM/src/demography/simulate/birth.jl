@@ -176,7 +176,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
     #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
     =#
                         
-    if rand() < p_yearly2monthly(birthProb) 
+    if rand() < p_yearly2monthly(limit(0.0, birthProb, 1.0)) 
                         
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
