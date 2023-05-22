@@ -25,6 +25,9 @@ include("./demography/parameters.jl")
     analysisFile :: String = "analysis.jl"
     startLogTime :: Rational{Int} = 0
     endLogTime :: Rational{Int} = 10000
+
+    dumpAgents :: Bool = false
+    dumpHouses :: Bool = false
 end 
 
 reseed0!(simPars) = 

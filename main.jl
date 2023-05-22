@@ -24,11 +24,15 @@ const logfile = setupLogging(simPars)
 
 close(logfile)
 
-open("agents.txt", "w") do f
-    saveAgents(f, model.pop)
+if simPars.dumpAgents
+    open("agents.txt", "w") do f
+        saveAgents(f, model.pop)
+    end
 end
 
-open("houses.txt", "w") do f
-    saveHouses(f, model.houses)
+if simPars.dumpHouses
+    open("houses.txt", "w") do f
+        saveHouses(f, model.houses)
+    end
 end
 
