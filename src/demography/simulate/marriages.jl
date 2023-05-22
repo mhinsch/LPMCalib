@@ -98,7 +98,7 @@ function marriage!(man, time, model, pars)
 
     prob = manMarriageProb / den * (hasDependents(man) ? pars.manWithChildrenBias : 1)
 
-    if rand() >= p_yearly2monthly(min(prob, 1.0)) 
+    if rand() >= p_yearly2monthly(limit(0.0, prob, 1.0)) 
         return nothing
     end
 

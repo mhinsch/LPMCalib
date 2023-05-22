@@ -8,7 +8,7 @@ export Gender, male, female, unknown
 
 
 # Functions
-export p_yearly2monthly, applyTransition!, remove_unsorted! 
+export p_yearly2monthly, applyTransition!, remove_unsorted!, limit 
 export removefirst!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
@@ -45,6 +45,7 @@ age2yearsmonths(age) = date2yearsmonths(age)
 
 p_yearly2monthly(p) = 1 - (1-p)^(1/12)
 
+limit(mi, v, ma) = min(ma, max(mi, v))
 
 "Very efficiently remove element `index` from `list`. Does not preserve ordering of `list`."
 function remove_unsorted!(list, index)
