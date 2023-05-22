@@ -38,6 +38,8 @@ mutable struct Model
     pre51Deaths :: Matrix{Float64}
     deathFemale :: Matrix{Float64}
     deathMale :: Matrix{Float64}
+    
+    birthCache :: BirthCache{Person}
 end
 
 
@@ -61,7 +63,7 @@ function createDemographyModel!(data, pars)
     
     Model(towns, houses, population, [],
             byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
-            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale)
+            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, BirthCache{Person}())
 end
 
 
@@ -106,7 +108,7 @@ end
 function stepModel!(model, time, pars)
     shuffle!(model.pop)
     resetCacheSocialClassShares(model)
-    resetCachesBirth(model, fuse(pars.poppars, pars.birthpars))
+    birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
     resetCacheDeath()
 
     applyTransition!(model.pop, "death") do person
