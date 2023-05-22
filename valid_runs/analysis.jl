@@ -31,7 +31,7 @@ function income_deciles(pop, n_bins = 9)
 end
 
 
-@observe Data model ctime begin
+@observe Data model ctime pars begin
 
 	@record "time" ctime
 	
@@ -57,6 +57,17 @@ end
         # age histo of one-person hhs
 		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
 			Float64(age(house.occupants[1]))
+
+        ncs = netCareSupply(house)
+        scn = householdSocialCareNeed(house, model, pars.carepars)
+        cbn = careBalance(house)
+        unmet_pre = min(0, max(ncs, -scn))
+        unmet_post = min(0, max(cbn, -scn))
+        
+        @stat("care_supply", MVA) <| Float64(ncs)
+        @stat("unmet_care", MVA) <| Float64(min(cbn, 0))
+        @stat("unmet_scare_pre", MVA) <| Float64(unmet_pre)
+        @stat("unmet_scare_post", MVA) <| Float64(unmet_post)
     end
 
     # mothers' ages for all children born in the last year
@@ -80,6 +91,10 @@ end
     # age histograms for the full population
     @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
+            Float64(socialCareSupply(person, pars.carepars))
+        @stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 
+            Float64(socialCareDemand(person, pars.carepars))
     end
     
     # class histograms for the full population (sans children and students)
