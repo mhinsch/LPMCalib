@@ -2,7 +2,7 @@
 using Random
 
 # load main simulation code
-include("LPM/lpm.jl")
+include("LPM/mainHelpers.jl")
 
 include("analysis.jl")
 
