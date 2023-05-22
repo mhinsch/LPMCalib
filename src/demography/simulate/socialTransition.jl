@@ -1,8 +1,6 @@
 using Distributions: Normal, LogNormal
-using TypedMemo
 
-
-export socialTransition!, selectSocialTransition, socialClassShares, resetCacheSocialClassShares
+export socialTransition!, selectSocialTransition 
 
 
 function selectSocialTransition(p, pars)
@@ -37,19 +35,25 @@ function incomeDist(person, pars)
     end
 end
 
-# TODO possibly remove altogether and calibrate model 
-# properly instead
-@cached OffsetArrayDict{@RET()}(5, 0) class function socialClassShares(model, class)
-    nAll, nC = countSubset(p->true, p->classRank(p)==class, model.pop)
 
-    nC / nAll
+mutable struct SocialCache
+    socialClassShares :: Vector{Float64}
 end
 
-function resetCacheSocialClassShares(model)
-    reset_all_caches!(socialClassShares)
-    for c in 0:4
-        socialClassShares(model, c)
+SocialCache() = SocialCache([])
+
+# TODO possibly remove altogether and calibrate model 
+# properly instead
+
+function socialPreCalc!(model, pars)
+    pc = model.socialCache
+    pc.socialClassShares = zeros(5)
+    
+    for p in model.pop
+        pc.socialClassShares[classRank(p)+1] += 1
     end
+    
+    pc.socialClassShares ./= length(model.pop)
 end
 
 

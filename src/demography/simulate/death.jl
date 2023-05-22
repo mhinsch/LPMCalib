@@ -1,8 +1,6 @@
-using TypedMemo
-
 using Utilities
 
-export death!, setDead!, resetCacheDeath
+export death!, setDead! 
 
 function deathProbability(baseRate, person, model, parameters) 
     cRank = classRank(person)
@@ -16,7 +14,8 @@ function deathProbability(baseRate, person, model, parameters)
         mortalityBias = parameters.femaleMortalityBias 
     end 
 
-    a = sumClassBias(c -> socialClassShares(model, c), 0:(length(parameters.cumProbClasses)-1), 
+    a = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+            0:(length(parameters.cumProbClasses)-1), 
             mortalityBias)
 
     if a > 0
@@ -101,28 +100,8 @@ end
 ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ? 
                             exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
                             exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
-#=                   
-@cached OffsetArrayDict{@RET}(2, 0) male function avgAgeDieProb(model, pars, male)
-    s = 0.0
-    n = 0
-    ismale = Bool(male)
-    for p in model.pop
-        if ismale != isMale(p)
-            continue
-        end
-       
-        s += ageDieProb(pars, yearsold(p), ismale)
-        n += 1
-    end
-   
-    s / n
-end
-
-function resetCacheDeath()
-    reset_all_caches!(avgAgeDieProb)
-end
-=#
-
+                            
+                            
 # currently leaves dead agents in population
 function death!(person, currstep, model, parameters)
 

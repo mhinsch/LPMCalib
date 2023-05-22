@@ -1,9 +1,6 @@
-using TypedMemo
-
-
 using Utilities
 
-export selectBirth, birth!, resetCachesBirth 
+export selectBirth, birth! 
 
 isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
@@ -85,71 +82,6 @@ function nchBirthRateBias(model, parameters, womanRank, nch)
     end
 end
 
-
-#=
-@cached Dict () function potentialMothers(model, pars)
-    [ a for a in model.pop if isPotentialMother(a, pars) ]
-end
-function resetCachePotentialMothers(model, pars)
-    reset_all_caches!(potentialMothers)
-    potentialMothers(model, pars)
-end
-=#
-
-#=
-"Proportion of women that can be mothers within all reproductive women of a given age."
-@cached ArrayDict{@RET()}(150) years function pPotentialMotherInFertWAndAge(model, years, pars)
-    nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
-                           canBePregnant, model.pop)
-
-    nAll > 0 ? nM/nAll : 0.0
-end
-function resetCachePPotentialMotherInFertWAndAge(model, pars)
-    reset_all_caches!(pPotentialMotherInFertWAndAge)
-    for y in pars.minPregnancyAge:pars.maxPregnancyAge
-        pPotentialMotherInFertWAndAge(model, y, pars)
-    end
-end
-=#
-
-#=
-"Proportion of women of a given class within all reproductive women."
-@cached OffsetArrayDict{@RET()}(5, 0) class function pClassInPotentialMothers(model, class, pars)
-    pm = potentialMothers(model, pars)
-    nAll = length(pm)
-    nC = count(p->classRank(p) == class, pm)
-
-    nAll > 0 ? nC / nAll : 0.0
-end
-# no need to pre-calc, depends only on potentialMothers
-resetCachePClassInPotentialMothers(model, pars) = reset_all_caches!(pClassInPotentialMothers)
-=#
-
-#=
-"Calculate the percentage of women with a given number of children for a given class."
-@cached OffsetArrayDict{@RET()}((5,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
-    pm = potentialMothers(model, pars)
-    nAll, nnC = countSubset(p->classRank(p) == class, p->min(4, nChildren(p)) == nchildren, pm)
-
-    nAll > 0 ? nnC / nAll : 0.0
-end
-function resetCachePNChildrenInPotMotherAndClass(model, pars)
-    reset_all_caches!(pNChildrenInPotMotherAndClass)
-    for nc in 0:4, c in 0:4
-        pNChildrenInPotMotherAndClass(model, nc, c, pars)
-    end
-end
-=#
-
-
-#=
-function resetCachesBirth(model, pars)
-    resetCachePotentialMothers(model, pars)
-    resetCachePClassInPotentialMothers(model, pars)
-    resetCachePPotentialMotherInFertWAndAge(model, pars)
-    resetCachePNChildrenInPotMotherAndClass(model, pars)
-end
-=#
 
 function computeBirthProb(woman, parameters, model, currstep)
     (curryear,currmonth) = date2yearsmonths(currstep)

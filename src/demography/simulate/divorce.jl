@@ -2,7 +2,7 @@ export selectDivorce, divorce!
 
 function divorceProbability(rawRate, classRank, model, pars) 
     rawRate * rateBias(0:(length(pars.cumProbClasses)-1), pars.divorceBias, classRank) do c
-        socialClassShares(model, c)
+        model.socialCache.socialClassShares[c+1]
     end
 end 
 

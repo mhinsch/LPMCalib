@@ -11,7 +11,7 @@ end
 function classSocialCareBias(model, pars, class)
     classes = 0:(length(pars.cumProbClasses)-1)
     rateBias(classes, pars.careBias, class) do c
-        socialClassShares(model, c)
+        model.socialCache.socialClassShares[c+1]
     end
 end
 

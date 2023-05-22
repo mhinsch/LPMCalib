@@ -41,6 +41,8 @@ mutable struct Model
     
     birthCache :: BirthCache{Person}
     deathCache :: DeathCache
+    marriageCache :: MarriageCache{Person}
+    socialCache :: SocialCache
 end
 
 
@@ -65,7 +67,7 @@ function createDemographyModel!(data, pars)
     Model(towns, houses, population, [],
             byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
             data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
-            BirthCache{Person}(), DeathCache())
+            BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache())
 end
 
 
@@ -109,7 +111,7 @@ end
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
     shuffle!(model.pop)
-    resetCacheSocialClassShares(model)
+    socialPreCalc!(model, pars)
     birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
     deathPreCalc!(model, pars.poppars)
 
@@ -159,8 +161,8 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "divorce") do person
         divorce!(person, time, model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     end
-
-    resetCacheMarriages()
+    
+    marriagePreCalc!(model, fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
     applyTransition!(selected, "marriage") do person
         marriage!(person, time, model, 
