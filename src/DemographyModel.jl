@@ -43,6 +43,8 @@ mutable struct Model
     deathCache :: DeathCache
     marriageCache :: MarriageCache{Person}
     socialCache :: SocialCache
+    socialCareCache :: SocialCareCache
+    divorceCache :: DivorceCache
 end
 
 
@@ -67,7 +69,8 @@ function createDemographyModel!(data, pars)
     Model(towns, houses, population, [],
             byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
             data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
-            BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache())
+            BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
+            SocialCareCache(), DivorceCache())
 end
 
 
@@ -112,6 +115,8 @@ end
 function stepModel!(model, time, pars)
     shuffle!(model.pop)
     socialPreCalc!(model, pars)
+    socialCarePreCalc!(model, fuse(pars.poppars, pars.carepars))
+    divorcePreCalc!(model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
     deathPreCalc!(model, pars.poppars)
 

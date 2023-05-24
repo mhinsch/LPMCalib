@@ -50,10 +50,7 @@ function birthPreCalc!(model, pars)
         pcpm ./= length(pc.potentialMothers)
     end
     resize!(pc.classBias, 5)
-    sumFertClassBias = sumClassBias(c->pcpm[c+1], 0:4, pars.fertilityBias)
-    for c in 0:4
-        pc.classBias[c+1] = pars.fertilityBias^c/sumFertClassBias
-    end
+    preCalcRateBias!(c->pcpm[c+1], 0:4, pars.fertilityBias, pc.classBias, 1)
     
     pncpmc = zeros(5, 5)
     for p in pc.potentialMothers
@@ -67,10 +64,8 @@ function birthPreCalc!(model, pars)
         for n in 0:4
             pncpmc[class+1, n+1] /= nPerClass[class+1]
         end
-        sumNChBias = sumClassBias(n -> pncpmc[class+1, n+1], 0:4, pars.prevChildFertBias)
-        for n in 0:4
-            pc.nChBias[class+1, n+1] = pars.prevChildFertBias^n/sumNChBias
-        end
+        preCalcRateBias!(n -> pncpmc[class+1, n+1], 0:4, pars.prevChildFertBias, 
+            view(pc.nChBias, class+1, :), 1)
     end
 end
 

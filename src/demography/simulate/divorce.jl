@@ -1,9 +1,27 @@
 export selectDivorce, divorce!
 
-function divorceProbability(rawRate, classRank, model, pars) 
-    rawRate * rateBias(0:(length(pars.cumProbClasses)-1), pars.divorceBias, classRank) do c
+
+mutable struct DivorceCache
+    classBias :: Vector{Float64}
+end
+
+DivorceCache() = DivorceCache([])
+
+
+function divorcePreCalc!(model, pars)
+    pc = model.divorceCache
+    resize!(pc.classBias, 5)
+    classes = 0:(length(pars.cumProbClasses)-1)
+    preCalcRateBias!(classes, pars.divorceBias, pc.classBias, 1) do c
         model.socialCache.socialClassShares[c+1]
     end
+end
+    
+
+function divorceProbability(rawRate, classRank, model, pars) 
+    rawRate * model.divorceCache.classBias[classRank+1]#=rateBias(0:(length(pars.cumProbClasses)-1), pars.divorceBias, classRank) do c
+        model.socialCache.socialClassShares[c+1]
+    end=#
 end 
 
 
