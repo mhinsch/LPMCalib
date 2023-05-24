@@ -7,7 +7,7 @@ function createTowns(pars)
     
     for y in 1:pars.mapGridYDimension
         for x in 1:pars.mapGridXDimension 
-            town = Town((x,y),density=pars.map[y,x])
+            town = Town((x,y),pars.map[y,x])
             push!(towns, town)
         end
     end
