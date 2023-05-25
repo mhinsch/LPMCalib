@@ -144,6 +144,8 @@ Person(;pos=undefinedHouse,age=0,
 
 
 const PersonHouse = House{Person, Town}
+const PersonTown = Town{PersonHouse}
+const undefinedTown = PersonTown((-1,-1), 0.0)
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 
 

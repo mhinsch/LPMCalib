@@ -3,11 +3,11 @@ export createTowns, initializeHousesInTowns
 
 
 function createTowns(pars) 
-    towns = Town[] 
+    towns = PersonTown[] 
     
     for y in 1:pars.mapGridYDimension
         for x in 1:pars.mapGridXDimension 
-            town = Town((x,y),pars.map[y,x])
+            town = PersonTown((x,y), pars.map[y,x])
             push!(towns, town)
         end
     end
@@ -17,7 +17,7 @@ end
 
 
 "initialize houses in a given set of towns"
-function initializeHousesInTowns(towns::Array{Town,1}, pars) 
+function initializeHousesInTowns(towns::Vector{PersonTown}, pars) 
     houses = PersonHouse[] 
 
     for town in towns
@@ -31,6 +31,7 @@ function initializeHousesInTowns(towns::Array{Town,1}, pars)
                     if(rand() < adjustedDensity)
                         house = PersonHouse(town,(hx,hy))
                         push!(houses,house)
+                        push!(town.houses, house)
                     end
         
                 end # for hy 

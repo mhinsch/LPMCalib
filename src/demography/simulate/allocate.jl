@@ -10,13 +10,13 @@ function selectHouse(list)
 end
 
 
-findEmptyHouseInTown(town, allHouses) = selectHouse(emptyHousesInTown(town, allHouses))
+findEmptyHouseInTown(town) = selectHouse(emptyHousesInTown(town))
 
 
 function findEmptyHouseInOrdAdjacentTown(town, allHouses, allTowns) 
     adjTowns = adjacent8Towns(town, allTowns)
     emptyHouses = [ house for town in adjTowns 
-                   for house in findHousesInTown(town, allHouses) if isEmpty(house) ]
+                   for house in findHousesInTown(town) if isEmpty(house) ]
     selectHouse(emptyHouses)
 end
 
@@ -37,11 +37,11 @@ function movePeopleToHouse!(people, house)
 end
 
 # people[1] determines centre of search radius
-function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=Town[]) 
+function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=PersonTown[]) 
     newhouse = nothing
 
     if dmax == :here
-        newhouse = findEmptyHouseInTown(people[1].pos,allHouses)
+        newhouse = findEmptyHouseInTown(people[1].pos.town)
     end
     if dmax == :near || newhouse == nothing 
         newhouse = findEmptyHouseInOrdAdjacentTown(people[1].pos,allHouses,allTowns) 

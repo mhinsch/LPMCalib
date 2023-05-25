@@ -27,7 +27,7 @@ using Utilities
 
 
 mutable struct Model
-    towns :: Vector{Town}
+    towns :: Vector{PersonTown}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
