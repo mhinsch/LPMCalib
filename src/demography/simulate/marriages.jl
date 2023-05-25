@@ -8,7 +8,7 @@ ageClass(person) = trunc(Int, age(person)/10)
 mutable struct MarriageCache{PERSON}
     shareMenNoChildren :: Vector{Float64}
     eligibleWomen :: Vector{PERSON}
-    weights :: Float64[]
+    weights :: Vector{Float64}
 end
 
 MarriageCache{Person}() where {Person} = MarriageCache(Float64[], Person[], Float64[])
