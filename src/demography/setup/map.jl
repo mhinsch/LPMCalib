@@ -24,6 +24,7 @@ function createTowns(pars)
             push!(t.adjacent, towns[xx, yy])
         end
         
+# previous version produced the same neighbours, but in a different order
 #        adj2 = [t2 for t2 in towns if isAdjacent8(t, t2) ]
 #        @assert issetequal(adj2, t.adjacent)
     end
@@ -37,11 +38,6 @@ function initializeHousesInTowns(towns::Vector{PersonTown}, pars)
     houses = PersonHouse[] 
 
     for town in towns
-        
-        if town.density <= 0
-            continue
-        end
-            
         adjustedDensity = town.density * pars.mapDensityModifier
     
         for hx in 1:pars.townGridDimension, hy in 1:pars.townGridDimension 

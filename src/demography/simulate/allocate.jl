@@ -13,9 +13,9 @@ end
 findEmptyHouseInTown(town) = selectHouse(emptyHousesInTown(town))
 
 function findEmptyHouseInOrdAdjacentTown(town, allHouses, allTowns) 
-    adjTowns = adjacent8Towns(town, allTowns)
-    emptyHouses = [ house for town in adjTowns 
-                   for house in findHousesInTown(town) if isEmpty(house) ]
+    adjTowns = [town; adjacent8Towns(town)]
+    emptyHouses = [ house for t in adjTowns 
+                   for house in findHousesInTown(t) if isEmpty(house) ]
     selectHouse(emptyHouses)
 end
 
