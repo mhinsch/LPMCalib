@@ -8,9 +8,10 @@ ageClass(person) = trunc(Int, age(person)/10)
 mutable struct MarriageCache{PERSON}
     shareMenNoChildren :: Vector{Float64}
     eligibleWomen :: Vector{PERSON}
+    weights :: Float64[]
 end
 
-MarriageCache{Person}() where {Person} = MarriageCache(Float64[], Person[])
+MarriageCache{Person}() where {Person} = MarriageCache(Float64[], Person[], Float64[])
 
 function marriagePreCalc!(model, pars)
     pc = model.marriageCache
@@ -113,7 +114,7 @@ function marriage!(man, time, model, pars)
     end
     
     # keep array across fun calls
-    weights = @static_var Float64[]
+    weights = model.marriageCache.weights
     resize!(weights, length(women))
     sum = 0.0
     for (i,woman) in enumerate(women) 
