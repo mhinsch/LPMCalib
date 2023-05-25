@@ -18,14 +18,12 @@ const TownLocation  = NTuple{2,Int}
 
 struct Town{H} 
     pos::TownLocation
-    # lha::Array{Float64,1}                 # local house allowance 
-                                            #   a vector of size 4 each corresponding the number of bed rooms 
     density::Float64                        # relative population density w.r.t. the town with the highest density 
-    
     houses :: Vector{H}
+    adjacent :: Vector{Town{H}}
 end  # Town 
 
-Town{H}(pos, density) where {H} = Town(pos, density, H[])
+Town{H}(pos, density) where {H} = Town(pos, density, H[], Town{H}[])
 
 "costum show method for Town"
 function Base.show(io::IO,  town::Town) 

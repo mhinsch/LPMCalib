@@ -68,7 +68,7 @@ mutable struct Person
         end 
         if kinship.partner != nothing
             resetPartner!(kinship.partner)
-            partner.partner = person 
+            kinship.partner.kinship.partner = person 
         end 
         if length(kinship.children) > 0
             for child in kinship.children
@@ -78,6 +78,31 @@ mutable struct Person
         person  
     end # Person Core
 end # struct Person 
+
+"Constructor with default values"
+
+Person(pos,age; gender=unknown,
+    father=nothing,mother=nothing,
+    partner=nothing,children=Person[]) = 
+        Person(pos,BasicInfoBlock(;age, gender), 
+               KinshipBlock{Person}(father,mother,partner,0,children), 
+            MaternityBlock(false, 0),
+            WorkBlock(),
+            CareBlock(0, 0, 0),
+            ClassBlock(0, 0), DependencyBlock{Person}())
+
+
+"Constructor with default values"
+Person(;pos=undefinedHouse,age=0,
+        gender=unknown,
+        father=nothing,mother=nothing,
+        partner=nothing,children=Person[]) = 
+            Person(pos,BasicInfoBlock(;age,gender), 
+                   KinshipBlock{Person}(father,mother,partner,0,children),
+                MaternityBlock(false, 0),
+                WorkBlock(),
+                CareBlock(0, 0, 0),
+                ClassBlock(0, 0), DependencyBlock{Person}())
 
 # delegate functions to components
 # and export accessors
@@ -110,37 +135,12 @@ end # struct Person
 "costum @show method for Agent person"
 function Base.show(io::IO,  person::Person)
     print(person.info)
-    undefined(person.pos) ? nothing : print(" @ House id : $(person.pos.id)") 
+#    undefined(person.pos) ? nothing : print(" @ House id : $(person.pos.id)") 
     print(person.kinship)
     println() 
 end
 
 #Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
-
-"Constructor with default values"
-
-Person(pos,age; gender=unknown,
-    father=nothing,mother=nothing,
-    partner=nothing,children=Person[]) = 
-        Person(pos,BasicInfoBlock(;age, gender), 
-               KinshipBlock{Person}(father,mother,partner,0,children), 
-            MaternityBlock(false, 0),
-            WorkBlock(),
-            CareBlock(0, 0, 0),
-            ClassBlock(0, 0), DependencyBlock{Person}())
-
-
-"Constructor with default values"
-Person(;pos=undefinedHouse,age=0,
-        gender=unknown,
-        father=nothing,mother=nothing,
-        partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfoBlock(;age,gender), 
-                   KinshipBlock{Person}(father,mother,partner,0,children),
-                MaternityBlock(false, 0),
-                WorkBlock(),
-                CareBlock(0, 0, 0),
-                ClassBlock(0, 0), DependencyBlock{Person}())
 
 
 const PersonHouse = House{Person, Town}
