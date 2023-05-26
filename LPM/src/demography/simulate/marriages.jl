@@ -1,37 +1,41 @@
-using TypedMemo
-
-export resetCacheMarriages, marriage!, selectMarriage
+export marriage!, selectMarriage
 
 using Utilities
 
 ageClass(person) = trunc(Int, age(person)/10)
 
 
-@cached ArrayDict{@RET()}(20) ageclass function shareMenNoChildren(model, ageclass)
-    nAll = 0
-    nNoC = 0
+mutable struct MarriageCache{PERSON}
+    shareMenNoChildren :: Vector{Float64}
+    eligibleWomen :: Vector{PERSON}
+    weights :: Vector{Float64}
+end
 
-    for p in Iterators.filter(x->alive(x) && isMale(x) && ageClass(x) == ageclass, model.pop)
-        nAll += 1
+MarriageCache{Person}() where {Person} = MarriageCache(Float64[], Person[], Float64[])
+
+function marriagePreCalc!(model, pars)
+    pc = model.marriageCache
+    
+    resize!(pc.shareMenNoChildren, 20)
+    fill!(pc.shareMenNoChildren, 0.0)
+    nAll = zeros(Int, 20)
+    for p in Iterators.filter(isMale, model.pop)
+        ac = ageClass(p)
+        nAll[ac+1] += 1
         # only looks at legally dependent persons (which usually are underage and 
         # living in the same household)
         if !hasDependents(p)
-            nNoC += 1
+            pc.shareMenNoChildren[ac+1] += 1
         end
     end
-
-    nNoC / nAll
-end
-
-
-@cached Dict () eligibleWomen(model, pars) = [f for f in model.pop if isFemale(f) && alive(f) &&
-                                       isSingle(f) && age(f) > pars.minPregnancyAge]
-
-# reset memoization caches
-# needs to be done on every time step
-function resetCacheMarriages()    
-    reset_all_caches!(shareMenNoChildren) 
-    reset_all_caches!(eligibleWomen)
+    pc.shareMenNoChildren ./= nAll
+    
+    empty!(pc.eligibleWomen)
+    for f in model.pop 
+        if isFemale(f) && isSingle(f) && age(f) > pars.minPregnancyAge
+            push!(pc.eligibleWomen, f)
+        end
+    end
 end
 
 
@@ -93,7 +97,7 @@ function marriage!(man, time, model, pars)
         manMarriageProb *= pars.notWorkingMarriageBias
     end
 
-    snc = shareMenNoChildren(model, ageclass)
+    snc = model.marriageCache.shareMenNoChildren[ageclass+1]
     den = snc + (1-snc) * pars.manWithChildrenBias
 
     prob = manMarriageProb / den * (hasDependents(man) ? pars.manWithChildrenBias : 1)
@@ -104,13 +108,13 @@ function marriage!(man, time, model, pars)
 
     # get cached list
     # note: this is getting updated as we go
-    women = eligibleWomen(model, pars)
+    women = model.marriageCache.eligibleWomen
     if isempty(women)
         return nothing
     end
     
     # keep array across fun calls
-    weights = @static_var Float64[]
+    weights = model.marriageCache.weights
     resize!(weights, length(women))
     sum = 0.0
     for (i,woman) in enumerate(women) 

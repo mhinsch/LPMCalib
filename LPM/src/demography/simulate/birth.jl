@@ -1,92 +1,79 @@
-using TypedMemo
-
-
 using Utilities
 
-export selectBirth, birth!, resetCachesBirth 
+export selectBirth, birth! 
 
 isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
-
-@cached Dict () function potentialMothers(model, pars)
-    [ a for a in model.pop if isPotentialMother(a, pars) ]
+mutable struct BirthCache{PERSON}
+    potentialMothers :: Vector{PERSON}
+    pPotentialMotherInFertWAndAge :: Vector{Float64}
+    classBias :: Vector{Float64}
+    nChBias :: Matrix{Float64}
 end
-function resetCachePotentialMothers(model, pars)
-    reset_all_caches!(potentialMothers)
-    potentialMothers(model, pars)
+
+BirthCache{T}() where {T} = BirthCache(T[], Float64[], Float64[], zeros(5, 5))
+
+function birthPreCalc!(model, pars)
+    pc = model.birthCache
+    empty!(pc.potentialMothers)
+    for a in model.pop
+        if isPotentialMother(a, pars)
+            push!(pc.potentialMothers, a)
+        end
+    end
+    
+    resize!(pc.pPotentialMotherInFertWAndAge, 150)
+    fill!(pc.pPotentialMotherInFertWAndAge, 0)
+    cbp = zeros(Int, 150)
+    for a in model.pop
+        if isFertileWoman(a, pars)
+            years = yearsold(a)
+            cbp[years] += 1
+            if canBePregnant(a)
+                pc.pPotentialMotherInFertWAndAge[years] += 1
+            end
+        end
+    end
+    for (i, n) in enumerate(cbp)
+        pc.pPotentialMotherInFertWAndAge[i] /= n > 0 ? n : Inf 
+    end
+    
+    nPerClass = zeros(5)
+    for p in pc.potentialMothers
+        nPerClass[classRank(p)+1] += 1
+    end
+    
+    pcpm = copy(nPerClass)
+    if length(pc.potentialMothers) > 0
+        pcpm ./= length(pc.potentialMothers)
+    end
+    resize!(pc.classBias, 5)
+    preCalcRateBias!(c->pcpm[c+1], 0:4, pars.fertilityBias, pc.classBias, 1)
+    
+    pncpmc = zeros(5, 5)
+    for p in pc.potentialMothers
+        c = classRank(p)
+        nc = min(4, nChildren(p))
+        pncpmc[c+1, nc+1] += 1
+    end
+    
+    fill!(pc.nChBias, 0.0)
+    for class in 0:4
+        for n in 0:4
+            pncpmc[class+1, n+1] /= nPerClass[class+1]
+        end
+        preCalcRateBias!(n -> pncpmc[class+1, n+1], 0:4, pars.prevChildFertBias, 
+            view(pc.nChBias, class+1, :), 1)
+    end
 end
 
 "Proportion of women that can get pregnant in entire population."
 function pPotentialMotherInAllPop(model, pars)
-    n = length(potentialMothers(model, pars))
+    n = length(model.birthCache.potentialMothers)
     
     n / length(model.pop)
-end
-
-"Proportion of women that can be mothers within all reproductive women of a given age."
-@cached ArrayDict{@RET()}(150) years function pPotentialMotherInFertWAndAge(model, years, pars)
-    nAll, nM = countSubset(p->isFertileWoman(p, pars) && yearsold(p) == years, 
-                           canBePregnant, model.pop)
-
-    nAll > 0 ? nM/nAll : 0.0
-end
-function resetCachePPotentialMotherInFertWAndAge(model, pars)
-    reset_all_caches!(pPotentialMotherInFertWAndAge)
-    for y in pars.minPregnancyAge:pars.maxPregnancyAge
-        pPotentialMotherInFertWAndAge(model, y, pars)
-    end
-end
-            
-"Proportion of women of a given class within all reproductive women."
-@cached OffsetArrayDict{@RET()}(5, 0) class function pClassInPotentialMothers(model, class, pars)
-    pm = potentialMothers(model, pars)
-    nAll = length(pm)
-    nC = count(p->classRank(p) == class, pm)
-
-    nAll > 0 ? nC / nAll : 0.0
-end
-# no need to pre-calc, depends only on potentialMothers
-resetCachePClassInPotentialMothers(model, pars) = reset_all_caches!(pClassInPotentialMothers)
-
-function classBirthRateBias(model, parameters, womanRank)
-    classes = 0:(length(parameters.cumProbClasses)-1)
-    fn = let model = model,
-            parameters = parameters
-            class -> pClassInPotentialMothers(model, class, parameters)
-            end
-    rateBias(fn, classes, parameters.fertilityBias, womanRank) 
-end
-
-"Calculate the percentage of women with a given number of children for a given class."
-@cached OffsetArrayDict{@RET()}((5,5), (0,0)) (nchildren, class) function pNChildrenInPotMotherAndClass(model, nchildren, class, pars)
-    pm = potentialMothers(model, pars)
-    nAll, nnC = countSubset(p->classRank(p) == class, p->min(4, nChildren(p)) == nchildren, pm)
-
-    nAll > 0 ? nnC / nAll : 0.0
-end
-function resetCachePNChildrenInPotMotherAndClass(model, pars)
-    reset_all_caches!(pNChildrenInPotMotherAndClass)
-    for nc in 0:4, c in 0:4
-        pNChildrenInPotMotherAndClass(model, nc, c, pars)
-    end
-end
-
-# TODO: some of this could be cached as well, but profile first
-function nchBirthRateBias(model, parameters, womanRank, nch)
-    # caution: womanRank would get boxed in standalone expression
-    rateBias(0:4, parameters.prevChildFertBias, nch) do n
-        pNChildrenInPotMotherAndClass(model, n, womanRank, parameters)
-    end
-end
-
-
-function resetCachesBirth(model, pars)
-    resetCachePotentialMothers(model, pars)
-    resetCachePClassInPotentialMothers(model, pars)
-    resetCachePPotentialMotherInFertWAndAge(model, pars)
-    resetCachePNChildrenInPotMotherAndClass(model, pars)
 end
 
 
@@ -112,14 +99,14 @@ function computeBirthProb(woman, parameters, model, currstep)
     else
         # fertility rates are stored as P(pregnant) per year and age
         rawRate = model.fertility[fertAge, curryear-1950] /
-            pPotentialMotherInFertWAndAge(model, ageYears, parameters)
+            model.birthCache.pPotentialMotherInFertWAndAge[ageYears]
     end 
     
     # fertility bias by class
-    birthProb = rawRate * classBirthRateBias(model, parameters, womanRank) 
+    birthProb = rawRate * model.birthCache.classBias[womanRank+1] 
         
     # fertility bias by number of previous children
-    birthProb *= nchBirthRateBias(model, parameters, womanRank, min(4,nChildren(woman)))
+    birthProb *= model.birthCache.nChBias[womanRank+1, min(4,nChildren(woman))+1]
         
     min(1.0, birthProb)
 end # computeBirthProb

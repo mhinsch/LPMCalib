@@ -1,8 +1,6 @@
-using TypedMemo
-
 using Utilities
 
-export death!, setDead!, resetCacheDeath
+export death!, setDead! 
 
 function deathProbability(baseRate, person, model, parameters) 
     cRank = classRank(person)
@@ -16,8 +14,10 @@ function deathProbability(baseRate, person, model, parameters)
         mortalityBias = parameters.femaleMortalityBias 
     end 
 
-    a = sumClassBias(c -> socialClassShares(model, c), 0:(length(parameters.cumProbClasses)-1), 
-            mortalityBias)
+    a = isMale(person) ? model.deathCache.classBias_m : model.deathCache.classBias_f
+    #sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+    #        0:(length(parameters.cumProbClasses)-1), 
+    #        mortalityBias)
 
     if a > 0
         lowClassRate = baseRate / a
@@ -71,30 +71,49 @@ function setDead!(person)
     nothing
 end 
 
+mutable struct DeathCache
+    avgDieProb_m :: Float64
+    avgDieProb_f :: Float64
+    classBias_m :: Float64
+    classBias_f :: Float64
+end
+
+DeathCache() = DeathCache(0.0, 0.0, 0.0, 0.0)
+
+function deathPreCalc!(model, pars)
+    pc = model.deathCache
+    
+    s_m = 0.0
+    s_f = 0.0
+    n_m = 0
+    n_f = 0
+    for p in model.pop
+        if isMale(p)
+            s_m += ageDieProb(pars, yearsold(p), true)
+            n_m += 1
+        else
+            s_f += ageDieProb(pars, yearsold(p), false)
+            n_f += 1
+        end
+    end
+   
+    pc.avgDieProb_m = s_m / n_m
+    pc.avgDieProb_f = s_f / n_f
+    
+    pc.classBias_m = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+        0:(length(pars.cumProbClasses)-1), 
+        pars.maleMortalityBias)
+    pc.classBias_f = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
+        0:(length(pars.cumProbClasses)-1), 
+        pars.femaleMortalityBias)
+end
+
+
 ageDieProb(pars, agep, malep) = pars.baseDieProb + (malep ? 
                             exp(agep / pars.maleAgeScaling)  * pars.maleAgeDieProb : 
                             exp(agep / pars.femaleAgeScaling) * pars.femaleAgeDieProb)
                             
-@cached OffsetArrayDict{@RET}(2, 0) male function avgAgeDieProb(model, pars, male)
-    s = 0.0
-    n = 0
-    ismale = Bool(male)
-    for p in model.pop
-        if ismale != isMale(p)
-            continue
-        end
-       
-        s += ageDieProb(pars, yearsold(p), ismale)
-        n += 1
-    end
-   
-    s / n
-end
-
-function resetCacheDeath()
-    reset_all_caches!(avgAgeDieProb)
-end
-
+                            
 # currently leaves dead agents in population
 function death!(person, currstep, model, parameters)
 
@@ -116,18 +135,15 @@ function death!(person, currstep, model, parameters)
         else
             rawRate = model.pre51Deaths[yearIdx, 1] * 
                 ageDieProb(parameters, agep, isMale(person)) / 
-                    avgAgeDieProb(model, parameters, Int(isMale(person)))
+                    (isMale(person) ? 
+                        model.deathCache.avgDieProb_m : model.deathCache.avgDieProb_f) 
         end 
-        # lifeExpectancy = max(90 - agep, 5 // 1)  # ??? Does not currently play any role
-                        
     else                         
             
         agep = min(agep, 109)
         rawRate = isMale(person) ?  model.deathMale[agep+1,curryear-1950+1] : 
                                     model.deathFemale[agep+1,curryear-1950+1]
                                    
-        # lifeExpectancy = max(90 - agep, 3 // 1)  # ??? This is a direct translation 
-                        
     end # currYear < 1950 
                         
     #=

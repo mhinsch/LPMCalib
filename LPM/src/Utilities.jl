@@ -14,7 +14,7 @@ export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset, @static_var
 export dump, dump_property, dump_header
-export sumClassBias, rateBias
+export sumClassBias, rateBias, preCalcRateBias!
 
 
 # list of types 
@@ -104,6 +104,15 @@ end
 @inline function rateBias(classFn, range, bias, thisClass)
     bias^thisClass / sumClassBias(classFn, range, bias)  
 end
+
+
+@inline function preCalcRateBias!(fn, range, bias, array, offset = 0)
+    sumBias = sumClassBias(fn, range, bias)
+    for c in range
+        array[c+offset] = bias^c/sumBias
+    end
+end
+
 
 
 mutable struct Debug

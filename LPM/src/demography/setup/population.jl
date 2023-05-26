@@ -31,7 +31,7 @@ function randAge(pyramid, gender)
     mi = (i-1) * 5 * 12 # we are working in months
     ma = i * 5 * 12 - 1
     rand(mi:ma) // 12
-    end
+end
 
 
 function createPyramidPopulation(pars, pyramid)

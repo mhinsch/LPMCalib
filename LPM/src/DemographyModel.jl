@@ -27,7 +27,7 @@ using Utilities
 
 
 mutable struct Model
-    towns :: Vector{Town}
+    towns :: Vector{PersonTown}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
@@ -38,6 +38,13 @@ mutable struct Model
     pre51Deaths :: Matrix{Float64}
     deathFemale :: Matrix{Float64}
     deathMale :: Matrix{Float64}
+    
+    birthCache :: BirthCache{Person}
+    deathCache :: DeathCache
+    marriageCache :: MarriageCache{Person}
+    socialCache :: SocialCache
+    socialCareCache :: SocialCareCache
+    divorceCache :: DivorceCache
 end
 
 
@@ -61,7 +68,9 @@ function createDemographyModel!(data, pars)
     
     Model(towns, houses, population, [],
             byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
-            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale)
+            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
+            BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
+            SocialCareCache(), DivorceCache())
 end
 
 
@@ -105,9 +114,11 @@ end
 # TODO not entirely sure if this really belongs here
 function stepModel!(model, time, pars)
     shuffle!(model.pop)
-    resetCacheSocialClassShares(model)
-    resetCachesBirth(model, fuse(pars.poppars, pars.birthpars))
-    resetCacheDeath()
+    socialPreCalc!(model, pars)
+    socialCarePreCalc!(model, fuse(pars.poppars, pars.carepars))
+    divorcePreCalc!(model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
+    birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
+    deathPreCalc!(model, pars.poppars)
 
     applyTransition!(model.pop, "death") do person
         death!(person, time, model, pars.poppars)
@@ -155,8 +166,8 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "divorce") do person
         divorce!(person, time, model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     end
-
-    resetCacheMarriages()
+    
+    marriagePreCalc!(model, fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
     selected = Iterators.filter(p->selectMarriage(p, pars.workpars), model.pop)
     applyTransition!(selected, "marriage") do person
         marriage!(person, time, model, 
