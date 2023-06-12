@@ -1,14 +1,9 @@
-export DependencyBlock
-
-
-mutable struct DependencyBlock{P}
-    guardians :: Vector{P}
-    dependents :: Vector{P}
-    provider :: Union{P, Nothing}
-    providees :: Vector{P}
+@kwdef struct Dependency{P}
+    guardians :: Vector{P} = []
+    dependents :: Vector{P} = []
+    provider :: P = undefinedPerson#undefined(P)
+    providees :: Vector{P} = []
 end
-
-DependencyBlock{P}() where {P} = DependencyBlock{P}([], [], nothing, [])
 
 isDependent(p) = !isempty(p.guardians)
 

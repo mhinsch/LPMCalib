@@ -1,43 +1,29 @@
 using Utilities
 
 export isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold
+export Gender, male, female, unknown
+
+"Gender type enumeration"
+@enum Gender unknown female male 
 
 
 # TODO think about whether to make this immutable
-mutable struct BasicInfoBlock
-    age::Rational{Int} 
+@kwdef struct BasicInfo
+    alive :: Bool = true
+    age::Rational{Int} = 0//1 
     # (birthyear, birthmonth)
-    gender::Gender  
-    alive::Bool 
+    gender::Gender = unknown 
 end
 
-"Default constructor"
-BasicInfoBlock(;age=0//1, gender=unknown, alive = true) = BasicInfoBlock(age,gender,alive)
-
-isFemale(person::BasicInfoBlock) = person.gender == female
-isMale(person::BasicInfoBlock) = person.gender == male
-
-
-"costum @show method for Agent person"
-function Base.show(io::IO,  info::BasicInfoBlock)
-  year, month = age2yearsmonths(info.age)
-  print(" $(year) years & $(month) months, $(info.gender) ")
-  info.alive ? print(" alive ") : print(" dead ")  
-end
-
-# setDead!(person::BasicInfoBlock) = person.alive = false
+isFemale(person) = person.gender == female
+isMale(person) = person.gender == male
 
 "increment an age for a person to be used in typical stepping functions"
-agestep!(person::BasicInfoBlock, dt=1//12) = person.age += dt  
+agestep!(person, dt=1//12) = person.age += dt  
 
-"increment an age for a person to be used in typical stepping functions"
-function agestepAlive!(person::BasicInfoBlock, dt=1//12) 
-    person.age += person.alive ? dt : 0  
-end 
+hasBirthday(person) = person.age % 1 == 0
 
-hasBirthday(person::BasicInfoBlock) = person.age % 1 == 0
-
-function yearsold(person::BasicInfoBlock) 
+function yearsold(person) 
     trunc(Int, person.age)
 end 
 

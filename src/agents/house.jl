@@ -1,8 +1,12 @@
+using CompositeStructs
+
+
 export  House, HouseLocation
 
 export getHomeTown, getHouseLocation, undefined, isEmpty, town 
 
 using Utilities
+using DeclUtils
 
 include("agents_modules/carehouse.jl")
 
@@ -16,17 +20,21 @@ mutable struct House{P, T}
     # size::String                     # TODO enumeration type / at the moment not yet necessary  
     occupants::Vector{P}                           
     
-    care :: CareHouse{House{P, T}}
+    # manual composition for now, @composite does not allow
+    # partial specialisation
+    
+    "net care this house produces (or demands for values < 0)"
+    netCareSupply :: Int
+    "net care this house exports to others (or receives for values < 0)"
+    careProvided :: Int
+    careConnections :: Vector{House{P, T}}
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], CareHouse{House{P, T}}())
+House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[])
 
 
-@delegate_onefield House care [provideCare!, receiveCare!, resetCare!, careBalance]
-@export_forward House care [netCareSupply, careProvided, careConnections]
+@export_forward House [netCareSupply, careProvided, careConnections]
 
-
-undefined(house) = house.town == undefinedTown && house.pos == (-1,-1)
 
 isEmpty(house) = length(house.occupants) == 0
 

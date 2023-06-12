@@ -53,7 +53,8 @@ function createPyramidPopulation(pars, pyramid)
         gender = rand() < pars.initialPMales ? male : female
         age = randAge(pyramid, gender)
 
-        person = Person(undefinedHouse, age; gender)
+        person = Person(;age=age, gender=gender)
+        initialize!(person)
         if age < 18
             push!(population, person)
         else
@@ -151,8 +152,8 @@ function createUniformPopulation(pars)
         #    birthYear = properties[:startYear]  - ageMale/Female 
         #    birthMonth = rand((1:12))
 
-        newMan = Person(undefinedHouse,rageMale,gender=male)
-        newWoman = Person(undefinedHouse,rageFemale,gender=female)   
+        newMan = initialize!(Person(age=rageMale, gender=male))
+        newWoman = initialize(Person(age=rageFemale, gender=female))   
         setAsPartners!(newMan,newWoman) 
         
         push!(population,newMan);  push!(population,newWoman) 

@@ -6,12 +6,12 @@ module DeclUtils
 
     function setter(field, type) 
         name = setter_name(field)
-        :($(esc(name))(x::$type, value) = (x.$field = value))
+        :($(esc(name))(x::$(esc(type)), value) = (x.$field = value))
     end
 
     function getter(field, type) 
         name = getter_name(field)
-        :($(esc(name))(x::$type) = x.$field)
+        :($(esc(name))(x::$(esc(type))) = x.$field)
     end
 
     macro decl_setters(type, fields...)
@@ -46,6 +46,14 @@ module DeclUtils
         :(export $(esc(gname)), $(esc(sname)))
     end
 
+    macro export_forward(type, fieldvec)
+        @assert fieldvec.head == :vect
+        fields = fieldvec.args
+        Expr(:block,
+            [setter(f, type) for f in fields]...,
+            [getter(f, type) for f in fields]...,
+            [getset_export(f) for f in fields]...)
+    end
 
     macro export_forward(type, sub, fieldvec)
         @assert fieldvec.head == :vect

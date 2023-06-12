@@ -168,6 +168,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
         baby = Person(pos=woman.pos,
                         father=partner(woman),mother=woman,
                         gender=rand([male,female]))
+        initialize!(baby)
 
         # this goes first, so that we know material circumstances
         effectsOfMaternity!(woman, parameters)

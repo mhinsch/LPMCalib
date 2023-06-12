@@ -3,8 +3,6 @@ Diverse useful functions and types
 """
 module Utilities
 
-# Types 
-export Gender, male, female, unknown
 
 
 # Functions
@@ -19,9 +17,6 @@ export sumClassBias, rateBias, preCalcRateBias!
 
 # list of types 
 
-# TODO move to basicinfo
-"Gender type enumeration"
-@enum Gender unknown female male 
 
 # constants 
 
