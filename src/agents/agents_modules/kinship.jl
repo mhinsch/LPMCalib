@@ -12,7 +12,9 @@ end
 
 hasChildren(parent) = length(parent.children) > 0
 
-addChild!(parent, child) = push!(parent.children, child)
+function addChild!(parent, child)
+    push!(parent.children, child)
+end
 
 isSingle(person) = isUndefined(person.partner) 
 

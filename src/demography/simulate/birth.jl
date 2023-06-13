@@ -131,7 +131,7 @@ function effectsOfMaternity!(woman, pars)
     =# 
 
     # TODO not necessarily true in many cases
-    if provider(woman) == nothing
+    if provider(woman) == undefinedPerson
         setAsProviderProvidee!(partner(woman), woman)
     end
 
