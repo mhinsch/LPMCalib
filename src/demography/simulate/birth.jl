@@ -165,10 +165,12 @@ function birth!(woman, currstep, model, parameters, addBaby!)
                         
     if rand() < p_yearly2monthly(limit(0.0, birthProb, 1.0)) 
                         
-        baby = Person(pos=woman.pos,
-                        father=partner(woman),mother=woman,
-                        gender=rand([male,female]))
-        initialize!(baby)
+        baby = Person(gender=rand([male,female]))
+        moveToHouse!(baby, woman.pos)
+        setAsParentChild!(baby, woman)
+        if !isSingle(woman) # currently not an option
+            setAsParentChild!(baby, partner(woman))
+        end
 
         # this goes first, so that we know material circumstances
         effectsOfMaternity!(woman, parameters)

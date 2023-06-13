@@ -56,27 +56,6 @@ Person ties various agent modules into one compound agent type.
     Person(args...) = new(args...)
 end # struct Person 
 
-function initialize!(person)
-    if !isUndefined(person.pos)
-        addOccupant!(person.pos, person)
-    end
-    if !isUndefined(person.father) 
-        addChild!(person.father,person) 
-    end 
-    if !isUndefined(person.mother) 
-        addChild!(person.mother,person) 
-    end 
-    if !isUndefined(person.partner)
-        resetPartner!(person.partner)
-        person.partner.partner = person 
-    end 
-    if length(person.children) > 0
-        for child in person.children
-            setAsParentChild!(person,child)
-        end
-    end 
-    person  
-end 
 
 # delegate functions to components
 # and export accessors
