@@ -11,16 +11,22 @@ end
 
 function provideCare!(house, care, to)
     house.careProvided += care
-    push!(house.careConnections, to) 
-    sort!(house.careConnections, by=objectid)
-    unique!(house.careConnections)
+    if !(to in house.careConnections)
+        push!(house.careConnections, to) 
+    end
+    #sort!(house.careConnections, by=objectid)
+    #sorted_unique!(house.careConnections)
+    #unique!(house.careConnections)
 end
 
 function receiveCare!(house, care, from)
     house.careProvided -= care
-    push!(house.careConnections, from)
-    sort!(house.careConnections, by=objectid)
-    unique!(house.careConnections)
+    if !(from in house.careConnections)
+        push!(house.careConnections, from)
+    end
+    #sort!(house.careConnections, by=objectid)
+    #sorted_unique!(house.careConnections)
+    #unique!(house.careConnections)
 end
 
 function resetCare!(house, ncs)
