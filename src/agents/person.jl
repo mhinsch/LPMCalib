@@ -4,7 +4,7 @@ using DeclUtils
 using TypedDelegation
 
 export Person
-export PersonHouse, undefinedHouse
+export PersonHouse, isUndefined, undefinedHouse
 
 export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita

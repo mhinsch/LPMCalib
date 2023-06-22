@@ -59,7 +59,7 @@ end
     end
 
     @for person in model.pop begin
-        @stat("age", MVA, HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @stat("age", MVA, HistAcc(0.0, 3.0)) <| Float64(age(person))
         @stat("married", CountAcc) <| (!isSingle(person))
         @stat("single", CountAcc) <| (age(person) > 18 && isSingle(person))
         @stat("alive", CountAcc) <| true
