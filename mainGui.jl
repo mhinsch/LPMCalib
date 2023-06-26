@@ -5,6 +5,20 @@ include("analysis.jl")
 using GLMakie
 
 
+struct LTTicks{T}
+    ticks::T
+    offset::Float64
+    slope::Float64
+end
+
+function Makie.get_ticks(lt::LTTicks, scale, formatter, vmin, vmax)
+    lims_transformed = (vmin, vmax) .* lt.slope .+ lt.offset
+    tickvals_transformed, ticklabels = Makie.get_ticks(lt.ticks, scale, formatter, lims_transformed...)
+    tickvals_untransformed = (tickvals_transformed .- lt.offset) ./ lt.slope
+    return tickvals_untransformed, ticklabels
+end
+
+
 function setto!(a1::AbstractVector, a2::AbstractVector)
     resize!(a1, length(a2))
     a1[:] = a2
@@ -92,16 +106,18 @@ function main(parOverrides...)
     lines!(obs_poss_c, color=:yellow)
     lines!(obs_poss_p, color=:black)
     lines!(obs_poss_s, color=:blue)
-    follow_agent = rand(model.pop)
+    f_agent = rand(model.pop)
     
     dat_pop = [0.0] 
     dat_marr = [0.0] 
     obs_pop = Observable([dat_pop, dat_marr])
-    ax_pop, _ = series(fig[1,2], obs_pop, labels=["N", "#married"])
+    ax_pop, _ = series(fig[1,2], obs_pop, labels=["population size", "#married"],
+        axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
     axislegend(ax_pop)
     
     obs_age = Observable([0.0])
-    ax_age, _ = barplot(fig[1,3], obs_age, label="population pyramid", direction=:x)
+    ax_age, _ = barplot(fig[1,3], obs_age, label="population pyramid", direction=:x, 
+        axis=(; yticks=LTTicks(WilkinsonTicks(10), 0.0, 3.0)))
     axislegend(ax_age)
     
     obs_careneed = Observable([0.0])
@@ -109,9 +125,10 @@ function main(parOverrides...)
     obs_inc_dec = Observable([0.0])
     obs_age_diff = Observable([0.0])
     ax_careneed, _ = barplot(fig[2,2][1,1], obs_careneed, label="care need")
-    ax_class, _ = barplot(fig[2,2][1,2], obs_class, label="class")
-    ax_inc_dec, _ = barplot(fig[2,2][2,1], obs_inc_dec, label="income dec")
-    ax_age_diff, _ = barplot(fig[2,2][2,2], obs_age_diff, label="age diff")
+    ax_class, _ = barplot(fig[2,2][1,2], obs_class, label="social class")
+    ax_inc_dec, _ = barplot(fig[2,2][2,1], obs_inc_dec, label="income deciles")
+    ax_age_diff, _ = barplot(fig[2,2][2,2], obs_age_diff, label="couple age diff",
+        axis=(; xticks=LTTicks(WilkinsonTicks(5), -10.0, 1.0)))
     axislegend(ax_careneed)
     axislegend(ax_class)
     axislegend(ax_inc_dec)
@@ -120,7 +137,8 @@ function main(parOverrides...)
     dat_cares = [0.0]
     dat_careb = [0.0]
     obs_care = Observable([dat_cares, dat_careb])
-    ax_care, _ = series(fig[2,3], obs_care, labels=["care supply", "unmet care"])
+    ax_care, _ = series(fig[2,3], obs_care, labels=["care supply", "unmet care need"],
+        axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
     axislegend(ax_care)
     
     #dat_f_status = Vector{Float64}()
@@ -139,10 +157,10 @@ function main(parOverrides...)
     Label(fig[3,1][1,1], obs_year, tellwidth=false, fontsize=25)
     
     randbutton = Button(fig[3,1][1,2]; label = "agent", tellwidth = false)    
-    on(randbutton.clicks) do clicks; follow_agent = rand(model.pop); end
+    on(randbutton.clicks) do clicks; f_agent = rand(model.pop); end
     
     obs_agent= Observable("")
-    Label(fig[3,1][1,3], obs_agent, tellwidth=false)
+    Label(fig[3,1][1,3], obs_agent, tellwidth=false, justification=:left)
     
     time = Rational(pars.poppars.startTime)
     while goon[]
@@ -178,10 +196,10 @@ function main(parOverrides...)
         if pause[]
             sleep(0.001)
         end
-        if !alive(follow_agent)
-            follow_agent = rand(model.pop)
+        if !alive(f_agent)
+            f_agent = rand(model.pop)
         end
-        network!(poss, follow_agent)
+        network!(poss, f_agent)
         
         notify(obs_hc)
         notify(obs_poss_c)
@@ -206,8 +224,17 @@ function main(parOverrides...)
         notify(obs_age)
         autolimits!(ax_age)
         
-        obs_agent[] = "age: $(floor(Int, age(follow_agent)))\n" * 
-            "care need: $(careNeedLevel(follow_agent))"  
+        m_status = isUndefined(partner(f_agent)) ? "single" : "married"
+        m_s = isUndefined(mother(f_agent)) ? "" : "mother"
+        f_s = isUndefined(father(f_agent)) ? "" : "father"
+        n_sibs = count(x->!isUndefined(x), siblings(f_agent))
+        n_ch = count(x->!isUndefined(x), children(f_agent))
+        obs_agent[] = "age: $(floor(Int, age(f_agent)))\n" * 
+            "status: $m_status\n" *
+            "living parents: $m_s $f_s\n" *
+            "$n_sibs siblings\n" *
+            "$n_ch children\n" *
+            "care need: $(careNeedLevel(f_agent))"  
         obs_year[] = "$(floor(Int, Float64(time)))"
     end
 
