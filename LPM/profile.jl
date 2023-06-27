@@ -1,6 +1,6 @@
 using ProfileView
 
-include("lpm.jl")
+include("mainHelpers.jl")
 include("analysis.jl")
 
 const simPars, pars = loadParameters(ARGS)

@@ -79,11 +79,11 @@ end
 
 # probability to start studying instead of working
 function startStudyProb(person, model, pars)
-    if father(person) == nothing && mother(person) == nothing
+    if father(person) == mother(person) == undefinedPerson
         return 0.0
     end
     
-    if provider(person) == nothing
+    if isUndefined(provider(person))
         return 0.0
     end
 

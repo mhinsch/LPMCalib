@@ -1,9 +1,8 @@
-export MaternityBlock
 export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
 
-mutable struct MaternityBlock
-    maternityStatus :: Bool
-    monthsSinceBirth :: Int
+@kwdef struct Maternity
+    maternityStatus :: Bool = false
+    monthsSinceBirth :: Int = 0
 end
 
 isInMaternity(mat) = mat.maternityStatus

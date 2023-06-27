@@ -3,13 +3,11 @@ Diverse useful functions and types
 """
 module Utilities
 
-# Types 
-export Gender, male, female, unknown
 
 
 # Functions
 export p_yearly2monthly, applyTransition!, remove_unsorted!, limit 
-export removefirst!, date2yearsmonths, age2yearsmonths
+export removefirst!, sorted_unique!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset, @static_var
@@ -19,9 +17,6 @@ export sumClassBias, rateBias, preCalcRateBias!
 
 # list of types 
 
-# TODO move to basicinfo
-"Gender type enumeration"
-@enum Gender unknown female male 
 
 # constants 
 
@@ -51,6 +46,20 @@ limit(mi, v, ma) = min(ma, max(mi, v))
 function remove_unsorted!(list, index)
     list[index] = list[end]
     pop!(list)
+end
+
+function sorted_unique!(ar)
+    v = ar[end]
+    l = max(0, length(ar) - 1)
+    for i in l:-1:1
+        e = ar[i]
+        if e == v
+            ar[i] = ar[end]
+            pop!(ar)
+        else
+            v = e
+        end
+    end
 end
 
 "Apply a transition function to an iterator."

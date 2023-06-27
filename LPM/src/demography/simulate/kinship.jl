@@ -24,12 +24,12 @@ function kinshipNetwork(filter, house, model, pars)
         end
         
         f = father(person) 
-        if f != nothing 
+        if !isUndefined(f) 
             checkAndAdd!(f.pos)
         end
         
         m = mother(person) 
-        if m != nothing 
+        if !isUndefined(m) 
             checkAndAdd!(m.pos)
         end
     end

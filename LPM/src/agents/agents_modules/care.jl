@@ -1,7 +1,6 @@
-export CareBlock
 
-mutable struct CareBlock
-    careNeedLevel :: Int
-    socialWork :: Int
-    childWork :: Int
+@kwdef struct Care
+    careNeedLevel :: Int = 0
+    socialWork :: Int = 0
+    childWork :: Int = 0
 end

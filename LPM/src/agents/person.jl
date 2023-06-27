@@ -1,9 +1,10 @@
-using TypedDelegation
+using CompositeStructs
 
 using DeclUtils
+using TypedDelegation
 
 export Person
-export PersonHouse, undefinedHouse
+export PersonHouse, isUndefined, undefinedHouse
 
 export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
@@ -30,128 +31,64 @@ include("agents_modules/dependencies.jl")
 
 """
 Specification of a Person Agent Type. 
-
-This file is included in the module XAgents
-
-Type Person extends from AbstractAgent.
-
 Person ties various agent modules into one compound agent type.
 """ 
 
-# vvv More classification of attributes (Basic, Demography, Relatives, Economy )
-mutable struct Person 
-    """
-    location of a parson's house in a map which implicitly  
-    - (x-y coordinates of a house)
-    - (town::Town, x-y location in the map)
-    """ 
-    pos::House{Person, Town}
-    info::BasicInfoBlock     
-    kinship::KinshipBlock{Person}
-    maternity :: MaternityBlock
-    work :: WorkBlock
-    care :: CareBlock
-    class :: ClassBlock
-    dependencies :: DependencyBlock{Person}
-
-    "Internal constructor" 
-    function Person(pos, info, kinship, maternity, work, care, class, dependencies)
-        person = new(pos,info,kinship, maternity, work, care, class, dependencies)
-        if !undefined(pos)
-            addOccupant!(pos, person)
-        end
-        if kinship.father != nothing 
-            addChild!(kinship.father,person) 
-        end 
-        if kinship.mother != nothing 
-            addChild!(kinship.mother,person) 
-        end 
-        if kinship.partner != nothing
-            resetPartner!(kinship.partner)
-            kinship.partner.kinship.partner = person 
-        end 
-        if length(kinship.children) > 0
-            for child in kinship.children
-                setAsParentChild!(person,child)
-            end
-        end 
-        person  
-    end # Person Core
+@composite @kwdef mutable struct Person 
+    
+    BasicInfo...
+    Kinship{Person}...
+    Maternity...
+    Work...
+    Care...
+    Class...
+    Dependency{Person}...
+    
+    pos::House{Person, Town} = undefinedHouse
+    # undefined Person
+    function Person(::Nothing)
+        p = new()
+        p.age = -1
+        p
+    end
+    
+    # default constructor
+    Person(args...) = new(args...)
 end # struct Person 
 
-"Constructor with default values"
-
-Person(pos,age; gender=unknown,
-    father=nothing,mother=nothing,
-    partner=nothing,children=Person[]) = 
-        Person(pos,BasicInfoBlock(;age, gender), 
-               KinshipBlock{Person}(father,mother,partner,0,children), 
-            MaternityBlock(false, 0),
-            WorkBlock(),
-            CareBlock(0, 0, 0),
-            ClassBlock(0, 0), DependencyBlock{Person}())
-
-
-"Constructor with default values"
-Person(;pos=undefinedHouse,age=0,
-        gender=unknown,
-        father=nothing,mother=nothing,
-        partner=nothing,children=Person[]) = 
-            Person(pos,BasicInfoBlock(;age,gender), 
-                   KinshipBlock{Person}(father,mother,partner,0,children),
-                MaternityBlock(false, 0),
-                WorkBlock(),
-                CareBlock(0, 0, 0),
-                ClassBlock(0, 0), DependencyBlock{Person}())
 
 # delegate functions to components
 # and export accessors
 
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
-@export_forward Person info [age, gender, alive]
-@delegate_onefield Person info [isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold]
-
-@export_forward Person kinship [father, mother, partner, children, pTime]
-@delegate_onefield Person kinship [hasChildren, addChild!, isSingle, parents, siblings, 
-                                   nChildren]
-
-@delegate_onefield Person maternity [startMaternity!, stepMaternity!, endMaternity!, 
-    isInMaternity, maternityDuration]
-
-@export_forward Person work [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
+@export_forward Person [age, gender, alive]
+@export_forward Person [father, mother, partner, children, pTime]
+@export_forward Person [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
     wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
     availableWorkingHours, workingPeriods, workExperience, pension]
-@delegate_onefield Person work [setEmptyJobSchedule!, setFullWeeklyTime!]
-
-@export_forward Person care [careNeedLevel, socialWork, childWork]
-
-@export_forward Person class [classRank, parentClassRank]
-@delegate_onefield Person class [addClassRank!]
-
-@export_forward Person dependencies [guardians, dependents, provider, providees]
-@delegate_onefield Person dependencies [isDependent, hasDependents, hasProvidees]
-
-"costum @show method for Agent person"
-function Base.show(io::IO,  person::Person)
-    print(person.info)
-#    undefined(person.pos) ? nothing : print(" @ House id : $(person.pos.id)") 
-    print(person.kinship)
-    println() 
-end
-
-#Base.show(io::IO, ::MIME"text/plain", person::Person) = Base.show(io,person)
-
+@export_forward Person [careNeedLevel, socialWork, childWork]
+@export_forward Person [classRank, parentClassRank]
+@export_forward Person [guardians, dependents, provider, providees]
 
 const PersonHouse = House{Person, Town}
 const PersonTown = Town{PersonHouse}
 const undefinedTown = PersonTown((-1,-1), 0.0)
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
+const undefinedPerson = Person(nothing)
 
+undefined(::Type{PersonHouse}) = undefinedHouse
+undefined(::Type{PersonTown}) = undefinedTown
+undefined(::Type{Person}) = undefinedPerson
+
+
+isUndefined(h::PersonHouse) = h == undefinedHouse
+isUndefined(t::PersonTown) = t == undefinedTown
+isUndefined(p::Person) = p == undefinedPerson
 
 "associate a house to a person, removes person from previous house"
 function moveToHouse!(person::Person,house)
-    if ! undefined(person.pos) 
+    if ! isUndefined(person.pos) 
         removeOccupant!(person.pos, person)
     end
 
@@ -161,7 +98,7 @@ end
 
 "reset house of a person (e.g. became dead)"
 function resetHouse!(person::Person) 
-    if ! undefined(person.pos) 
+    if ! isUndefined(person.pos) 
         removeOccupant!(person.pos, person)
     end
 
@@ -184,8 +121,8 @@ end
 
 
 areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
-areSiblings(person1, person2) = father(person1) == father(person2) != nothing || 
-    mother(person1) == mother(person2) != nothing
+areSiblings(person1, person2) = father(person1) == father(person2) != undefinedPerson || 
+    mother(person1) == mother(person2) != undefinedPerson
 related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
 
@@ -199,8 +136,8 @@ householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.o
 function setAsParentChild!(child::Person,parent::Person) 
     @assert isMale(parent) || isFemale(parent)
     @assert age(child) < age(parent)
-    @assert (isMale(parent) && father(child) == nothing) ||
-        (isFemale(parent) && mother(child) == nothing) 
+    @assert (isMale(parent) && isUndefined(father(child))) ||
+        (isFemale(parent) && isUndefined(mother(child))) 
 
     addChild!(parent, child)
     setParent!(child, parent) 
@@ -212,10 +149,10 @@ end
 
 function resetPartner!(person)
     other = partner(person)
-    if other != nothing 
-        partner!(person, nothing)
+    if !isUndefined(other) 
+        partner!(person, undefinedPerson)
         pTime!(person, 0)
-        partner!(other, nothing)
+        partner!(other, undefinedPerson)
         pTime!(other, 0)
     end
     nothing 
@@ -310,6 +247,7 @@ function resolveDependency!(guardian, dependent)
         error("inconsistent dependency!")
     end
     deleteat!(guards, idx_g)
+    nothing
 end
 
 
@@ -330,12 +268,12 @@ end
 # then something is seriously wrong
 function checkConsistencyDependents(person)
     for guard in guardians(person)
-        @assert guard != nothing && alive(guard)
+        @assert !isUndefined(guard) && alive(guard)
         @assert person in dependents(guard)
     end
 
     for dep in dependents(person)
-        @assert dep != nothing && alive(dep)
+        @assert !isUndefined(dep)  
         @assert age(dep) < 18
         @assert person.pos == dep.pos
         @assert person in guardians(dep)
@@ -344,7 +282,7 @@ end
 
 
 function setAsProviderProvidee!(prov, providee)
-    @assert provider(providee) == nothing
+    @assert isUndefined(provider(providee))
     @assert !(providee in providees(prov))
     push!(providees(prov), providee)
     provider!(providee, prov)
@@ -352,13 +290,13 @@ function setAsProviderProvidee!(prov, providee)
 end
 
 function setAsSelfproviding!(person)
-    if provider(person) == nothing
+    if isUndefined(provider(person))
         return
     end
 
     provs = providees(provider(person))
     deleteat!(provs, findfirst(==(person), provs))
-    provider!(person, nothing)
+    provider!(person, undefinedPerson)
     nothing
 end
 
@@ -366,11 +304,11 @@ end
 function maxParentRank(person)
     f = father(person)
     m = mother(person)
-    if f == m == nothing
+    if f == m == undefinedPerson
         classRank(person)
-    elseif f == nothing
+    elseif f == undefinedPerson
         classRank(m)
-    elseif m == nothing
+    elseif m == undefinedPerson
         classRank(f)
     else
         max(classRank(m), classRank(f))

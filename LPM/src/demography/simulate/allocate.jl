@@ -4,7 +4,7 @@ export findEmptyHouseInTown, findEmptyHouseInOrdAdjacentTown,
 
 function selectHouse(list)
     if isempty(list)
-        return nothing
+        return undefinedHouse
     end
     rand(list)
 end
@@ -37,21 +37,21 @@ end
 
 # people[1] determines centre of search radius
 function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=PersonTown[])
-    newhouse = nothing
+    newhouse = undefinedHouse
 
     if dmax == :here
         newhouse = findEmptyHouseInTown(getHomeTown(people[1]))
     end
-    if dmax == :near || newhouse == nothing 
+    if dmax == :near || newhouse == undefinedHouse
         newhouse = findEmptyHouseInOrdAdjacentTown(getHomeTown(people[1]), allHouses, allTowns) 
     end
-    if dmax == :far || newhouse == nothing
+    if dmax == :far || newhouse == undefinedHouse
         newhouse = findEmptyHouseAnywhere(allHouses)
     end 
 
-    if newhouse != nothing
+    if newhouse != undefinedHouse
         movePeopleToHouse!(people, newhouse)
         return newhouse
     end
-    nothing 
+    undefinedHouse 
 end

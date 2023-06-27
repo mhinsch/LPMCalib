@@ -18,7 +18,7 @@ selectAssignGuardian(person) = alive(person) && !canLiveAlone(person) &&
 
 function assignGuardian!(person, time, model, pars)
     guard = findFamilyGuardian(person)
-    if guard == nothing
+    if isUndefined(guard) 
         guard = findOtherGuardian(person, model.pop, pars)
     end
 
@@ -27,7 +27,7 @@ function assignGuardian!(person, time, model, pars)
     # that are now excluded due to age won't get a chance again in the future
     empty!(guardians(person))
 
-    if guard == nothing
+    if isUndefined(guard) 
         return false
     end
 
@@ -52,7 +52,7 @@ function findFamilyGuardian(person)
     # relatives of biological parents
     # any of these might already be guardians, but in that case they will be dead
     for p in pparents
-        if p == nothing
+        if isUndefined(p) 
             continue
         end
         append!(potGuardians, parents(p))
@@ -68,13 +68,13 @@ function findFamilyGuardian(person)
     # potentially lots of redundancy, but just take the first 
     # candidate that works
     for g in potGuardians
-        if g == nothing || !alive(g) || age(g) < 18 
+        if isUndefined(g) || !alive(g) || age(g) < 18 
             continue
         end
         return g
     end
 
-    return nothing
+    return undefinedPerson
 end
 
 function findOtherGuardian(person, people, pars)
@@ -86,7 +86,7 @@ function findOtherGuardian(person, people, pars)
         return rand(candidates)
     end
 
-    return nothing
+    return undefinedPerson
 end
 
 
