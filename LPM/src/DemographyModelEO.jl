@@ -135,6 +135,11 @@ function stepModel!(model, time, pars)
         assignGuardian!(person, time, model, pars)
     end
 
+    selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
+    applyTransition!(selected, "work") do person
+        workTransition!(person, time, model, pars.workpars)
+    end
+    
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
     applyTransition!(selected, "social") do person
         socialTransition!(person, time, model, pars.workpars) 
@@ -145,11 +150,6 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "marriage") do person
         marriage!(person, time, model, 
             fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
-    end
-    
-    selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
-    applyTransition!(selected, "work") do person
-        workTransition!(person, time, model, pars.workpars)
     end
     
     selected = Iterators.filter(p->selectRelocate(p, pars.workpars), model.pop)
