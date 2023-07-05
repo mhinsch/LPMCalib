@@ -159,8 +159,19 @@ end
     careEducationParam :: Float64       = 0.0
     workDiscountingTime :: Float64      = 1.0
     moveOutProb :: Float64				= 0.1
+    numberAgeBands :: Int				= 5
+    shareFinancialWealth :: Float64		= 0.3
+    pensionReturnRate :: Float64		= 0.05/12
+    shiftsWeights :: Vector{Float64}	= [51.80, 66.10, 70.10, 71.40, 54.10, 63.40, 68.60, 65.00, 
+        54.70, 35.00, 20.70, 15.70, 13.00, 11.50, 9.10, 6.80, 4.60, 3.80, 3.20, 3.00, 4.60, 6.70, 
+        13.90, 28.80]
+    probSaturdayShift :: Float64		= 0.2
+    probSundayShift :: Float64			= 0.1
+    sundaySocialIndex :: Float64		= 0.5
+    shiftBeta :: Float64				= 0.1
+    dayBeta :: Float64					= 0.1
 end
-    
+
 
 "Divorce"
 @with_kw mutable struct DivorcePars

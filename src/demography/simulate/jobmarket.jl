@@ -48,22 +48,22 @@ ageBand(age) =
     end
     
     
-function computeUR(ur, classShares, ageShares, classBias, ageBias, classGroup, ageGroup, pars)
+function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
     a = 0
     for i in 0:(length(pars.cumProbClasses)-1)
-        a += classShares[i+1] * classBias^i
+        a += classShares[i+1] * unemploymentClassBias^i
     end
     lowClassRate = ur/a
-    classRate = lowClassRate * classBias^classGroup
+    classRate = lowClassRate * unemploymentClassBias^classGroup
     
     a = 0
     for i in 1:pars.numberAgeBands 
-        a += ageShares[i] * ageBias[i]
+        a += ageShares[i] * unemploymentAgeBias[i]
     end
     
     lowerAgeBandRate = a>0 ? classRate/a : 0
         
-    lowerAgeBandRate * ageBias[ageGroup]
+    lowerAgeBandRate * unemploymentAgeBias[ageGroup]
 end
 
 
@@ -166,7 +166,7 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         
         jobShift!(person, shift)
         daysOff!(person, [x for x in 1:8 if x not in shift.days])
-        workingHours!(person, pars.weeklyHours][careNeedLevel(person)]
+        workingHours!(person, pars.weeklyHours[careNeedLevel(person)]
         jobSchedule!(person, weeklySchedule(shift, workingHours(person)))
         remove_unsorted!(shift, shift_i)
     end

@@ -38,6 +38,8 @@ mutable struct Model
     pre51Deaths :: Matrix{Float64}
     deathFemale :: Matrix{Float64}
     deathMale :: Matrix{Float64}
+    unemploymentSeries :: Vector{Float64}
+    wealthPercentiles :: Vector{Float64}
     
     birthCache :: BirthCache{Person}
     deathCache :: DeathCache
