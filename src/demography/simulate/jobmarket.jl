@@ -146,7 +146,6 @@ function updateWealth!(houses, wealthPercentiles, pars)
 end
 
 function assignJobs!(hiredAgents, shiftsPool, month, pars)
-    # Create a list of weekly shifts
     sort!(hiredAgents, by=unemploymentIndex)
     # TODO draw w/out replacement?
     shifts = rand(shiftsPool, length(hiredAgents))
@@ -177,6 +176,7 @@ end
 
 function createShifts(pars)
     allHours = zeros(Int, 24)
+    # distribute 9000 according to shift weight
     f = 9000 / sum(pars.shiftsWeights)
     for (i, w) in enumerate(pars.shiftsWeights)
         allHours[i] = round(Int, w*f)
@@ -184,25 +184,22 @@ function createShifts(pars)
     
     sumHours = sum(allHours)
     
-    draw(ah, i) = (n=1; while (i-=ah[n])>0; n+= 1; end; n) 
-    
-    #=numShifts = [round(Int, x) for x in pars.shiftsWeights]
-    hours = Int[]
-    for num in numShifts, i in 1:num
-        push!(hours, num)
-    end
-    allHours = rand(hours, 9000)=#
     
     allShifts = Vector{Shift}[]
     shifts = Vector{Int}[]
     for i in 1:1000
-        hour = draw(allHours, rand(1:sumHours))
+        # draw a random shift hour according to weight 
+        hour = 1; i = rand(1:sumHours)
+        while (i-=allHours[hour]) > 0; hour += 1; end 
         allHours[hour] -= 1
         sumHours -= 1
         
         shift = [hour]
         
+        # extend shift hours in both directions according to weight until
+        # 8 hours are reached or weights on both sides are 0
         while length(shift) < 8
+            # hours before and after `hour` with wraparound
             nextHours = (23+shift[1]-1)%24 + 1, shift[end]%24 + 1
             
             weights = allHours[nextHours[1]], allHours[nextHours[2]]
@@ -222,29 +219,32 @@ function createShifts(pars)
         
         push!(shifts, shift)
     end
-        # pdb.set_trace()
 
-    for shift in shifts:
-        days = []
+    for shift in shifts
+        days = Int[]
         weSocIndex = 0
-        if np.random.random() < self.p['probSaturdayShift']:
-            days.append(6)
+        if rand() < pars.probSaturdayShift
+            push!(days, 6)
             weSocIndex -= 1
-        if np.random.random() < self.p['probSundayShift']:
-            days.append(7)
-            weSocIndex -= (1 + self.p['sundaySocialIndex'])
-        if len(days) == 0:
-            days = range(1, 6)
-        elif len(days) == 1:
-            days.extend(np.random.choice(range(1, 6), 4, replace=False))
-        else:
-            days.extend(np.random.choice(range(1, 6), 3, replace=False))
-            
-        startHour = (shift[0]+7)%24+1
-        socIndex = np.exp(self.p['shiftBeta']*self.p['shiftsWeights'][shift[0]]+self.p['dayBeta']*weSocIndex)
+        end
+        if rand() < pars.probSundayShift
+            push!(days, 7)
+            weSocIndex -= (1 + pars.sundaySocialIndex)
+        end
+        if length(days) == 0
+            days = collect(1:6)
+        elseif length(days) == 1
+            append!(days, shuffle(1:6)[1:4])
+        else
+            append!(days, shuffle(1:6)[1:3])
+        end
         
-        newShift = Shift(days, startHour, shift[0], shift, socIndex)
-        allShifts.append(newShift)
+        startHour = (shift[1]+7)%24+1
+        socIndex = exp(pars.shiftBeta * pars.shiftsWeights[shift[1]] + pars.dayBeta * weSocIndex)
+        
+        newShift = Shift(days, startHour, shift[1], shift, socIndex)
+        push!(allShifts, newShift)
+    end
     
-    return allShifts
-
+    allShifts
+end
