@@ -66,7 +66,8 @@ end # struct Person
 @export_forward Person [father, mother, partner, children, pTime]
 @export_forward Person [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
     wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
-    availableWorkingHours, workingPeriods, workExperience, pension]
+    availableWorkingHours, workingPeriods, workExperience, pension, unemploymentIndex,
+    unemploymentMonths, monthHired, jobShift, daysOff, jobSchedule, cumulativeIncome, wealth]
 @export_forward Person [careNeedLevel, socialWork, childWork]
 @export_forward Person [classRank, parentClassRank]
 @export_forward Person [guardians, dependents, provider, providees]

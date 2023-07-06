@@ -21,6 +21,8 @@ const WST = WorkStatus.T
     income :: Float64 = 0
     "income for full work schedule"
     potentialIncome :: Float64 = 0
+    cumulativeIncome :: Float64 = 0
+    wealth :: Float64 = 0
     "periods worked so far in current job"
     jobTenure :: Int = 0
     "7x24 schedule of actual working hours"
@@ -35,6 +37,12 @@ const WST = WorkStatus.T
     workingPeriods :: Float64 = 0
     workExperience :: Float64 = 0
     pension :: Float64 = 0
+    unemploymentIndex :: Float64 = 0
+    unemploymentMonths :: Int = 0
+    monthHired :: Int = 0
+    jobShift :: Shift = Shift()
+    daysOff :: Vector{Int} = []
+    jobSchedule :: Matrix{Int} = zeros(Int, 7, 24)
 end
 
 function setEmptyJobSchedule!(work)

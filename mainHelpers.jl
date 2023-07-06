@@ -27,8 +27,11 @@ function setupModel(pars)
                                 dir * "/" * datp.pre51DeathsFName,
                                 dir * "/" * datp.deathFFName,
                                 dir * "/" * datp.deathMFName)
+                                
+    workData = loadWorkData(dir * "/" * datp.unemplFName, 
+        dir * "/" * datp.wealthFName)
 
-    model = createDemographyModel!(demoData, pars)
+    model = createDemographyModel!(demoData, workData, pars)
 
     initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars)
     

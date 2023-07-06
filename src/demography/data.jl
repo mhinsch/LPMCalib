@@ -2,7 +2,7 @@ using CSV
 using Tables
 
 
-export loadDemographyData, DemographyData
+export loadDemographyData, DemographyData, loadWorkData, WorkData
 
 struct DemographyData
     initialAgePyramid :: Vector{Vector{Float64}}
@@ -12,6 +12,12 @@ struct DemographyData
     deathFemale :: Matrix{Float64}
     deathMale   :: Matrix{Float64}  
 end
+
+struct WorkData
+    unemployment :: Vector{Float64}
+    wealth :: Vector{Float64}
+end
+
 
 function loadDemographyData(apFName, pre51FertFName, fertFName, 
     pre51DeathsFName, deathFFName, deathMFName) 
@@ -27,3 +33,10 @@ function loadDemographyData(apFName, pre51FertFName, fertFName,
         pre51Fert, fert, pre51Deaths, deathFemale, deathMale)
 end
 
+
+function loadWorkData(unemplFName, wealthFName)
+    unemployment = CSV.File(unemplFName, header=0) |> Tables.matrix
+    wealth = CSV.File(wealthFName, header=0) |> Tables.matrix
+    
+    WorkData(unemployment[:, 1], wealth[:, 1])
+end

@@ -1,14 +1,3 @@
-struct Shift
-    days :: Int
-    start :: Int
-    startIndex :: Int
-    shiftHours :: Int
-    finish :: Int
-    socialIndex :: Int
-end
-
-Shift(days, hour, hourIndex, shiftHours, socInd) = 
-    Shift(days, hour, hourIndex, shiftHours, hour+8, socInd)
 
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
@@ -21,10 +10,10 @@ function weeklySchedule(shift, weeklyHours)
         end
     end
     
-    weeklySchedule = [zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24)]
+    weeklySchedule = zeros(Int, 7, 24)#[zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24)]
     for day in shift.days
         for hour in shiftHours
-            weeklySchedule[day][hour+1] = 1
+            weeklySchedule[day, hour] = 1
         end
     end
     
@@ -51,19 +40,19 @@ ageBand(age) =
 function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
     a = 0
     for i in 0:(length(pars.cumProbClasses)-1)
-        a += classShares[i+1] * unemploymentClassBias^i
+        a += classShares[i+1] * pars.unemploymentClassBias^i
     end
     lowClassRate = ur/a
-    classRate = lowClassRate * unemploymentClassBias^classGroup
+    classRate = lowClassRate * pars.unemploymentClassBias^classGroup
     
     a = 0
     for i in 1:pars.numberAgeBands 
-        a += ageShares[i] * unemploymentAgeBias[i]
+        a += ageShares[i] * pars.unemploymentAgeBias[i]
     end
     
     lowerAgeBandRate = a>0 ? classRate/a : 0
         
-    lowerAgeBandRate * unemploymentAgeBias[ageGroup]
+    lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup+1]
 end
 
 
@@ -106,36 +95,37 @@ function updateWealth_Ind!(pop, wealthPercentiles, pars)
 end
 
 function updateWealth!(houses, wealthPercentiles, pars)
-    households = [h for h in houses if isOccupied(h)]
+    households = [h for h in houses if !isEmpty(h)]
     for h in households
-        householdCumulativeIncome!(h) = sum(x->cumulativeIncome(x), occupants(h))
+        cumulativeIncome!(h, sum(cumulativeIncome, h.occupants))
     end
-    sort!(households, by=householdCumulativeIncome)
+    sort!(households, by=cumulativeIncome)
     
     percLength = length(households) // 100
-    wealthPercentilesPop = Vector{Vector{eltype(pop)}}()
+    wealthPercentilesPop = Vector{Vector{eltype(houses)}}()
     # TODO: reverse order correct?
     for i in 100:-1:1
         groupLims = (floor(Int, (i-1)*percLength)+1) : (floor(Int, i*percLength))
         push!(wealthPercentilesPop, households[groupLims])
     end
     
+    rdist = Normal(0.0, pars.wageVar)
     for i in 1:100
         wealth_h = wealthPercentiles[i]
-        for h in wealthPercentilesPop[i]:
-            dK = randn(0, pars.wageVar)
-            wealth!(household, wealth_h * exp(dK))
+        for h in wealthPercentilesPop[i]
+            dK = rand(rdist)
+            wealth!(h, wealth_h * exp(dK))
         end
     end
     
     # Assign household wealth to single members
     for h in households
-        if householdCumulativeIncome(h) > 0
+        if cumulativeIncome(h) > 0
             for m in Iterators.filter(x->cumulativeIncome(x)>0, occupants(h))
-                wealth!(m) = (cumulativeIncome(m)/householdCumulativeIncome(h)) * wealth(h)
+                wealth!(m, cumulativeIncome(m)/cumulativeIncome(h) * wealth(h))
             end
         else
-            indMembers = [m for m in occupants(h) if x->independentStatus(x)==true]
+            indMembers = [m for m in h.occupants if !isDependent(m)]
             for m in indMembers
                 wealth!(m, wealth(h)/length(indMembers))
             end
@@ -158,17 +148,17 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         newEntrant!(person, false)
         unemploymentMonths!(person, 0)
         monthHired!(person, month)
-        wage!(person, computeWage(person))
+        wage!(person, computeWage(person, pars))
         
         weights = cumsum(x.socialIndex for x in shifts) 
         shift_i = searchsortedfirst(weights, rand()*weights[end])
         shift = shifts[shift_i]
         
         jobShift!(person, shift)
-        daysOff!(person, [x for x in 1:8 if x not in shift.days])
-        workingHours!(person, pars.weeklyHours[careNeedLevel(person)]
+        daysOff!(person, [x for x in 1:8 if !(x in shift.days)])
+        workingHours!(person, pars.weeklyHours[careNeedLevel(person)+1])
         jobSchedule!(person, weeklySchedule(shift, workingHours(person)))
-        remove_unsorted!(shift, shift_i)
+        remove_unsorted!(shifts, shift_i)
     end
     
     nothing
@@ -185,7 +175,7 @@ function createShifts(pars)
     sumHours = sum(allHours)
     
     
-    allShifts = Vector{Shift}[]
+    allShifts = Shift[]
     shifts = Vector{Int}[]
     for i in 1:1000
         # draw a random shift hour according to weight 

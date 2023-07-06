@@ -222,8 +222,8 @@ function initWork!(person, pars)
 end
 
 
-function initJobs!(model, unemployment, pars)
-    hiredPeople = [p in model.pop if status(p) == WorkStatus.worker]
+function initJobs!(model, pars)
+    hiredPeople = [p for p in model.pop if status(p) == WorkStatus.worker]
     
     # TODO fuse with classShares in social transition
     classShares = zeros(length(pars.cumProbClasses))
@@ -248,12 +248,12 @@ function initJobs!(model, unemployment, pars)
     unemploymentRate = model.unemploymentSeries[1]
     
     for p in hiredPeople
-        ur = computeUR(unemploymentRate, classShares, ageBandShares[classRank(p)+1],
+        ur = computeUR(unemploymentRate, classShares, ageBandShares[classRank(p)+1, :],
             classRank(p), ageBand(age(p)), pars)
         unemploymentIndex!(p, ur)
     end
     
-    assignJobs(hiredPeople, createShifts(pars), -1, pars)
+    assignJobs!(hiredPeople, createShifts(pars), -1, pars)
     
     updateWealth!(model.houses, model.wealthPercentiles, pars)
     

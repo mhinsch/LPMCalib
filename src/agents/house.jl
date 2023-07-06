@@ -28,12 +28,17 @@ mutable struct House{P, T}
     "net care this house exports to others (or receives for values < 0)"
     careProvided :: Int
     careConnections :: Vector{House{P, T}}
+    
+    cumulativeIncome :: Float64
+    wealth :: Float64
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[])
+House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0)
+
+occupantType(h::House{P, T}) where {P, T} = P
 
 
-@export_forward House [netCareSupply, careProvided, careConnections]
+@export_forward House [netCareSupply, careProvided, careConnections, cumulativeIncome, wealth]
 
 
 isEmpty(house) = length(house.occupants) == 0

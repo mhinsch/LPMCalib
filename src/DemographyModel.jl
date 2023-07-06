@@ -2,6 +2,7 @@ module DemographyModel
 
 export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
+include("agents/shift.jl")
 include("agents/town.jl")
 include("agents/house.jl")
 include("agents/person.jl")
@@ -22,6 +23,7 @@ include("demography/simulate/marriages.jl")
 include("demography/simulate/dependencies.jl")
 include("demography/simulate/socialCareTransition.jl")
 include("demography/simulate/care.jl")
+include("demography/simulate/jobmarket.jl")
 
 using Utilities
 
@@ -50,27 +52,28 @@ mutable struct Model
 end
 
 
-function createDemographyModel!(data, pars)
+function createDemographyModel!(demoData, workData, pars)
     towns = createTowns(pars.mappars)
 
     houses = Vector{PersonHouse}()
 
     # maybe switch using parameter
     #ukPopulation = createPopulation(pars.poppars)
-    population = createPyramidPopulation(pars.poppars, data.initialAgePyramid)
+    population = createPyramidPopulation(pars.poppars, demoData.initialAgePyramid)
     
-    yearsFert = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Fertility)[1]]
+    yearsFert = [1951 > demoData.pre51Fertility[y, 1] >= pars.poppars.startTime 
+        for y in 1:size(demoData.pre51Fertility)[1]]
     
-    yearsMort = [1951 > data.pre51Deaths[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Deaths)[1]]
+    yearsMort = [1951 > demoData.pre51Deaths[y, 1] >= pars.poppars.startTime 
+        for y in 1:size(demoData.pre51Deaths)[1]]
                 
-    fert = data.fertility[:, 1] # age-specific fertility in 1951
+    fert = demoData.fertility[:, 1] # age-specific fertility in 1951
     byAgeF = fert ./ (sum(fert)/length(fert)) 
     
     Model(towns, houses, population, [],
-            byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
-            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
+            byAgeF, demoData.fertility, demoData.pre51Fertility[yearsFert, 2], 
+            demoData.pre51Deaths[yearsMort, 2:3], demoData.deathFemale, demoData.deathMale, 
+            workData.unemployment, workData.wealth,
             BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
             SocialCareCache(), DivorceCache())
 end
@@ -94,6 +97,8 @@ function initializeDemographyModel!(model, poppars, workpars, mappars)
         initClass!(person, poppars)
         initWork!(person, workpars)
     end
+    
+    initJobs!(model, fuse(poppars, workpars))
 
     nothing
 end
