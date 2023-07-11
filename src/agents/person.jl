@@ -72,6 +72,14 @@ end # struct Person
 @export_forward Person [classRank, parentClassRank]
 @export_forward Person [guardians, dependents, provider, providees]
 
+statusChild(p) = status(p) == WorkStatus.child
+statusTeenager(p) = status(p) == WorkStatus.teenager
+statusStudent(p) = status(p) == WorkStatus.student
+statusWorker(p) = status(p) == WorkStatus.worker
+statusRetired(p) = status(p) == WorkStatus.retired
+statusUnemployed(p) = status(p) == WorkStatus.unemployed
+
+
 const PersonHouse = House{Person, Town}
 const PersonTown = Town{PersonHouse}
 const undefinedTown = PersonTown((-1,-1), 0.0)

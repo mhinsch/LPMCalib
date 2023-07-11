@@ -1,3 +1,4 @@
+using StatsBase
 
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
@@ -306,35 +307,34 @@ end
 
 
 function jobMarket(model, year, month, pars)
-    self.hiredPeople = []
-    self.newUnemployed = []
-    
     PType = eltype(model.pop)
     
+    # everyone working or in the job market
     activePop = PType[]
-    unemployedNotInActive = PType[]
+    # everyone with a job
     workingPop = PType[]
+    # everyone looking for a job
+    unemployed = PType[]
+    # unemployed but not looking for a job (maternity, care)
+    unemployedNotInActive = PType[]
+    
+    # *** sort population by work status
     
     for p in model.pop 
-        if (status(p) in (WorkStatus.worker, WorkStatus.unemployed)) && 
+        if ((statusWorker(p) || statusUnemployed(p)) && 
             careNeedLevel(p) < pars.numCareLevels && maternityStatus(p) == False
             push!(activePop, p)
-            if status(p) == WorkStatus.worker
+            if statusWorker(p)
                 push!(workingPop, p)
+            else
+                push!(unemployed, p)
             end
-        elseif status(p) == WorkStatus.unemployed
+        elseif statusUnemployed(p)
             push!(unemployedNotInActive, p)
         end
     end
     
-# commented in python version:
-#        workingPop = [x for x in activePop if x.status == 'worker']
-#        notChanged = [x for x in workingPop if x.jobTenure > self.p['minTenure']]
-#        jobChangersNum = int(float(len(notChanged))*self.p['monthlyTurnOver'])
-#        
-#        weights = [np.exp(self.p['changeJobBeta']*(float(len(x.house.town.houses))*x.house.ownershipIndex*x.wage)) for x in notChanged]
-#        probs = [x/sum(weights) for x in weights]
-#        jobChangers = np.random.choice(workingPop, jobChangersNum, p = probs)
+    # *** update tenure etc. for working population
     
     for person in workingPop
         jobTenure!(person, jobTenure(person) + 1)
@@ -347,17 +347,16 @@ function jobMarket(model, year, month, pars)
         wage!(person, computeWage(person, pars))
     end
     
-    unemploymentRate = model.unemployment_series[floor(Int, year - pars.startYear) + 1]
+    # *** count SES and age bands for active pop
     
-    # TODO fuse with classShares in social transition
+    # TODO fuse with classShares in social transition?
     classShares = zeros(length(pars.cumProbClasses))
-    for p in hiredPeople
+    for p in activePop
         classShares[classRank(p)+1] += 1
     end
     
     ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
-    
-    for p in hiredPeople
+    for p in activePop
         ageBandShares[classRank(p)+1, ageBand(age(p))+1] += 1
     end
     
@@ -368,17 +367,20 @@ function jobMarket(model, year, month, pars)
     # now we can make classShares relative to full population
     classShares /= sum(classShares)
     
+    # *** unemployment rate and index
+    
+    unemploymentRate = model.unemployment_series[floor(Int, year - pars.startYear) + 1]
     for person in activePop
         unemploymentIndex!(person, 
             computeUR(unemploymentRate, classShares, ageBandShares, 
                 classRank(person), ageBand(age(person)), pars)
     end
     
-    unemployed = filter(p->status(p) == WorkStatus.unemployed, activePop)
-    newEntrants = filter(p->newEntrant(p), unemployed)
-    
+    # people entering the jobmarket need waiting time calculated 
+    newEntrants = filter(newEntrant, unemployed)
     assignUnemploymentDuration!(newEntrants)
     
+    # update times
     for person in unemployed
         unemploymentMonths!(person, unemploymentMonths(person) + 1)
         unemploymentDuration!(person, unemploymentDuration(person) - 1)
@@ -398,6 +400,8 @@ function jobMarket(model, year, month, pars)
             ageSES_ur = computeUR(unemploymentRate, classShares, ageBandShares, class, age, pars)
             workPop = filter(p->classRank(p) == class && ageBand(age(p)) == age, workingPop)
             
+            # *** some people lose their jobs
+            
             if length(workPop) > 0
                 # Age and SES-specific unemployment rate 
                 layOffsRate = pars.meanLayOffsRate * ageSES_ur/unemploymentRate
@@ -406,63 +410,43 @@ function jobMarket(model, year, month, pars)
                     length(dismissableWorkers))
                     
                 if numLayOffs > 0
-                    weights = [1.0/exp(pars.layOffsBeta*jobTenure(x)) for x in dismissableWorkers]
-                    probs = [x/sum(weights) for x in weights]
-                    firedWorkers = np.random.choice(dismissableWorkers, numLayOffs, replace = False, p = probs)
+                    weights = [1.0/exp(pars.layOffsBeta*jobTenure(p)) for p in dismissableWorkers]
+                    firedWorkers = sample(dismissableWorkers, weights, numLayOffs, replace=false)
                     dismissWorkers!(firedWorkers, pars)
                 end
             end
             
-                    
-            
-            # agePop = [x for x in activePop if x.classRank == c and self.ageBand(x.age) == b]
-            empiricalUnemployed = int(float(len(agePop))*ageSES_ur)
-            actualUnemployed = [x for x in agePop if x.status == 'unemployed']
-            employedWorkers = [x for x in agePop if x.status == 'worker']
-            if len(actualUnemployed) > empiricalUnemployed:
-                peopleToHire = len(actualUnemployed)-empiricalUnemployed
+            nEmpiricalUnemployed = floor(Int, length(agePop) * ageSES_ur)
+            actualUnemployed = PType[]
+            employedWorkers = PType[]
+            for p in agePop
+                if statusWorker(p)
+                    push!(employedWorkers, p)
+                else
+                    push!(actualUnemployed, p)
+                end
+            end
+            if length(actualUnemployed) > nEmpiricalUnemployed
+                peopleToHire = length(actualUnemployed) - nEmpiricalUnemployed
                 # The probability to be hired is iversely proportional to unemployment duration.
                 # Order workers from lower to higher duration, and hire from the top.
-                actualUnemployed.sort(key=operator.attrgetter("unemploymentDuration"))
-                peopleHired = actualUnemployed[:peopleToHire]
-                self.assignJobs(peopleHired, month)
-                
-#                    weights = [1.0/np.exp(self.p['hiringBeta']*x.unemploymentDuration) for x in actualUnemployed]
-#                    probs = [x/sum(weights) for x in weights]
-#                    peopleHired = np.random.choice(actualUnemployed, peopleToHire, replace = False, p = probs)
-                
-                for person in peopleHired:
-                    person.unemploymentIndex = ageSES_ur
+                sort!(actualUnemployed, by=unemploymentDuration)
+                peopleHired = actualUnemployed[1:peopleToHire]
+                assignJobs!(peopleHired, shiftsPool, month, pars)
+                for person in peopleHired
+                    unemploymentIndex!(person, ageSES_ur)
                 end
-            
-            elseif empiricalUnemployed > len(actualUnemployed):
-                employedWorkers = [x for x in agePop if x.status == 'worker']
-                peopleToFire = min(empiricalUnemployed-len(actualUnemployed), len(employedWorkers))
-                weights = [1.0/np.exp(self.p['layOffsBeta']*x.jobTenure) for x in employedWorkers]
-                probs = [x/sum(weights) for x in weights]
-                firedWorkers = np.random.choice(employedWorkers, peopleToFire, replace = False, p = probs)
-                self.dismissWorkers(firedWorkers)
-                for person in firedWorkers:
-                    person.unemploymentIndex = ageSES_ur
+            elseif nEmpiricalUnemployed > length(actualUnemployed)
+                peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed), 
+                    length(employedWorkers))
+                weights = [1.0/exp(pars.layOffsBeta*jobTenure(p)) for p in employedWorkers]
+                firedWorkers = sample(employedWorkers, weights, peopleToFire, replace=false)
+                dismissWorkers!(firedWorkers, pars)
+                for person in firedWorkers
+                    unemploymentIndex!(person, ageSES_ur)
                 end
             end
         end
     end
-    
-    # print 'Number hired people: ' + str(len(self.hiredPeople))
-    unemployedPop = [x for x in self.pop.livingPeople if x.status == 'unemployed']
-    # self.assignJobs(self.hiredPeople)
-    
-    tempJS = [0]*24
-    for agent in self.hiredPeople:
-        for i in range(7):
-            if i+1 not in agent.daysOff:
-                for j in range(24):
-                    tempJS[j] += agent.jobSchedule[i][j]
-                
-    # hoursFrequencies = [x for x in self.aggregateSchedule]
-    
-    # self.dismissWorkers(self.newUnemployed)
-
-
+end    
 
