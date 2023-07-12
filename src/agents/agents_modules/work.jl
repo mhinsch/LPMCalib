@@ -23,6 +23,7 @@ const WST = WorkStatus.T
     potentialIncome :: Float64 = 0
     cumulativeIncome :: Float64 = 0
     wealth :: Float64 = 0
+    financialWealth :: Float64 = 0
     "periods worked so far in current job"
     jobTenure :: Int = 0
     "7x24 schedule of actual working hours"
@@ -39,6 +40,7 @@ const WST = WorkStatus.T
     pension :: Float64 = 0
     unemploymentIndex :: Float64 = 0
     unemploymentMonths :: Int = 0
+    unemploymentDuration :: Int = 0
     monthHired :: Int = 0
     jobShift :: Shift = Shift()
     daysOff :: Vector{Int} = []

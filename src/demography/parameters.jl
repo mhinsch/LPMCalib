@@ -162,6 +162,7 @@ end
     numberAgeBands :: Int				= 6
     unemploymentAgeBias :: Vector{Float64} = [1.0, 0.55, 0.35, 0.25, 0.2, 0.2]
     unemploymentClassBias :: Float64	= 0.75
+    unemploymentBeta :: Float64			= 1.0
     shareFinancialWealth :: Float64		= 0.3
     pensionReturnRate :: Float64		= 0.05/12
     shiftsWeights :: Vector{Float64}	= [51.80, 66.10, 70.10, 71.40, 54.10, 63.40, 68.60, 65.00, 
@@ -172,6 +173,11 @@ end
     sundaySocialIndex :: Float64		= 0.5
     shiftBeta :: Float64				= 0.1
     dayBeta :: Float64					= 0.1
+    meanLayOffsRate :: Float64			= 0.005
+    probationPeriod :: Int				= 3
+    layOffsBeta :: Float64				= 0.1
+    maleUDS :: Vector{Float64}			= [0.07, 0.11, 0.12, 0.07, 0.07, 0.06, 0.12, 0.06, 0.08, 0.04]
+    femaleUDS :: Vector{Float64}		= [0.12, 0.12, 0.12, 0.08, 0.07, 0.08, 0.12, 0.06, 0.06, 0.03]
 end
 
 

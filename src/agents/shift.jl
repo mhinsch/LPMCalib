@@ -11,4 +11,5 @@ Shift() = Shift([], 0, 0, [], 0, 0)
 
 Shift(days, hour, hourIndex, shiftHours, socInd) = 
     Shift(days, hour, hourIndex, shiftHours, hour+8, socInd)
-
+    
+const EmptyShift = Shift()

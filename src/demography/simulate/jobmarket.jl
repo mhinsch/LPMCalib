@@ -11,7 +11,8 @@ function weeklySchedule(shift, weeklyHours)
         end
     end
     
-    weeklySchedule = zeros(Int, 7, 24)#[zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24), zeros(24)]
+    weeklySchedule = zeros(Int, 7, 24)
+    
     for day in shift.days
         for hour in shiftHours
             weeklySchedule[day, hour] = 1
@@ -68,7 +69,7 @@ function updateWealth_Ind!(pop, wealthPercentiles, pars)
     # TODO: reverse order correct?
     for i in 100:-1:1
         groupLims = (floor(Int, (i-1)*percLength)+1) : (floor(Int, i*percLength))
-        push!(wealthPercentilesPop, earningsPop[groupLims])
+        push!(wealthPercentilesPop, earningPop[groupLims])
     end
         
     for i in 1:100
@@ -84,7 +85,8 @@ function updateWealth_Ind!(pop, wealthPercentiles, pars)
         if wage(person) > 0
             financialWealth!(person, wealth(person) * pars.shareFinancialWealth)
         else
-            financialWealth!(person, max(0, financialWealth(person) - wealthSpentOnCare(person)))
+            # TODO add care expenses back in
+            financialWealth!(person, max(0, financialWealth(person))) # - wealthSpentOnCare(person)))
         end
     end
     
@@ -305,8 +307,13 @@ function dismissWorkers!(newUnemployed, pars)
     assignUnemploymentDuration!(newUnemployed, pars)
 end
 
+# TODO generalise, put elsewhere
+canWork(person) = careNeedLevel(person) < 4 && !isInMaternity(person) 
 
-function jobMarket(model, year, month, pars)
+function jobMarket!(model, time, pars)
+    
+    year, month = date2yearsmonths(time)
+
     PType = eltype(model.pop)
     
     # everyone working or in the job market
@@ -321,9 +328,10 @@ function jobMarket(model, year, month, pars)
     # *** sort population by work status
     
     for p in model.pop 
-        if ((statusWorker(p) || statusUnemployed(p)) && 
-            careNeedLevel(p) < pars.numCareLevels && maternityStatus(p) == False
+        if (statusWorker(p) || statusUnemployed(p)) && canWork(p) == true
+            
             push!(activePop, p)
+            
             if statusWorker(p)
                 push!(workingPop, p)
             else
@@ -369,16 +377,16 @@ function jobMarket(model, year, month, pars)
     
     # *** unemployment rate and index
     
-    unemploymentRate = model.unemployment_series[floor(Int, year - pars.startYear) + 1]
+    unemploymentRate = model.unemploymentSeries[floor(Int, year - pars.startTime) + 1]
     for person in activePop
         unemploymentIndex!(person, 
             computeUR(unemploymentRate, classShares, ageBandShares, 
-                classRank(person), ageBand(age(person)), pars)
+                classRank(person), ageBand(age(person)), pars))
     end
     
     # people entering the jobmarket need waiting time calculated 
     newEntrants = filter(newEntrant, unemployed)
-    assignUnemploymentDuration!(newEntrants)
+    assignUnemploymentDuration!(newEntrants, pars)
     
     # update times
     for person in unemployed
@@ -389,16 +397,16 @@ function jobMarket(model, year, month, pars)
     longTermUnemployed = filter(p->unemploymentMonths(p) >= 12, unemployed)
     longTermUnemploymentRate = length(longTermUnemployed)/length(activePop)
                 
-    for class in 1:size(ageBandShares)[2]
-        for age in 1:size(ageBandShares)[1]
-            agePop = filter(p->classRank(p) == class && ageBand(age(p)) == age, activePop)
+    for c in 1:size(ageBandShares)[2]
+        for a in 1:size(ageBandShares)[1]
+            agePop = filter(p->classRank(p) == c && ageBand(age(p)) == a, activePop)
             
             if length(agePop) <= 0
                 continue
             end
             
-            ageSES_ur = computeUR(unemploymentRate, classShares, ageBandShares, class, age, pars)
-            workPop = filter(p->classRank(p) == class && ageBand(age(p)) == age, workingPop)
+            ageSES_ur = computeUR(unemploymentRate, classShares, ageBandShares, c, a, pars)
+            workPop = filter(p->classRank(p) == c && ageBand(age(p)) == a, workingPop)
             
             # *** some people lose their jobs
             
@@ -411,7 +419,7 @@ function jobMarket(model, year, month, pars)
                     
                 if numLayOffs > 0
                     weights = [1.0/exp(pars.layOffsBeta*jobTenure(p)) for p in dismissableWorkers]
-                    firedWorkers = sample(dismissableWorkers, weights, numLayOffs, replace=false)
+                    firedWorkers = sample(dismissableWorkers, Weights(weights), numLayOffs, replace=false)
                     dismissWorkers!(firedWorkers, pars)
                 end
             end
@@ -432,7 +440,7 @@ function jobMarket(model, year, month, pars)
                 # Order workers from lower to higher duration, and hire from the top.
                 sort!(actualUnemployed, by=unemploymentDuration)
                 peopleHired = actualUnemployed[1:peopleToHire]
-                assignJobs!(peopleHired, shiftsPool, month, pars)
+                assignJobs!(peopleHired, model.shiftsPool, month, pars)
                 for person in peopleHired
                     unemploymentIndex!(person, ageSES_ur)
                 end
@@ -440,7 +448,7 @@ function jobMarket(model, year, month, pars)
                 peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed), 
                     length(employedWorkers))
                 weights = [1.0/exp(pars.layOffsBeta*jobTenure(p)) for p in employedWorkers]
-                firedWorkers = sample(employedWorkers, weights, peopleToFire, replace=false)
+                firedWorkers = sample(employedWorkers, Weights(weights), peopleToFire, replace=false)
                 dismissWorkers!(firedWorkers, pars)
                 for person in firedWorkers
                     unemploymentIndex!(person, ageSES_ur)

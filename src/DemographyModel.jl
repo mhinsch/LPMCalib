@@ -33,6 +33,7 @@ mutable struct Model
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
+    shiftsPool :: Vector{Shift}
     
     fertFByAge51 :: Vector{Float64}
     fertility :: Matrix{Float64}
@@ -70,7 +71,7 @@ function createDemographyModel!(demoData, workData, pars)
     fert = demoData.fertility[:, 1] # age-specific fertility in 1951
     byAgeF = fert ./ (sum(fert)/length(fert)) 
     
-    Model(towns, houses, population, [],
+    Model(towns, houses, population, [], [],
             byAgeF, demoData.fertility, demoData.pre51Fertility[yearsFert, 2], 
             demoData.pre51Deaths[yearsMort, 2:3], demoData.deathFemale, demoData.deathMale, 
             workData.unemployment, workData.wealth,
@@ -146,6 +147,10 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "age") do person
         ageTransition!(person, time, model, pars.workpars)
     end
+    
+    updateWealth_Ind!(model.pop, model.wealthPercentiles, pars.workpars)
+    
+    jobMarket!(model, time, fuse(pars.workpars, pars.poppars))
 
     selected = Iterators.filter(p->selectSocialCareTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "social care") do person

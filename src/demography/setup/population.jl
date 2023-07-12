@@ -253,7 +253,8 @@ function initJobs!(model, pars)
         unemploymentIndex!(p, ur)
     end
     
-    assignJobs!(hiredPeople, createShifts(pars), -1, pars)
+    model.shiftsPool = createShifts(pars)
+    assignJobs!(hiredPeople, model.shiftsPool, -1, pars)
     
     updateWealth!(model.houses, model.wealthPercentiles, pars)
     
