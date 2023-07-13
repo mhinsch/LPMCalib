@@ -419,7 +419,8 @@ function jobMarket!(model, time, pars)
                     
                 if numLayOffs > 0
                     weights = [1.0/exp(pars.layOffsBeta*jobTenure(p)) for p in dismissableWorkers]
-                    firedWorkers = sample(dismissableWorkers, Weights(weights), numLayOffs, replace=false)
+                    firedWorkers = sample(dismissableWorkers, Weights(weights), numLayOffs, 
+                        replace=false)
                     dismissWorkers!(firedWorkers, pars)
                 end
             end
