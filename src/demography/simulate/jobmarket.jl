@@ -459,3 +459,168 @@ function jobMarket!(model, time, pars)
     end
 end    
 
+function computePersonIncome!(person, pars)
+    if statusWorker(person)
+        if isInMaternity(person)
+            maternityIncome = income(person)
+            if monthsSinceBirth(person) == 0
+                wage!(person) = 0
+                maternityIncome = pars.maternityLeaveIncomeReduction * income(person)
+            elseif monthsSinceBirth(person) > 2
+                maternityIncome = min(pars.minStatutoryMaternityPay, maternityIncome)
+            end
+            income!(person, maternityIncome)
+        else
+            income!(person, wage(person) * availableWorkingHours(person)
+            lastIncome!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)]
+        end
+        # Detract taxes and 
+    elseif statusRetired(person)
+        income!(person, pension(person))
+    else
+        income!(person, 0)
+    end
+    
+    push!(yearlyIncomes(person), income(person) * 4.35)
+    if length(yearlyIncomes(person)) > 12
+        person.yearlyIncomes.pop(0)
+    end
+    yearlyIncome!(person, sum(yearlyIncomes(person)))
+    
+    @assert yearlyIncome(person) >= 0
+        
+    disposableIncome!(person, income(person))
+end
+
+# quintile calculation removed from jobmarket:
+#=    households = filter(x->!isEmpty(x), self.houses)
+    sort!(households, by=yearlyIncome)
+    for (i,h) in enumerate(households)
+        number = floor(Int, (i-1) / length(households))
+        incomeQuintile!(h, i) # 0 to 4
+    end
+    
+    independentAgents = filter(x->!isDependent(x), model.pop)
+    sort!(independentAgents, by=yearlyIncome)
+    for (i,h) in enumerate(independentAgents)
+        number = floor(Int, (i-1) / length(independentAgents))
+        incomeQuintile!(h, i) # 0 to 4
+    end
+=#
+
+
+function computeIncome!(model, month, pars)
+    # Compute income from work based on last period job market and informal care
+    for person in model.pop
+        computePersonIncome!(person, pars)
+    end
+
+    # Compute income quintiles original income
+    for house in model.houses
+        if isEmpty(house)
+            continue
+        end
+        
+        if month == 1
+            yearlyIncome!(house, 0)
+            yearlyDisposableIncome!(house, 0)
+            yearlyBenefits!(house, 0)
+        end
+        householdIncome!(house, sum(x->income(x), house.occupants))
+        incomePerCapita!(house, householdIncome(house)/length(house.occupants))
+        yearlyIncome!(house, yearlyIncome(house) + (householdIncome(house)*52.0)/12)
+    end
+        
+
+    # Now, compute disposable income (i..e after taxes and benefits)
+    # First, reduce by tax
+    earningPeople = Iterators.filter(x->income(x)>0, model.pop)
+    totalTaxRevenue = 0
+    totalPensionRevenue = 0
+    for person in earningPeople
+        employeePensionContribution = 0
+        # Pension Contributions
+        if disposableIncome(person) > 162.0
+            if disposableIncome(person) < 893.0
+                employeePensionContribution = (disposableIncome(person) - 162.0) * 0.12
+            else:
+                employeePensionContribution = (893.0 - 162.0) * 0.12
+                employeePensionContribution += (disposableIncome(person) - 893.0) * 0.02
+            end
+        end
+        disposableIncome!(person, disposableIncome(person) - employeePensionContribution)
+        totalPensionRevenue += employeePensionContribution
+        
+        # Tax Revenues
+        tax = 0
+        residualIncome = disposableIncome(person)
+        for (i, taxb) in enumerate(pars.taxBrackets)
+            if residualIncome > taxb
+                taxable = residualIncome - taxb
+                tax += taxable * pars.taxationRate[i]
+                residualIncome -= taxable
+            end
+        end
+        disposableIncome!(person, disposableIncome(person) - tax)
+        totalTaxRevenue += tax
+    end
+        
+    push!(statePensionRevenue, totalPensionRevenue)
+    push!(stateTaxRevenue, totalTaxRevenue)
+    
+    # ...then add benefits
+    for person in model.pop
+        disposableIncome!(person, disposableIncome(person) + benefits(person))
+        yearlyBenefits!(person, benefits(person) * 52.0)
+        push!(yearlyDisposableIncomes(person), disposableIncome(person) * 4.35)
+        if length(yearlyDisposableIncomes(person)) > 12
+            person.yearlyDisposableIncomes.pop(0)
+        end
+        yearlyDisposableIncome!(person, sum(yearlyDisposableIncomes(person)))
+        cumulativeIncome!(person, cumulativeIncome(person) + disposableIncome(person))
+    end
+    
+    for house in Iterators.filter(x->!isEmpty(x), model.houses)
+        householdDisposableIncome!(house, sum(x->disposableIncome(x), house.occupants)
+        benefits!(house, sum(x->benefits(x), house.occupants))
+        yearlyDisposableIncome!(house, householdDisposableIncome(house) * 52.0)
+        yearlyBenefits!(house, benefits(house) * 52.0)
+        disposableIncomePerCapita!(house, house.householdIncome/length(house.occupants)
+    end
+    
+    
+    # Then, from the household income subtract the cost of formal child and social care
+    for house in Iterators.filter(x->!isEmpty(x), model.houses)
+        house.householdNetIncome = house.householdDisposableIncome-house.costFormalCare
+        house.netIncomePerCapita = house.householdNetIncome/float(len(house.occupants))
+    end
+    
+    for house in Iterators.filter(x->!isempty(x), model.houses)
+        house.totalIncome = sum(x->totalIncome(x), house.occupants)
+        house.povertyLineIncome = 0
+        independentMembers = filter(x->!isDependent(x), house.occupants)
+        if length(independentMembers) == 1
+            independentPerson = independentMembers[1]
+            if independentPerson.status == WorkStatus.worker
+                house.povertyLineIncome = pars.singleWorker
+            elseif independentPerson.status == WorkStatus.retired
+                house.povertyLineIncome = pars.singlePensioner
+            end
+        elseif length(independentMembers) == 2
+            independentPerson_1 = independentMembers[1]
+            independentPerson_2 = independentMembers[2]
+            if independentPerson_1.status == WorkStatus.worker == independentPerson_2.status
+                house.povertyLineIncome = pars.marriedCouple
+            elseif (independentPerson_1.status == WorkStatus.retired && 
+                    independentPerson_2.status == WorkStatus.worker) || 
+                (independentPerson_2.status == WorkStatus.retired && 
+                    independentPerson_1.status == WorkStatus.worker)
+                house.povertyLineIncome = pars.mixedCouple
+            elseif independentPerson_1.status == WorkStatus.retired == independentPerson_2.status
+                house.povertyLineIncome = pars.couplePensioners
+            end
+        end
+        dependentMembers = [x for x in house.occupants if x.independentStatus == False]
+        house.povertyLineIncome += len(dependentMembers)*self.p['additionalChild']
+    end 
+end
