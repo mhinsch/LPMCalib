@@ -260,7 +260,7 @@ function resolveDependency!(guardian, dependent)
     nothing
 end
 
-
+"Dissolve all guardian-dependent relationships of `person`"
 function setAsIndependent!(person)
     if !isDependent(person) 
         return

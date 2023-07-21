@@ -9,7 +9,7 @@ using ArgParse
 using Utilities
 
 using DemographyPars
-using DemographyModel
+using DemographyModelEO
 
 
 include("src/demography/data.jl")
