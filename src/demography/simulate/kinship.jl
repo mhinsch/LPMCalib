@@ -16,19 +16,19 @@ function kinshipNetwork(filter, house, model, pars)
     
     for person in house.occupants
         if !isSingle(person) 
-            checkAndAdd!(partner(person).pos)
+            checkAndAdd!(person.partner.pos)
         end
         
-        for child in children(person)
+        for child in person.children
             checkAndAdd!(child.pos)
         end
         
-        f = father(person) 
+        f = person.father 
         if !isUndefined(f) 
             checkAndAdd!(f.pos)
         end
         
-        m = mother(person) 
+        m = person.mother 
         if !isUndefined(m) 
             checkAndAdd!(m.pos)
         end

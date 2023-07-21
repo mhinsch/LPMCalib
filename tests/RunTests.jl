@@ -74,19 +74,19 @@ using Utilities: Gender, male, female, unknown
 
     @testset verbose=true "BasicInfo Module" begin 
 
-        @test typeof(age(person1)) == Rational{Int64} 
+        @test typeof(person1.age) == Rational{Int64} 
         @test isMale(person1)
         @test !isFemale(person1)
-        @test alive(person1) 
+        @test person1.alive 
         
         person7 = Person(house1,25,gender=male) 
         setDead!(person7)
-        @test !alive(person7)
+        @test !person7.alive
 
         agestepAlive!(person7)
-        @test age(person7) < 25.01 
+        @test person7.age < 25.01 
         agestep!(person7) 
-        @test age(person7) > 25
+        @test person7.age > 25
 
     end
 
@@ -94,16 +94,16 @@ using Utilities: Gender, male, female, unknown
         
         setAsParentChild!(person1,person6) 
         @test person1 in person6.kinship.children
-        @test father(person1) === person6 
+        @test person1.father === person6 
 
         setAsParentChild!(person2,person4) 
-        @test mother(person2) === person4
+        @test person2.mother === person4
         @test person2 in person4.kinship.children 
 
         @test isSingle(person1)
         setAsPartners!(person1,person4)
         @test !isSingle(person4) 
-        @test partner(person1) === person4 && partner(person4) === person1 
+        @test person1.partner === person4 && person4.partner === person1 
 
         @test_throws InvalidStateException setAsPartners!(person3,person4) # same gender 
 
@@ -113,7 +113,7 @@ using Utilities: Gender, male, female, unknown
 
         resolvePartnership!(person4,person1) 
         @test isSingle(person4)
-        @test partner(person1) !== person4 && partner(person4) != person1
+        @test person1.partner !== person4 && person4.partner != person1
         @test_throws ArgumentError resolvePartnership!(person1,person4) 
 
     end
@@ -127,10 +127,10 @@ using Utilities: Gender, male, female, unknown
         @test !isSingle(person4)
 
         person7 = Person(pos=person4.pos,gender=male,mother=person4,father=person6)
-        @test father(person7) === person6
-        @test mother(person7) === person4 
-        @test person7 ∈ children(person4) 
-        @test person7 ∈ children(person6)
+        @test person7.father === person6
+        @test person7.mother === person4 
+        @test person7 ∈ person4.children 
+        @test person7 ∈ person6.children
         
         resetPartner!(person4) 
         @test isSingle(person6)

@@ -34,13 +34,13 @@ end=#
 
 function socialCareTransition!(person, time, model, pars)
     scaling = isFemale(person) ? pars.femaleAgeCareScaling : pars.maleAgeCareScaling 
-    ageCareProb = exp(age(person)/scaling) * pars.personCareProb
+    ageCareProb = exp(person.age/scaling) * pars.personCareProb
     
     baseProb = pars.baseCareProb + ageCareProb
   
-    class = classRank(person) 
-    if status(person) == WorkStatus.child || status(person) == WorkStatus.student
-        class = parentClassRank(person)
+    class = person.classRank 
+    if person.status == WorkStatus.child || person.status == WorkStatus.student
+        class = person.parentClassRank
     end
     
     #baseProb *= classSocialCareBias(model, pars, class)
@@ -53,7 +53,7 @@ function socialCareTransition!(person, time, model, pars)
     #transitionRate = pars.careTransitionRate * classSocialCareBias(model, pars, class)
     transitionRate = pars.careTransitionRate * model.socialCareCache.classBias[class+1]
     
-    careNeed = careNeedLevel(person) + rand(Geometric(1.0-transitionRate)) + 1
+    careNeed = person.careNeedLevel + rand(Geometric(1.0-transitionRate)) + 1
     # careLevel is 0-based
     careNeedLevel!(person, min(careNeed, numCareLevels(pars)-1))
     true

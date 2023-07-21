@@ -4,9 +4,9 @@ export socialTransition!, selectSocialTransition
 
 
 function selectSocialTransition(p, pars)
-    alive(p) && hasBirthday(p) && 
-    age(p) == workingAge(p, pars) &&
-    status(p) == WorkStatus.student
+    p.alive && hasBirthday(p) && 
+    p.age == workingAge(p, pars) &&
+    p.status == WorkStatus.student
 end
 
 
@@ -14,21 +14,21 @@ end
 # TODO? 
 # * move to separate, optional module
 # * replace with non-class version here
-initialIncomeLevel(person, pars) = pars.incomeInitialLevels[classRank(person)+1]
+initialIncomeLevel(person, pars) = pars.incomeInitialLevels[person.classRank+1]
 
-workingAge(person, pars) = pars.workingAge[classRank(person)+1]
+workingAge(person, pars) = pars.workingAge[person.classRank+1]
 
 function incomeDist(person, pars)
     # TODO make parameters
-    if classRank(person) == 0
+    if person.classRank == 0
         LogNormal(2.5, 0.25)
-    elseif classRank(person) == 1
+    elseif person.classRank == 1
         LogNormal(2.8, 0.3)
-    elseif classRank(person) == 2
+    elseif person.classRank == 2
         LogNormal(3.2, 0.35)
-    elseif classRank(person) == 3
+    elseif person.classRank == 3
         LogNormal(3.7, 0.4)
-    elseif classRank(person) == 4
+    elseif person.classRank == 4
         LogNormal(4.5, 0.5)
     else
         error("unknown class rank!")
@@ -50,14 +50,14 @@ function socialPreCalc!(model, pars)
     pc.socialClassShares = zeros(5)
     
     for p in model.pop
-        pc.socialClassShares[classRank(p)+1] += 1
+        pc.socialClassShares[p.classRank+1] += 1
     end
     
     pc.socialClassShares ./= length(model.pop)
 end
 
 
-doneStudying(person, pars) = classRank(person) >= 4
+doneStudying(person, pars) = person.classRank >= 4
 
 # TODO
 function addToWorkforce!(person, model)
@@ -79,11 +79,11 @@ end
 
 # probability to start studying instead of working
 function startStudyProb(person, model, pars)
-    if father(person) == mother(person) == undefinedPerson
+    if person.father == person.mother == undefinedPerson
         return 0.0
     end
     
-    if isUndefined(provider(person))
+    if isUndefined(person.provider)
         return 0.0
     end
 
@@ -95,18 +95,18 @@ function startStudyProb(person, model, pars)
     end
 
     forgoneSalary = initialIncomeLevel(person, pars) * 
-        pars.weeklyHours[careNeedLevel(person)+1]
+        pars.weeklyHours[person.careNeedLevel+1]
     relCost = forgoneSalary / perCapitaDisposableIncome
     incomeEffect = (pars.constantIncomeParam+1) / 
         (exp(pars.eduWageSensitivity * relCost) + pars.constantIncomeParam)
 
     # TODO factor out class
-    targetEL = parentClassRank(person)
-    dE = targetEL - classRank(person)
+    targetEL = person.parentClassRank
+    dE = targetEL - person.classRank
     expEdu = exp(pars.eduRankSensitivity * dE)
     educationEffect = expEdu / (expEdu + pars.constantEduParam)
 
-    careEffect = 1/exp(pars.careEducationParam * (socialWork(person) + childWork(person)))
+    careEffect = 1/exp(pars.careEducationParam * (person.socialWork + person.childWork))
 
     pStudy = incomeEffect * educationEffect * careEffect
 

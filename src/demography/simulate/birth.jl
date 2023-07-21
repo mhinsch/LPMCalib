@@ -2,7 +2,7 @@ using Utilities
 
 export selectBirth, birth! 
 
-isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= age(p) <= pars.maxPregnancyAge
+isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= p.age <= pars.maxPregnancyAge
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
 isPotentialMother(p, pars) = isFertileWoman(p, pars) && canBePregnant(p)
 
@@ -42,7 +42,7 @@ function birthPreCalc!(model, pars)
     
     nPerClass = zeros(5)
     for p in pc.potentialMothers
-        nPerClass[classRank(p)+1] += 1
+        nPerClass[p.classRank+1] += 1
     end
     
     pcpm = copy(nPerClass)
@@ -54,7 +54,7 @@ function birthPreCalc!(model, pars)
     
     pncpmc = zeros(5, 5)
     for p in pc.potentialMothers
-        c = classRank(p)
+        c = p.classRank
         nc = min(4, nChildren(p))
         pncpmc[c+1, nc+1] += 1
     end
@@ -81,9 +81,9 @@ function computeBirthProb(woman, parameters, model, currstep)
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth = currmonth + 1   # adjusting 0:11 => 1:12 
 
-    womanRank = classRank(woman)
-    if status(woman) == WorkStatus.student
-        womanRank = parentClassRank(woman)
+    womanRank = woman.classRank
+    if woman.status == WorkStatus.student
+        womanRank = woman.parentClassRank
     end
     
     ageYears = yearsold(woman)
@@ -131,8 +131,8 @@ function effectsOfMaternity!(woman, pars)
     =# 
 
     # TODO not necessarily true in many cases
-    if provider(woman) == undefinedPerson
-        setAsProviderProvidee!(partner(woman), woman)
+    if woman.provider == undefinedPerson
+        setAsProviderProvidee!(woman.partner, woman)
     end
 
     nothing
@@ -150,8 +150,8 @@ function birth!(woman, currstep, model, parameters, addBaby!)
         @assert isFemale(woman) 
         @assert ageYoungestAliveChild(woman) > 1 
         @assert !isSingle(woman)
-        @assert age(woman) >= parameters.minPregnancyAge 
-        @assert age(woman) <= parameters.maxPregnancyAge
+        @assert woman.age >= parameters.minPregnancyAge 
+        @assert woman.age <= parameters.maxPregnancyAge
         @assert birthProb >= 0 
     end
                         
@@ -169,7 +169,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
         moveToHouse!(baby, woman.pos)
         setAsParentChild!(baby, woman)
         if !isSingle(woman) # currently not an option
-            setAsParentChild!(baby, partner(woman))
+            setAsParentChild!(baby, woman.partner)
         end
 
         # this goes first, so that we know material circumstances
@@ -177,7 +177,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
         
         setAsGuardianDependent!(woman, baby)
         if !isSingle(woman) # currently not an option
-            setAsGuardianDependent!(partner(woman), baby)
+            setAsGuardianDependent!(woman.partner, baby)
         end
         setAsProviderProvidee!(woman, baby)
 

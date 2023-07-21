@@ -7,13 +7,13 @@ function ageInterval(pop, minAge, maxAge)
     idx_end = 0
 
     for p in pop
-        if age(p) < minAge
+        if p.age < minAge
             # not there yet
             idx_start += 1
             continue
         end
 
-        if age(p) > maxAge
+        if p.age > maxAge
             # we reached the end of the interval, return what we have
             return idx_start, idx_end
         end
@@ -68,7 +68,7 @@ function createPyramidPopulation(pars, pyramid)
         man = men[1]
         # find woman of the right age
         for (j, woman) in enumerate(women)
-            if age(man)+2 >= age(woman) >= age(man)-5
+            if man.age+2 >= woman.age >= man.age-5
                 setAsPartners!(man, woman)
                 push!(population, man)
                 push!(population, woman)
@@ -87,14 +87,14 @@ function createPyramidPopulation(pars, pyramid)
 
     # get all adult women
     women = filter(population) do p
-        isFemale(p) && age(p) >= 18
+        isFemale(p) && p.age >= 18
     end
 
     # sort by age so that we can easily get age intervals
     sort!(women, by = age)
 
     for p in population
-        a = age(p)
+        a = p.age
         # adults remain orphans with a certain likelihood
         if a >= 18 && rand() < pars.startProbOrphan * a
             continue
@@ -109,19 +109,19 @@ function createPyramidPopulation(pars, pyramid)
         end
 
         @assert typeof(start) == Int
-        @assert age(women[start]) >= a+18
+        @assert women[start].age >= a+18
 
         mother = women[rand(start:stop)]
         
         setAsParentChild!(p, mother)
         if !isSingle(mother)
-            setAsParentChild!(p, partner(mother))
+            setAsParentChild!(p, mother.partner)
         end
 
-        if age(p) < 18
+        if p.age < 18
             setAsGuardianDependent!(mother, p)
             if !isSingle(mother) # currently not an option
-                setAsGuardianDependent!(partner(mother), p)
+                setAsGuardianDependent!(mother.partner, p)
             end
             setAsProviderProvidee!(mother, p)
         end
@@ -174,22 +174,22 @@ end
 
 
 function initWork!(person, pars)
-    if age(person) < pars.ageTeenagers
+    if person.age < pars.ageTeenagers
         status!(person, WorkStatus.child)
         return
     end
-    if age(person) < pars.ageOfAdulthood
+    if person.age < pars.ageOfAdulthood
         status!(person, WorkStatus.teenager)
         return
     end
-    if age(person) >= pars.ageOfRetirement
+    if person.age >= pars.ageOfRetirement
         status!(person, WorkStatus.retired)
         return
     end
 
-    class = classRank(person)+1
+    class = person.classRank+1
 
-    if age(person) < pars.workingAge[class]
+    if person.age < pars.workingAge[class]
         status!(person, WorkStatus.student)
         return
     end
@@ -197,7 +197,7 @@ function initWork!(person, pars)
     status!(person, WorkStatus.worker)
 
     workingTime = 0
-    for i in pars.workingAge[class]:floor(Int, age(person))
+    for i in pars.workingAge[class]:floor(Int, person.age)
         workingTime *= pars.workDiscountingTime
         workingTime += 1
     end
@@ -214,8 +214,8 @@ function initWork!(person, pars)
     finalIncome!(person, finalWage)
 
     wage!(person, computeWage(person, pars))
-    income!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)+1])
-    potentialIncome!(person, income(person))
+    income!(person, person.wage * pars.weeklyHours[person.careNeedLevel+1])
+    potentialIncome!(person, person.income)
     jobTenure!(person, rand(1:50))
 
     nothing
