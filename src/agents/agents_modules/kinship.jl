@@ -27,7 +27,7 @@ function siblings(person::P) where {P}
 
     for p in parents(person)
         if isUndefined(p) continue end
-        for c in children(p)
+        for c in p.children
             if c != person
                 push!(sibs, c)
             end

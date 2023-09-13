@@ -1,13 +1,13 @@
 export relocate!, selectRelocate
 
 
-selectRelocate(person, pars) = canLiveAlone(person) && status(person) == WorkStatus.worker && 
+selectRelocate(person, pars) = canLiveAlone(person) && person.status == WorkStatus.worker && 
     isSingle(person) && livesInSharedHouse(person)
 
 function relocate!(person, time, model, pars)
     if rand() < pars.moveOutProb
         peopleToMove = [person]
-        for dep in dependents(person)
+        for dep in person.dependents
             if livingTogether(person, dep)
                 push!(peopleToMove, dep)
             end

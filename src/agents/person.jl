@@ -57,6 +57,16 @@ Person ties various agent modules into one compound agent type.
 end # struct Person 
 
 
+#=function getproperty(p::Person, prop)
+    if prop === :pension
+        println("bla")
+        rand()
+    else
+        getfield(p, prop)
+    end
+end=#
+
+
 # delegate functions to components
 # and export accessors
 
@@ -121,7 +131,7 @@ livingTogether(person1, person2) = person1.pos == person2.pos
 "Whether the person shares their house with a non-dependent, non-guardian. Note that this includes spouses and spouses' children."
 function livesInSharedHouse(person)
     for p in person.pos.occupants
-        if p != person && ! (p in guardians(person)) && ! (p in dependents(person))
+        if p != person && ! (p in person.guardians) && ! (p in person.dependents)
             return true
         end
     end
@@ -130,24 +140,24 @@ function livesInSharedHouse(person)
 end
 
 
-areParentChild(person1, person2) = person1 in children(person2) || person2 in children(person1)
-areSiblings(person1, person2) = father(person1) == father(person2) != undefinedPerson || 
-    mother(person1) == mother(person2) != undefinedPerson
+areParentChild(person1, person2) = person1 in person2.children || person2 in person1.children
+areSiblings(person1, person2) = person1.father == person2.father != undefinedPerson || 
+    person1.mother == person2.mother != undefinedPerson
 related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
 
 # TODO check if correct
 # TODO cache for optimisation?
-householdIncome(person) = sum(p -> income(p), person.pos.occupants)
+householdIncome(person) = sum(p -> p.income, person.pos.occupants)
 householdIncomePerCapita(person) = householdIncome(person) / length(person.pos.occupants)
 
 
 "set the father of a child"
 function setAsParentChild!(child::Person,parent::Person) 
     @assert isMale(parent) || isFemale(parent)
-    @assert age(child) < age(parent)
-    @assert (isMale(parent) && isUndefined(father(child))) ||
-        (isFemale(parent) && isUndefined(mother(child))) 
+    @assert child.age < parent.age
+    @assert (isMale(parent) && isUndefined(child.father)) ||
+        (isFemale(parent) && isUndefined(child.mother)) 
 
     addChild!(parent, child)
     setParent!(child, parent) 
@@ -158,7 +168,7 @@ function setAsParentChild!(child::Person,parent::Person)
 end
 
 function resetPartner!(person)
-    other = partner(person)
+    other = person.partner
     if !isUndefined(other) 
         partner!(person, undefinedPerson)
         pTime!(person, 0)
@@ -170,7 +180,7 @@ end
 
 "resolving partnership"
 function resolvePartnership!(person1::Person, person2::Person)
-    @assert partner(person1) == person2 && partner(person2) == person1
+    @assert person1.partner == person2 && person2.partner == person1
 
     resetPartner!(person1)
 end
@@ -202,15 +212,15 @@ function setParent!(child, parent)
 end 
 
 function hasAliveChild(person)
-    for child in children(person) 
-        if alive(child) return true end 
+    for child in person.children 
+        if child.alive return true end 
     end
     false 
 end
 
 function hasChildrenAtHome(person)
-    for c in children(person)
-        if alive(c) && c.pos == person.pos
+    for c in person.children
+        if c.alive && c.pos == person.pos
             return true
         end
     end
@@ -221,29 +231,29 @@ end
 
 function ageYoungestAliveChild(person::Person) 
     youngest = Rational{Int}(Inf)  
-    for child in children(person) 
-        if alive(child) 
-            youngest = min(youngest,age(child))
+    for child in person.children 
+        if child.alive 
+            youngest = min(youngest,child.age)
         end 
     end
     youngest 
 end
 
 
-canLiveAlone(person) = age(person) >= 18
+canLiveAlone(person) = person.age >= 18
 isOrphan(person) = !canLiveAlone(person) && !isDependent(person)
 
 function setAsGuardianDependent!(guardian, dependent)
-    push!(dependents(guardian), dependent)
-    push!(guardians(dependent), guardian)
+    push!(guardian.dependents, dependent)
+    push!(dependent.guardians, guardian)
 
     # set class rank to maximum of guardians'
-    parentClassRank!(dependent, maximum(classRank, guardians(dependent)))
+    parentClassRank!(dependent, maximum(classRank, dependent.guardians))
     nothing
 end
 
 function resolveDependency!(guardian, dependent)
-    deps = dependents(guardian)
+    deps = guardian.dependents
     idx_d = findfirst(==(dependent), deps)
     if idx_d == nothing
         return
@@ -251,7 +261,7 @@ function resolveDependency!(guardian, dependent)
 
     deleteat!(deps, idx_d)
 
-    guards = guardians(dependent)
+    guards = dependent.guardians
     idx_g = findfirst(==(guardian), guards)
     if idx_g == nothing
         error("inconsistent dependency!")
@@ -266,45 +276,45 @@ function setAsIndependent!(person)
         return
     end
 
-    for g in guardians(person)
-        g_deps = dependents(g)
+    for g in person.guardians
+        g_deps = g.dependents
         deleteat!(g_deps, findfirst(==(person), g_deps))
     end
-    empty!(guardians(person))
+    empty!(person.guardians)
     nothing
 end
 
 # check basic consistency, if there's an error on any of these 
 # then something is seriously wrong
 function checkConsistencyDependents(person)
-    for guard in guardians(person)
-        @assert !isUndefined(guard) && alive(guard)
-        @assert person in dependents(guard)
+    for guard in person.guardians
+        @assert !isUndefined(guard) && guard.alive
+        @assert person in guard.dependents
     end
 
-    for dep in dependents(person)
+    for dep in person.dependents
         @assert !isUndefined(dep)  
-        @assert age(dep) < 18
+        @assert dep.age < 18
         @assert person.pos == dep.pos
-        @assert person in guardians(dep)
+        @assert person in dep.guardians
     end
 end
 
 
 function setAsProviderProvidee!(prov, providee)
-    @assert isUndefined(provider(providee))
-    @assert !(providee in providees(prov))
-    push!(providees(prov), providee)
+    @assert isUndefined(providee.provider)
+    @assert !(providee in prov.providees)
+    push!(prov.providees, providee)
     provider!(providee, prov)
     nothing
 end
 
 function setAsSelfproviding!(person)
-    if isUndefined(provider(person))
+    if isUndefined(person.provider)
         return
     end
 
-    provs = providees(provider(person))
+    provs = person.provider.providees
     deleteat!(provs, findfirst(==(person), provs))
     provider!(person, undefinedPerson)
     nothing
@@ -312,16 +322,16 @@ end
 
 
 function maxParentRank(person)
-    f = father(person)
-    m = mother(person)
+    f = person.father
+    m = person.mother
     if f == m == undefinedPerson
-        classRank(person)
+        person.classRank
     elseif f == undefinedPerson
-        classRank(m)
+        m.classRank
     elseif m == undefinedPerson
-        classRank(f)
+        f.classRank
     else
-        max(classRank(m), classRank(f))
+        max(m.classRank, f.classRank)
     end
 end
 

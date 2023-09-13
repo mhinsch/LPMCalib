@@ -2,13 +2,13 @@ include("kinship.jl")
 
 export socialCareSupply, socialCareDemand, householdSocialCareNeed
 
-socialCareDemand(person, pars) = pars.careDemandInHours[careNeedLevel(person)+1]
+socialCareDemand(person, pars) = pars.careDemandInHours[person.careNeedLevel+1]
 
 numCareLevels(pars) = length(pars.careDemandInHours)
 
 
 function childCareNeed(child, model, pars)
-    ageC = age(child)
+    ageC = child.age
 
     childCare = 
         if ageC < 1
@@ -39,7 +39,7 @@ end
 function householdChildCareNeed(house, model, pars)
     maxChildCare = 0
     for person in house.occupants
-        if age(person) >= 13
+        if person.age >= 13
             continue
         end
         care = childCareNeed(person, model, pars)
@@ -61,11 +61,11 @@ end
 
 
 function socialCareSupply(person, pars)
-    if careNeedLevel(person) > 0
+    if person.careNeedLevel > 0
         return 0
     end
     
-    s = Int(status(person))
+    s = Int(person.status)
     
     pars.careSupplyByStatus[s+1]
 end
