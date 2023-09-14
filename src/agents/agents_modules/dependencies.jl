@@ -7,7 +7,7 @@ end
 
 isDependent(p) = !isempty(p.guardians)
 
-hasDependents(p) = isempty(p.dependents)
+hasDependents(p) = !isempty(p.dependents)
 
-hasProvidees(p) = isempty(p.providees)
+hasProvidees(p) = !isempty(p.providees)
 
