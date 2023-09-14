@@ -3,9 +3,9 @@ using Utilities
 export death!, setDead! 
 
 function deathProbability(baseRate, person, model, parameters) 
-    cRank = classRank(person)
-    if status(person) == WorkStatus.child || status(person) == WorkStatus.student
-        cRank = parentClassRank(person)
+    cRank = person.classRank
+    if person.status == WorkStatus.child || person.status == WorkStatus.student
+        cRank = person.parentClassRank
     end
 
     if isMale(person) 
@@ -52,7 +52,7 @@ function setDead!(person)
     alive!(person, false)
     resetHouse!(person)
     if !isSingle(person) 
-        resolvePartnership!(partner(person),person)
+        resolvePartnership!(person.partner,person)
     end
 
     # dead persons are no longer dependents
@@ -61,11 +61,11 @@ function setDead!(person)
     # dead persons no longer have to be provided for
     setAsSelfproviding!(person)
 
-    for p in providees(person)
+    for p in person.providees
         provider!(p, undefinedPerson)
         # TODO update provision/work status
     end
-    empty!(providees(person))
+    empty!(person.providees)
 
     # dependents are being taken care of by assignGuardian!
     nothing
@@ -120,10 +120,10 @@ function death!(person, currstep, model, parameters)
     (curryear,currmonth) = date2yearsmonths(currstep)
     currmonth += 1 # adjusting 0:11 => 1:12 
 
-    agep = trunc(Int, age(person))             
+    agep = trunc(Int, person.age)             
 
     assumption() do
-        @assert alive(person)       
+        @assert person.alive       
         @assert isMale(person) || isFemale(person) # Assumption 
     end
  

@@ -2,8 +2,8 @@ export selectAssignGuardian, assignGuardian!, findFamilyGuardian, findOtherGuard
 
 
 function hasValidGuardian(person)
-    for g in guardians(person)
-        if alive(g)
+    for g in person.guardians
+        if g.alive
             return true
         end
     end
@@ -12,7 +12,7 @@ function hasValidGuardian(person)
 end
 
 
-selectAssignGuardian(person) = alive(person) && !canLiveAlone(person) && 
+selectAssignGuardian(person) = person.alive && !canLiveAlone(person) && 
     !hasValidGuardian(person)
 
 
@@ -25,7 +25,7 @@ function assignGuardian!(person, time, model, pars)
     # get rid of previous (possibly dead) guardians
     # this implies that relatives of a non-related former legal guardian
     # that are now excluded due to age won't get a chance again in the future
-    empty!(guardians(person))
+    empty!(person.guardians)
 
     if isUndefined(guard) 
         return false
@@ -45,8 +45,8 @@ function findFamilyGuardian(person)
     append!(potGuardians, pparents)
 
     # these can but don't have to be identical to the parents
-    for g in guardians(person)
-        push!(potGuardians, partner(g))
+    for g in person.guardians
+        push!(potGuardians, g.partner)
     end
 
     # relatives of biological parents
@@ -60,7 +60,7 @@ function findFamilyGuardian(person)
     end
     
     # possible overlap with previous, but doesn't matter
-    for g in guardians(person)
+    for g in person.guardians
         append!(potGuardians, parents(g))
         append!(potGuardians, siblings(g))
     end
@@ -68,7 +68,7 @@ function findFamilyGuardian(person)
     # potentially lots of redundancy, but just take the first 
     # candidate that works
     for g in potGuardians
-        if isUndefined(g) || !alive(g) || age(g) < 18 
+        if isUndefined(g) || !g.alive || g.age < 18 
             continue
         end
         return g
@@ -80,7 +80,7 @@ end
 function findOtherGuardian(person, people, pars)
     candidates = [ p for p in people if 
         isFemale(p) && canLiveAlone(p) && !isSingle(p) && 
-            (status(p) == WorkStatus.worker || status(partner(p)) == WorkStatus.worker) ]
+            (p.status == WorkStatus.worker || p.partner.status == WorkStatus.worker) ]
 
     if length(candidates) > 0
         return rand(candidates)
@@ -94,6 +94,6 @@ function adopt!(guard, person)
     movePeopleToHouse!([person], guard.pos)
     setAsGuardianDependent!(guard, person)
     if ! isSingle(guard)
-        setAsGuardianDependent!(partner(guard), person)
+        setAsGuardianDependent!(guard.partner, person)
     end
 end

@@ -44,22 +44,22 @@ coords(agent) = h_pos(agent.pos)
 function network!(poss, agent)
     empty!.(poss)
     ac = coords(agent)
-    for c in children(agent)
-        if !alive(c)
+    for c in agent.children
+        if !c.alive
             continue
         end
         push!(poss[1], ac)
         push!(poss[1], coords(c))
     end
     for c in parents(agent)
-        if isUndefined(c) || !alive(c)
+        if isUndefined(c) || !c.alive
             continue
         end
         push!(poss[2], ac)
         push!(poss[2], coords(c))
     end
     for c in siblings(agent)
-        if isUndefined(c) || !alive(c)
+        if isUndefined(c) || !c.alive
             continue
         end
         push!(poss[3], ac)
@@ -196,7 +196,7 @@ function main(parOverrides...)
         if pause[]
             sleep(0.001)
         end
-        if !alive(f_agent)
+        if !f_agent.alive
             f_agent = rand(model.pop)
         end
         network!(poss, f_agent)
@@ -224,17 +224,17 @@ function main(parOverrides...)
         notify(obs_age)
         autolimits!(ax_age)
         
-        m_status = isUndefined(partner(f_agent)) ? "single" : "married"
-        m_s = isUndefined(mother(f_agent)) ? "" : "mother"
-        f_s = isUndefined(father(f_agent)) ? "" : "father"
+        m_status = isUndefined(f_agent.partner) ? "single" : "married"
+        m_s = isUndefined(f_agent.mother) ? "" : "mother"
+        f_s = isUndefined(f_agent.father) ? "" : "father"
         n_sibs = count(x->!isUndefined(x), siblings(f_agent))
-        n_ch = count(x->!isUndefined(x), children(f_agent))
-        obs_agent[] = "age: $(floor(Int, age(f_agent)))\n" * 
+        n_ch = count(x->!isUndefined(x), f_agent.children)
+        obs_agent[] = "age: $(floor(Int, f_agent.age))\n" * 
             "status: $m_status\n" *
             "living parents: $m_s $f_s\n" *
             "$n_sibs siblings\n" *
             "$n_ch children\n" *
-            "care need: $(careNeedLevel(f_agent))"  
+            "care need: $(f_agent.careNeedLevel)"  
         obs_year[] = "$(floor(Int, Float64(time)))"
     end
 

@@ -26,7 +26,7 @@ end
 
 
 function divorce!(man, time, model, parameters)
-    agem = age(man) 
+    agem = man.age 
     assumption() do
         @assert isMale(man) 
         @assert !isSingle(man)
@@ -42,26 +42,26 @@ function divorce!(man, time, model, parameters)
         rawRate = parameters.variableDivorce  * parameters.divorceModifierByDecade[ceil(Int, agem / 10)]           
     end
 
-    divorceProb = divorceProbability(rawRate, classRank(man), model, parameters)
+    divorceProb = divorceProbability(rawRate, man.classRank, model, parameters)
 
     if rand() < p_yearly2monthly(limit(0.0, divorceProb, 1.0)) 
-        wife = partner(man)
+        wife = man.partner
         resolvePartnership!(man, wife)
         
         #=
         man.yearDivorced.append(self.year)
         wife.yearDivorced.append(self.year)
         =# 
-        if status(wife) == WorkStatus.student
+        if wife.status == WorkStatus.student
             startWorking!(wife, parameters)
         end
 
         peopleToMove = [man]
-        for child in dependents(man)
-            @assert alive(child)
-            if (father(child) == man && mother(child) != wife) ||
+        for child in man.dependents
+            @assert child.alive
+            if (child.father == man && child.mother != wife) ||
                 # if both have the same status decide by probability
-                (((father(child) == man) == (mother(child) == wife)) &&
+                (((child.father == man) == (child.mother == wife)) &&
                  rand() < parameters.probChildrenWithFather)
                 push!(peopleToMove, child)
                 resolveDependency!(wife, child)
@@ -79,6 +79,6 @@ function divorce!(man, time, model, parameters)
 end 
 
 
-selectDivorce(person, pars) = alive(person) && isMale(person) && !isSingle(person)
+selectDivorce(person, pars) = person.alive && isMale(person) && !isSingle(person)
 
 

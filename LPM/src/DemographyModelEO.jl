@@ -99,7 +99,7 @@ end
 
 function removeDead!(model)
     for i in length(model.pop):-1:1
-        if !alive(model.pop[i])
+        if !model.pop[i].alive
             remove_unsorted!(model.pop, i)
         end
     end

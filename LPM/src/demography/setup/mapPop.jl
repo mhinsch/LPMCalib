@@ -13,10 +13,10 @@ function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonH
         
         moveToHouse!(woman, house) 
         if !isSingle(woman)
-            moveToHouse!(partner(woman), house)
+            moveToHouse!(woman.partner, house)
         end
 
-        for child in dependents(woman)
+        for child in woman.dependents
             moveToHouse!(child, house)
         end
     end # for person     

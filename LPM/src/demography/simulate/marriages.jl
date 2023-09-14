@@ -2,7 +2,7 @@ export marriage!, selectMarriage
 
 using Utilities
 
-ageClass(person) = trunc(Int, age(person)/10)
+ageClass(person) = trunc(Int, person.age/10)
 
 
 mutable struct MarriageCache{PERSON}
@@ -32,7 +32,7 @@ function marriagePreCalc!(model, pars)
     
     empty!(pc.eligibleWomen)
     for f in model.pop 
-        if isFemale(f) && isSingle(f) && age(f) > pars.minPregnancyAge
+        if isFemale(f) && isSingle(f) && f.age > pars.minPregnancyAge
             push!(pc.eligibleWomen, f)
         end
     end
@@ -54,46 +54,46 @@ function marryWeight(man, woman, pars)
         
     geoFactor = 1/exp(pars.betaGeoExp * geoDistance(man, woman, pars))
 
-    if status(woman) == WorkStatus.student 
+    if woman.status == WorkStatus.student 
         studentFactor = pars.studentFactorParam
-        womanRank = parentClassRank(woman)
+        womanRank = woman.parentClassRank
     else
         studentFactor = 1.0
-        womanRank = classRank(woman)
+        womanRank = woman.classRank
     end
 
-    statusDistance = abs(classRank(man) - womanRank) / (length(pars.cumProbClasses) - 1)
+    statusDistance = abs(man.classRank - womanRank) / (length(pars.cumProbClasses) - 1)
 
-    betaExponent = pars.betaSocExp * (classRank(man) < womanRank ? 1.0 : pars.rankGenderBias)
+    betaExponent = pars.betaSocExp * (man.classRank < womanRank ? 1.0 : pars.rankGenderBias)
 
     socFactor = 1/exp(betaExponent * statusDistance)
 
-    #ageFactor = pars.deltaAgeProb[deltaAge(age(man) - age(woman))]
+    #ageFactor = pars.deltaAgeProb[deltaAge(man.age - woman.age)]
 
     # legal dependents (i.e. usually underage persons living at the same house)
-    numChildrenWithWoman = length(dependents(woman))
+    numChildrenWithWoman = length(woman.dependents)
 
     childrenFactor = 1/exp(pars.bridesChildrenExp * numChildrenWithWoman)
 
-    geoFactor * socFactor * ageFactor(age(man), age(woman), pars) * childrenFactor * studentFactor
+    geoFactor * socFactor * ageFactor(man.age, woman.age, pars) * childrenFactor * studentFactor
 end
 
 geoDistance(m, w, pars) = manhattanDistance(getHomeTown(m), getHomeTown(w))/
     (pars.mapGridXDimension + pars.mapGridYDimension)
 
-selectMarriage(p, pars) = alive(p) && isMale(p) && isSingle(p) && 
-    age(p) > pars.ageOfAdulthood && careNeedLevel(p) < 4
+selectMarriage(p, pars) = p.alive && isMale(p) && isSingle(p) && 
+    p.age > pars.ageOfAdulthood && p.careNeedLevel < 4
 
 
 function marriage!(man, time, model, pars)
-    @assert alive(man)
+    @assert man.alive
 
     ageclass = ageClass(man) 
 
     manMarriageProb = ageclass > length(pars.maleMarriageModifierByDecade) ? 
         0.0 : pars.basicMaleMarriageProb * pars.maleMarriageModifierByDecade[ageclass]
 
-    if status(man) != WorkStatus.worker || careNeedLevel(man) > 1
+    if man.status != WorkStatus.worker || man.careNeedLevel > 1
         manMarriageProb *= pars.notWorkingMarriageBias
     end
 
@@ -137,8 +137,8 @@ function marriage!(man, time, model, pars)
 
     joinCouple!(man, selectedWoman, model, pars)
 
-    dep_man = dependents(man)
-    dep_woman = dependents(selectedWoman)
+    dep_man = man.dependents
+    dep_woman = selectedWoman.dependents
     # all dependents become joint dependents
     for child in dep_man
         setAsGuardianDependent!(selectedWoman, child)
@@ -154,14 +154,14 @@ end
 # for now simply all dependents
 function gatherDependentsSingle(person)
     assumption() do
-        for p in dependents(person)
+        for p in person.dependents
             @assert p.pos == person.pos
-            @assert length(guardians(p)) == 1
-            @assert guardians(p)[1] == person
+            @assert length(p.guardians) == 1
+            @assert p.guardians[1] == person
         end
     end
 
-    dependents(person)
+    person.dependents
 end
 
     
