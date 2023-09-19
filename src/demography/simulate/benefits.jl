@@ -17,6 +17,7 @@ function computeBenefits!(pop, pars)
     pensionCredit!(pop, pars)
 end
 
+
 function childBenefits!(pop, pars)
     for parent in Iterators.filter(hasDependents, pop)
         nDeps = length(parent.dependents)
@@ -51,7 +52,7 @@ function disabilityBenefits(pop, pars)
     for agent in Iterators.filter(x->16<=x.age<pars.ageOfRetirement && x.careNeedLevel>0, pop)
         disabledAdultBenefit = pars.carePIP[floor(Int, (agent.careNeedLevel+1)/2)]
         if agent.careNeedLevel > 1
-            disabledAdultBenefit + pars.mibilityPIP[floor(Int, agent.careNeedLevel/2)]
+            disabledAdultBenefit + pars.mobilityPIP[floor(Int, agent.careNeedLevel/2)]
         end
         
         agent.highestDisabilityBenefits = agent.careNeedLevel > 2
@@ -75,10 +76,12 @@ function disabilityBenefits(pop, pars)
     end
 end
 
+
 function isUCEligibleAdult(agent, pars)
     18<=agent.age<pars.ageOfRetirement && 
         (statusWorker(agent) || statusUnemployed(agent))            
 end
+
 
 function isUCEligibleStudent(agent, pars)
     statusStudent(agent) && (
@@ -88,12 +91,14 @@ function isUCEligibleStudent(agent, pars)
         x.careNeedLevel > 0 ) 
 end
 
+
 function isUCEligibleYoung(agent, pars)
     16<=agent.age<18 && (
         (statusStudent(agent) && isUndefined(agent.father) && isUndefined(agent.mother)) ||
         agent.socialWork >= 35 ||
         hasChildrenAtHome(agent) )
 end
+
 
 function universalCredit!(pop, pars)
     # Condition 1: age between 18 and 64
@@ -125,6 +130,7 @@ function universalCredit!(pop, pars)
         end
     end
 end
+
 
 nDependents(house) = count(x -> x.age<16 || (x.age<20&&x.status==WorkStatus.student), house.occupants)
             
@@ -217,11 +223,11 @@ function computeUC!(agent, pars)
     nothing
 end    
     
+
 function pensionCredit!(pop, pars)
     # Condition 1: 65 or older (both, if a couple)
     for agent in Iterators.filter(x->x.age>=pars.ageOfRetirement, pop)
         agent.guaranteeCredit = false
-        agent.houseBenefit = false
         if isSingle(agent)
             benefitIncome = agent.income + 
                 max(0.0, floor((agent.financialWealth-pars.wealthAllowancePC)/pars.savingIncomeRatePC))
@@ -230,8 +236,8 @@ function pensionCredit!(pop, pars)
                 agent.guaranteeCredit = true
             end
         elseif agent.partner.age >= pars.ageOfRetirement
-            totalIncome = agent.income+agent.partner.income
-            totalWealth = agent.financialWealth+agent.partner.financialWealth
+            totalIncome = agent.income + agent.partner.income
+            totalWealth = agent.financialWealth + agent.partner.financialWealth
             aggregateBenefitIncome = totalIncome + 
                 max(0.0, floor((totalWealth-pars.wealthAllowancePC)/pars.savingIncomeRatePC))
             agent.benefits += max(pars.couplePC-aggregateBenefitIncome, 0)/2.0
@@ -267,7 +273,7 @@ function pensionCredit!(pop, pars)
                     totalDisabledChildBenefits /= 2.0
                 end
                 agent.benefits += totalDisabledChildBenefits
-                agent.guaranteeCredit = True
+                agent.guaranteeCredit = true
                 
                 nCritDisabledDeps = nCritDisabledDependents(agent.house)
                 totalDisabledChildBenefits = pars.disabledChildComponent[2] * nCritDisabledDeps
@@ -275,7 +281,7 @@ function pensionCredit!(pop, pars)
                     totalDisabledChildBenefits /= 2.0
                 end
                 agent.benefits += totalDisabledChildBenefits
-                agent.guaranteeCredit = True
+                agent.guaranteeCredit = true
             end
         end
        

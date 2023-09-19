@@ -181,6 +181,45 @@ end
 end
 
 
+@with_kw mutable struct BenefitPars
+    childBenefitIncomeThreshold :: Float64 = 50000
+    firstChildBenefit :: Float64 = 21.15
+    otherChildrenBenefit :: Float64 = 14.0
+    
+    careDLA :: Vector{Float64} = [23.70, 60.00, 89.60]
+    mobilityDLA :: Vector{Float64} = [23.70, 62.55]
+    carePIP :: Vector{Float64} = [60.00, 89.60]
+    mobilityPIP :: Vector{Float64} = [23.70, 62.55]
+    careAA :: Vector{Float64} = [60.00, 89.60]
+    carersAllowance :: Float64 = 67.60
+    
+    capitalHighThreshold :: Float64 = 16000.0
+    capitalLowThreshold :: Float64 = 6000.0
+    capitalIncome :: Float64 = 4.35
+    savingUCRate :: Float64 = 250
+    workAllowanceHS :: Float64 = (293.0*12)/52.0
+    workAllowanceNoHS :: Float64 = (515.0*12)/52.0    
+    incomeReduction :: Float64 = 0.63
+    singleBelow25 :: Float64 = (257.33*12)/52.0
+    single25Plus :: Float64 = (324.84*12)/52.0
+    coupleBelow25 :: Float64 = ((403.93*12)/52.0)/2.0
+    couple25Plus :: Float64 = ((509.91*12)/52.0)/2.0
+    eaChildren :: Float64 = (237.08*12)/52.0
+    eaDisabledChildren :: Float64 = [(128.89*12)/52.0, (402.41*12)/52.0]
+    lcfwComponent :: Float64 = (343.63*12)/52.0
+    carersComponent :: Float64  = (163.73*12)/52.0
+    
+    singlePC :: Float64 = 177.10 # Top-up
+    couplePC :: Float64 = 270.30 # Top-up
+    wealthAllowancePC :: Float64 = 10000.0
+    savingIncomeRatePC :: Float64 = 500
+    disabilityComponentPC :: Float64 = 67.30
+    caringComponentPC :: Float64 = 37.70
+    childComponentPC :: Float64 = 54.60
+    disabledChildComponent :: Vector{Float64} = [29.66, 92.54]
+    housingBenefitWealthThreshold :: Float64 = 16000.0
+end
+
 "Divorce"
 @with_kw mutable struct DivorcePars
     basicDivorceRate :: Float64             = 0.06
