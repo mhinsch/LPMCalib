@@ -16,7 +16,7 @@ Type Town to extend from AbstractAXgent.
 
 const TownLocation  = NTuple{2,Int}
 
-struct Town{H} 
+mutable struct Town{H} 
     pos::TownLocation
     density::Float64                        # relative population density w.r.t. the town with the highest density 
     houses :: Vector{H}
@@ -25,7 +25,7 @@ struct Town{H}
     lha :: Vector{Float64}
 end  # Town 
 
-Town{H}(pos, density) where {H} = Town(pos, density, H[], Town{H}[], [])
+Town{H}(pos, density) where {H} = Town(pos, density, H[], Town{H}[], Float64[])
 
 "costum show method for Town"
 function Base.show(io::IO,  town::Town) 

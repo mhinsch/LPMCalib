@@ -9,7 +9,8 @@ using ArgParse
 using Utilities
 
 using DemographyPars
-using DemographyModelEO
+using DemographyModel
+#using DemographyModelEO
 
 
 include("src/demography/data.jl")
@@ -33,7 +34,7 @@ function setupModel(pars)
 
     model = createDemographyModel!(demoData, workData, pars)
 
-    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars)
+    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars, pars.lhapars)
     
     model
 end

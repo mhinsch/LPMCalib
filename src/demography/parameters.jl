@@ -206,7 +206,7 @@ end
     coupleBelow25 :: Float64 = ((403.93*12)/52.0)/2.0
     couple25Plus :: Float64 = ((509.91*12)/52.0)/2.0
     eaChildren :: Float64 = (237.08*12)/52.0
-    eaDisabledChildren :: Float64 = [(128.89*12)/52.0, (402.41*12)/52.0]
+    eaDisabledChildren :: Vector{Float64} = [(128.89*12)/52.0, (402.41*12)/52.0]
     lcfwComponent :: Float64 = (343.63*12)/52.0
     carersComponent :: Float64  = (163.73*12)/52.0
     

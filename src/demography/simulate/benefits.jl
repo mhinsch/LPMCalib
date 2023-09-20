@@ -2,10 +2,10 @@
 function computeBenefits!(pop, pars)
     
     # Reset counters
-    for agent in pop.people
+    for agent in pop
         agent.benefits = 0
-        agent.highestDisabilityBenefits = False
-        agent.ucBenefits = False
+        agent.highestDisabilityBenefits = false
+        agent.ucBenefits = false
     end
     
     childBenefits!(pop, pars)
@@ -34,13 +34,14 @@ function childBenefits!(pop, pars)
                     totChildBenefit = pars.firstChildBenefit/2
                     totChildBenefit += pars.otherChildrenBenefit * (nDeps-1)/2
                 end
+            end
             parent.benefits += totChildBenefit
         end
     end
 end
 
 
-function disabilityBenefits(pop, pars)
+function disabilityBenefits!(pop, pars)
     for child in Iterators.filter(x->x.age<16 && x.careNeedLevel>0, pop)
         disabledChildBenefit = pars.careDLA[floor(Int, child.careNeedLevel/2) + 1] + 
             pars.mobilityDLA[floor(Int, (child.careNeedLevel+1)/2)]
@@ -88,7 +89,7 @@ function isUCEligibleStudent(agent, pars)
         hasChildrenAtHome(agent) ||
         agent.age >= pars.ageOfRetirement ||
         (!isSingle(agent) && agent.partner.ucBenefits) ||
-        x.careNeedLevel > 0 ) 
+        agent.careNeedLevel > 0 ) 
 end
 
 
@@ -106,13 +107,12 @@ function universalCredit!(pop, pars)
     # Condition 3: Savings less than 16000
     
     for agent in Iterators.filter(x->isUCEligibleAdult(x, pars), pop)
-        self.computeUC!(agent, pars)
+        computeUC!(agent, pars)
     end
     
     # need to do that afterwards, so that partners have been processed
-    for agent in Iterators.filter(x->isUCEligibleStudent(x, pars) || isUCEligibleYoung(agent, pars), 
-            pop) 
-        self.computeUC!(agent, pop)
+    for agent in Iterators.filter(x->isUCEligibleStudent(x, pars) || isUCEligibleYoung(x, pars), pop) 
+        computeUC!(agent, pars)
     end
     
     # Housing element (for renters): LHA rate based on household composition (number of rooms).
@@ -122,11 +122,11 @@ function universalCredit!(pop, pars)
     # Two children under 16 of the same gender
     # Two children under 10
     # Any other child under 16
-    for agent in Iterators.filter(x->x.ucBenefits && !x.houseOwnedByOccupant && !isDependent(x), pop)
+    for agent in Iterators.filter(x->x.ucBenefits && !x.pos.ownedByOccupants && !isDependent(x), pop)
         if isSingle(agent) || !agent.partner.ucBenefits
-            agent.benefits += agent.house.town.LHA[computeMaxRooms([agent], pars)]
+            agent.benefits += agent.pos.town.lha[computeMaxRooms(agent.pos, pars)]
         else
-            agent.benefits += agent.house.town.LHA[computeMaxRooms([agent, agent.partner])]/2.0
+            agent.benefits += agent.pos.town.lha[computeMaxRooms(agent.pos, pars)]/2.0
         end
     end
 end
@@ -153,11 +153,11 @@ function computeUC!(agent, pars)
     ucIncome = totalIncome + pars.capitalIncome *
         max(0.0, floor(Int, (agent.financialWealth-pars.capitalLowThreshold)/pars.savingUCRate))
         
-    nUCDeps = nDependents(agent.house)
+    nUCDeps = nDependents(agent.pos)
         
     # TODO! dependence needs to be done properly
     if (!isDependent(agent) && nUCDeps > 0) || agent.careNeedLevel > 0
-        if ! agent.house.ownedByOccupants # Assuming the agent will get the Housing Cost element
+        if ! agent.pos.ownedByOccupants # Assuming the agent will get the Housing Cost element
             ucIncome = max(ucIncome-pars.workAllowanceHS, 0.0)
         else
             ucIncome = max(ucIncome-pars.workAllowanceNoHS, 0.0)
@@ -178,6 +178,7 @@ function computeUC!(agent, pars)
         else
             benefit = max(pars.couple25Plus-ucReduction, 0.0)/2.0
         end
+    end
     
     if benefit > 0
         agent.ucBenefits = true
@@ -193,7 +194,7 @@ function computeUC!(agent, pars)
     end
     
     # Extra for disabled children
-    nMildlyDisabledUCDeps = nMildlyDisabledDependents(agent.house)
+    nMildlyDisabledUCDeps = nMildlyDisabledDependents(agent.pos)
         
     totalDisabledChildBenefits = pars.eaDisabledChildren[1] * nMildlyDisabledUCDeps
     agent.benefits += totalDisabledChildBenefits/(isSingle(agent) ? 1.0 : 2.0)
@@ -201,7 +202,7 @@ function computeUC!(agent, pars)
         agent.ucBenefits = true
     end
         
-    nCritDisabledUCDeps = nCritDisabledDependents(agent.house)
+    nCritDisabledUCDeps = nCritDisabledDependents(agent.pos)
     totalDisabledChildBenefits = pars.eaDisabledChildren[2] * nCritDisabledUCDeps
     agent.benefits += totalDisabledChildBenefits/(isSingle(agent) ? 1.0 : 2.0)
     if totalDisabledChildBenefits > 0
@@ -257,8 +258,8 @@ function pensionCredit!(pop, pars)
         end
         
         if !isDependent(agent)
-            nDeps = nDependents(agent.house)
-            if nDeps > 0:
+            nDeps = nDependents(agent.pos)
+            if nDeps > 0
                 totalChildBenefit = pars.childComponentPC * nDeps
                 if !isSingle(agent) && agent.partner.age >= pars.ageOfRetirement
                     totalChildBenefit /= 2.0
@@ -267,7 +268,7 @@ function pensionCredit!(pop, pars)
                 agent.guaranteeCredit = true
                 
                 # Disabled children
-                nMildlyDisabledDeps = nMildlyDisabledDependents(agent.house)
+                nMildlyDisabledDeps = nMildlyDisabledDependents(agent.pos)
                 totalDisabledChildBenefits = pars.disabledChildComponent[1] * nMildlyDisabledDeps
                 if !isSingle(agent) && agent.partner.age >= pars.ageOfRetirement
                     totalDisabledChildBenefits /= 2.0
@@ -275,7 +276,7 @@ function pensionCredit!(pop, pars)
                 agent.benefits += totalDisabledChildBenefits
                 agent.guaranteeCredit = true
                 
-                nCritDisabledDeps = nCritDisabledDependents(agent.house)
+                nCritDisabledDeps = nCritDisabledDependents(agent.pos)
                 totalDisabledChildBenefits = pars.disabledChildComponent[2] * nCritDisabledDeps
                 if !isSingle(agent) && agent.partner.age >= pars.ageOfRetirement
                     totalDisabledChildBenefits /= 2.0
@@ -286,15 +287,15 @@ function pensionCredit!(pop, pars)
         end
        
         # Housing benefit (for renters): LHA rate based on household composition (number of rooms).
-        if !isDependent(agent) && !agent.house.ownedByOccupants
+        if !isDependent(agent) && !agent.pos.ownedByOccupants
             if isSingle(agent)
                 if agent.financialWealth < pars.housingBenefitWealthThreshold || agent.guaranteeCredit
-                    agent.benefits += agent.house.town.LHA[computeMaxRooms(agent.house, pars)]
+                    agent.benefits += agent.pos.town.lha[computeMaxRooms(agent.pos, pars)]
                 end
-            elseif agent.partner.age >= pars.ageOfRetirement:
+            elseif agent.partner.age >= pars.ageOfRetirement
                 totalWealth = agent.financialWealth+agent.partner.financialWealth
                 if totalWealth < pars.housingBenefitWealthThreshold || agent.guaranteeCredit
-                    agent.benefits += agent.house.town.LHA[computeMaxRooms(agent.house, pars)]/2.0
+                    agent.benefits += agent.pos.town.lha[computeMaxRooms(agent.pos, pars)]/2.0
                 end
             end
         end
@@ -315,14 +316,14 @@ function computeMaxRooms(house, pars)
         
         if occ.age >= 16 
             allowedRooms += 1
-        elseif acc.age >= 10
+        elseif occ.age >= 10
             isMale(occ) ? nMaleTeens += 1 : nFemaleTeens += 1
         else
             nChildren += 1
         end
     end    
     
-    allowedRooms -= nCouples
+    allowedRooms -= nCouples ÷ 2
     allowedRooms += ceil(Int, nMaleTeens / 2)
     allowedRooms += ceil(Int, nFemaleTeens / 2)
     allowedRooms += ceil(Int, nChildren / 2)

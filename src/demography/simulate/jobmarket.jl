@@ -471,8 +471,8 @@ function computePersonIncome!(person, pars)
             end
             income!(person, maternityIncome)
         else
-            income!(person, wage(person) * availableWorkingHours(person)
-            lastIncome!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)]
+            income!(person, wage(person) * availableWorkingHours(person))
+            lastIncome!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)])
         end
         # Detract taxes and 
     elseif statusRetired(person)
@@ -543,7 +543,7 @@ function computeIncome!(model, month, pars)
         if disposableIncome(person) > 162.0
             if disposableIncome(person) < 893.0
                 employeePensionContribution = (disposableIncome(person) - 162.0) * 0.12
-            else:
+            else
                 employeePensionContribution = (893.0 - 162.0) * 0.12
                 employeePensionContribution += (disposableIncome(person) - 893.0) * 0.02
             end
@@ -581,11 +581,11 @@ function computeIncome!(model, month, pars)
     end
     
     for house in Iterators.filter(x->!isEmpty(x), model.houses)
-        householdDisposableIncome!(house, sum(x->disposableIncome(x), house.occupants)
+        householdDisposableIncome!(house, sum(x->disposableIncome(x), house.occupants))
         benefits!(house, sum(x->benefits(x), house.occupants))
         yearlyDisposableIncome!(house, householdDisposableIncome(house) * 52.0)
         yearlyBenefits!(house, benefits(house) * 52.0)
-        disposableIncomePerCapita!(house, house.householdIncome/length(house.occupants)
+        disposableIncomePerCapita!(house, house.householdIncome/length(house.occupants))
     end
     
     
@@ -621,6 +621,6 @@ function computeIncome!(model, month, pars)
             end
         end
         dependentMembers = [x for x in house.occupants if x.independentStatus == False]
-        house.povertyLineIncome += len(dependentMembers)*self.p['additionalChild']
+        house.povertyLineIncome += len(dependentMembers) * pars.additionalChild
     end 
 end

@@ -11,6 +11,7 @@ include("agents/world.jl")
 include("demography/setup/map.jl")
 include("demography/setup/population.jl")
 include("demography/setup/mapPop.jl")
+include("demography/setup/mapBenefits.jl")
 
 include("demography/simulate/allocate.jl")
 include("demography/simulate/death.jl")
@@ -24,6 +25,7 @@ include("demography/simulate/dependencies.jl")
 include("demography/simulate/socialCareTransition.jl")
 include("demography/simulate/care.jl")
 include("demography/simulate/jobmarket.jl")
+include("demography/simulate/benefits.jl")
 
 using Utilities
 
@@ -81,7 +83,7 @@ end
 
 
 function initialConnectH!(houses, towns, pars)
-    newHouses = initializeHousesInTowns(towns, pars)
+    newHouses = initializeHousesInTowns!(towns, pars)
     append!(houses, newHouses)
 end
 
@@ -90,9 +92,11 @@ function initialConnectP!(pop, houses, pars)
 end
 
 
-function initializeDemographyModel!(model, poppars, workpars, mappars)
+function initializeDemographyModel!(model, poppars, workpars, mappars, mapbenefitpars)
     initialConnectH!(model.houses, model.towns, mappars)
     initialConnectP!(model.pop, model.houses, mappars)
+
+    initializeLHA!(model.towns, mapbenefitpars)
 
     for person in model.pop
         initClass!(person, poppars)
@@ -156,6 +160,8 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "social care") do person
         socialCareTransition!(person, time, model, fuse(pars.poppars, pars.carepars))
     end
+    
+    computeBenefits!(model.pop, fuse(pars.benefitpars, pars.workpars))
     
     socialCare!(model, pars.carepars)
     

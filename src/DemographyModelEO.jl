@@ -1,120 +1,13 @@
 module DemographyModelEO
 
-export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
+using DemographyModel
 
-include("agents/town.jl")
-include("agents/house.jl")
-include("agents/person.jl")
-include("agents/world.jl")
-
-include("demography/setup/map.jl")
-include("demography/setup/population.jl")
-include("demography/setup/mapPop.jl")
-
-include("demography/simulate/allocate.jl")
-include("demography/simulate/death.jl")
-include("demography/simulate/birth.jl")  
-include("demography/simulate/divorce.jl")       
-include("demography/simulate/ageTransition.jl")
-include("demography/simulate/socialTransition.jl")
-include("demography/simulate/relocate.jl")
-include("demography/simulate/marriages.jl")
-include("demography/simulate/dependencies.jl")
-include("demography/simulate/socialCareTransition.jl")
-include("demography/simulate/care.jl")
-
-using Utilities
-
-
-mutable struct Model
-    towns :: Vector{PersonTown}
-    houses :: Vector{PersonHouse}
-    pop :: Vector{Person}
-    babies :: Vector{Person}
-    
-    fertFByAge51 :: Vector{Float64}
-    fertility :: Matrix{Float64}
-    pre51Fertility :: Vector{Float64}
-    pre51Deaths :: Matrix{Float64}
-    deathFemale :: Matrix{Float64}
-    deathMale :: Matrix{Float64}
-    
-    birthCache :: BirthCache{Person}
-    deathCache :: DeathCache
-    marriageCache :: MarriageCache{Person}
-    socialCache :: SocialCache
-    socialCareCache :: SocialCareCache
-    divorceCache :: DivorceCache
-end
-
-
-function createDemographyModel!(data, pars)
-    towns = createTowns(pars.mappars)
-
-    houses = Vector{PersonHouse}()
-
-    # maybe switch using parameter
-    #ukPopulation = createPopulation(pars.poppars)
-    population = createPyramidPopulation(pars.poppars, data.initialAgePyramid)
-    
-    yearsFert = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Fertility)[1]]
-    
-    yearsMort = [1951 > data.pre51Deaths[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Deaths)[1]]
-                
-    fert = data.fertility[:, 1] # age-specific fertility in 1951
-    byAgeF = fert ./ (sum(fert)/length(fert)) 
-    
-    Model(towns, houses, population, [],
-            byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
-            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
-            BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
-            SocialCareCache(), DivorceCache())
-end
-
-
-function initialConnectH!(houses, towns, pars)
-    newHouses = initializeHousesInTowns!(towns, pars)
-    append!(houses, newHouses)
-end
-
-function initialConnectP!(pop, houses, pars)
-    assignCouplesToHouses!(pop, houses)
-end
-
-
-function initializeDemographyModel!(model, poppars, workpars, mappars)
-    initialConnectH!(model.houses, model.towns, mappars)
-    initialConnectP!(model.pop, model.houses, mappars)
-    
-    initializeLHA!(model.towns, mapbenefitpars)
-
-    for person in model.pop
-        initClass!(person, poppars)
-        initWork!(person, workpars)
-    end
-
-    nothing
-end
-
-
-function removeDead!(model)
-    for i in length(model.pop):-1:1
-        if !model.pop[i].alive
-            remove_unsorted!(model.pop, i)
-        end
-    end
-end
-
-
-function addBaby!(model, baby)
-    push!(model.babies, baby)
-end
+export stepModel!
 
 
 # TODO not entirely sure if this really belongs here
-function stepModel!(model, time, pars)
+function DemographyModel.stepModel!(model, time, pars)
+    println("EO")
     shuffle!(model.pop)
     socialPreCalc!(model, pars)
     socialCarePreCalc!(model, fuse(pars.poppars, pars.carepars))
