@@ -290,9 +290,11 @@ end
 
 struct ModelPars 
     mappars     ::  MapPars
+    lhapars		:: BenefitMapPars
     poppars     ::  PopulationPars
     birthpars   ::  BirthPars
     workpars    ::  WorkPars
+    benefitpars :: BenefitPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
     carepars :: CarePars
@@ -300,6 +302,6 @@ struct ModelPars
 end 
 
 
-ModelPars() = ModelPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-                                  DivorcePars(), MarriagePars(), CarePars(), DataPars())
+ModelPars() = ModelPars(MapPars(), BenefitMapPars(), PopulationPars(), BirthPars(), WorkPars(), 
+              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), DataPars())
 

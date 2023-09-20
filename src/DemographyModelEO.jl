@@ -75,7 +75,7 @@ end
 
 
 function initialConnectH!(houses, towns, pars)
-    newHouses = initializeHousesInTowns(towns, pars)
+    newHouses = initializeHousesInTowns!(towns, pars)
     append!(houses, newHouses)
 end
 
@@ -87,6 +87,8 @@ end
 function initializeDemographyModel!(model, poppars, workpars, mappars)
     initialConnectH!(model.houses, model.towns, mappars)
     initialConnectP!(model.pop, model.houses, mappars)
+    
+    initializeLHA!(model.towns, mapbenefitpars)
 
     for person in model.pop
         initClass!(person, poppars)
