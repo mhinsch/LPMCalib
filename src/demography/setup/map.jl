@@ -34,7 +34,7 @@ end
 
 
 "initialize houses in a given set of towns"
-function initializeHousesInTowns(towns::Vector{PersonTown}, pars) 
+function initializeHousesInTowns!(towns, pars) 
     houses = PersonHouse[] 
 
     for town in towns
