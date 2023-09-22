@@ -13,3 +13,5 @@ Shift(days, hour, hourIndex, shiftHours, socInd) =
     Shift(days, hour, hourIndex, shiftHours, hour+8, socInd)
     
 const EmptyShift = Shift()
+
+currentlyWorking(shift, day, hour) = day in shift.days && hour in shiftHours

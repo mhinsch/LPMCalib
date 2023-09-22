@@ -69,6 +69,10 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
             results = observe(Data, model, curTime, pars)
             log_results(logfile, results; FS)
         end
+        
+        #nWorkers = work_by_time(model.pop)
+        
+        #println(nWorkers)
 
         curTime += simPars.dt
     end
