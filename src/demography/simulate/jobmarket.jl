@@ -1,18 +1,18 @@
 using StatsBase
 
+"Assign a person's weekly schedule based on their shift and working hours."
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
-    shiftHours = copy(shift.shiftHours)
-    if dailyHours < length(shiftHours)
-        if rand() < 0.5
-            shiftHours = shift.shiftHours[1:4]
-        else
-            shiftHours = shift.shiftHours[4:end]
-        end
+    reducedHours = length(shift.shiftHours) - dailyHours
+    if reducedHours <= 0
+        shiftHours = copy(shift.shiftHours)
+    # if a person doesn't work full-time let them work a random portion of their shift
+    else
+        start = 1 + rand(0:reducedHours)
+        shiftHours = shift.shiftHours[start:start+dailyHours-1]
     end
     
     weeklySchedule = zeros(Int, 7, 24)
-    
     for day in shift.days
         for hour in shiftHours
             weeklySchedule[day, hour] = 1
@@ -58,38 +58,34 @@ function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
 end
 
 
+"Set individual wealth (depending on income and care expenses)."
 function updateWealth_Ind!(pop, wealthPercentiles, pars)
-    # Only workers: retired are assigned a wealth at the end of their working life (which they consume thereafter)
+    # Only workers: retired are assigned a wealth at the end of their working life 
+    # (which they consume thereafter)
     earningPop = [x for x in pop if cumulativeIncome(x) > 0]
     
     sort!(earningPop, by=cumulativeIncome)
+    percLength = length(earningPop) 
+    # assign wealth (to people with income) according to income percentile
+    for (i, agent) in enumerate(earningPop)
+        percentile = floor(Int, (i-1)/percLength * 100) + 1
+        dK = randn() * pars.wageVar
+        person.wealth = wealthPercentiles[percentile] * exp(dK)
+    end
     
-    percLength = length(earningPop) // 100
-    wealthPercentilesPop = Vector{Vector{eltype(pop)}}()
-    # TODO: reverse order correct?
-    for i in 100:-1:1
-        groupLims = (floor(Int, (i-1)*percLength)+1) : (floor(Int, i*percLength))
-        push!(wealthPercentilesPop, earningPop[groupLims])
-    end
-        
-    for i in 1:100
-        wealth_i = wealthPercentiles[i]
-        for person in wealthPercentilesPop[i]
-            dK = randn(0, pars.wageVar)
-            wealth!(person) = wealth_i * exp(dK)
-        end
-    end
-            
+    # calculate financial wealth from overall wealth
+    # people without wage (== pensioners) only consume financial wealth
     for person in pop
         # Update financial wealth
-        if wage(person) > 0
+        if person.wage > 0
             financialWealth!(person, wealth(person) * pars.shareFinancialWealth)
         else
             # TODO add care expenses back in
-            financialWealth!(person, max(0, financialWealth(person))) # - wealthSpentOnCare(person)))
+            #person.financialWealth -= person.wealthSpentOnCare
         end
     end
     
+    # passive income on wealth
     for person in Iterators.filter(x->cumulativeIncome(x)>0 && wage(x)==0, pop)
         financialWealth!(person, financialWealth(person) * (1 + pars.pensionReturnRate))
     end
@@ -102,25 +98,15 @@ function updateWealth!(houses, wealthPercentiles, pars)
     for h in households
         cumulativeIncome!(h, sum(cumulativeIncome, h.occupants))
     end
-    sort!(households, by=cumulativeIncome)
     
-    percLength = length(households) // 100
-    wealthPercentilesPop = Vector{Vector{eltype(houses)}}()
-    # TODO: reverse order correct?
-    for i in 100:-1:1
-        groupLims = (floor(Int, (i-1)*percLength)+1) : (floor(Int, i*percLength))
-        push!(wealthPercentilesPop, households[groupLims])
+    sort!(households, by=cumulativeIncome) 
+    percLength = length(households) 
+    for (i, hh) in enumerate(households)
+        percentile = floor(Int, (i-1)/percLength * 100) + 1
+        dK = randn() * pars.wageVar
+        hh.wealth = wealthPercentiles[percentile] * exp(dK)
     end
-    
-    rdist = Normal(0.0, pars.wageVar)
-    for i in 1:100
-        wealth_h = wealthPercentiles[i]
-        for h in wealthPercentilesPop[i]
-            dK = rand(rdist)
-            wealth!(h, wealth_h * exp(dK))
-        end
-    end
-    
+        
     # Assign household wealth to single members
     for h in households
         if cumulativeIncome(h) > 0
@@ -168,15 +154,11 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
 end
 
 function createShifts(pars)
-    allHours = zeros(Int, 24)
-    # distribute 9000 according to shift weight
     f = 9000 / sum(pars.shiftsWeights)
-    for (i, w) in enumerate(pars.shiftsWeights)
-        allHours[i] = round(Int, w*f)
-    end
+    # distribute 9000 according to shift weight
+    allHours = [ round(Int, f * w) for w in pars.shiftsWeights ]
     
     sumHours = sum(allHours)
-    
     
     allShifts = Shift[]
     shifts = Vector{Int}[]
@@ -232,6 +214,7 @@ function createShifts(pars)
             append!(days, shuffle(1:6)[1:3])
         end
         
+        # TODO why +7? currently not used
         startHour = (shift[1]+7)%24+1
         socIndex = exp(pars.shiftBeta * pars.shiftsWeights[shift[1]] + pars.dayBeta * weSocIndex)
         
@@ -491,22 +474,6 @@ function computePersonIncome!(person, pars)
         
     disposableIncome!(person, income(person))
 end
-
-# quintile calculation removed from jobmarket:
-#=    households = filter(x->!isEmpty(x), self.houses)
-    sort!(households, by=yearlyIncome)
-    for (i,h) in enumerate(households)
-        number = floor(Int, (i-1) / length(households))
-        incomeQuintile!(h, i) # 0 to 4
-    end
-    
-    independentAgents = filter(x->!isDependent(x), model.pop)
-    sort!(independentAgents, by=yearlyIncome)
-    for (i,h) in enumerate(independentAgents)
-        number = floor(Int, (i-1) / length(independentAgents))
-        incomeQuintile!(h, i) # 0 to 4
-    end
-=#
 
 
 function computeIncome!(model, month, pars)
