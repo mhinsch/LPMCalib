@@ -222,6 +222,111 @@ function initWork!(person, pars)
 end
 
 
+function createShifts(pars)
+    f = 9000 / sum(pars.shiftsWeights)
+    # distribute 9000 according to shift weight
+    allHours = [ round(Int, f * w) for w in pars.shiftsWeights ]
+    
+    sumHours = sum(allHours)
+    
+    allShifts = Shift[]
+    shifts = Vector{Int}[]
+    for i in 1:1000
+        # draw a random shift hour according to weight 
+        hour = 1; i = rand(1:sumHours)
+        while (i-=allHours[hour]) > 0; hour += 1; end 
+        allHours[hour] -= 1
+        sumHours -= 1
+        
+        shift = [hour]
+        
+        # extend shift hours in both directions according to weight until
+        # 8 hours are reached or weights on both sides are 0
+        while length(shift) < 8
+            # hours before and after `hour` with wraparound
+            nextHours = (23+shift[1]-1)%24 + 1, shift[end]%24 + 1
+            
+            weights = allHours[nextHours[1]], allHours[nextHours[2]]
+            if sum(weights) == 0
+                break
+            end
+            
+            nextHour_i = Int(rand(1:sum(weights)) > weights[1]) + 1
+            if nextHour_i == 1
+                shift = [nextHours[nextHour_i]; shift]
+            else
+                push!(shift, nextHours[nextHour_i])
+            end
+            allHours[nextHours[nextHour_i]] -= 1
+            sumHours -= 1
+        end
+        
+        push!(shifts, shift)
+    end
+
+    for shift in shifts
+        days = Int[]
+        weSocIndex = 0
+        if rand() < pars.probSaturdayShift
+            push!(days, 6)
+            weSocIndex -= 1
+        end
+        if rand() < pars.probSundayShift
+            push!(days, 7)
+            weSocIndex -= (1 + pars.sundaySocialIndex)
+        end
+        if length(days) == 0
+            days = collect(1:6)
+        elseif length(days) == 1
+            append!(days, shuffle(1:6)[1:4])
+        else
+            append!(days, shuffle(1:6)[1:3])
+        end
+        
+        # TODO why +7? currently not used
+        startHour = (shift[1]+7)%24+1
+        socIndex = exp(pars.shiftBeta * pars.shiftsWeights[shift[1]] + pars.dayBeta * weSocIndex)
+        
+        newShift = Shift(days, startHour, shift[1], shift, socIndex)
+        push!(allShifts, newShift)
+    end
+    
+    allShifts
+end
+
+
+function initWealth!(houses, wealthPercentiles, pars)
+    households = [h for h in houses if !isEmpty(h)]
+    for h in households
+        cumulativeIncome!(h, sum(cumulativeIncome, h.occupants))
+    end
+    
+    sort!(households, by=cumulativeIncome) 
+    percLength = length(households) 
+    for (i, hh) in enumerate(households)
+        percentile = floor(Int, (i-1)/percLength * 100) + 1
+        dK = randn() * pars.wageVar
+        hh.wealth = wealthPercentiles[percentile] * exp(dK)
+    end
+        
+    # Assign household wealth to single members
+    for h in households
+        if cumulativeIncome(h) > 0
+            for m in Iterators.filter(x->cumulativeIncome(x)>0, occupants(h))
+                wealth!(m, cumulativeIncome(m)/cumulativeIncome(h) * wealth(h))
+            end
+        else
+            indMembers = [m for m in h.occupants if !isDependent(m)]
+            for m in indMembers
+                wealth!(m, wealth(h)/length(indMembers))
+            end
+        end
+    end
+    
+    nothing
+end
+
+
 function initJobs!(model, pars)
     hiredPeople = [p for p in model.pop if status(p) == WorkStatus.worker]
     
@@ -256,7 +361,7 @@ function initJobs!(model, pars)
     model.shiftsPool = createShifts(pars)
     assignJobs!(hiredPeople, model.shiftsPool, -1, pars)
     
-    updateWealth!(model.houses, model.wealthPercentiles, pars)
+    initWealth!(model.houses, model.wealthPercentiles, pars)
     
     nothing
 end
