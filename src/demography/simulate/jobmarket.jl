@@ -256,34 +256,34 @@ end
 function computePersonIncome!(person, pars)
     if statusWorker(person)
         if isInMaternity(person)
-            maternityIncome = income(person)
+            maternityIncome = person.income
             if monthsSinceBirth(person) == 0
-                wage!(person) = 0
-                maternityIncome = pars.maternityLeaveIncomeReduction * income(person)
+                person.wage = 0
+                maternityIncome = pars.maternityLeaveIncomeReduction * person.income
             elseif monthsSinceBirth(person) > 2
                 maternityIncome = min(pars.minStatutoryMaternityPay, maternityIncome)
             end
             income!(person, maternityIncome)
         else
-            income!(person, wage(person) * availableWorkingHours(person))
-            lastIncome!(person, wage(person) * pars.weeklyHours[careNeedLevel(person)])
+            income!(person, person.wage * person.availableWorkingHours)
+            lastIncome!(person, person.wage * pars.weeklyHours[person.careNeedLevel])
         end
         # Detract taxes and 
     elseif statusRetired(person)
-        income!(person, pension(person))
+        income!(person, person.pension)
     else
         income!(person, 0)
     end
     
-    push!(yearlyIncomes(person), income(person) * 4.35)
-    if length(yearlyIncomes(person)) > 12
-        person.yearlyIncomes.pop(0)
+    push!(person.yearlyIncomes, person.income * 4.35)
+    if length(person.yearlyIncomes) > 12
+        deleteat!(person.yearlyIncomes, 1)
     end
-    yearlyIncome!(person, sum(yearlyIncomes(person)))
+    yearlyIncome!(person, sum(person.yearlyIncomes))
     
-    @assert yearlyIncome(person) >= 0
+    @assert person.yearlyIncome >= 0
         
-    disposableIncome!(person, income(person))
+    disposableIncome!(person, person.income)
 end
 
 
@@ -293,20 +293,19 @@ function computeIncome!(model, month, pars)
         computePersonIncome!(person, pars)
     end
 
-    # Compute income quintiles original income
     for house in model.houses
         if isEmpty(house)
             continue
         end
         
         if month == 1
-            yearlyIncome!(house, 0)
-            yearlyDisposableIncome!(house, 0)
-            yearlyBenefits!(house, 0)
+            house.yearlyIncome = 0
+            house.yearlyDisposableIncome = 0
+            house.yearlyBenefits = 0
         end
         householdIncome!(house, sum(x->income(x), house.occupants))
         incomePerCapita!(house, householdIncome(house)/length(house.occupants))
-        yearlyIncome!(house, yearlyIncome(house) + (householdIncome(house)*52.0)/12)
+        house.yearlyIncome += (house.householdIncome*52.0)/12
     end
         
 

@@ -8,6 +8,8 @@ include("agents/house.jl")
 include("agents/person.jl")
 include("agents/world.jl")
 
+include("demography/common/jobmarket.jl")
+
 include("demography/setup/map.jl")
 include("demography/setup/population.jl")
 include("demography/setup/mapPop.jl")
