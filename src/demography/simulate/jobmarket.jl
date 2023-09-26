@@ -93,7 +93,7 @@ function dismissWorkers!(newUnemployed, pars)
         jobTenure!(person, 0)
         monthHired!(person, 0)
         jobShift!(person, EmptyShift)
-        jobSchedule!(person, zeros(Int, 7, 24))
+        jobSchedule!(person, zeros(Bool, 7, 24))
         # commented in python version
         # person.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
     end

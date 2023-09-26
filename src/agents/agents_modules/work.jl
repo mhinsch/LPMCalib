@@ -27,11 +27,11 @@ const WST = WorkStatus.T
     "periods worked so far in current job"
     jobTenure :: Int = 0
     "7x24 schedule of actual working hours"
-    schedule :: Matrix{Int} = zeros(Int, 7, 24)
+    schedule :: Matrix{Bool} = zeros(Bool, 7, 24)
     "potential total working hours per week"
     workingHours :: Int = 0 
     "free time slots"
-    weeklyTime :: Matrix{Int} = zeros(Int, 7, 24)
+    weeklyTime :: Matrix{Bool} = zeros(Bool, 7, 24)
     "sum of realised working hours"
     availableWorkingHours :: Int = 0
     "lifetime work"
@@ -44,14 +44,14 @@ const WST = WorkStatus.T
     monthHired :: Int = 0
     jobShift :: Shift = Shift()
     daysOff :: Vector{Int} = []
-    jobSchedule :: Matrix{Int} = zeros(Int, 7, 24)
+    jobSchedule :: Matrix{Bool} = zeros(Bool, 7, 24)
 end
 
 function setEmptyJobSchedule!(work)
-    work.schedule = zeros(Int, 7, 24)
+    work.schedule = zeros(Bool, 7, 24)
 end
 
 function setFullWeeklyTime!(work)
-    work.weeklyTime = ones(Int, 7, 24)
+    work.weeklyTime = ones(Bool, 7, 24)
 end
 
