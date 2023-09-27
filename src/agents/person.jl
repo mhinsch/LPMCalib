@@ -172,10 +172,10 @@ end
 function resetPartner!(person)
     other = person.partner
     if !isUndefined(other) 
-        partner!(person, undefinedPerson)
-        pTime!(person, 0)
-        partner!(other, undefinedPerson)
-        pTime!(other, 0)
+        person.partner = undefinedPerson
+        person.pTime = 0
+        other.partner = undefinedPerson
+        other.pTime = 0
     end
     nothing 
 end
@@ -195,8 +195,8 @@ function setAsPartners!(person1::Person,person2::Person)
     resetPartner!(person1) 
     resetPartner!(person2)
 
-    partner!(person1, person2)
-    partner!(person2, person1)
+    person1.partner = person2
+    person2.partner = person1
 end
 
 
@@ -205,9 +205,9 @@ function setParent!(child, parent)
     @assert isFemale(parent) || isMale(parent)
 
     if isFemale(parent) 
-        mother!(child, parent)
+        child.mother = parent
     else 
-        father!(child, parent)
+        child.father = parent
     end
 
     nothing
@@ -250,7 +250,7 @@ function setAsGuardianDependent!(guardian, dependent)
     push!(dependent.guardians, guardian)
 
     # set class rank to maximum of guardians'
-    parentClassRank!(dependent, maximum(classRank, dependent.guardians))
+    dependent.parentClassRank = maximum(classRank, dependent.guardians)
     nothing
 end
 
@@ -307,7 +307,7 @@ function setAsProviderProvidee!(prov, providee)
     @assert isUndefined(providee.provider)
     @assert !(providee in prov.providees)
     push!(prov.providees, providee)
-    provider!(providee, prov)
+    providee.provider = prov
     nothing
 end
 
@@ -318,7 +318,7 @@ function setAsSelfproviding!(person)
 
     provs = person.provider.providees
     deleteat!(provs, findfirst(==(person), provs))
-    provider!(person, undefinedPerson)
+    person.provider = undefinedPerson
     nothing
 end
 

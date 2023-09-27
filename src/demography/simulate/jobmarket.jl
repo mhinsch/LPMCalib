@@ -87,10 +87,10 @@ end
 
 function dismissWorkers!(newUnemployed, pars)
     for person in newUnemployed
-        status!(person, WorkStatus.unemployed)
-        workingHours!(person, 0)
-        income!(person, 0)
-        jobTenure!(person, 0)
+        person.status = WorkStatus.unemployed
+        person.workingHours = 0
+        person.income = 0
+        person.jobTenure = 0
         monthHired!(person, 0)
         jobShift!(person, EmptyShift)
         jobSchedule!(person, zeros(Bool, 7, 24))
@@ -139,13 +139,13 @@ function jobMarket!(model, time, pars)
     # *** update tenure etc. for working population
     
     for person in workingPop
-        jobTenure!(person, jobTenure(person) + 1)
+        person.jobTenure = jobTenure(person) + 1
         if workingHours(person) > 0
-            workingPeriods!(person, workingPeriods(person) + 
-                availableWorkingHours(person)/workingHours(person))
+            person.workingPeriods = workingPeriods(person) + 
+                availableWorkingHours(person)/workingHours(person)
         end
-        workExperience!(person, workExperience(person) + 
-            availableWorkingHours(person)/pars.weeklyHours[1])
+        person.workExperience = workExperience(person) + 
+            availableWorkingHours(person)/pars.weeklyHours[1]
         wage!(person, computeWage(person, pars))
     end
     
@@ -263,16 +263,16 @@ function computePersonIncome!(person, pars)
             elseif monthsSinceBirth(person) > 2
                 maternityIncome = min(pars.minStatutoryMaternityPay, maternityIncome)
             end
-            income!(person, maternityIncome)
+            person.income = maternityIncome
         else
-            income!(person, person.wage * person.availableWorkingHours)
+            person.income = person.wage * person.availableWorkingHours
             lastIncome!(person, person.wage * pars.weeklyHours[person.careNeedLevel])
         end
         # Detract taxes and 
     elseif statusRetired(person)
-        income!(person, person.pension)
+        person.income = person.pension
     else
-        income!(person, 0)
+        person.income = 0
     end
     
     push!(person.yearlyIncomes, person.income * 4.35)

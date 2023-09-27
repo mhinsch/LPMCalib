@@ -167,7 +167,7 @@ end # createUniformPopulation
 function initClass!(person, pars)
     p = rand()
     class = searchsortedfirst(pars.cumProbClasses, p)-1
-    classRank!(person, class)
+    person.classRank = class
 
     nothing
 end
@@ -175,26 +175,26 @@ end
 
 function initWork!(person, pars)
     if person.age < pars.ageTeenagers
-        status!(person, WorkStatus.child)
+        person.status = WorkStatus.child
         return
     end
     if person.age < pars.ageOfAdulthood
-        status!(person, WorkStatus.teenager)
+        person.status = WorkStatus.teenager
         return
     end
     if person.age >= pars.ageOfRetirement
-        status!(person, WorkStatus.retired)
+        person.status = WorkStatus.retired
         return
     end
 
     class = person.classRank+1
 
     if person.age < pars.workingAge[class]
-        status!(person, WorkStatus.student)
+        person.status = WorkStatus.student
         return
     end
 
-    status!(person, WorkStatus.worker)
+    person.status = WorkStatus.worker
 
     workingTime = 0
     for i in pars.workingAge[class]:floor(Int, person.age)
@@ -202,21 +202,21 @@ function initWork!(person, pars)
         workingTime += 1
     end
 
-    workExperience!(person, workingTime)
-    workingPeriods!(person, workingTime)
+    person.workExperience = workingTime
+    person.workingPeriods = workingTime
 
     dKi = rand(Normal(0, pars.wageVar))
     initialWage = pars.incomeInitialLevels[class] * exp(dKi)
     dKf = rand(Normal(dKi, pars.wageVar))
     finalWage = pars.incomeFinalLevels[class] * exp(dKf)
 
-    initialIncome!(person, initialWage)
-    finalIncome!(person, finalWage)
+    person.initialIncome = initialWage
+    person.finalIncome = finalWage
 
     wage!(person, computeWage(person, pars))
-    income!(person, person.wage * pars.weeklyHours[person.careNeedLevel+1])
-    potentialIncome!(person, person.income)
-    jobTenure!(person, rand(1:50))
+    person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
+    person.potentialIncome = person.income
+    person.jobTenure = rand(1:50)
 
     nothing
 end

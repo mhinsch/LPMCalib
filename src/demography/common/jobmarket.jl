@@ -69,7 +69,7 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         end
         
         status(person) = WorkStatus.worker
-        newEntrant!(person, false)
+        person.newEntrant = false
         unemploymentMonths!(person, 0)
         monthHired!(person, month)
         wage!(person, computeWage(person, pars))
@@ -80,7 +80,7 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         
         jobShift!(person, shift)
         daysOff!(person, [x for x in 1:8 if !(x in shift.days)])
-        workingHours!(person, pars.weeklyHours[careNeedLevel(person)+1])
+        person.workingHours = pars.weeklyHours[careNeedLevel(person)+1]
         jobSchedule!(person, weeklySchedule(shift, workingHours(person)))
         remove_unsorted!(shifts, shift_i)
     end
