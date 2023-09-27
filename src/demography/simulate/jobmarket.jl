@@ -88,7 +88,6 @@ function jobMarket!(model, time, pars)
     
     for p in model.pop 
         if (statusWorker(p) || statusUnemployed(p)) && canWork(p) == true
-            
             push!(activePop, p)
             
             if statusWorker(p)
@@ -104,13 +103,11 @@ function jobMarket!(model, time, pars)
     # *** update tenure etc. for working population
     
     for person in workingPop
-        person.jobTenure = person.jobTenure + 1
+        person.jobTenure += 1
         if person.workingHours > 0
-            person.workingPeriods = person.workingPeriods + 
-                person.availableWorkingHours/person.workingHours
+            person.workingPeriods += person.availableWorkingHours/person.workingHours
         end
-        person.workExperience = person.workExperience + 
-            person.availableWorkingHours/pars.weeklyHours[1]
+        person.workExperience += person.availableWorkingHours/pars.weeklyHours[1]
         person.wage = computeWage(person, pars)
     end
     
@@ -137,7 +134,7 @@ function jobMarket!(model, time, pars)
     # *** unemployment rate and index
     
     unemploymentRate = model.unemploymentSeries[floor(Int, year - pars.startTime) + 1]
-    uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
+    uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)         
     
     for person in activePop
         person.unemploymentIndex = uRates[person.classRank+1, ageBand(person.age)+1]

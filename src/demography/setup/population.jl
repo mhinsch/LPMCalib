@@ -345,11 +345,10 @@ function initJobs!(model, pars)
     classShares /= sum(classShares)
     
     unemploymentRate = model.unemploymentSeries[1]
-    uRates = [ computeURByClassAge(unemploymentRate, classShares, 
-        ageBandShares[classRank, :], pars) for classRank in 1:length(pars.cumProbClasses) ]
+    uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
     
     for p in hiredPeople
-        p.unemploymentIndex = uRates[p.classRank+1][p.classRank+1, ageBand(p.age)+1, pars)
+        p.unemploymentIndex = uRates[p.classRank+1, ageBand(p.age)+1]
     end
     
     model.shiftsPool = createShifts(pars)

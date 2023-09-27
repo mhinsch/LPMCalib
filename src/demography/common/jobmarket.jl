@@ -50,7 +50,7 @@ ageBand(age) =
     end
     
     
-function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
+#=function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
     a = 0
     for i in 0:(length(pars.cumProbClasses)-1)
         a += classShares[i+1] * pars.unemploymentClassBias^i
@@ -66,11 +66,11 @@ function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
     lowerAgeBandRate = a>0 ? classRate/a : 0
         
     lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup+1]
-end
+end=#
 
 
 function computeURByClassAge(ur, classShares, ageShares, pars)
-    rates = Matrix{Float64}(length(pars.cumProbClasses), pars.numberAgeBands)
+    rates = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
     
     a = 0
     for i in 1:length(pars.cumProbClasses)
@@ -78,15 +78,16 @@ function computeURByClassAge(ur, classShares, ageShares, pars)
     end
     lowClassRate = a > 0.0 ? ur/a : 0.0
     
-    a_age = 0
-    for i in 1:pars.numberAgeBands 
-        a_age += ageShares[i] * pars.unemploymentAgeBias[i]
-    end
-    
-    for classGroup in 1:length(pars.cumProbClasses), ageGroup in 1:pars.numberAgeBands
-        classRate = lowClassRate * pars.unemploymentClassBias^(classGroup-1)
-        lowerAgeBandRate = a_age>0.0 ? classRate/a_age : 0.0
-        rates[classGroup, ageGroup] = lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup]
+    for classGroup in 1:length(pars.cumProbClasses)
+        a_age = 0
+        for i in 1:pars.numberAgeBands 
+            a_age += ageShares[classGroup, i] * pars.unemploymentAgeBias[i]
+        end
+        
+        for ageGroup in 1:pars.numberAgeBands
+            classRate = lowClassRate * pars.unemploymentClassBias^(classGroup-1)
+            lowerAgeBandRate = a_age>0.0 ? classRate/a_age : 0.0
+            rates[classGroup, ageGroup] = lowerAgeBandRate*pars.unemploymentAgeBias[ageGroup]        end
     end
     
     rates

@@ -28,6 +28,8 @@ include("demography/simulate/socialCareTransition.jl")
 include("demography/simulate/care.jl")
 include("demography/simulate/jobmarket.jl")
 include("demography/simulate/benefits.jl")
+include("demography/simulate/wealth.jl")
+
 
 using Utilities
 
