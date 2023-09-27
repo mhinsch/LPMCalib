@@ -118,7 +118,7 @@ function effectsOfMaternity!(woman, pars)
     woman.workingHours = 0
     woman.income = 0
     woman.potentialIncome = 0
-    availableWorkingHours!(woman, 0)
+    woman.availableWorkingHours = 0
     # commented in sim.py:
     # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
     # sets all weeklyTime slots to 1

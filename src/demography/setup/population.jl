@@ -91,7 +91,7 @@ function createPyramidPopulation(pars, pyramid)
     end
 
     # sort by age so that we can easily get age intervals
-    sort!(women, by = age)
+    sort!(women, by = x->x.age)
 
     for p in population
         a = p.age
@@ -213,7 +213,7 @@ function initWork!(person, pars)
     person.initialIncome = initialWage
     person.finalIncome = finalWage
 
-    wage!(person, computeWage(person, pars))
+    person.wage = computeWage(person, pars)
     person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
     person.potentialIncome = person.income
     person.jobTenure = rand(1:50)
@@ -298,10 +298,10 @@ end
 function initWealth!(houses, wealthPercentiles, pars)
     households = [h for h in houses if !isEmpty(h)]
     for h in households
-        cumulativeIncome!(h, sum(cumulativeIncome, h.occupants))
+        h.cumulativeIncome = sum(x->x.cumulativeIncome, h.occupants)
     end
     
-    sort!(households, by=cumulativeIncome) 
+    sort!(households, by=x->x.cumulativeIncome) 
     percLength = length(households) 
     for (i, hh) in enumerate(households)
         percentile = floor(Int, (i-1)/percLength * 100) + 1
@@ -318,7 +318,7 @@ function initWealth!(houses, wealthPercentiles, pars)
         else
             indMembers = [m for m in h.occupants if !isDependent(m)]
             for m in indMembers
-                wealth!(m, wealth(h)/length(indMembers))
+                m.wealth = wealth(h)/length(indMembers)
             end
         end
     end
@@ -328,18 +328,18 @@ end
 
 
 function initJobs!(model, pars)
-    hiredPeople = [p for p in model.pop if status(p) == WorkStatus.worker]
+    hiredPeople = [p for p in model.pop if p.status == WorkStatus.worker]
     
     # TODO fuse with classShares in social transition
     classShares = zeros(length(pars.cumProbClasses))
     for p in hiredPeople
-        classShares[classRank(p)+1] += 1
+        classShares[p.classRank+1] += 1
     end
     
     ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
     
     for p in hiredPeople
-        ageBandShares[classRank(p)+1, ageBand(age(p))+1] += 1
+        ageBandShares[p.classRank+1, ageBand(p.age)+1] += 1
     end
     
     # normalise ageBandShares by population per class
@@ -353,9 +353,9 @@ function initJobs!(model, pars)
     unemploymentRate = model.unemploymentSeries[1]
     
     for p in hiredPeople
-        ur = computeUR(unemploymentRate, classShares, ageBandShares[classRank(p)+1, :],
-            classRank(p), ageBand(age(p)), pars)
-        unemploymentIndex!(p, ur)
+        ur = computeUR(unemploymentRate, classShares, ageBandShares[p.classRank+1, :],
+            p.classRank, ageBand(p.age), pars)
+        p.unemploymentIndex = ur
     end
     
     model.shiftsPool = createShifts(pars)

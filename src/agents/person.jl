@@ -62,12 +62,12 @@ end # struct Person
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
 
-statusChild(p) = status(p) == WorkStatus.child
-statusTeenager(p) = status(p) == WorkStatus.teenager
-statusStudent(p) = status(p) == WorkStatus.student
-statusWorker(p) = status(p) == WorkStatus.worker
-statusRetired(p) = status(p) == WorkStatus.retired
-statusUnemployed(p) = status(p) == WorkStatus.unemployed
+statusChild(p) = p.status == WorkStatus.child
+statusTeenager(p) = p.status == WorkStatus.teenager
+statusStudent(p) = p.status == WorkStatus.student
+statusWorker(p) = p.status == WorkStatus.worker
+statusRetired(p) = p.status == WorkStatus.retired
+statusUnemployed(p) = p.status == WorkStatus.unemployed
 
 
 const PersonHouse = House{Person, Town}
@@ -227,7 +227,7 @@ function setAsGuardianDependent!(guardian, dependent)
     push!(dependent.guardians, guardian)
 
     # set class rank to maximum of guardians'
-    dependent.parentClassRank = maximum(classRank, dependent.guardians)
+    dependent.parentClassRank = maximum(x->x.classRank, dependent.guardians)
     nothing
 end
 

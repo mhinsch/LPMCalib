@@ -60,7 +60,7 @@ end
 higher weight for better shifts => workers with lower unemploymentIndex (older,
 higher class) get better shifts."
 function assignJobs!(hiredAgents, shiftsPool, month, pars)
-    sort!(hiredAgents, by=unemploymentIndex)
+    sort!(hiredAgents, by=x->x.unemploymentIndex)
     # TODO draw w/out replacement?
     shifts = rand(shiftsPool, length(hiredAgents))
     for person in hiredAgents
@@ -80,8 +80,8 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         
         person.jobShift = shift
         person.daysOff = [x for x in 1:8 if !(x in shift.days)]
-        person.workingHours = pars.weeklyHours[careNeedLevel(person)+1]
-        person.jobSchedule = weeklySchedule(shift, workingHours(person))
+        person.workingHours = pars.weeklyHours[person.careNeedLevel+1]
+        person.jobSchedule = weeklySchedule(shift, person.workingHours)
         remove_unsorted!(shifts, shift_i)
     end
     

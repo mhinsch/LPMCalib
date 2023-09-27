@@ -73,7 +73,7 @@ function workTransition!(person, time, model, pars)
     if person.age == pars.ageOfRetirement
         person.status = WorkStatus.retired
         setEmptyJobSchedule!(person)
-        wage!(person, 0)
+        person.wage = 0
 
         shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
 
@@ -88,7 +88,7 @@ function workTransition!(person, time, model, pars)
         person.workingPeriods = person.workingPeriods+1
         # in original: availableWorkingHours/pars.weeklyHours[0]
         person.workExperience = person.workExperience+1
-        wage!(person, computeWage(person, pars))
+        person.wage = computeWage(person, pars)
         # no care, therefore full time
         # TODO remove, use jobmarket instead
         person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
