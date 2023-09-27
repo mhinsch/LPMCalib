@@ -21,7 +21,7 @@ function updateWealth_Ind!(pop, wealthPercentiles, pars)
     for person in pop
         # Update financial wealth
         if person.wage > 0
-            financialWealth!(person, wealth(person) * pars.shareFinancialWealth)
+            person.financialWealth = wealth(person) * pars.shareFinancialWealth
         else
             # TODO add care expenses back in
             #person.financialWealth -= person.wealthSpentOnCare
@@ -30,7 +30,7 @@ function updateWealth_Ind!(pop, wealthPercentiles, pars)
     
     # passive income on wealth
     for person in Iterators.filter(x->cumulativeIncome(x)>0 && wage(x)==0, pop)
-        financialWealth!(person, financialWealth(person) * (1 + pars.pensionReturnRate))
+        person.financialWealth = financialWealth(person) * (1 + pars.pensionReturnRate)
     end
     
     nothing
@@ -91,9 +91,9 @@ function dismissWorkers!(newUnemployed, pars)
         person.workingHours = 0
         person.income = 0
         person.jobTenure = 0
-        monthHired!(person, 0)
-        jobShift!(person, EmptyShift)
-        jobSchedule!(person, zeros(Bool, 7, 24))
+        person.monthHired = 0
+        person.jobShift = EmptyShift
+        person.jobSchedule = zeros(Bool, 7, 24)
         # commented in python version
         # person.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
     end
@@ -146,7 +146,7 @@ function jobMarket!(model, time, pars)
         end
         person.workExperience = workExperience(person) + 
             availableWorkingHours(person)/pars.weeklyHours[1]
-        wage!(person, computeWage(person, pars))
+        person.wage = computeWage(person, pars)
     end
     
     # *** count SES and age bands for active pop
@@ -184,8 +184,8 @@ function jobMarket!(model, time, pars)
     
     # update times
     for person in unemployed
-        unemploymentMonths!(person, unemploymentMonths(person) + 1)
-        unemploymentDuration!(person, unemploymentDuration(person) - 1)
+        person.unemploymentMonths = unemploymentMonths(person) + 1
+        person.unemploymentDuration = unemploymentDuration(person) - 1
     end
     
     longTermUnemployed = filter(p->unemploymentMonths(p) >= 12, unemployed)
@@ -237,7 +237,7 @@ function jobMarket!(model, time, pars)
                 peopleHired = actualUnemployed[1:peopleToHire]
                 assignJobs!(peopleHired, model.shiftsPool, month, pars)
                 for person in peopleHired
-                    unemploymentIndex!(person, ageSES_ur)
+                    person.unemploymentIndex = ageSES_ur
                 end
             elseif nEmpiricalUnemployed > length(actualUnemployed)
                 peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed), 
@@ -246,7 +246,7 @@ function jobMarket!(model, time, pars)
                 firedWorkers = sample(employedWorkers, Weights(weights), peopleToFire, replace=false)
                 dismissWorkers!(firedWorkers, pars)
                 for person in firedWorkers
-                    unemploymentIndex!(person, ageSES_ur)
+                    person.unemploymentIndex = ageSES_ur
                 end
             end
         end
@@ -266,7 +266,7 @@ function computePersonIncome!(person, pars)
             person.income = maternityIncome
         else
             person.income = person.wage * person.availableWorkingHours
-            lastIncome!(person, person.wage * pars.weeklyHours[person.careNeedLevel])
+            person.lastIncome = person.wage * pars.weeklyHours[person.careNeedLevel]
         end
         # Detract taxes and 
     elseif statusRetired(person)
@@ -279,11 +279,11 @@ function computePersonIncome!(person, pars)
     if length(person.yearlyIncomes) > 12
         deleteat!(person.yearlyIncomes, 1)
     end
-    yearlyIncome!(person, sum(person.yearlyIncomes))
+    person.yearlyIncome = sum(person.yearlyIncomes)
     
     @assert person.yearlyIncome >= 0
         
-    disposableIncome!(person, person.income)
+    person.disposableIncome = person.income
 end
 
 
@@ -303,8 +303,8 @@ function computeIncome!(model, month, pars)
             house.yearlyDisposableIncome = 0
             house.yearlyBenefits = 0
         end
-        householdIncome!(house, sum(x->income(x), house.occupants))
-        incomePerCapita!(house, householdIncome(house)/length(house.occupants))
+        house.householdIncome = sum(x->income(x), house.occupants)
+        house.incomePerCapita = householdIncome(house)/length(house.occupants)
         house.yearlyIncome += (house.householdIncome*52.0)/12
     end
         
@@ -325,7 +325,7 @@ function computeIncome!(model, month, pars)
                 employeePensionContribution += (disposableIncome(person) - 893.0) * 0.02
             end
         end
-        disposableIncome!(person, disposableIncome(person) - employeePensionContribution)
+        person.disposableIncome -= employeePensionContribution
         totalPensionRevenue += employeePensionContribution
         
         # Tax Revenues
@@ -338,7 +338,7 @@ function computeIncome!(model, month, pars)
                 residualIncome -= taxable
             end
         end
-        disposableIncome!(person, disposableIncome(person) - tax)
+        person.disposableIncome -= tax
         totalTaxRevenue += tax
     end
         
@@ -347,22 +347,22 @@ function computeIncome!(model, month, pars)
     
     # ...then add benefits
     for person in model.pop
-        disposableIncome!(person, disposableIncome(person) + benefits(person))
-        yearlyBenefits!(person, benefits(person) * 52.0)
+        person.disposableIncome = disposableIncome(person) + benefits(person)
+        person.yearlyBenefits = benefits(person) * 52.0
         push!(yearlyDisposableIncomes(person), disposableIncome(person) * 4.35)
         if length(yearlyDisposableIncomes(person)) > 12
-            person.yearlyDisposableIncomes.pop(0)
+            deleteat!(person.yearlyDisposableIncomes, 1)
         end
-        yearlyDisposableIncome!(person, sum(yearlyDisposableIncomes(person)))
-        cumulativeIncome!(person, cumulativeIncome(person) + disposableIncome(person))
+        person.yearlyDisposableIncome = sum(yearlyDisposableIncomes(person))
+        person.cumulativeIncome = cumulativeIncome(person) + disposableIncome(person)
     end
     
     for house in Iterators.filter(x->!isEmpty(x), model.houses)
-        householdDisposableIncome!(house, sum(x->disposableIncome(x), house.occupants))
-        benefits!(house, sum(x->benefits(x), house.occupants))
-        yearlyDisposableIncome!(house, householdDisposableIncome(house) * 52.0)
-        yearlyBenefits!(house, benefits(house) * 52.0)
-        disposableIncomePerCapita!(house, house.householdIncome/length(house.occupants))
+        house.householdDisposableIncome = sum(x->disposableIncome(x), house.occupants)
+        house.benefits = sum(x->benefits(x), house.occupants)
+        house.yearlyDisposableIncome = householdDisposableIncome(house) * 52.0
+        house.yearlyBenefits = benefits(house) * 52.0
+        house.disposableIncomePerCapita = house.householdIncome/length(house.occupants)
     end
     
     

@@ -58,32 +58,9 @@ Person ties various agent modules into one compound agent type.
     Person(args...) = new(args...)
 end # struct Person 
 
-
-#=function getproperty(p::Person, prop)
-    if prop === :pension
-        println("bla")
-        rand()
-    else
-        getfield(p, prop)
-    end
-end=#
-
-
 # delegate functions to components
-# and export accessors
-
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
-@export_forward Person [age, gender, alive]
-@export_forward Person [father, mother, partner, children, pTime]
-@export_forward Person [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
-    wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
-    availableWorkingHours, workingPeriods, workExperience, pension, unemploymentIndex,
-    unemploymentMonths, monthHired, jobShift, daysOff, jobSchedule, cumulativeIncome, wealth,
-    financialWealth, unemploymentDuration]
-@export_forward Person [careNeedLevel, socialWork, childWork]
-@export_forward Person [classRank, parentClassRank]
-@export_forward Person [guardians, dependents, provider, providees]
 
 statusChild(p) = status(p) == WorkStatus.child
 statusTeenager(p) = status(p) == WorkStatus.teenager
