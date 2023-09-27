@@ -87,7 +87,8 @@ function computeURByClassAge(ur, classShares, ageShares, pars)
         for ageGroup in 1:pars.numberAgeBands
             classRate = lowClassRate * pars.unemploymentClassBias^(classGroup-1)
             lowerAgeBandRate = a_age>0.0 ? classRate/a_age : 0.0
-            rates[classGroup, ageGroup] = lowerAgeBandRate*pars.unemploymentAgeBias[ageGroup]        end
+            rates[classGroup, ageGroup] = lowerAgeBandRate*pars.unemploymentAgeBias[ageGroup]        
+        end
     end
     
     rates

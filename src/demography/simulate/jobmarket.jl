@@ -153,8 +153,8 @@ function jobMarket!(model, time, pars)
     longTermUnemployed = filter(p->p.unemploymentMonths >= 12, unemployed)
     longTermUnemploymentRate = length(longTermUnemployed)/length(activePop)
                 
-    for c in 0:size(ageBandShares)[2]-1
-        for a in 0:size(ageBandShares)[1]-1
+    for c in 0:size(ageBandShares)[1]-1
+        for a in 0:size(ageBandShares)[2]-1
             agePop = filter(p->p.classRank == c && ageBand(p.age) == a, activePop)
             
             if length(agePop) <= 0
