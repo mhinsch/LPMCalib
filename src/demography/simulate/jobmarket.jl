@@ -1,40 +1,5 @@
 using StatsBase
-
-
-"Set individual wealth (depending on income and care expenses)."
-function updateWealth_Ind!(pop, wealthPercentiles, pars)
-    # Only workers: retired are assigned a wealth at the end of their working life 
-    # (which they consume thereafter)
-    earningPop = [x for x in pop if x.cumulativeIncome > 0]
-    
-    sort!(earningPop, by=cumulativeIncome)
-    percLength = length(earningPop) 
-    # assign wealth (to people with income) according to income percentile
-    for (i, agent) in enumerate(earningPop)
-        percentile = floor(Int, (i-1)/percLength * 100) + 1
-        dK = randn() * pars.wageVar
-        person.wealth = wealthPercentiles[percentile] * exp(dK)
-    end
-    
-    # calculate financial wealth from overall wealth
-    # people without wage (== pensioners) only consume financial wealth
-    for person in pop
-        # Update financial wealth
-        if person.wage > 0
-            person.financialWealth = person.wealth * pars.shareFinancialWealth
-        else
-            # TODO add care expenses back in
-            #person.financialWealth -= person.wealthSpentOnCare
-        end
-    end
-    
-    # passive income on wealth
-    for person in Iterators.filter(x->x.cumulativeIncome>0 && x.wage==0, pop)
-        person.financialWealth = financialWealth(person) * (1 + pars.pensionReturnRate)
-    end
-    
-    nothing
-end
+using Distributions
 
 
 function assignUnemploymentDuration!(newEntrants, pars)
@@ -172,9 +137,10 @@ function jobMarket!(model, time, pars)
     # *** unemployment rate and index
     
     unemploymentRate = model.unemploymentSeries[floor(Int, year - pars.startTime) + 1]
+    uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
+    
     for person in activePop
-        person.unemploymentIndex = computeUR(unemploymentRate, classShares, ageBandShares, 
-                person.classRank, ageBand(person.age), pars)
+        person.unemploymentIndex = uRates[person.classRank+1, ageBand(person.age)+1]
     end
     
     # people entering the jobmarket need waiting time calculated 
@@ -190,15 +156,15 @@ function jobMarket!(model, time, pars)
     longTermUnemployed = filter(p->p.unemploymentMonths >= 12, unemployed)
     longTermUnemploymentRate = length(longTermUnemployed)/length(activePop)
                 
-    for c in 1:size(ageBandShares)[2]
-        for a in 1:size(ageBandShares)[1]
+    for c in 0:size(ageBandShares)[2]-1
+        for a in 0:size(ageBandShares)[1]-1
             agePop = filter(p->p.classRank == c && ageBand(p.age) == a, activePop)
             
             if length(agePop) <= 0
                 continue
             end
             
-            ageSES_ur = computeUR(unemploymentRate, classShares, ageBandShares, c, a, pars)
+            ageSES_ur = uRates[c+1, a+1]
             workPop = filter(p->p.classRank == c && ageBand(p.age) == a, workingPop)
             
             # *** some people lose their jobs

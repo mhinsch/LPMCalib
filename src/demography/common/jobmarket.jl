@@ -1,4 +1,16 @@
 
+function assignWealthByIncPercentile!(pop, wealthPercentiles, pars)
+    sort!(pop, by=x->x.cumulativeIncome) 
+    percLength = length(pop) 
+    dist = Normal(0.0, pars.wageVar)
+    for (i, agent) in enumerate(pop)
+        percentile = floor(Int, (i-1)/percLength * 100) + 1
+        dK = rand(dist)
+        agent.wealth = wealthPercentiles[percentile] * exp(dK)
+    end
+end
+
+
 "Assign a person's weekly schedule based on their shift and working hours."
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
@@ -54,6 +66,30 @@ function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
     lowerAgeBandRate = a>0 ? classRate/a : 0
         
     lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup+1]
+end
+
+
+function computeURByClassAge(ur, classShares, ageShares, pars)
+    rates = Matrix{Float64}(length(pars.cumProbClasses), pars.numberAgeBands)
+    
+    a = 0
+    for i in 1:length(pars.cumProbClasses)
+        a += classShares[i] * pars.unemploymentClassBias^(i-1)
+    end
+    lowClassRate = a > 0.0 ? ur/a : 0.0
+    
+    a_age = 0
+    for i in 1:pars.numberAgeBands 
+        a_age += ageShares[i] * pars.unemploymentAgeBias[i]
+    end
+    
+    for classGroup in 1:length(pars.cumProbClasses), ageGroup in 1:pars.numberAgeBands
+        classRate = lowClassRate * pars.unemploymentClassBias^(classGroup-1)
+        lowerAgeBandRate = a_age>0.0 ? classRate/a_age : 0.0
+        rates[classGroup, ageGroup] = lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup]
+    end
+    
+    rates
 end
 
 "Assign job shifts to unemployed workers. Shifts are selected at random with 

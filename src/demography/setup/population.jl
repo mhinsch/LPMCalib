@@ -301,24 +301,18 @@ function initWealth!(houses, wealthPercentiles, pars)
         h.cumulativeIncome = sum(x->x.cumulativeIncome, h.occupants)
     end
     
-    sort!(households, by=x->x.cumulativeIncome) 
-    percLength = length(households) 
-    for (i, hh) in enumerate(households)
-        percentile = floor(Int, (i-1)/percLength * 100) + 1
-        dK = randn() * pars.wageVar
-        hh.wealth = wealthPercentiles[percentile] * exp(dK)
-    end
+    assignWealthByIncPercentile!(households, wealthPercentiles, pars)
         
     # Assign household wealth to single members
     for h in households
-        if cumulativeIncome(h) > 0
-            for m in Iterators.filter(x->cumulativeIncome(x)>0, occupants(h))
-                wealth!(m, cumulativeIncome(m)/cumulativeIncome(h) * wealth(h))
+        if h.cumulativeIncome > 0
+            for m in Iterators.filter(x->x.cumulativeIncome>0, h.occupants)
+                m.wealth = m.cumulativeIncome/h.cumulativeIncome * h.wealth
             end
         else
             indMembers = [m for m in h.occupants if !isDependent(m)]
             for m in indMembers
-                m.wealth = wealth(h)/length(indMembers)
+                m.wealth = h.wealth/length(indMembers)
             end
         end
     end
@@ -351,11 +345,11 @@ function initJobs!(model, pars)
     classShares /= sum(classShares)
     
     unemploymentRate = model.unemploymentSeries[1]
+    uRates = [ computeURByClassAge(unemploymentRate, classShares, 
+        ageBandShares[classRank, :], pars) for classRank in 1:length(pars.cumProbClasses) ]
     
     for p in hiredPeople
-        ur = computeUR(unemploymentRate, classShares, ageBandShares[p.classRank+1, :],
-            p.classRank, ageBand(p.age), pars)
-        p.unemploymentIndex = ur
+        p.unemploymentIndex = uRates[p.classRank+1][p.classRank+1, ageBand(p.age)+1, pars)
     end
     
     model.shiftsPool = createShifts(pars)

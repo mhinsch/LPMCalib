@@ -42,9 +42,6 @@ end
 
 SocialCache() = SocialCache([])
 
-# TODO possibly remove altogether and calibrate model 
-# properly instead
-
 function socialPreCalc!(model, pars)
     pc = model.socialCache
     pc.socialClassShares = zeros(5)
@@ -134,7 +131,6 @@ function resetWork!(person, pars)
 end
 
 function startWorking!(person, pars)
-
     resetWork!(person, pars)
 
     person.status = WorkStatus.worker

@@ -1,5 +1,3 @@
-using Memoization
-
 export adjacent8Towns, findHousesInTown, emptyHouses, emptyHousesInTown
 
 "Find all towns adjacent to `town` (von Neumann neighbourhood)."
