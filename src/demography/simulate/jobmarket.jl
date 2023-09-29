@@ -1,52 +1,63 @@
 using StatsBase
 using Distributions
 
+function sampleNoReplace!(weights, wSum)
+    r = rand() * wSum
+    i = 1
+    while (r-=weights[i]) > 0
+        i += 1
+    end
+    
+    wSum -= weights[i]
+    weights[i] = 0.0
+    
+    i, wSum
+end
 
-function assignUnemploymentDuration!(newEntrants, pars)
-    for i in (:male, :female)
-        if i == :male
-            durationShares = pars.maleUDS
-            unemployed = filter(isMale, newEntrants)
-        else
-            durationShares = pars.femaleUDS
-            unemployed = filter(isFemale, newEntrants)
-        end
-        totUnemployed = length(unemployed)
+function assignUnemploymentDuration!(unemployed, durationShares, pars)
+    @assert sum(durationShares) <= 1
+    totUnemployed = length(unemployed)
+    if totUnemployed == 0
+        return nothing
+    end
+    
+    weights = [1.0/exp(pars.unemploymentBeta*x.unemploymentIndex) for x in unemployed]
+    weightSum = sum(weights)
+    
+    for (durationIndex, durationShare) in enumerate(durationShares)
+        numUnemployed = floor(Int, totUnemployed * durationShare)
         
-        durationIndex = 1
-        for durationShare in durationShares
-            numUnemployed = min(floor(Int, totUnemployed*durationShare), length(unemployed))
-            if numUnemployed <= 0
-                break
+        for i in 1:numUnemployed
+            toAssignIdx, weightSum = sampleNoReplace!(weights, weightSum) 
+            person = unemployed[toAssignIdx]
+                    
+            if durationIndex < 7
+                person.unemploymentDuration = durationIndex
+            elseif durationIndex == 7
+                person.unemploymentDuration = rand(7:10)
+            elseif durationIndex == 8
+                person.unemploymentDuration = rand(10:13)
+            elseif durationIndex == 9
+                person.unemploymentDuration = rand(13:19)
+            elseif durationIndex == 10
+                person.unemploymentDuration = rand(19:25)
             end
-            
-            weights = cumsum(1.0/exp(pars.unemploymentBeta*x.unemploymentIndex) for x in unemployed)
-            assignedUnemployed = [unemployed[searchsortedfirst(weights, rand()*weights[end])] 
-                    for i in 1:numUnemployed]
-                        
-            for person in assignedUnemployed
-                if durationIndex < 7
-                    person.unemploymentDuration = durationIndex
-                elseif durationIndex == 7
-                    person.unemploymentDuration = rand(7:10)
-                elseif durationIndex == 8
-                    person.unemploymentDuration = rand(10:13)
-                elseif durationIndex == 9
-                    person.unemploymentDuration = rand(13:19)
-                elseif durationIndex == 10
-                    person.unemploymentDuration = rand(19:25)
-                end
-            end
-            durationIndex += 1
-            unemployed = [x for x in unemployed if !(x in assignedUnemployed)]
-        end
-        
-        for person in unemployed
-            person.unemploymentDuration = 25
         end
     end
     
+    for (i,w) in enumerate(weights)
+        if w == 0
+            unemployed[i].unemploymentDuration = 25
+        end
+    end
+
     nothing
+end
+
+
+function assignUnemploymentDurationByGender!(newEntrants, pars)
+    assignUnemploymentDuration!(filter(isMale, newEntrants), pars.maleUDS, pars)
+    assignUnemploymentDuration!(filter(isFemale, newEntrants), pars.femaleUDS, pars)
 end
 
 
@@ -63,7 +74,7 @@ function dismissWorkers!(newUnemployed, pars)
         # person.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
     end
     
-    assignUnemploymentDuration!(newUnemployed, pars)
+    assignUnemploymentDurationByGender!(newUnemployed, pars)
 end
 
 # TODO generalise, put elsewhere
@@ -142,7 +153,7 @@ function jobMarket!(model, time, pars)
     
     # people entering the jobmarket need waiting time calculated 
     newEntrants = filter(x->x.newEntrant, unemployed)
-    assignUnemploymentDuration!(newEntrants, pars)
+    assignUnemploymentDurationByGender!(newEntrants, pars)
     
     # update times
     for person in unemployed
