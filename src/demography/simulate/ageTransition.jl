@@ -42,10 +42,10 @@ function computeWage(person, pars)
     # c = log(I/F)
     # wage = F * exp(c * exp(-1 * r * e))
 
-    fI = person.finalIncome
-    iI = person.initialIncome
+    fI = person.finalWage
+    iI = person.initialWage
 
-    wage = fI * (iI/fI)^exp(-1 * pars.incomeGrowthRate[person.classRank+1] * person.workExperience)
+    wage = fI * (iI/fI)^exp(-pars.incomeGrowthRate[person.classRank+1] * person.workExperience)
 
     dK = rand(Normal(0, pars.wageVar))
 

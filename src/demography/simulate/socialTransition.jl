@@ -136,11 +136,11 @@ function startWorking!(person, pars)
     person.status = WorkStatus.worker
 
     dKi = rand(Normal(0, pars.wageVar))
-    person.initialIncome = initialIncomeLevel(person, pars) * exp(dKi)
+    person.initialWage = initialIncomeLevel(person, pars) * exp(dKi)
 
     dist = incomeDist(person, pars)
 
-    person.finalIncome = rand(dist)
+    person.finalWage = rand(dist)
 
     # updates provider as well
     setAsSelfproviding!(person)
@@ -153,7 +153,7 @@ function startWorking!(person, pars)
 #            sigma = float(self.p['incomeFinalLevels'][person.classRank])/5.0
             # person.finalIncome = np.random.lognormal(self.p['incomeFinalLevels'][person.classRank], sigma)
             
-#        person.wage = person.initialIncome
+#        person.wage = person.initialWage
 #        person.income = person.wage*self.p['weeklyHours'][int(person.careNeedLevel)]
 #        person.potentialIncome = person.income
 end

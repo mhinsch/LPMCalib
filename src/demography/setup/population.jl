@@ -210,8 +210,8 @@ function initWork!(person, pars)
     dKf = rand(Normal(dKi, pars.wageVar))
     finalWage = pars.incomeFinalLevels[class] * exp(dKf)
 
-    person.initialIncome = initialWage
-    person.finalIncome = finalWage
+    person.initialWage = initialWage
+    person.finalWage = finalWage
 
     person.wage = computeWage(person, pars)
     person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
@@ -324,25 +324,7 @@ end
 function initJobs!(model, pars)
     hiredPeople = [p for p in model.pop if p.status == WorkStatus.worker]
     
-    # TODO fuse with classShares in social transition
-    classShares = zeros(length(pars.cumProbClasses))
-    for p in hiredPeople
-        classShares[p.classRank+1] += 1
-    end
-    
-    ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
-    
-    for p in hiredPeople
-        ageBandShares[p.classRank+1, ageBand(p.age)+1] += 1
-    end
-    
-    # normalise ageBandShares by population per class
-    for (i, cs) in enumerate(classShares)
-        ageBandShares[i, :] ./= cs
-    end
-    
-    # now we can make classShares relative to full population
-    classShares /= sum(classShares)
+    classShares, ageBandShares = calcAgeClassShares(hiredPeople, pars)
     
     unemploymentRate = model.unemploymentSeries[1]
     uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)

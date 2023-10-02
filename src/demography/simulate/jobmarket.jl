@@ -80,6 +80,8 @@ end
 # TODO generalise, put elsewhere
 canWork(person) = person.careNeedLevel < 4 && !isInMaternity(person) 
 
+Base.zero(::Type{Vector{T}}) where T = T[]
+
 function jobMarket!(model, time, pars)
     
     year, month = date2yearsmonths(time)
@@ -98,7 +100,7 @@ function jobMarket!(model, time, pars)
     # *** sort population by work status
     
     for p in model.pop 
-        if (statusWorker(p) || statusUnemployed(p)) && canWork(p) == true
+        if (statusWorker(p) || statusUnemployed(p)) && canWork(p)
             push!(activePop, p)
             
             if statusWorker(p)
@@ -124,23 +126,7 @@ function jobMarket!(model, time, pars)
     
     # *** count SES and age bands for active pop
     
-    # TODO fuse with classShares in social transition?
-    classShares = zeros(length(pars.cumProbClasses))
-    for p in activePop
-        classShares[p.classRank+1] += 1
-    end
-    
-    ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
-    for p in activePop
-        ageBandShares[p.classRank+1, ageBand(p.age)+1] += 1
-    end
-    
-    # normalise ageBandShares by population per class
-    for (i, cs) in enumerate(classShares)
-        ageBandShares[i, :] ./= cs
-    end
-    # now we can make classShares relative to full population
-    classShares /= sum(classShares)
+    classShares, ageBandShares = calcAgeClassShares(activePop, pars)
     
     # *** unemployment rate and index
     
@@ -157,31 +143,44 @@ function jobMarket!(model, time, pars)
     
     # update times
     for person in unemployed
-        person.unemploymentMonths = person.unemploymentMonths + 1
-        person.unemploymentDuration = person.unemploymentDuration - 1
+        person.unemploymentMonths += 1
+        person.unemploymentDuration -= 1
     end
     
-    longTermUnemployed = filter(p->p.unemploymentMonths >= 12, unemployed)
-    longTermUnemploymentRate = length(longTermUnemployed)/length(activePop)
-                
+    #acActivePopM = zeros(Vector{PType}, size(ageBandShares))
+    acActivePopM = Matrix{Vector{PType}}(undef, size(ageBandShares))
+    acWorkingPopM = Matrix{Vector{PType}}(undef, size(ageBandShares))
+    for c in 1:size(ageBandShares)[1], a in 1:size(ageBandShares)[2]
+        acActivePopM[c, a] = []
+        acWorkingPopM[c, a] = []
+    end
+    
+    for p in activePop
+        push!(acActivePopM[p.classRank+1, ageBand(p.age)+1], p)
+    end
+    
+    for p in workingPop
+        push!(acWorkingPopM[p.classRank+1, ageBand(p.age)+1], p)
+    end
+    
     for c in 0:size(ageBandShares)[1]-1
         for a in 0:size(ageBandShares)[2]-1
-            agePop = filter(p->p.classRank == c && ageBand(p.age) == a, activePop)
+            acActivePop = acActivePopM[c+1, a+1]
             
-            if length(agePop) <= 0
+            if length(acActivePop) <= 0
                 continue
             end
             
             ageSES_ur = uRates[c+1, a+1]
-            workPop = filter(p->p.classRank == c && ageBand(p.age) == a, workingPop)
+            acWorkingPop = acWorkingPopM[c+1, a+1]
             
             # *** some people lose their jobs
             
-            if length(workPop) > 0
+            if length(acWorkingPop) > 0
                 # Age and SES-specific unemployment rate 
                 layOffsRate = pars.meanLayOffsRate * ageSES_ur/unemploymentRate
-                dismissableWorkers = filter(p->p.jobTenure >= pars.probationPeriod, workPop)
-                numLayOffs = min(floor(Int, length(workPop)*layOffsRate), 
+                dismissableWorkers = filter(p->p.jobTenure >= pars.probationPeriod, acWorkingPop)
+                numLayOffs = min(floor(Int, length(acWorkingPop)*layOffsRate), 
                     length(dismissableWorkers))
                     
                 if numLayOffs > 0
@@ -192,10 +191,10 @@ function jobMarket!(model, time, pars)
                 end
             end
             
-            nEmpiricalUnemployed = floor(Int, length(agePop) * ageSES_ur)
+            nEmpiricalUnemployed = floor(Int, length(acActivePop) * ageSES_ur)
             actualUnemployed = PType[]
             employedWorkers = PType[]
-            for p in agePop
+            for p in acActivePop
                 if statusWorker(p)
                     push!(employedWorkers, p)
                 else
@@ -370,7 +369,7 @@ function computeIncome!(model, month, pars)
                 house.povertyLineIncome = pars.couplePensioners
             end
         end
-        dependentMembers = [x for x in house.occupants if x.independentStatus == False]
-        house.povertyLineIncome += len(dependentMembers) * pars.additionalChild
+        nDependentMembers = count(isDependent, house.occupants)
+        house.povertyLineIncome += nDependentMembers * pars.additionalChild
     end 
 end

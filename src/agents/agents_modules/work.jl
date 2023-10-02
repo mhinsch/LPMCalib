@@ -14,10 +14,14 @@ const WST = WorkStatus.T
     "work status"
     status :: WST = WorkStatus.child
     outOfTownStudent :: Bool = false
+    "marker for people who enter job market outside of jobMarket function 
+    (to assign unemployment duration)"
     newEntrant :: Bool = true
-    initialIncome :: Float64 = 0
-    finalIncome :: Float64 = 0
+    initialWage:: Float64 = 0
+    finalWage:: Float64 = 0
+    "hourly income for current job"
     wage :: Float64 = 0
+    "monthly income dependent on wage/work schedule"
     income :: Float64 = 0
     "income for full work schedule"
     potentialIncome :: Float64 = 0

@@ -34,6 +34,31 @@ function weeklySchedule(shift, weeklyHours)
 end
 
 
+# TODO fuse with classShares in social transition?
+"count SES and age bands for pop"
+function calcAgeClassShares(pop, pars)
+    
+    classShares = zeros(length(pars.cumProbClasses))
+    for p in pop
+        classShares[p.classRank+1] += 1
+    end
+    
+    ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
+    for p in pop
+        ageBandShares[p.classRank+1, ageBand(p.age)+1] += 1
+    end
+    
+    # normalise ageBandShares by population per class
+    for (i, cs) in enumerate(classShares)
+        ageBandShares[i, :] ./= cs
+    end
+    # now we can make classShares relative to full population
+    classShares /= sum(classShares)
+    
+    classShares, ageBandShares
+end
+    
+
 ageBand(age) =
     if age <= 19
         0
