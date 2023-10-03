@@ -4,7 +4,7 @@ using Distributions
 function sampleNoReplace!(weights, wSum)
     r = rand() * wSum
     i = 1
-    while (r-=weights[i]) > 0
+    while  (r -= weights[i]) > 0  
         i += 1
     end
     
@@ -84,13 +84,19 @@ end
 canWork(person) = person.careNeedLevel < 4 && !isInMaternity(person) 
 
 # Base.zero(::Type{Vector{T}}) where T = T[]
+function Matrix{Vector{T}}(sz) where {T}
+    m = Matrix{Vector{T}}(undef, sz)
+    for c in 1:sz[1], a in 1:sz[2]
+        m[c, a] = T[]
+    end
+    m
+end
 
 isActive(person) = (statusWorker(person) || statusUnemployed(person)) && canWork(person)
 isWorking(person) = statusWorker(person) && canWork(person)
 isUnemployed(person) = statusUnemployed(person) && canWork(person)
 
 function jobMarket!(model, time, pars)
-    
     year, month = date2yearsmonths(time)
 
     # everyone working or in the job market
@@ -122,9 +128,6 @@ function jobMarket!(model, time, pars)
     
     # people entering the jobmarket need waiting time calculated 
     newEntrants = [x for x in unemployed if x.newEntrant]
-    #for person in newEntrants
-    #    person.unemploymentIndex = uRates[person.classRank+1, ageBand(person.age)+1]
-    #end
     assignUnemploymentDurationByGender!(newEntrants, uRates, pars)
     
     # update times
@@ -136,78 +139,87 @@ function jobMarket!(model, time, pars)
     PType = eltype(model.pop)
     # for some reason this is vastly slower
     #acActivePopM = zeros(Vector{PType}, size(ageBandShares))
-    acActivePop = Matrix{Vector{PType}}(undef, size(ageBandShares))
-    acWorkingPop = Matrix{Vector{PType}}(undef, size(ageBandShares))
-    for c in 1:size(ageBandShares)[1], a in 1:size(ageBandShares)[2]
-        acActivePop[c, a] = []
-        acWorkingPop[c, a] = []
-    end
+    acActivePop = Matrix{Vector{PType}}(size(ageBandShares))
     
     for p in activePop
         push!(acActivePop[p.classRank+1, ageBand(p.age)+1], p)
     end
     
-    for p in workingPop
-        push!(acWorkingPop[p.classRank+1, ageBand(p.age)+1], p)
-    end
-    
-    adjustJobsByAgeAndClass!(acActivePop, acWorkingPop, uRates, unemploymentRate, month, model, pars)
+    adjustJobsByAgeAndClass!(acActivePop, uRates, unemploymentRate, month, model, pars)
 end
 
 
-function adjustJobsByAgeAndClass!(acActivePopM, acWorkingPopM, uRates, unemploymentRate, month, 
+function adjustJobsByAgeAndClass!(acActivePopM, uRates, unemploymentRate, month, 
     model, pars)
     PType = eltype(model.pop)
-    for c in 0:size(acActivePopM)[1]-1
-        for a in 0:size(acActivePopM)[2]-1
-            acActivePop = acActivePopM[c+1, a+1]
-            if isempty(acActivePop)
-                continue
+    actualUnemployed = PType[]
+    employedWorkers = PType[]
+    dismissedWorkers = PType[]
+    weights = Float64[]
+    for c in 0:size(acActivePopM)[1]-1, a in 0:size(acActivePopM)[2]-1
+        acActivePop = acActivePopM[c+1, a+1]
+        if isempty(acActivePop) continue end
+            
+        empty!(actualUnemployed)
+        empty!(employedWorkers)
+        for p in acActivePop
+            if statusWorker(p)
+                push!(employedWorkers, p)
+            else
+                push!(actualUnemployed, p)
             end
-            acWorkingPop = acWorkingPopM[c+1, a+1]
-            
-            ageSES_ur = uRates[c+1, a+1]
-            # *** some people lose their jobs
-            
-            if length(acWorkingPop) > 0
-                # Age and SES-specific unemployment rate 
-                layOffsRate = pars.meanLayOffsRate * ageSES_ur/unemploymentRate
-                dismissableWorkers = filter(p->p.jobTenure >= pars.probationPeriod, acWorkingPop)
-                numLayOffs = min(floor(Int, length(acWorkingPop)*layOffsRate), 
-                    length(dismissableWorkers))
-                    
-                if numLayOffs > 0
-                    weights = [1.0/exp(pars.layOffsBeta*p.jobTenure) for p in dismissableWorkers]
-                    firedWorkers = sample(dismissableWorkers, Weights(weights), numLayOffs, 
-                        replace=false)
-                    dismissWorkers!(firedWorkers, uRates, pars)
-                end
-            end
-            
-            nEmpiricalUnemployed = floor(Int, length(acActivePop) * ageSES_ur)
-            actualUnemployed = PType[]
-            employedWorkers = PType[]
-            for p in acActivePop
-                if statusWorker(p)
-                    push!(employedWorkers, p)
+        end
+        
+        ageSES_ur = uRates[c+1, a+1]
+        
+        # *** regular job losses due to turnover
+        
+        if length(employedWorkers) > 0
+            resize!(weights, length(employedWorkers))
+            sumWeights = 0.0; nDismissable = 0
+            for (i, p) in enumerate(employedWorkers)
+                if p.jobTenure >= pars.probationPeriod
+                    weights[i] = 1.0 / exp(pars.layOffsBeta * p.jobTenure) 
+                    sumWeights += weights[i]
+                    nDismissable += 1
                 else
-                    push!(actualUnemployed, p)
+                    weights[i] = 0.0
                 end
             end
-            if length(actualUnemployed) > nEmpiricalUnemployed
-                peopleToHire = length(actualUnemployed) - nEmpiricalUnemployed
-                # The probability to be hired is iversely proportional to unemployment duration.
-                # Order workers from lower to higher duration, and hire from the top.
-                sort!(actualUnemployed, by=x->x.unemploymentDuration)
-                peopleHired = actualUnemployed[1:peopleToHire]
-                assignJobs!(peopleHired, model.shiftsPool, month, pars)
-            elseif nEmpiricalUnemployed > length(actualUnemployed)
-                peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed), 
-                    length(employedWorkers))
-                weights = [1.0/exp(pars.layOffsBeta*p.jobTenure) for p in employedWorkers]
-                firedWorkers = sample(employedWorkers, Weights(weights), peopleToFire, replace=false)
-                dismissWorkers!(firedWorkers, uRates, pars)
+            
+            # layoffs happen at a constant rate that is modified by class/age-specific UR
+            layOffsRate = pars.meanLayOffsRate * ageSES_ur/unemploymentRate
+            numLayOffs = min(floor(Int, length(employedWorkers)*layOffsRate), nDismissable)
+            empty!(dismissedWorkers)
+                
+            for i in 1:numLayOffs
+                firedWorkerIdx, sumWeights = sampleNoReplace!(weights, sumWeights)
+                push!(dismissedWorkers, employedWorkers[firedWorkerIdx])
+                remove_unsorted!(employedWorkers, firedWorkerIdx)
+                remove_unsorted!(weights, firedWorkerIdx)
             end
+            dismissWorkers!(dismissedWorkers, uRates, pars)
+            append!(actualUnemployed, dismissedWorkers)
+        end
+        
+        # *** adjust unemployment rate to conform to empirical numbers
+        
+        nEmpiricalUnemployed = floor(Int, length(acActivePop) * ageSES_ur)
+        if length(actualUnemployed) > nEmpiricalUnemployed
+            peopleToHire = length(actualUnemployed) - nEmpiricalUnemployed
+            # The probability to be hired is inversely proportional to unemployment duration.
+            # Order workers from lower to higher duration, and hire from the top.
+            sort!(actualUnemployed, by=x->x.unemploymentDuration)
+            peopleHired = actualUnemployed[1:peopleToHire]
+            assignJobs!(peopleHired, model.shiftsPool, month, pars)
+        elseif nEmpiricalUnemployed > length(actualUnemployed)
+            peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed),  length(employedWorkers))
+            resize!(weights, length(employedWorkers))
+            map!(weights, employedWorkers) do p 
+                    1.0/exp(pars.layOffsBeta*p.jobTenure)
+                end
+            firedWorkers = sample(employedWorkers, Weights(weights), peopleToFire, replace=false)
+            dismissWorkers!(firedWorkers, uRates, pars)
         end
     end
 end    
