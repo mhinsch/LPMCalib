@@ -14,14 +14,17 @@ function sampleNoReplace!(weights, wSum)
     i, wSum
 end
 
-function assignUnemploymentDuration!(unemployed, durationShares, pars)
+function assignUnemploymentDuration!(unemployed, uRates, durationShares, pars)
     @assert sum(durationShares) <= 1
     totUnemployed = length(unemployed)
     if totUnemployed == 0
         return nothing
     end
     
-    weights = [1.0/exp(pars.unemploymentBeta*x.unemploymentIndex) for x in unemployed]
+    weights = map(unemployed) do x
+            ur = uRates[x.classRank+1, ageBand(x.age)+1]
+            1.0/exp(pars.unemploymentBeta * ur)
+        end
     weightSum = sum(weights)
     
     for (durationIndex, durationShare) in enumerate(durationShares)
@@ -55,13 +58,13 @@ function assignUnemploymentDuration!(unemployed, durationShares, pars)
 end
 
 
-function assignUnemploymentDurationByGender!(newEntrants, pars)
-    assignUnemploymentDuration!(filter(isMale, newEntrants), pars.maleUDS, pars)
-    assignUnemploymentDuration!(filter(isFemale, newEntrants), pars.femaleUDS, pars)
+function assignUnemploymentDurationByGender!(newEntrants, uRates, pars)
+    assignUnemploymentDuration!(filter(isMale, newEntrants), uRates, pars.maleUDS, pars)
+    assignUnemploymentDuration!(filter(isFemale, newEntrants), uRates, pars.femaleUDS, pars)
 end
 
 
-function dismissWorkers!(newUnemployed, pars)
+function dismissWorkers!(newUnemployed, uRates, pars)
     for person in newUnemployed
         person.status = WorkStatus.unemployed
         person.workingHours = 0
@@ -74,44 +77,28 @@ function dismissWorkers!(newUnemployed, pars)
         # person.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
     end
     
-    assignUnemploymentDurationByGender!(newUnemployed, pars)
+    assignUnemploymentDurationByGender!(newUnemployed, uRates, pars)
 end
 
 # TODO generalise, put elsewhere
 canWork(person) = person.careNeedLevel < 4 && !isInMaternity(person) 
 
-Base.zero(::Type{Vector{T}}) where T = T[]
+# Base.zero(::Type{Vector{T}}) where T = T[]
+
+isActive(person) = (statusWorker(person) || statusUnemployed(person)) && canWork(person)
+isWorking(person) = statusWorker(person) && canWork(person)
+isUnemployed(person) = statusUnemployed(person) && canWork(person)
 
 function jobMarket!(model, time, pars)
     
     year, month = date2yearsmonths(time)
 
-    PType = eltype(model.pop)
-    
     # everyone working or in the job market
-    activePop = PType[]
+    activePop = Iterators.filter(isActive, model.pop)
     # everyone with a job
-    workingPop = PType[]
+    workingPop = Iterators.filter(isWorking, model.pop)
     # everyone looking for a job
-    unemployed = PType[]
-    # unemployed but not looking for a job (maternity, care)
-    unemployedNotInActive = PType[]
-    
-    # *** sort population by work status
-    
-    for p in model.pop 
-        if (statusWorker(p) || statusUnemployed(p)) && canWork(p)
-            push!(activePop, p)
-            
-            if statusWorker(p)
-                push!(workingPop, p)
-            else
-                push!(unemployed, p)
-            end
-        elseif statusUnemployed(p)
-            push!(unemployedNotInActive, p)
-        end
-    end
+    unemployed = Iterators.filter(isUnemployed, model.pop)
     
     # *** update tenure etc. for working population
     
@@ -133,13 +120,12 @@ function jobMarket!(model, time, pars)
     unemploymentRate = model.unemploymentSeries[floor(Int, year - pars.startTime) + 1]
     uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)         
     
-    for person in activePop
-        person.unemploymentIndex = uRates[person.classRank+1, ageBand(person.age)+1]
-    end
-    
     # people entering the jobmarket need waiting time calculated 
-    newEntrants = filter(x->x.newEntrant, unemployed)
-    assignUnemploymentDurationByGender!(newEntrants, pars)
+    newEntrants = [x for x in unemployed if x.newEntrant]
+    #for person in newEntrants
+    #    person.unemploymentIndex = uRates[person.classRank+1, ageBand(person.age)+1]
+    #end
+    assignUnemploymentDurationByGender!(newEntrants, uRates, pars)
     
     # update times
     for person in unemployed
@@ -147,33 +133,40 @@ function jobMarket!(model, time, pars)
         person.unemploymentDuration -= 1
     end
     
+    PType = eltype(model.pop)
+    # for some reason this is vastly slower
     #acActivePopM = zeros(Vector{PType}, size(ageBandShares))
-    acActivePopM = Matrix{Vector{PType}}(undef, size(ageBandShares))
-    acWorkingPopM = Matrix{Vector{PType}}(undef, size(ageBandShares))
+    acActivePop = Matrix{Vector{PType}}(undef, size(ageBandShares))
+    acWorkingPop = Matrix{Vector{PType}}(undef, size(ageBandShares))
     for c in 1:size(ageBandShares)[1], a in 1:size(ageBandShares)[2]
-        acActivePopM[c, a] = []
-        acWorkingPopM[c, a] = []
+        acActivePop[c, a] = []
+        acWorkingPop[c, a] = []
     end
     
     for p in activePop
-        push!(acActivePopM[p.classRank+1, ageBand(p.age)+1], p)
+        push!(acActivePop[p.classRank+1, ageBand(p.age)+1], p)
     end
     
     for p in workingPop
-        push!(acWorkingPopM[p.classRank+1, ageBand(p.age)+1], p)
+        push!(acWorkingPop[p.classRank+1, ageBand(p.age)+1], p)
     end
     
-    for c in 0:size(ageBandShares)[1]-1
-        for a in 0:size(ageBandShares)[2]-1
+    adjustJobsByAgeAndClass!(acActivePop, acWorkingPop, uRates, unemploymentRate, month, model, pars)
+end
+
+
+function adjustJobsByAgeAndClass!(acActivePopM, acWorkingPopM, uRates, unemploymentRate, month, 
+    model, pars)
+    PType = eltype(model.pop)
+    for c in 0:size(acActivePopM)[1]-1
+        for a in 0:size(acActivePopM)[2]-1
             acActivePop = acActivePopM[c+1, a+1]
-            
-            if length(acActivePop) <= 0
+            if isempty(acActivePop)
                 continue
             end
-            
-            ageSES_ur = uRates[c+1, a+1]
             acWorkingPop = acWorkingPopM[c+1, a+1]
             
+            ageSES_ur = uRates[c+1, a+1]
             # *** some people lose their jobs
             
             if length(acWorkingPop) > 0
@@ -187,7 +180,7 @@ function jobMarket!(model, time, pars)
                     weights = [1.0/exp(pars.layOffsBeta*p.jobTenure) for p in dismissableWorkers]
                     firedWorkers = sample(dismissableWorkers, Weights(weights), numLayOffs, 
                         replace=false)
-                    dismissWorkers!(firedWorkers, pars)
+                    dismissWorkers!(firedWorkers, uRates, pars)
                 end
             end
             
@@ -208,22 +201,17 @@ function jobMarket!(model, time, pars)
                 sort!(actualUnemployed, by=x->x.unemploymentDuration)
                 peopleHired = actualUnemployed[1:peopleToHire]
                 assignJobs!(peopleHired, model.shiftsPool, month, pars)
-                for person in peopleHired
-                    person.unemploymentIndex = ageSES_ur
-                end
             elseif nEmpiricalUnemployed > length(actualUnemployed)
                 peopleToFire = min(nEmpiricalUnemployed-length(actualUnemployed), 
                     length(employedWorkers))
                 weights = [1.0/exp(pars.layOffsBeta*p.jobTenure) for p in employedWorkers]
                 firedWorkers = sample(employedWorkers, Weights(weights), peopleToFire, replace=false)
-                dismissWorkers!(firedWorkers, pars)
-                for person in firedWorkers
-                    person.unemploymentIndex = ageSES_ur
-                end
+                dismissWorkers!(firedWorkers, uRates, pars)
             end
         end
     end
 end    
+
 
 function computePersonIncome!(person, pars)
     if statusWorker(person)

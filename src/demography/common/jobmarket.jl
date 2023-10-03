@@ -119,11 +119,10 @@ function computeURByClassAge(ur, classShares, ageShares, pars)
     rates
 end
 
-"Assign job shifts to unemployed workers. Shifts are selected at random with 
-higher weight for better shifts => workers with lower unemploymentIndex (older,
-higher class) get better shifts."
+"Assign job shifts to unemployed workers."
 function assignJobs!(hiredAgents, shiftsPool, month, pars)
-    sort!(hiredAgents, by=x->x.unemploymentIndex)
+    # removed that for now, was only effectively used in setup
+    #sort!(hiredAgents, by=x->x.unemploymentIndex)
     # TODO draw w/out replacement?
     shifts = rand(shiftsPool, length(hiredAgents))
     for person in hiredAgents

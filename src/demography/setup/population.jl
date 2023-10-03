@@ -327,11 +327,8 @@ function initJobs!(model, pars)
     classShares, ageBandShares = calcAgeClassShares(hiredPeople, pars)
     
     unemploymentRate = model.unemploymentSeries[1]
-    uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
-    
-    for p in hiredPeople
-        p.unemploymentIndex = uRates[p.classRank+1, ageBand(p.age)+1]
-    end
+    # not needed for now as assignJobs doesn't use unemploymentIndex anymore
+    #uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
     
     model.shiftsPool = createShifts(pars)
     assignJobs!(hiredPeople, model.shiftsPool, -1, pars)

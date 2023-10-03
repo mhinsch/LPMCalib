@@ -42,7 +42,6 @@ const WST = WorkStatus.T
     workingPeriods :: Float64 = 0
     workExperience :: Float64 = 0
     pension :: Float64 = 0
-    unemploymentIndex :: Float64 = 0
     unemploymentMonths :: Int = 0
     unemploymentDuration :: Int = 0
     monthHired :: Int = 0
