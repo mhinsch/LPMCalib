@@ -26,6 +26,8 @@ const WST = WorkStatus.T
     "income for full work schedule"
     potentialIncome :: Float64 = 0
     cumulativeIncome :: Float64 = 0
+    disposableIncome :: Float64 = 0
+    lastIncome :: Float64 = 0
     wealth :: Float64 = 0
     financialWealth :: Float64 = 0
     "periods worked so far in current job"

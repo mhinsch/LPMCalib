@@ -29,12 +29,15 @@ mutable struct House{P, T}
     careProvided :: Int
     careConnections :: Vector{House{P, T}}
     
+    householdIncome :: Float64 
+    disposableIncome :: Float64
+    incomePerCapita :: Float64
     cumulativeIncome :: Float64
     wealth :: Float64
     ownedByOccupants :: Bool
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, false)
+House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 0.0, 0.0, 0.0, false)
 
 occupantType(h::House{P, T}) where {P, T} = P
 
@@ -42,7 +45,8 @@ occupantType(h::House{P, T}) where {P, T} = P
 @export_forward House [netCareSupply, careProvided, careConnections, cumulativeIncome, wealth]
 
 
-isEmpty(house) = length(house.occupants) == 0
+isEmpty(house) = isempty(house.occupants)
+isOccupied(house) = !isempty(house.occupants) 
 
 town(house) = house.town 
 

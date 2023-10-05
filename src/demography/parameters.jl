@@ -40,7 +40,8 @@ end # UKMapPars
                            0.0   0.0   0.1   0.0   0.0   0.0  0.0  0.0] 
     =#
     
- @with_kw mutable struct BenefitMapPars
+"Parameters for housing benefits."
+@with_kw mutable struct BenefitMapPars
     #
     # Local house allowances for houses with 1,2,3 and 4-bed room houses 
     lha :: Vector{Matrix{Float64}} = [
@@ -161,6 +162,8 @@ end
     workDiscountingTime :: Float64      = 1.0
     moveOutProb :: Float64				= 0.1
     numberAgeBands :: Int				= 6
+    taxBrackets :: Vector{Int} = [663, 228, 0]
+    taxationRates :: Vector{Float64} = [0.4, 0.2, 0.0]
     unemploymentAgeBias :: Vector{Float64} = [1.0, 0.55, 0.35, 0.25, 0.2, 0.2]
     unemploymentClassBias :: Float64	= 0.75
     unemploymentBeta :: Float64			= 1.0
@@ -182,6 +185,7 @@ end
 end
 
 
+"Parameters for benefits."
 @with_kw mutable struct BenefitPars
     childBenefitIncomeThreshold :: Float64 = 50000
     firstChildBenefit :: Float64 = 21.15

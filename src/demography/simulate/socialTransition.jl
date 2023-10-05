@@ -144,17 +144,5 @@ function startWorking!(person, pars)
 
     # updates provider as well
     setAsSelfproviding!(person)
-
-# commented in original:
-#        if person.classRank < 4:
-#            dKf = np.random.normal(dKi, self.p['wageVar'])
-#            person.finalIncome = self.p['incomeFinalLevels'][person.classRank]*math.exp(dKf)
-#        else:
-#            sigma = float(self.p['incomeFinalLevels'][person.classRank])/5.0
-            # person.finalIncome = np.random.lognormal(self.p['incomeFinalLevels'][person.classRank], sigma)
-            
-#        person.wage = person.initialWage
-#        person.income = person.wage*self.p['weeklyHours'][int(person.careNeedLevel)]
-#        person.potentialIncome = person.income
 end
 

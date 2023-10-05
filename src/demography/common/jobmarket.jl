@@ -1,3 +1,10 @@
+"Set initial and final wage depending on social class."
+function setWageProgression!(person, pars)
+    dKi = rand(Normal(0, pars.wageVar))
+    person.initialWage = pars.incomeInitialLevels[person.classRank+1] * exp(dKi)
+    dKf = rand(Normal(dKi, pars.wageVar))
+    person.finalWage = pars.incomeFinalLevels[person.classRank+1] * exp(dKf)
+end
 
 function assignWealthByIncPercentile!(pop, wealthPercentiles, pars)
     sort!(pop, by=x->x.cumulativeIncome) 
@@ -9,6 +16,23 @@ function assignWealthByIncPercentile!(pop, wealthPercentiles, pars)
         agent.wealth = wealthPercentiles[percentile] * exp(dK)
     end
 end
+
+"Calculate current wage dependent on initial and final wage and work experience."
+function computeWage(person, pars)
+    # original formula
+    # c = log(I/F)
+    # wage = F * exp(c * exp(-1 * r * e))
+
+    fI = person.finalWage
+    iI = person.initialWage
+
+    wage = fI * (iI/fI)^exp(-pars.incomeGrowthRate[person.classRank+1] * person.workExperience)
+
+    dK = rand(Normal(0, pars.wageVar))
+
+    wage * exp(dK)
+end
+
 
 
 "Assign a person's weekly schedule based on their shift and working hours."

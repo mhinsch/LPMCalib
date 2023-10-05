@@ -204,14 +204,8 @@ function initWork!(person, pars)
 
     person.workExperience = workingTime
     person.workingPeriods = workingTime
-
-    dKi = rand(Normal(0, pars.wageVar))
-    initialWage = pars.incomeInitialLevels[class] * exp(dKi)
-    dKf = rand(Normal(dKi, pars.wageVar))
-    finalWage = pars.incomeFinalLevels[class] * exp(dKf)
-
-    person.initialWage = initialWage
-    person.finalWage = finalWage
+    
+    setWageProgression!(person, pars)
 
     person.wage = computeWage(person, pars)
     person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
