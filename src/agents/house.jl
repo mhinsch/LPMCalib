@@ -42,7 +42,7 @@ House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 
 occupantType(h::House{P, T}) where {P, T} = P
 
 
-@export_forward House [netCareSupply, careProvided, careConnections, cumulativeIncome, wealth]
+#@export_forward House [netCareSupply, careProvided, careConnections, cumulativeIncome, wealth]
 
 
 isEmpty(house) = isempty(house.occupants)

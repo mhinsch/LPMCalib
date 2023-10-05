@@ -57,7 +57,7 @@ end
         # number of children in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->p.age<18, house.occupants)
         
-        ncs = netCareSupply(house)
+        ncs = house.netCareSupply
         scn = householdSocialCareNeed(house, model, pars.carepars)
         cbn = careBalance(house)
         unmet_pre = min(0, max(ncs, -scn))

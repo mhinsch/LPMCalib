@@ -258,7 +258,7 @@ function updatePersonIncome!(person, pars)
 end
 
 
-function computeIncome!(model, time, pars)
+function updateIncome!(model, time, pars)
     year, month = date2yearsmonths(time)
     # Compute income from work based on last period job market and informal care
     for person in model.pop
@@ -314,14 +314,14 @@ function computeIncome!(model, time, pars)
     
     # ...then add benefits
     for person in model.pop
-        #person.disposableIncome = person.disposableIncome + person.benefits
+        person.disposableIncome += person.benefits
         #person.yearlyBenefits = person.benefits * 52.0
         #push!(person.yearlyDisposableIncomes, person.disposableIncome * 4.35)
         #if length(person.yearlyDisposableIncomes) > 12
         #    deleteat!(person.yearlyDisposableIncomes, 1)
         #end
         #person.yearlyDisposableIncome = sum(person.yearlyDisposableIncomes)
-        person.cumulativeIncome = person.cumulativeIncome + person.disposableIncome
+        person.cumulativeIncome += person.disposableIncome
     end
     
     #for house in Iterators.filter(isOccupied, model.houses)

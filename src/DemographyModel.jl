@@ -156,7 +156,7 @@ function stepModel!(model, time, pars)
         ageTransition!(person, time, model, pars.workpars)
     end
     
-    computeIncome!(model, time, pars.workpars)
+    updateIncome!(model, time, pars.workpars)
     
     updateWealth!(model.pop, model.wealthPercentiles, pars.workpars)
     
