@@ -42,9 +42,6 @@ House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 
 occupantType(h::House{P, T}) where {P, T} = P
 
 
-#@export_forward House [netCareSupply, careProvided, careConnections, cumulativeIncome, wealth]
-
-
 isEmpty(house) = isempty(house.occupants)
 isOccupied(house) = !isempty(house.occupants) 
 
@@ -74,9 +71,9 @@ end
 
 "remove an occupant from a house"
 function removeOccupant!(house, person)
-    removefirst!(house.occupants, person) 
-	# we can't assume anything about the layout of typeof(person)
-	#person.pos = undefinedHouse 
+    idx = findfirst(isequal(person), house.occupants)
+    @assert idx != nothing
+    remove_unsorted!(house.occupants, idx)
     nothing 
 end
 
