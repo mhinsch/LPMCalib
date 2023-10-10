@@ -2,14 +2,19 @@ module DemographyModel
 
 export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
+include("agents/shift.jl")
 include("agents/town.jl")
 include("agents/house.jl")
 include("agents/person.jl")
 include("agents/world.jl")
 
+include("demography/common/income.jl")
+include("demography/common/jobmarket.jl")
+
 include("demography/setup/map.jl")
 include("demography/setup/population.jl")
 include("demography/setup/mapPop.jl")
+include("demography/setup/mapBenefits.jl")
 
 include("demography/simulate/allocate.jl")
 include("demography/simulate/death.jl")
@@ -22,6 +27,11 @@ include("demography/simulate/marriages.jl")
 include("demography/simulate/dependencies.jl")
 include("demography/simulate/socialCareTransition.jl")
 include("demography/simulate/care.jl")
+include("demography/simulate/income.jl")
+include("demography/simulate/jobmarket.jl")
+include("demography/simulate/benefits.jl")
+include("demography/simulate/wealth.jl")
+
 
 using Utilities
 
@@ -31,6 +41,7 @@ mutable struct Model
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
+    shiftsPool :: Vector{Shift}
     
     fertFByAge51 :: Vector{Float64}
     fertility :: Matrix{Float64}
@@ -38,6 +49,8 @@ mutable struct Model
     pre51Deaths :: Matrix{Float64}
     deathFemale :: Matrix{Float64}
     deathMale :: Matrix{Float64}
+    unemploymentSeries :: Vector{Float64}
+    wealthPercentiles :: Vector{Float64}
     
     birthCache :: BirthCache{Person}
     deathCache :: DeathCache
@@ -48,34 +61,35 @@ mutable struct Model
 end
 
 
-function createDemographyModel!(data, pars)
+function createDemographyModel!(demoData, workData, pars)
     towns = createTowns(pars.mappars)
 
     houses = Vector{PersonHouse}()
 
     # maybe switch using parameter
     #ukPopulation = createPopulation(pars.poppars)
-    population = createPyramidPopulation(pars.poppars, data.initialAgePyramid)
+    population = createPyramidPopulation(pars.poppars, demoData.initialAgePyramid)
     
-    yearsFert = [1951 > data.pre51Fertility[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Fertility)[1]]
+    yearsFert = [1951 > demoData.pre51Fertility[y, 1] >= pars.poppars.startTime 
+        for y in 1:size(demoData.pre51Fertility)[1]]
     
-    yearsMort = [1951 > data.pre51Deaths[y, 1] >= pars.poppars.startTime 
-        for y in 1:size(data.pre51Deaths)[1]]
+    yearsMort = [1951 > demoData.pre51Deaths[y, 1] >= pars.poppars.startTime 
+        for y in 1:size(demoData.pre51Deaths)[1]]
                 
-    fert = data.fertility[:, 1] # age-specific fertility in 1951
+    fert = demoData.fertility[:, 1] # age-specific fertility in 1951
     byAgeF = fert ./ (sum(fert)/length(fert)) 
     
-    Model(towns, houses, population, [],
-            byAgeF, data.fertility, data.pre51Fertility[yearsFert, 2], 
-            data.pre51Deaths[yearsMort, 2:3], data.deathFemale, data.deathMale, 
+    Model(towns, houses, population, [], [],
+            byAgeF, demoData.fertility, demoData.pre51Fertility[yearsFert, 2], 
+            demoData.pre51Deaths[yearsMort, 2:3], demoData.deathFemale, demoData.deathMale, 
+            workData.unemployment, workData.wealth,
             BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
             SocialCareCache(), DivorceCache())
 end
 
 
 function initialConnectH!(houses, towns, pars)
-    newHouses = initializeHousesInTowns(towns, pars)
+    newHouses = initializeHousesInTowns!(towns, pars)
     append!(houses, newHouses)
 end
 
@@ -84,14 +98,18 @@ function initialConnectP!(pop, houses, pars)
 end
 
 
-function initializeDemographyModel!(model, poppars, workpars, mappars)
+function initializeDemographyModel!(model, poppars, workpars, mappars, mapbenefitpars)
     initialConnectH!(model.houses, model.towns, mappars)
     initialConnectP!(model.pop, model.houses, mappars)
+
+    initializeLHA!(model.towns, mapbenefitpars)
 
     for person in model.pop
         initClass!(person, poppars)
         initWork!(person, workpars)
     end
+    
+    initJobs!(model, fuse(poppars, workpars))
 
     nothing
 end
@@ -139,11 +157,19 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "age") do person
         ageTransition!(person, time, model, pars.workpars)
     end
+    
+    updateIncome!(model, time, pars.workpars)
+    
+    updateWealth!(model.pop, model.wealthPercentiles, pars.workpars)
+    
+    jobMarket!(model, time, fuse(pars.workpars, pars.poppars))
 
     selected = Iterators.filter(p->selectSocialCareTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "social care") do person
         socialCareTransition!(person, time, model, fuse(pars.poppars, pars.carepars))
     end
+    
+    computeBenefits!(model.pop, fuse(pars.benefitpars, pars.workpars))
     
     socialCare!(model, pars.carepars)
     

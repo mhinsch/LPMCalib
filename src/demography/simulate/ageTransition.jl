@@ -25,7 +25,7 @@ function ageTransition!(person, time, model, pars)
     
     # TODO parameterise dt
     if !isSingle(person)
-        pTime!(person, person.pTime + 1//12)
+        person.pTime = person.pTime + 1//12
     end
 
     if person.age == 18
@@ -36,60 +36,35 @@ end
 
 selectWorkTransition(person, pars) = 
     person.alive && person.status != WorkStatus.retired && hasBirthday(person)
-
-function computeWage(person, pars)
-    # original formula
-    # c = log(I/F)
-    # wage = F * exp(c * exp(-1 * r * e))
-
-    fI = person.finalIncome
-    iI = person.initialIncome
-
-    wage = fI * (iI/fI)^exp(-1 * pars.incomeGrowthRate[person.classRank+1] * person.workExperience)
-
-    dK = rand(Normal(0, pars.wageVar))
-
-    wage * exp(dK)
-end
-
-
+    
 function workTransition!(person, time, model, pars)
     if person.age == pars.ageTeenagers
-        status!(person, WorkStatus.teenager)
+        person.status = WorkStatus.teenager
         return
     end
 
     if person.age == pars.ageOfAdulthood
-        status!(person, WorkStatus.student)
-        classRank!(person, 0)
+        person.status = WorkStatus.student
+        person.classRank = 0
 
         if rand() < pars.probOutOfTownStudent
-            outOfTownStudent!(person, true)
+            person.outOfTownStudent = true
         end
 
         return
     end
 
     if person.age == pars.ageOfRetirement
-        status!(person, WorkStatus.retired)
+        person.status = WorkStatus.retired
         setEmptyJobSchedule!(person)
-        wage!(person, 0)
+        person.wage = 0
 
         shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
 
         dK = rand(Normal(0, pars.wageVar))
-        pension!(person, shareWorkingTime * exp(dK))
+        person.pension = shareWorkingTime * exp(dK)
         return
     end
 
-    if person.status == WorkStatus.worker && !isInMaternity(person)
-        # we assume full work load at this point
-        # in original: availableWorkingHours/workingHours
-        workingPeriods!(person, person.workingPeriods+1)
-        # in original: availableWorkingHours/pars.weeklyHours[0]
-        workExperience!(person, person.workExperience+1)
-        wage!(person, computeWage(person, pars))
-        # no care, therefore full time
-        income!(person, person.wage * pars.weeklyHours[person.careNeedLevel+1])
-    end
+    #person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
 end

@@ -41,32 +41,78 @@ h_pos(h) = t_pos(h.town) .+ h.pos
 
 coords(agent) = h_pos(agent.pos)
     
-function network!(poss, agent)
-    empty!.(poss)
+function network!(positions, agent)
+    empty!.(positions)
     ac = coords(agent)
     for c in agent.children
         if !c.alive
             continue
         end
-        push!(poss[1], ac)
-        push!(poss[1], coords(c))
+        push!(positions[1], ac)
+        push!(positions[1], coords(c))
     end
     for c in parents(agent)
         if isUndefined(c) || !c.alive
             continue
         end
-        push!(poss[2], ac)
-        push!(poss[2], coords(c))
+        push!(positions[2], ac)
+        push!(positions[2], coords(c))
     end
     for c in siblings(agent)
         if isUndefined(c) || !c.alive
             continue
         end
-        push!(poss[3], ac)
-        push!(poss[3], coords(c))
+        push!(positions[3], ac)
+        push!(positions[3], coords(c))
     end
 end
+
+function create_map!(fig, model)
+    #ax_left = Axis(fig[1:2, 1])
+    towns = [Rect(t_pos(t)..., 26, 26) for t in model.towns]
+    colors = [(isempty(t.houses) ? colorant"blue" : colorant"green") for t in model.towns]
+    ax_left, _ = poly(fig, towns, color = colors)
+    hidespines!(ax_left)
+    hidedecorations!(ax_left)
     
+    houses = [h_pos(h) for h in model.houses]
+    obs_hc = Observable([h_red])
+    house_colors!(obs_hc[], model.houses)
+    scatter!(houses, color=obs_hc, marker=:rect, markersize=1, markerspace=:data)
+    
+    positions = Vector{Vector{Tuple{Int, Int}}}()
+    push!(positions, [])
+    push!(positions, [])
+    push!(positions, [])
+    obs_positions_c = Observable(positions[1])
+    obs_positions_p = Observable(positions[2])
+    obs_positions_s = Observable(positions[3])
+    lines!(obs_positions_c, color=:yellow)
+    lines!(obs_positions_p, color=:black)
+    lines!(obs_positions_s, color=:blue)
+    
+    obs_hc, positions, obs_positions_c, obs_positions_p, obs_positions_s
+end
+
+
+function create_series(fig, labels; args...)
+    data = [ [0.0] for l in labels ]
+    obsable = Observable(data)
+    
+    axis, _ = series(fig, obsable; labels=labels, args...)
+    axislegend(axis)
+    
+    obsable, axis
+end
+
+function create_barplot(fig, label; args...)
+    obsable = Observable([0.0])
+    
+    axis, _ = barplot(fig, obsable; label=label, args...)
+    axislegend(axis)
+    
+    obsable, axis
+end
 
 function main(parOverrides...)
     args = copy(ARGS)
@@ -84,65 +130,26 @@ function main(parOverrides...)
     GLMakie.activate!()
     fig = Figure(resolution=(1600,900))
     
-    #ax_left = Axis(fig[1:2, 1])
-    towns = [Rect(t_pos(t)..., 26, 26) for t in model.towns]
-    cols = [(isempty(t.houses) ? colorant"blue" : colorant"green") for t in model.towns]
-    ax_left, _ = poly(fig[1:2, 1], towns, color = cols)
-    hidespines!(ax_left)
-    hidedecorations!(ax_left)
+    obs_hc, positions, obs_positions_c, obs_positions_p, obs_positions_s = 
+        create_map!(fig[1:2, 1], model)
     
-    houses = [h_pos(h) for h in model.houses]
-    obs_hc = Observable([h_red])
-    house_colors!(obs_hc[], model.houses)
-    scatter!(houses, color=obs_hc, marker=:rect, markersize=1, markerspace=:data)
-    
-    poss = Vector{Vector{Tuple{Int, Int}}}()
-    push!(poss, [])
-    push!(poss, [])
-    push!(poss, [])
-    obs_poss_c = Observable(poss[1])
-    obs_poss_p = Observable(poss[2])
-    obs_poss_s = Observable(poss[3])
-    lines!(obs_poss_c, color=:yellow)
-    lines!(obs_poss_p, color=:black)
-    lines!(obs_poss_s, color=:blue)
     f_agent = rand(model.pop)
     
-    dat_pop = [0.0] 
-    dat_marr = [0.0] 
-    obs_pop = Observable([dat_pop, dat_marr])
-    ax_pop, _ = series(fig[1,2], obs_pop, labels=["population size", "#married"],
+    obs_pop, ax_pop = create_series(fig[1, 2], ["population size", "#married", "working ft"];
         axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
-    axislegend(ax_pop)
-    
-    obs_age = Observable([0.0])
-    ax_age, _ = barplot(fig[1,3], obs_age, label="population pyramid", direction=:x, 
+        
+    obs_age, ax_age = create_barplot(fig[1, 3], "population pyramid"; direction=:x, 
         axis=(; yticks=LTTicks(WilkinsonTicks(10), 0.0, 3.0)))
-    axislegend(ax_age)
     
-    obs_careneed = Observable([0.0])
-    obs_class = Observable([0.0])
-    obs_inc_dec = Observable([0.0])
-    obs_age_diff = Observable([0.0])
-    ax_careneed, _ = barplot(fig[2,2][1,1], obs_careneed, label="care need")
-    ax_class, _ = barplot(fig[2,2][1,2], obs_class, label="social class")
-    ax_inc_dec, _ = barplot(fig[2,2][2,1], obs_inc_dec, label="income deciles")
-    ax_age_diff, _ = barplot(fig[2,2][2,2], obs_age_diff, label="couple age diff",
+    obs_careneed, ax_careneed = create_barplot(fig[2,2][1,1], "care need")
+    obs_class, ax_class = create_barplot(fig[2,2][1,2], "social class")
+    obs_inc_dec, ax_inc_dec = create_barplot(fig[2,2][2,1], "income deciles")
+    obs_age_diff, ax_age_diff = create_barplot(fig[2,2][2,2], "couple age diff",
         axis=(; xticks=LTTicks(WilkinsonTicks(5), -10.0, 1.0)))
-    axislegend(ax_careneed)
-    axislegend(ax_class)
-    axislegend(ax_inc_dec)
-    axislegend(ax_age_diff)
     
-    dat_cares = [0.0]
-    dat_careb = [0.0]
-    obs_care = Observable([dat_cares, dat_careb])
-    ax_care, _ = series(fig[2,3], obs_care, labels=["care supply", "unmet care need"],
+    obs_care, ax_care = create_series(fig[2,3], ["care supply", "unmet care need"],
         axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
-    axislegend(ax_care)
     
-    #dat_f_status = Vector{Float64}()
-    #dat_m_status = Vector{Float64}()
     
     display(fig)
     
@@ -172,11 +179,12 @@ function main(parOverrides...)
             log_results(logfile, data)
             
             # add values to graph objects
-            push!(dat_pop, data.alive.n)
-            push!(dat_marr, data.married.n)
+            push!(obs_pop[][1], data.alive.n)
+            push!(obs_pop[][2], data.married.n)
+            push!(obs_pop[][3], data.work_ft.n)
             
-            push!(dat_cares, data.care_supply.mean)
-            push!(dat_careb, data.unmet_care.mean)
+            push!(obs_care[][1], data.care_supply.mean)
+            push!(obs_care[][2], data.unmet_care.mean)
             
             setto!(obs_careneed[], data.careneed.bins)
             setto!(obs_class[], data.class.bins)
@@ -199,12 +207,12 @@ function main(parOverrides...)
         if !f_agent.alive
             f_agent = rand(model.pop)
         end
-        network!(poss, f_agent)
+        network!(positions, f_agent)
         
         notify(obs_hc)
-        notify(obs_poss_c)
-        notify(obs_poss_p)
-        notify(obs_poss_s)
+        notify(obs_positions_c)
+        notify(obs_positions_p)
+        notify(obs_positions_s)
         
         notify(obs_pop)
         autolimits!(ax_pop)

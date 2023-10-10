@@ -90,7 +90,7 @@ end
 
 "Find all households that have positive net care supply"
 function supplyHouseholds(model)
-    [house for house in model.houses if netCareSupply(house) > 0 ]
+    [house for house in model.houses if house.netCareSupply > 0 ]
 end
 
 
@@ -102,7 +102,7 @@ function buildSupplyDemandNetwork(model, pars)
         # we remove replicate links for now
         l = kinshipNetwork(house, model, pars) do h
             # only look at households that require care
-            netCareSupply(h) < 0
+            h.netCareSupply < 0
             end
         append!(links, l)
     end

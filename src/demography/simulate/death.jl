@@ -49,7 +49,7 @@ end # function deathProb
 
 
 function setDead!(person) 
-    alive!(person, false)
+    person.alive = false
     resetHouse!(person)
     if !isSingle(person) 
         resolvePartnership!(person.partner,person)
@@ -62,7 +62,7 @@ function setDead!(person)
     setAsSelfproviding!(person)
 
     for p in person.providees
-        provider!(p, undefinedPerson)
+        p.provider = undefinedPerson
         # TODO update provision/work status
     end
     empty!(person.providees)
