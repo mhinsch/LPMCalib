@@ -1,40 +1,3 @@
-"Set initial and final wage depending on social class."
-function setWageProgression!(person, pars)
-    dKi = rand(Normal(0, pars.wageVar))
-    person.initialWage = pars.incomeInitialLevels[person.classRank+1] * exp(dKi)
-    dKf = rand(Normal(dKi, pars.wageVar))
-    person.finalWage = pars.incomeFinalLevels[person.classRank+1] * exp(dKf)
-end
-
-function assignWealthByIncPercentile!(pop, wealthPercentiles, pars)
-    sort!(pop, by=x->x.cumulativeIncome) 
-    percLength = length(pop) 
-    dist = Normal(0.0, pars.wageVar)
-    for (i, agent) in enumerate(pop)
-        percentile = floor(Int, (i-1)/percLength * 100) + 1
-        dK = rand(dist)
-        agent.wealth = wealthPercentiles[percentile] * exp(dK)
-    end
-end
-
-"Calculate current wage dependent on initial and final wage and work experience."
-function computeWage(person, pars)
-    # original formula
-    # c = log(I/F)
-    # wage = F * exp(c * exp(-1 * r * e))
-
-    fI = person.finalWage
-    iI = person.initialWage
-
-    wage = fI * (iI/fI)^exp(-pars.incomeGrowthRate[person.classRank+1] * person.workExperience)
-
-    dK = rand(Normal(0, pars.wageVar))
-
-    wage * exp(dK)
-end
-
-
-
 "Assign a person's weekly schedule based on their shift and working hours."
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
@@ -86,37 +49,12 @@ end
 ageBand(age) =
     if age <= 19
         0
-    elseif 20 <= age <= 24
-        1
-    elseif 25 <= age <= 34
-        2
-    elseif 35 <= age <= 44
-        3
-    elseif 45 <= age <= 54
-        4
+    elseif age <= 54
+        (floor(Int, age) - 5) ÷ 10
     else 
         5
     end
     
-    
-#=function computeUR(ur, classShares, ageShares, classGroup, ageGroup, pars)
-    a = 0
-    for i in 0:(length(pars.cumProbClasses)-1)
-        a += classShares[i+1] * pars.unemploymentClassBias^i
-    end
-    lowClassRate = ur/a
-    classRate = lowClassRate * pars.unemploymentClassBias^classGroup
-    
-    a = 0
-    for i in 1:pars.numberAgeBands 
-        a += ageShares[i] * pars.unemploymentAgeBias[i]
-    end
-    
-    lowerAgeBandRate = a>0 ? classRate/a : 0
-        
-    lowerAgeBandRate * pars.unemploymentAgeBias[ageGroup+1]
-end=#
-
 
 function computeURByClassAge(ur, classShares, ageShares, pars)
     rates = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
