@@ -28,15 +28,22 @@ mutable struct House{P, T}
     "net care this house exports to others (or receives for values < 0)"
     careProvided :: Int
     careConnections :: Vector{House{P, T}}
+    
+    householdIncome :: Float64 
+    disposableIncome :: Float64
+    incomePerCapita :: Float64
+    cumulativeIncome :: Float64
+    wealth :: Float64
+    ownedByOccupants :: Bool
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[])
+House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 0.0, 0.0, 0.0, false)
+
+occupantType(h::House{P, T}) where {P, T} = P
 
 
-@export_forward House [netCareSupply, careProvided, careConnections]
-
-
-isEmpty(house) = length(house.occupants) == 0
+isEmpty(house) = isempty(house.occupants)
+isOccupied(house) = !isempty(house.occupants) 
 
 town(house) = house.town 
 
@@ -64,9 +71,9 @@ end
 
 "remove an occupant from a house"
 function removeOccupant!(house, person)
-    removefirst!(house.occupants, person) 
-	# we can't assume anything about the layout of typeof(person)
-	#person.pos = undefinedHouse 
+    idx = findfirst(isequal(person), house.occupants)
+    @assert idx != nothing
+    remove_unsorted!(house.occupants, idx)
     nothing 
 end
 

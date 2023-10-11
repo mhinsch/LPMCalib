@@ -20,6 +20,17 @@ function income_deciles(pop)
     inc_decs ./ dec_size
 end
 
+
+function work_by_time(pop)
+    nWorkers = zeros(Int, 7, 24)
+    for p in pop
+        nWorkers .+= p.jobSchedule
+    end
+    
+    nWorkers
+end
+
+
 @observe Data model t pars begin
     @record "time" Float64 t
     @record "N" Int length(model.pop)
@@ -46,7 +57,7 @@ end
         # number of children in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->p.age<18, house.occupants)
         
-        ncs = netCareSupply(house)
+        ncs = house.netCareSupply
         scn = householdSocialCareNeed(house, model, pars.carepars)
         cbn = careBalance(house)
         unmet_pre = min(0, max(ncs, -scn))
@@ -66,6 +77,7 @@ end
         @stat("class", HistAcc(0.0, 1.0, 4.0)) <| Float64(person.classRank)
         @stat("careneed", HistAcc(0.0, 1.0)) <| Float64(person.careNeedLevel)
         @stat("income", MVA) <| person.income
+        @stat("work_ft", CountAcc) <| (person.workingHours == 40)
         @stat("n_orphans", CountAcc) <| isOrphan(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(person.status)

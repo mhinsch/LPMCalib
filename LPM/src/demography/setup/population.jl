@@ -91,7 +91,7 @@ function createPyramidPopulation(pars, pyramid)
     end
 
     # sort by age so that we can easily get age intervals
-    sort!(women, by = age)
+    sort!(women, by = x->x.age)
 
     for p in population
         a = p.age
@@ -167,7 +167,7 @@ end # createUniformPopulation
 function initClass!(person, pars)
     p = rand()
     class = searchsortedfirst(pars.cumProbClasses, p)-1
-    classRank!(person, class)
+    person.classRank = class
 
     nothing
 end
@@ -175,26 +175,26 @@ end
 
 function initWork!(person, pars)
     if person.age < pars.ageTeenagers
-        status!(person, WorkStatus.child)
+        person.status = WorkStatus.child
         return
     end
     if person.age < pars.ageOfAdulthood
-        status!(person, WorkStatus.teenager)
+        person.status = WorkStatus.teenager
         return
     end
     if person.age >= pars.ageOfRetirement
-        status!(person, WorkStatus.retired)
+        person.status = WorkStatus.retired
         return
     end
 
     class = person.classRank+1
 
     if person.age < pars.workingAge[class]
-        status!(person, WorkStatus.student)
+        person.status = WorkStatus.student
         return
     end
 
-    status!(person, WorkStatus.worker)
+    person.status = WorkStatus.worker
 
     workingTime = 0
     for i in pars.workingAge[class]:floor(Int, person.age)
@@ -202,21 +202,132 @@ function initWork!(person, pars)
         workingTime += 1
     end
 
-    workExperience!(person, workingTime)
-    workingPeriods!(person, workingTime)
+    person.workExperience = workingTime
+    person.workingPeriods = workingTime
+    
+    setWageProgression!(person, pars)
 
-    dKi = rand(Normal(0, pars.wageVar))
-    initialWage = pars.incomeInitialLevels[class] * exp(dKi)
-    dKf = rand(Normal(dKi, pars.wageVar))
-    finalWage = pars.incomeFinalLevels[class] * exp(dKf)
+    person.wage = computeWage(person, pars)
+    person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
+    person.potentialIncome = person.income
+    person.jobTenure = rand(1:50)
 
-    initialIncome!(person, initialWage)
-    finalIncome!(person, finalWage)
+    nothing
+end
 
-    wage!(person, computeWage(person, pars))
-    income!(person, person.wage * pars.weeklyHours[person.careNeedLevel+1])
-    potentialIncome!(person, person.income)
-    jobTenure!(person, rand(1:50))
 
+function createShifts(pars)
+    f = 9000 / sum(pars.shiftsWeights)
+    # distribute 9000 according to shift weight
+    allHours = [ round(Int, f * w) for w in pars.shiftsWeights ]
+    
+    sumHours = sum(allHours)
+    
+    allShifts = Shift[]
+    shifts = Vector{Int}[]
+    for i in 1:1000
+        # draw a random shift hour according to weight 
+        hour = 1; i = rand(1:sumHours)
+        while (i-=allHours[hour]) > 0; hour += 1; end 
+        allHours[hour] -= 1
+        sumHours -= 1
+        
+        shift = [hour]
+        
+        # extend shift hours in both directions according to weight until
+        # 8 hours are reached or weights on both sides are 0
+        while length(shift) < 8
+            # hours before and after `hour` with wraparound
+            nextHours = (23+shift[1]-1)%24 + 1, shift[end]%24 + 1
+            
+            weights = allHours[nextHours[1]], allHours[nextHours[2]]
+            if sum(weights) == 0
+                break
+            end
+            
+            nextHour_i = Int(rand(1:sum(weights)) > weights[1]) + 1
+            if nextHour_i == 1
+                shift = [nextHours[nextHour_i]; shift]
+            else
+                push!(shift, nextHours[nextHour_i])
+            end
+            allHours[nextHours[nextHour_i]] -= 1
+            sumHours -= 1
+        end
+        
+        push!(shifts, shift)
+    end
+
+    for shift in shifts
+        days = Int[]
+        weSocIndex = 0
+        if rand() < pars.probSaturdayShift
+            push!(days, 6)
+            weSocIndex -= 1
+        end
+        if rand() < pars.probSundayShift
+            push!(days, 7)
+            weSocIndex -= (1 + pars.sundaySocialIndex)
+        end
+        if length(days) == 0
+            days = collect(1:6)
+        elseif length(days) == 1
+            append!(days, shuffle(1:6)[1:4])
+        else
+            append!(days, shuffle(1:6)[1:3])
+        end
+        
+        # TODO why +7? currently not used
+        startHour = (shift[1]+7)%24+1
+        socIndex = exp(pars.shiftBeta * pars.shiftsWeights[shift[1]] + pars.dayBeta * weSocIndex)
+        
+        newShift = Shift(days, startHour, shift[1], shift, socIndex)
+        push!(allShifts, newShift)
+    end
+    
+    allShifts
+end
+
+
+function initWealth!(houses, wealthPercentiles, pars)
+    households = [h for h in houses if !isEmpty(h)]
+    for h in households
+        h.cumulativeIncome = sum(x->x.cumulativeIncome, h.occupants)
+    end
+    
+    assignWealthByIncPercentile!(households, wealthPercentiles, pars)
+        
+    # Assign household wealth to single members
+    for h in households
+        if h.cumulativeIncome > 0
+            for m in Iterators.filter(x->x.cumulativeIncome>0, h.occupants)
+                m.wealth = m.cumulativeIncome/h.cumulativeIncome * h.wealth
+            end
+        else
+            indMembers = [m for m in h.occupants if !isDependent(m)]
+            for m in indMembers
+                m.wealth = h.wealth/length(indMembers)
+            end
+        end
+    end
+    
+    nothing
+end
+
+
+function initJobs!(model, pars)
+    hiredPeople = [p for p in model.pop if p.status == WorkStatus.worker]
+    
+    classShares, ageBandShares = calcAgeClassShares(hiredPeople, pars)
+    
+    unemploymentRate = model.unemploymentSeries[1]
+    # not needed for now as assignJobs doesn't use unemploymentIndex anymore
+    #uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)
+    
+    model.shiftsPool = createShifts(pars)
+    assignJobs!(hiredPeople, model.shiftsPool, -1, pars)
+    
+    initWealth!(model.houses, model.wealthPercentiles, pars)
+    
     nothing
 end

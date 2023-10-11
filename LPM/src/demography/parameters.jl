@@ -7,7 +7,7 @@ export MapPars, PopulationPars, DivorcePars, WorkPars, ModelPars
     mapGridXDimension::Int      = 8
     mapGridYDimension::Int      = 12
     townGridDimension::Int      = 25
-    map::Array{Float64,2}     = [ 0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
+    map::Matrix{Float64}     = [ 0.0 0.1 0.2 0.1 0.0 0.0 0.0 0.0;
                                     0.1 0.1 0.2 0.2 0.3 0.0 0.0 0.0;
                                     0.0 0.2 0.2 0.3 0.0 0.0 0.0 0.0;
                                     0.0 0.2 1.0 0.5 0.0 0.0 0.0 0.0;
@@ -38,10 +38,14 @@ end # UKMapPars
                            0.0   0.0   0.0  -0.05  0.0   0.2  0.15 0.0;
                            0.0   0.0   0.0   0.0   0.1   0.2  0.15 0.0;
                            0.0   0.0   0.1   0.0   0.0   0.0  0.0  0.0] 
+    =#
     
+"Parameters for housing benefits."
+@with_kw mutable struct BenefitMapPars
     #
     # Local house allowances for houses with 1,2,3 and 4-bed room houses 
-    meta[:lha_1] = [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
+    lha :: Vector{Matrix{Float64}} = [
+                    [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
                      91.81  91.81  91.81  91.81  97.81  0.0    0.0    0.0;
                      0.0    91.81  91.81  79.24  0.0    0.0    0.0    0.0;
                      0.0    84.23  94.82  127.33 0.0    0.0    0.0    0.0;
@@ -52,10 +56,9 @@ end # UKMapPars
                      0.0    0.0    65.59  92.05  101.84 106.14 133.72 95.77;
                      0.0    0.0    103.56 132.43 163.67 276.51 165.05 0.0;
                      0.0    0.0    116.52 105.94 120.03 222.54 170.83 0.0;
-                     0.0    104.89 96.98  0.0    0.0    0.0    0.0    0.0]
+                     0.0    104.89 96.98  0.0    0.0    0.0    0.0    0.0],
     
-    # ?? 
-    meta[:lha_2] = [0.0    110.72 110.72 110.72 0.0    0.0    0.0    0.0;
+                    [0.0    110.72 110.72 110.72 0.0    0.0    0.0    0.0;
                      110.72 110.72 110.72 110.72 133.48 0.0    0.0    0.0;
                      0.0    110.72 110.72 103.85 0.0    0.0    0.0    0.0;
                      0.0    103.85 120.03 154.28 0.0    0.0    0.0    0.0;
@@ -66,10 +69,9 @@ end # UKMapPars
                      0.0    0.0    86.00  117.37 127.62 134.00 153.79 120.02;
                      0.0    0.0    126.92 160.73 192.48 320.74 204.35 0.0;
                      0.0    0.0    141.24 136.93 161.07 280.60 210.17 0.0;
-                     0.0    132.32 122.36 0.0    0.0    0.0    0.0    0.0]
+                     0.0    132.32 122.36 0.0    0.0    0.0    0.0    0.0],
     
-    # ??
-    meta[:lha_3] = [0.0    126.92 126.92 126.92 0.0    0.0    0.0    0.0;
+                    [0.0    126.92 126.92 126.92 0.0    0.0    0.0    0.0;
                      126.92 126.92 126.92 126.92 172.60 0.0    0.0    0.0;
                      0.0    126.92 126.92 128.19 0.0    0.0    0.0    0.0;
                      0.0    120.29 137.31 192.06 0.0    0.0    0.0    0.0;
@@ -80,10 +82,9 @@ end # UKMapPars
                      0.0    0.0    101.11 135.19 135.96 144.04 178.71 139.42;
                      0.0    0.0    150.00 192.03 230.14 376.04 257.16 0.0;
                      0.0    0.0    164.79 161.10 190.02 336.96 257.16 0.0;
-                     0.0    151.50 145.43 0.0    0.0    0.0    0.0    0.0]
+                     0.0    151.50 145.43 0.0    0.0    0.0    0.0    0.0],
     
-    # ??
-    meta[:lha_4] = [0.0    160.38 160.38 160.38 0.0    0.0    0.0    0.0;
+                    [0.0    160.38 160.38 160.38 0.0    0.0    0.0    0.0;
                      160.38 160.38 160.38 160.38 228.99 0.0    0.0    0.0;
                      0.0    160.38 160.38 189.07 0.0    0.0    0.0    0.0;
                      0.0    180.00 212.21 276.92 0.0    0.0    0.0    0.0;
@@ -94,10 +95,11 @@ end # UKMapPars
                      0.0    0.0    126.58 173.09 173.41 192.75 238.38 184.11;
                      0.0    0.0    190.38 257.09 299.18 442.42 331.81 0.0;
                      0.0    0.0    218.63 200.09 242.40 429.53 322.15 0.0;
-                     0.0    185.29 182.45 0.0    0.0    0.0    0.0    0.0]
+                     0.0    185.29 182.45 0.0    0.0    0.0    0.0    0.0]]
     
-    =#                   
-    
+end                   
+
+
 "Parameters related to population setup and dynamics"
 @with_kw mutable struct PopulationPars
     startTime :: Rational{Int}  	= 1920
@@ -159,8 +161,69 @@ end
     careEducationParam :: Float64       = 0.0
     workDiscountingTime :: Float64      = 1.0
     moveOutProb :: Float64				= 0.1
+    numberAgeBands :: Int				= 6
+    taxBrackets :: Vector{Int} = [663, 228, 0]
+    taxationRates :: Vector{Float64} = [0.4, 0.2, 0.0]
+    unemploymentAgeBias :: Vector{Float64} = [1.0, 0.55, 0.35, 0.25, 0.2, 0.2]
+    unemploymentClassBias :: Float64	= 0.75
+    unemploymentBeta :: Float64			= 1.0
+    shareFinancialWealth :: Float64		= 0.3
+    pensionReturnRate :: Float64		= 0.05/12
+    shiftsWeights :: Vector{Float64}	= [51.80, 66.10, 70.10, 71.40, 54.10, 63.40, 68.60, 65.00, 
+        54.70, 35.00, 20.70, 15.70, 13.00, 11.50, 9.10, 6.80, 4.60, 3.80, 3.20, 3.00, 4.60, 6.70, 
+        13.90, 28.80]
+    probSaturdayShift :: Float64		= 0.2
+    probSundayShift :: Float64			= 0.1
+    sundaySocialIndex :: Float64		= 0.5
+    shiftBeta :: Float64				= 0.1
+    dayBeta :: Float64					= 0.1
+    meanLayOffsRate :: Float64			= 0.005
+    probationPeriod :: Int				= 3
+    layOffsBeta :: Float64				= 0.1
+    maleUDS :: Vector{Float64}			= [0.07, 0.11, 0.12, 0.07, 0.07, 0.06, 0.12, 0.06, 0.08, 0.04]
+    femaleUDS :: Vector{Float64}		= [0.12, 0.12, 0.12, 0.08, 0.07, 0.08, 0.12, 0.06, 0.06, 0.03]
 end
+
+
+"Parameters for benefits."
+@with_kw mutable struct BenefitPars
+    childBenefitIncomeThreshold :: Float64 = 50000
+    firstChildBenefit :: Float64 = 21.15
+    otherChildrenBenefit :: Float64 = 14.0
     
+    careDLA :: Vector{Float64} = [23.70, 60.00, 89.60]
+    mobilityDLA :: Vector{Float64} = [23.70, 62.55]
+    carePIP :: Vector{Float64} = [60.00, 89.60]
+    mobilityPIP :: Vector{Float64} = [23.70, 62.55]
+    careAA :: Vector{Float64} = [60.00, 89.60]
+    carersAllowance :: Float64 = 67.60
+    
+    capitalHighThreshold :: Float64 = 16000.0
+    capitalLowThreshold :: Float64 = 6000.0
+    capitalIncome :: Float64 = 4.35
+    savingUCRate :: Float64 = 250
+    workAllowanceHS :: Float64 = (293.0*12)/52.0
+    workAllowanceNoHS :: Float64 = (515.0*12)/52.0    
+    incomeReduction :: Float64 = 0.63
+    singleBelow25 :: Float64 = (257.33*12)/52.0
+    single25Plus :: Float64 = (324.84*12)/52.0
+    coupleBelow25 :: Float64 = ((403.93*12)/52.0)/2.0
+    couple25Plus :: Float64 = ((509.91*12)/52.0)/2.0
+    eaChildren :: Float64 = (237.08*12)/52.0
+    eaDisabledChildren :: Vector{Float64} = [(128.89*12)/52.0, (402.41*12)/52.0]
+    lcfwComponent :: Float64 = (343.63*12)/52.0
+    carersComponent :: Float64  = (163.73*12)/52.0
+    
+    singlePC :: Float64 = 177.10 # Top-up
+    couplePC :: Float64 = 270.30 # Top-up
+    wealthAllowancePC :: Float64 = 10000.0
+    savingIncomeRatePC :: Float64 = 500
+    disabilityComponentPC :: Float64 = 67.30
+    caringComponentPC :: Float64 = 37.70
+    childComponentPC :: Float64 = 54.60
+    disabledChildComponent :: Vector{Float64} = [29.66, 92.54]
+    housingBenefitWealthThreshold :: Float64 = 16000.0
+end
 
 "Divorce"
 @with_kw mutable struct DivorcePars
@@ -223,15 +286,19 @@ end
     pre51DeathsFName :: String = "deathrates_early.csv"
     deathFFName :: String = "deathrate.fem.csv"
     deathMFName :: String = "deathrate.male.csv"
+    unemplFName :: String = "unemploymentrate.csv"
+    wealthFName :: String = "wealthDistribution.csv"
 end
 
 
 
 struct ModelPars 
     mappars     ::  MapPars
+    lhapars		:: BenefitMapPars
     poppars     ::  PopulationPars
     birthpars   ::  BirthPars
     workpars    ::  WorkPars
+    benefitpars :: BenefitPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
     carepars :: CarePars
@@ -239,6 +306,6 @@ struct ModelPars
 end 
 
 
-ModelPars() = ModelPars(MapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-                                  DivorcePars(), MarriagePars(), CarePars(), DataPars())
+ModelPars() = ModelPars(MapPars(), BenefitMapPars(), PopulationPars(), BirthPars(), WorkPars(), 
+              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), DataPars())
 

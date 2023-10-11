@@ -3,10 +3,10 @@ export createTowns, initializeHousesInTowns
 
 
 function createTowns(pars) 
-    towns = Matrix{PersonTown}(undef, pars.mapGridXDimension, pars.mapGridYDimension) 
+    towns = Matrix{PersonTown}(undef, pars.mapGridYDimension, pars.mapGridXDimension) 
     
     for y in 1:pars.mapGridYDimension, x in 1:pars.mapGridXDimension 
-        towns[x, y] = PersonTown((x,y), pars.map[y,x])
+        towns[y, x] = PersonTown((x,y), pars.map[y,x])
     end
     
     for t in towns
@@ -17,11 +17,11 @@ function createTowns(pars)
                 continue
             end
             
-            if xx < 1 || xx > size(towns, 1) || yy < 1 || yy > size(towns, 2)
+            if xx < 1 || xx > size(towns, 2) || yy < 1 || yy > size(towns, 1)
                 continue
             end
             
-            push!(t.adjacent, towns[xx, yy])
+            push!(t.adjacent, towns[yy, xx])
         end
         
 # previous version produced the same neighbours, but in a different order
@@ -34,7 +34,7 @@ end
 
 
 "initialize houses in a given set of towns"
-function initializeHousesInTowns(towns::Vector{PersonTown}, pars) 
+function initializeHousesInTowns!(towns, pars) 
     houses = PersonHouse[] 
 
     for town in towns

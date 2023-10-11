@@ -42,9 +42,6 @@ end
 
 SocialCache() = SocialCache([])
 
-# TODO possibly remove altogether and calibrate model 
-# properly instead
-
 function socialPreCalc!(model, pars)
     pc = model.socialCache
     pc.socialClassShares = zeros(5)
@@ -121,44 +118,31 @@ end
 
 # TODO here for now, maybe not the best place?
 function resetWork!(person, pars)
-    status!(person, WorkStatus.unemployed)
-    newEntrant!(person, true)
-    workingHours!(person, 0)
-    income!(person, 0)
-    jobTenure!(person, 0)
+    person.status = WorkStatus.unemployed
+    person.newEntrant = true
+    person.workingHours = 0
+    person.income = 0
+    person.jobTenure = 0
     # TODO
     # monthHired
     # jobShift
     setEmptyJobSchedule!(person)
-    outOfTownStudent!(person, true)
+    person.outOfTownStudent = true
 end
 
 function startWorking!(person, pars)
-
     resetWork!(person, pars)
 
-    status!(person, WorkStatus.worker)
+    person.status = WorkStatus.worker
 
     dKi = rand(Normal(0, pars.wageVar))
-    initialIncome!(person, initialIncomeLevel(person, pars) * exp(dKi))
+    person.initialWage = initialIncomeLevel(person, pars) * exp(dKi)
 
     dist = incomeDist(person, pars)
 
-    finalIncome!(person, rand(dist))
+    person.finalWage = rand(dist)
 
     # updates provider as well
     setAsSelfproviding!(person)
-
-# commented in original:
-#        if person.classRank < 4:
-#            dKf = np.random.normal(dKi, self.p['wageVar'])
-#            person.finalIncome = self.p['incomeFinalLevels'][person.classRank]*math.exp(dKf)
-#        else:
-#            sigma = float(self.p['incomeFinalLevels'][person.classRank])/5.0
-            # person.finalIncome = np.random.lognormal(self.p['incomeFinalLevels'][person.classRank], sigma)
-            
-#        person.wage = person.initialIncome
-#        person.income = person.wage*self.p['weeklyHours'][int(person.careNeedLevel)]
-#        person.potentialIncome = person.income
 end
 

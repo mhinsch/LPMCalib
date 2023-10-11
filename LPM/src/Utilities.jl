@@ -7,7 +7,7 @@ module Utilities
 
 # Functions
 export p_yearly2monthly, applyTransition!, remove_unsorted!, limit 
-export removefirst!, sorted_unique!, date2yearsmonths, age2yearsmonths
+export sorted_unique!, date2yearsmonths, age2yearsmonths
 export checkAssumptions!, ignoreAssumptions!, assumption, setDelay!, delay
 export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset, @static_var
@@ -15,17 +15,6 @@ export dump, dump_property, dump_header
 export sumClassBias, rateBias, preCalcRateBias!
 
 
-# list of types 
-
-
-# constants 
-
-"remove first occurance of e in list"
-function removefirst!(list, e)
-    e ∉ list ? throw(ArgumentError("element $(e) not in $(list)")) : nothing 
-    deleteat!(list, findfirst(x -> x == e, list)) 
-    nothing 
-end
 
 "convert date in rational representation to (years, months) as tuple"
 function date2yearsmonths(date::Rational{Int})
@@ -63,7 +52,7 @@ function sorted_unique!(ar)
 end
 
 "Apply a transition function to an iterator."
-function applyTransition!(transition, people, name)
+@inline function applyTransition!(transition, people, name)
     count = 0
     for p in people 
         transition(p)

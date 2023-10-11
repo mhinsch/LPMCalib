@@ -9,7 +9,8 @@ using ArgParse
 using Utilities
 
 using DemographyPars
-using DemographyModelEO
+using DemographyModel
+#using DemographyModelEO
 
 
 include("src/demography/data.jl")
@@ -27,10 +28,13 @@ function setupModel(pars)
                                 dir * "/" * datp.pre51DeathsFName,
                                 dir * "/" * datp.deathFFName,
                                 dir * "/" * datp.deathMFName)
+                                
+    workData = loadWorkData(dir * "/" * datp.unemplFName, 
+        dir * "/" * datp.wealthFName)
 
-    model = createDemographyModel!(demoData, pars)
+    model = createDemographyModel!(demoData, workData, pars)
 
-    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars)
+    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars, pars.lhapars)
     
     model
 end
@@ -65,6 +69,10 @@ function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
             results = observe(Data, model, curTime, pars)
             log_results(logfile, results; FS)
         end
+        
+        #nWorkers = work_by_time(model.pop)
+        
+        #println(nWorkers)
 
         curTime += simPars.dt
     end

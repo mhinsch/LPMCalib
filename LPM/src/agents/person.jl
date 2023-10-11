@@ -27,6 +27,7 @@ include("agents_modules/work.jl")
 include("agents_modules/care.jl")
 include("agents_modules/class.jl")
 include("agents_modules/dependencies.jl")
+include("agents_modules/benefits.jl")
 
 
 """
@@ -42,6 +43,7 @@ Person ties various agent modules into one compound agent type.
     Work...
     Care...
     Class...
+    Benefits...
     Dependency{Person}...
     
     pos::House{Person, Town} = undefinedHouse
@@ -56,30 +58,17 @@ Person ties various agent modules into one compound agent type.
     Person(args...) = new(args...)
 end # struct Person 
 
-
-#=function getproperty(p::Person, prop)
-    if prop === :pension
-        println("bla")
-        rand()
-    else
-        getfield(p, prop)
-    end
-end=#
-
-
 # delegate functions to components
-# and export accessors
-
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
-@export_forward Person [age, gender, alive]
-@export_forward Person [father, mother, partner, children, pTime]
-@export_forward Person [status, outOfTownStudent, newEntrant, initialIncome, finalIncome, 
-    wage, income, potentialIncome, jobTenure, schedule, workingHours, weeklyTime, 
-    availableWorkingHours, workingPeriods, workExperience, pension]
-@export_forward Person [careNeedLevel, socialWork, childWork]
-@export_forward Person [classRank, parentClassRank]
-@export_forward Person [guardians, dependents, provider, providees]
+
+statusChild(p) = p.status == WorkStatus.child
+statusTeenager(p) = p.status == WorkStatus.teenager
+statusStudent(p) = p.status == WorkStatus.student
+statusWorker(p) = p.status == WorkStatus.worker
+statusRetired(p) = p.status == WorkStatus.retired
+statusUnemployed(p) = p.status == WorkStatus.unemployed
+
 
 const PersonHouse = House{Person, Town}
 const PersonTown = Town{PersonHouse}
@@ -160,10 +149,10 @@ end
 function resetPartner!(person)
     other = person.partner
     if !isUndefined(other) 
-        partner!(person, undefinedPerson)
-        pTime!(person, 0)
-        partner!(other, undefinedPerson)
-        pTime!(other, 0)
+        person.partner = undefinedPerson
+        person.pTime = 0
+        other.partner = undefinedPerson
+        other.pTime = 0
     end
     nothing 
 end
@@ -183,8 +172,8 @@ function setAsPartners!(person1::Person,person2::Person)
     resetPartner!(person1) 
     resetPartner!(person2)
 
-    partner!(person1, person2)
-    partner!(person2, person1)
+    person1.partner = person2
+    person2.partner = person1
 end
 
 
@@ -193,9 +182,9 @@ function setParent!(child, parent)
     @assert isFemale(parent) || isMale(parent)
 
     if isFemale(parent) 
-        mother!(child, parent)
+        child.mother = parent
     else 
-        father!(child, parent)
+        child.father = parent
     end
 
     nothing
@@ -238,7 +227,7 @@ function setAsGuardianDependent!(guardian, dependent)
     push!(dependent.guardians, guardian)
 
     # set class rank to maximum of guardians'
-    parentClassRank!(dependent, maximum(classRank, dependent.guardians))
+    dependent.parentClassRank = maximum(x->x.classRank, dependent.guardians)
     nothing
 end
 
@@ -295,7 +284,7 @@ function setAsProviderProvidee!(prov, providee)
     @assert isUndefined(providee.provider)
     @assert !(providee in prov.providees)
     push!(prov.providees, providee)
-    provider!(providee, prov)
+    providee.provider = prov
     nothing
 end
 
@@ -306,7 +295,7 @@ function setAsSelfproviding!(person)
 
     provs = person.provider.providees
     deleteat!(provs, findfirst(==(person), provs))
-    provider!(person, undefinedPerson)
+    person.provider = undefinedPerson
     nothing
 end
 
