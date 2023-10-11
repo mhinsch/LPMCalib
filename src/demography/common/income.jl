@@ -1,9 +1,11 @@
 "Set initial and final wage depending on social class."
 function setWageProgression!(person, pars)
+    crank = person.classRank+1
     dKi = rand(Normal(0, pars.wageVar))
-    person.initialWage = pars.incomeInitialLevels[person.classRank+1] * exp(dKi)
-    dKf = rand(Normal(dKi, pars.wageVar))
-    person.finalWage = pars.incomeFinalLevels[person.classRank+1] * exp(dKf)
+    person.initialWage = pars.incomeInitialLevels[crank] * exp(dKi)
+    #dKf = rand(Normal(dKi, pars.wageVar))
+    #person.finalWage = pars.incomeFinalLevels[person.classRank+1] * exp(dKf)
+    person.finalWage = rand(LogNormal(pars.finalIncomeMu[crank], pars.finalIncomeSigma[crank]))
     nothing
 end
 

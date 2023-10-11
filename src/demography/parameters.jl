@@ -149,7 +149,9 @@ end
     minContributionPeriods :: Int       = 12 * 35
     wageVar :: Float64                  = 0.2
     incomeInitialLevels :: Vector{Float64} = [6.0, 8.0, 10.0, 12.0, 15.0]
-    incomeFinalLevels :: Vector{Float64} = [12.0, 16.0, 25.0, 40.0, 60.0]
+    finalIncomeMu :: Vector{Float64} = [2.5, 2.8, 3.2, 3.7, 4.5]
+    finalIncomeSigma :: Vector{Float64} = [0.25, 0.3, 0.35, 0.4, 0.5]
+    #incomeFinalLevels :: Vector{Float64} = [12.0, 16.0, 25.0, 40.0, 60.0]
     incomeGrowthRate :: Vector{Float64} = [0.4/12.0, 0.35/12.0, 0.3/12.0, 0.25/12.0, 0.2/12.0]
     workingAge :: Vector{Int}           = [16, 18, 20, 22, 24]
     "working hours by care requirement"
