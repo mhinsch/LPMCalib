@@ -12,7 +12,7 @@ export householdIncomePerCapita
 export getHomeTown, getHomeTownName, agestepAlive!, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday, yearsold
-export hasChildrenAtHome, areParentChild, related1stDegree, areSiblings
+export hasOwnChildrenAtHome, areParentChild, related1stDegree, areSiblings
 export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
 export hasDependents, isDependent, hasProvidees
 export setAsIndependent!, setAsSelfproviding!, resolveDependency!
@@ -20,14 +20,14 @@ export checkConsistencyDependents
 export maxParentRank
 
 
-include("agents_modules/basicinfo.jl")
-include("agents_modules/kinship.jl")
-include("agents_modules/maternity.jl")
-include("agents_modules/work.jl")
-include("agents_modules/care.jl")
-include("agents_modules/class.jl")
-include("agents_modules/dependencies.jl")
-include("agents_modules/benefits.jl")
+include("agent_modules/basicinfo.jl")
+include("agent_modules/kinship.jl")
+include("agent_modules/maternity.jl")
+include("agent_modules/work.jl")
+include("agent_modules/care.jl")
+include("agent_modules/class.jl")
+include("agent_modules/dependencies.jl")
+include("agent_modules/benefits.jl")
 
 
 """
@@ -197,7 +197,7 @@ function hasAliveChild(person)
     false 
 end
 
-function hasChildrenAtHome(person)
+function hasOwnChildrenAtHome(person)
     for c in person.children
         if c.alive && c.pos == person.pos
             return true
