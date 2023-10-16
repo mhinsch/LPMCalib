@@ -235,7 +235,7 @@ end
 
 
 function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
-	emp_data_raw = CVS.read(dat_file, DataFrame).percentage
+	emp_data_raw = CSV.read(dat_file, DataFrame).percentage
 	
 	sim_data_raw = [ 
 		sim_data_all[obs_time].empl_by_age_0.bins, 
@@ -243,15 +243,25 @@ function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
 		sim_data_all[obs_time].empl_by_age_2.bins  
 		]
 	
-	for d in sim_data_raw
-		d ./= sum(d)
-	end
+	sim_data = vcat([d ./ sum(d) for d in sim_data_raw]...)
 	
-	sim_data = vcat(sim_data_raw)
-	
-	println("empl_age: ", sim_data)
+	#println("empl_age: ", sim_data, "; ", emp_data_raw)
+	rel_mean_square_diff_prop(emp_data_raw, sim_data)
 end
 
+
+function dist_empl_by_family(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CSV.read(dat_file, DataFrame).perc_employed
+	
+	sim_data_empl_raw = sim_data_all[obs_time].empl_by_family.bins
+	sim_data_all_raw = sim_data_all[obs_time].all_by_family.bins
+	
+	sim_data = sim_data_empl_raw ./ sim_data_all_raw
+	
+	#println("family: ", sim_data, "; ", emp_data_raw)
+	
+	rel_mean_square_diff_prop(emp_data_raw, sim_data)
+end
 
 
 function dist_empl_gender_children(dat_file, sim_data_all, obs_time)

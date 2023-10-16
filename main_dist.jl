@@ -43,7 +43,6 @@ function distance(args)
 
     res, _ = runDist(obsDates, args)
     
-    dist_empl_status_by_age("data/employment_by_age.tsv", res, 2016//1)
     
     dists = Float64[]
 
@@ -57,7 +56,11 @@ function distance(args)
     push!(dists, dist_num_prev_children("data/num_prev_children.tsv", res, 2020//1))
     push!(dists, dist_income_deciles("data/income_deciles.tsv", res, 2020//1))
     push!(dists, dist_prop_lphh(res, 2021//1))
-
+    push!(dists, dist_empl_status_by_age("data/employment_by_age.tsv", res, 2016//1))
+    push!(dists, dist_empl_by_family("data/employment_by_family.tsv", res, 2019//1))
+    
+    println("dists: ", dists)
+    
     sum(dists) / length(dists)
 end
 

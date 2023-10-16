@@ -17,7 +17,7 @@ potential_worker(person) = !statusChild(person) && !statusTeenager(person) && !s
 	    
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
-    incomes = [ income(p) for p in pop if not_in_education(p) ]
+    incomes = [ p.income for p in pop if not_in_education(p) ]
 	    
     sort!(incomes)
 
@@ -144,7 +144,8 @@ end
 		@if age_g == 2 @stat("empl_by_age_2", HistAcc(0, 1, 2)) <| status
 		
 		# % employed by family status
-		@stat("percempl_by_family", HistAcc(0, 1, 1)) <| (statusWorker(person) ? 0 : 1)
+		@if status == 0 @stat("empl_by_family", HistAcc(1, 1)) <| family_status
+		@stat("all_by_family", HistAcc(1, 1)) <| family_status
 					
 		# unemployment by class
 		@if status == 0 @stat("empl_by_class", HistAcc(0, 1)) <| person.classRank
@@ -153,7 +154,7 @@ end
     
     # class histograms for the full population (sans children and students)
     @for person in I.filter(not_in_education, model.pop) begin
-        class = classRank(person)
+        class = person.classRank
         
         @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(person.classRank)
 
@@ -166,7 +167,7 @@ end
 
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
-    @for person in I.filter(p->isFemale(p) && !isSingle(p) && pTime(p) <= 1, model.pop) begin
+    @for person in I.filter(p->isFemale(p) && !isSingle(p) && p.pTime <= 1, model.pop) begin
         agediff = Float64(person.partner.age - person.age)
         # -20.5, so that the lowest bin is [-Inf, -19.5]
         @stat("couple_age_diff", HistAcc(-20.5, 1.0, count_below_min=true)) <| agediff
