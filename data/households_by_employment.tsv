@@ -1,0 +1,8 @@
+status	percentage	description
+1	59.83	employed
+2	1.17	unemployed
+3	2.61	employed + unemployed
+4	11.63	inactive
+5	22.77	employed + inactive
+6	0.81	unemployed + inactive
+7	1.18	employed + unemployed + inactive

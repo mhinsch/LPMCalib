@@ -12,7 +12,9 @@ not_in_education(person) =
 	    status(person) != WorkStatus.student && 
 	    status(person) != WorkStatus.child && 
 	    status(person) != WorkStatus.teenager 
-
+	    
+potential_worker(person) = !statusChild(person) && !statusTeenager(person) && !statusRetired(person)
+	    
 # 9 bins since we throw away the top decile in the empirical data
 function income_deciles(pop, n_bins = 9)
     incomes = [ income(p) for p in pop if not_in_education(p) ]
@@ -30,6 +32,25 @@ function income_deciles(pop, n_bins = 9)
     inc_decs ./ dec_size
 end
 
+
+function empl_status_hh(hh)
+	employed = false
+	unemployed = false
+	inactive = false
+	
+	for p in hh.occupants
+		if statusWorker(p)
+			employed = true
+		elseif statusUnemployed(p)
+			unemployed = true
+		else
+			inactive = true
+		end
+	end
+	
+	# convert to bitmask
+	employed-1 + (unemployed-1) * 2 + (inactive-1) * 4
+end
 
 @observe Data model ctime begin
 
@@ -57,6 +78,9 @@ end
         # age histo of one-person hhs
 		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
 			Float64(age(house.occupants[1]))
+			
+		# employment status
+		@stat("hh_empl_status", HistAcc(0, 1)) <| empl_status_hh(house)
     end
 
     # mothers' ages for all children born in the last year
@@ -80,6 +104,51 @@ end
     # age histograms for the full population
     @for person in model.pop begin
         @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
+    end
+    
+    #
+    @for person in I.filter(potential_worker, model.pop) begin
+        age_g = if person.age <= 24
+		        0
+			elseif person.age <= 34
+				1
+			elseif person.age <= 49
+				2
+			else
+				3
+			end
+			
+		status = if statusWorker(person)
+				0
+			elseif statusUnemployed(person)
+				1
+			else
+				2
+			end
+			
+		family_status =
+			# implies living at home
+			if hasDependents(person)
+				if isSingle(person)
+					3
+				else
+					isFemale(person) ? 1 : 2
+				end
+			else
+				isFemale(person) ? 4 : 5
+			end
+			
+		# status by age group
+		@if age_g == 0 @stat("empl_by_age_0", HistAcc(0, 1, 2)) <| status
+		@if age_g == 1 @stat("empl_by_age_1", HistAcc(0, 1, 2)) <| status
+		@if age_g == 2 @stat("empl_by_age_2", HistAcc(0, 1, 2)) <| status
+		
+		# % employed by family status
+		@stat("percempl_by_family", HistAcc(0, 1, 1)) <| (statusWorker(person) ? 0 : 1)
+					
+		# unemployment by class
+		@if status == 0 @stat("empl_by_class", HistAcc(0, 1)) <| person.classRank
+		@if status == 1 @stat("unempl_by_class", HistAcc(0, 1)) <| person.classRank
     end
     
     # class histograms for the full population (sans children and students)

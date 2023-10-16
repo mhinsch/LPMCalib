@@ -232,3 +232,29 @@ function dist_prop_lphh(sim_data_all, obs_time)
     lphh_prop = data.n_lp_chhh.n / data.n_all_chhh.n
     rel_mean_square_diff_prop([lphh_prop], [0.23])
 end
+
+
+function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CVS.read(dat_file, DataFrame).percentage
+	
+	sim_data_raw = [ 
+		sim_data_all[obs_time].empl_by_age_0.bins, 
+		sim_data_all[obs_time].empl_by_age_1.bins, 
+		sim_data_all[obs_time].empl_by_age_2.bins  
+		]
+	
+	for d in sim_data_raw
+		d ./= sum(d)
+	end
+	
+	sim_data = vcat(sim_data_raw)
+	
+	println("empl_age: ", sim_data)
+end
+
+
+
+function dist_empl_gender_children(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CSV.read(data_file, DataFrame)[!, :perc_employed]
+	
+end

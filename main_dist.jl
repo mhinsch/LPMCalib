@@ -42,7 +42,9 @@ function distance(args)
     obsDates = Rational{Int}[i for i in 1996:2021]
 
     res, _ = runDist(obsDates, args)
-
+    
+    dist_empl_status_by_age("data/employment_by_age.tsv", res, 2016//1)
+    
     dists = Float64[]
 
     push!(dists, dist_pop_pyramid("data/pop_pyramid_2020.tsv", res, 2020//1))
