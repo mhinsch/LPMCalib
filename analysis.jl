@@ -9,9 +9,9 @@ const I = Iterators
 
 
 not_in_education(person) = 
-	    status(person) != WorkStatus.student && 
-	    status(person) != WorkStatus.child && 
-	    status(person) != WorkStatus.teenager 
+	    person.status != WorkStatus.student && 
+	    person.status != WorkStatus.child && 
+	    person.status != WorkStatus.teenager 
 	    
 potential_worker(person) = !statusChild(person) && !statusTeenager(person) && !statusRetired(person)
 	    
@@ -61,10 +61,10 @@ end
         @stat("hh_size", MVA, HistAcc(0.0, 1.0)) <| Float64(length(house.occupants))
         
 	    # households with children
-        i_c = findfirst(p->age(p)<18, house.occupants)
+        i_c = findfirst(p->p.age<18, house.occupants)
         if i_c != nothing
             child = house.occupants[i_c]
-            is_lp = !isOrphan(child) && isSingle(guardians(child)[1])
+            is_lp = !isOrphan(child) && isSingle(child.guardians[1])
         else
             is_lp = false
         end
@@ -74,25 +74,25 @@ end
         # hh with children with lone parents
         @stat("n_lp_chhh", CountAcc) <| is_lp
         # number of siblings in lp households
-        @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->age(p)<18, house.occupants)
+        @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->p.age<18, house.occupants)
         # age histo of one-person hhs
 		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
-			Float64(age(house.occupants[1]))
+			Float64(house.occupants[1].age)
 			
 		# employment status
 		@stat("hh_empl_status", HistAcc(0, 1)) <| empl_status_hh(house)
     end
 
     # mothers' ages for all children born in the last year
-    @for person in I.filter(p->age(p) < 1, model.pop) begin
-        m = mother(person)
+    @for person in I.filter(p->p.age < 1, model.pop) begin
+        m = person.mother
 
         # age histogram
-        a = Float64(age(m)) - Float64(age(person))
+        a = Float64(m.age) - Float64(person.age)
         @stat("age_mother", HistAcc(0.0, 1.0)) <| a
 
         # age x class
-        c = classRank(m)
+        c = m.classRank
         @if a < 25 @stat("class_young_mothers", HistAcc(0, 1)) <| c
         @if 25 <= a < 34 @stat("class_mid_mothers", HistAcc(0, 1)) <| c
         @if 34 <= a  @stat("class_old_mothers", HistAcc(0, 1)) <| c
@@ -103,7 +103,7 @@ end
 
     # age histograms for the full population
     @for person in model.pop begin
-        @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @stat("hist_age", HistAcc(0.0, 1.0)) <| Float64(person.age)
     end
     
     #
@@ -155,19 +155,19 @@ end
     @for person in I.filter(not_in_education, model.pop) begin
         class = classRank(person)
         
-        @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(classRank(person))
+        @stat("hist_class", HistAcc(0.0, 1.0)) <| Float64(person.classRank)
 
-        @if class==0 @stat("hist_age_c0", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @if class==1 @stat("hist_age_c1", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @if class==2 @stat("hist_age_c2", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @if class==3 @stat("hist_age_c3", HistAcc(0.0, 1.0)) <| Float64(age(person))
-        @if class==4 @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(age(person))
+        @if class==0 @stat("hist_age_c0", HistAcc(0.0, 1.0)) <| Float64(person.age)
+        @if class==1 @stat("hist_age_c1", HistAcc(0.0, 1.0)) <| Float64(person.age)
+        @if class==2 @stat("hist_age_c2", HistAcc(0.0, 1.0)) <| Float64(person.age)
+        @if class==3 @stat("hist_age_c3", HistAcc(0.0, 1.0)) <| Float64(person.age)
+        @if class==4 @stat("hist_age_c4", HistAcc(0.0, 1.0)) <| Float64(person.age)
     end
 
     @record "income_deciles" Vector{Float64} income_deciles(model.pop)
 
     @for person in I.filter(p->isFemale(p) && !isSingle(p) && pTime(p) <= 1, model.pop) begin
-        agediff = Float64(age(partner(person)) - age(person))
+        agediff = Float64(person.partner.age - person.age)
         # -20.5, so that the lowest bin is [-Inf, -19.5]
         @stat("couple_age_diff", HistAcc(-20.5, 1.0, count_below_min=true)) <| agediff
     end
