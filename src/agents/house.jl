@@ -8,7 +8,7 @@ export getHomeTown, getHouseLocation, undefined, isEmpty, town
 using Utilities
 using DeclUtils
 
-include("agents_modules/carehouse.jl")
+include("agent_modules/carehouse.jl")
 
 
 const HouseLocation  = NTuple{2,Int}

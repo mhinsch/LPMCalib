@@ -86,7 +86,7 @@ end
 
 function isUCEligibleStudent(agent, pars)
     statusStudent(agent) && (
-        hasChildrenAtHome(agent) ||
+        hasDependents(agent) ||
         agent.age >= pars.ageOfRetirement ||
         (!isSingle(agent) && agent.partner.ucBenefits) ||
         agent.careNeedLevel > 0 ) 
@@ -97,7 +97,7 @@ function isUCEligibleYoung(agent, pars)
     16<=agent.age<18 && (
         (statusStudent(agent) && isUndefined(agent.father) && isUndefined(agent.mother)) ||
         agent.socialWork >= 35 ||
-        hasChildrenAtHome(agent) )
+        hasOwnChildrenAtHome(agent) )
 end
 
 
