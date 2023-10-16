@@ -19,6 +19,7 @@ export setAsIndependent!, setAsSelfproviding!, resolveDependency!
 export checkConsistencyDependents
 export maxParentRank
 
+export statusChild, statusTeenager, statusStudent, statusWorker, statusRetired, statusUnemployed
 
 include("agent_modules/basicinfo.jl")
 include("agent_modules/kinship.jl")
