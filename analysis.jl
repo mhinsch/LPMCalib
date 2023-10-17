@@ -49,7 +49,7 @@ function empl_status_hh(hh)
 	end
 	
 	# convert to bitmask
-	employed-1 + (unemployed-1) * 2 + (inactive-1) * 4
+	employed + unemployed * 2 + inactive * 4
 end
 
 @observe Data model ctime begin
@@ -79,8 +79,8 @@ end
 		@if (length(house.occupants) == 1) @stat("hhs1_age", HistAcc(0.0, 1.0)) <| 
 			Float64(house.occupants[1].age)
 			
-		# employment status
-		@stat("hh_empl_status", HistAcc(0, 1)) <| empl_status_hh(house)
+		# employment status, has to be >= 1
+		@stat("hh_empl_status", HistAcc(1, 1)) <| empl_status_hh(house)
     end
 
     # mothers' ages for all children born in the last year
@@ -148,7 +148,7 @@ end
 		@stat("all_by_family", HistAcc(1, 1)) <| family_status
 					
 		# unemployment by class
-		@if status == 0 @stat("empl_by_class", HistAcc(0, 1)) <| person.classRank
+		@if 0<=status<=1 @stat("empl_by_class", HistAcc(0, 1)) <| person.classRank
 		@if status == 1 @stat("unempl_by_class", HistAcc(0, 1)) <| person.classRank
     end
     

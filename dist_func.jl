@@ -12,19 +12,29 @@ function extend!(vec, len, el = 0)
 end
 
 
-function rel_mean_square_diff_prop(dat, sim)
+function sum_square_diff_prop(dat, sim)
     sum_d = sum(dat)
     prop_d = dat ./ sum_d
 
     sum_s = sum(sim)
     prop_s = sim ./ sum_s
 
+    # sum square difference
+    (prop_s .- prop_d).^2 |> sum
+end
+
+function mean_square_diff(dat, sim)
     # mean square difference
-    msqdiff = (prop_s .- prop_d).^2 |> mean
+    msqdiff = (dat .- sim).^2 |> mean
+end
+
+function rel_mean_square_diff(dat, sim)
+    # mean square difference
+    msqdiff = (dat .- sim).^2 |> mean
 
     # normalise by mean square of 2*original
     # guarantees result to be in [0, 1]
-    msqdiff / mean((prop_d.*2).^2)
+    msqdiff / mean((dat.*2).^2)
 end
 
 
@@ -42,7 +52,7 @@ function dist_pop_pyramid(dat_file, sim_data, obs_time)
     extend!(emp_both, len)
     extend!(sim_both, len)
 
-    rel_mean_square_diff_prop(emp_both, sim_both)
+    sum_square_diff_prop(emp_both, sim_both)
 end
 
 
@@ -87,7 +97,7 @@ function dist_soc_status(dat_file, sim_data_all, obs_time)
 
     @assert length(all_sim) == length(all_emp)
 
-    rel_mean_square_diff_prop(all_emp, all_sim)
+    sum_square_diff_prop(all_emp, all_sim)
 end
 
 
@@ -109,7 +119,7 @@ function dist_hh_size(dat_file, sim_data_all, obs_time)
 
     @assert length(all_emp) == length(all_sim)
 
-    rel_mean_square_diff_prop(all_emp, all_sim)
+    sum_square_diff_prop(all_emp, all_sim)
 end
 
 
@@ -127,7 +137,7 @@ function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_ma
 
     @assert length(sim_births) == length(emp_births)
 
-    rel_mean_square_diff_prop(emp_births, sim_births)
+    sum_square_diff_prop(emp_births, sim_births)
 end
 
 
@@ -150,7 +160,7 @@ function dist_maternity_age_SES(dat_file, sim_data_all, obs_time, age_min=16, ag
 
     @assert length(sim_data) == length(emp_data)
 
-    rel_mean_square_diff_prop(emp_data, sim_data)
+    sum_square_diff_prop(emp_data, sim_data)
 end
 
 function dist_couples_age_diff_uk(dat_file, sim_data_all, obs_time)
@@ -171,7 +181,7 @@ function dist_couples_age_diff_uk(dat_file, sim_data_all, obs_time)
     end
 
     emp_data = emp_data_raw[!, :Share]
-    rel_mean_square_diff_prop(emp_data, sim_data)
+    sum_square_diff_prop(emp_data, sim_data)
 end
 
 function dist_couples_age_diff_fr(dat_file, sim_data_all, obs_time)
@@ -192,7 +202,7 @@ function dist_couples_age_diff_fr(dat_file, sim_data_all, obs_time)
     end
 
     emp_data = emp_data_raw[!, :prop]
-    rel_mean_square_diff_prop(emp_data, sim_data)
+    sum_square_diff_prop(emp_data, sim_data)
 end
 
 
@@ -214,7 +224,7 @@ function dist_num_prev_children(dat_file, sim_data_all, obs_time)
     # in case the sim data was actually bigger
     resize!(sim_data, n_emp)
 
-    rel_mean_square_diff_prop(emp_data_raw[!, :Births], sim_data)
+    sum_square_diff_prop(emp_data_raw[!, :Births], sim_data)
 end
 
 
@@ -223,14 +233,14 @@ function dist_income_deciles(dat_file, sim_data_all, obs_time)
 
     sim_data_raw = sim_data_all[obs_time].income_deciles
 
-    rel_mean_square_diff_prop(emp_data_raw, sim_data_raw)
+    sum_square_diff_prop(emp_data_raw, sim_data_raw)
 end
 
 
 function dist_prop_lphh(sim_data_all, obs_time)
     data = sim_data_all[obs_time]
     lphh_prop = data.n_lp_chhh.n / data.n_all_chhh.n
-    rel_mean_square_diff_prop([lphh_prop], [0.23])
+    sum_square_diff_prop([lphh_prop, 1-lphh_prop], [0.23, 0.77])
 end
 
 
@@ -242,29 +252,71 @@ function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
 		sim_data_all[obs_time].empl_by_age_1.bins, 
 		sim_data_all[obs_time].empl_by_age_2.bins  
 		]
+		
+		
+	# each age group is its own small histogram, so we use 
+	# sum square diff of the normalised data per age group 
+	dists = [ 
+	  sum_square_diff_prop(emp_data_raw[1:3], sim_data_raw[1]),
+	  sum_square_diff_prop(emp_data_raw[4:6], sim_data_raw[2]),
+	  sum_square_diff_prop(emp_data_raw[7:9], sim_data_raw[3])]
+	  
 	
-	sim_data = vcat([d ./ sum(d) for d in sim_data_raw]...)
+	println("empl_age: ", dists)
 	
-	#println("empl_age: ", sim_data, "; ", emp_data_raw)
-	rel_mean_square_diff_prop(emp_data_raw, sim_data)
+	mean(dists)
 end
 
 
-function dist_empl_by_family(dat_file, sim_data_all, obs_time)
-	emp_data_raw = CSV.read(dat_file, DataFrame).perc_employed
+function dist_empl_by_family_status(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CSV.read(dat_file, DataFrame).perc_employed ./ 100.0
 	
 	sim_data_empl_raw = sim_data_all[obs_time].empl_by_family.bins
 	sim_data_all_raw = sim_data_all[obs_time].all_by_family.bins
 	
+	# if bin exists then count > 0, so this is safe
 	sim_data = sim_data_empl_raw ./ sim_data_all_raw
+	# just in case
+	extend!(sim_data, length(emp_data_raw))
 	
 	#println("family: ", sim_data, "; ", emp_data_raw)
-	
-	rel_mean_square_diff_prop(emp_data_raw, sim_data)
+	# all data in proportions, so simple mean square diff should be fine
+	mean_square_diff(emp_data_raw, sim_data)
 end
 
 
-function dist_empl_gender_children(dat_file, sim_data_all, obs_time)
-	emp_data_raw = CSV.read(data_file, DataFrame)[!, :perc_employed]
+function dist_households_by_empl(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CSV.read(dat_file, DataFrame).percentage 
 	
+	sim_data_raw = sim_data_all[obs_time].hh_empl_status.bins
+	# just in case
+	extend!(sim_data_raw, length(emp_data_raw))
+	
+	#println(emp_data_raw, "; ", sim_data_raw)
+	sum_square_diff_prop(emp_data_raw, sim_data_raw)
+end
+
+
+function dist_unemployment_by_class(dat_file, sim_data_all, obs_time)
+	emp_data_raw = CSV.read(dat_file, DataFrame).unemployment_rate ./ 100
+	
+	sim_data_raw_empl = sim_data_all[obs_time].empl_by_class.bins
+	sim_data_raw_unempl = sim_data_all[obs_time].unempl_by_class.bins
+	
+	# add 0s if necessary, *raw_empl is always at least as long as *raw_unempl
+	extend!(sim_data_raw_unempl, length(sim_data_raw_empl))
+	
+	# last classes in emp data are lumped
+	while length(sim_data_raw_empl) > length(emp_data_raw)
+		sim_data_raw_empl[end-1] += sim_data_raw_empl[end]
+		sim_data_raw_unempl[end-1] += sim_data_raw_unempl[end]
+		pop!(sim_data_raw_empl)
+		pop!(sim_data_raw_unempl)
+	end
+	
+	sim_data = sim_data_raw_unempl ./ sim_data_raw_empl 
+	extend!(sim_data, length(emp_data_raw))
+	
+	println("empl class:", emp_data_raw, "; ", sim_data)
+	mean_square_diff(emp_data_raw, sim_data)
 end
