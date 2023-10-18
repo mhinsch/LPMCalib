@@ -105,6 +105,7 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
         person.jobShift = shift
         person.daysOff = [x for x in 1:8 if !(x in shift.days)]
         person.workingHours = pars.weeklyHours[person.careNeedLevel+1]
+        person.availableWorkingHours = person.workingHours
         person.jobSchedule = weeklySchedule(shift, person.workingHours)
         remove_unsorted!(shifts, shift_i)
     end
