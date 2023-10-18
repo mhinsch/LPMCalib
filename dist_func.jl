@@ -232,6 +232,8 @@ function dist_income_deciles(dat_file, sim_data_all, obs_time)
     emp_data_raw = CSV.read(dat_file, DataFrame)[1:9, :income]
 
     sim_data_raw = sim_data_all[obs_time].income_deciles
+    
+    println("income: ", sim_data_raw, "; ", emp_data_raw)
 
     sum_square_diff_prop(emp_data_raw, sim_data_raw)
 end
@@ -262,8 +264,7 @@ function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
 	  sum_square_diff_prop(emp_data_raw[7:9], sim_data_raw[3])]
 	  
 	
-	println("empl_age: ", dists)
-	
+	#println("empl_age: ", dists)
 	mean(dists)
 end
 
@@ -317,6 +318,6 @@ function dist_unemployment_by_class(dat_file, sim_data_all, obs_time)
 	sim_data = sim_data_raw_unempl ./ sim_data_raw_empl 
 	extend!(sim_data, length(emp_data_raw))
 	
-	println("empl class:", emp_data_raw, "; ", sim_data)
+	#println("empl class:", emp_data_raw, "; ", sim_data)
 	mean_square_diff(emp_data_raw, sim_data)
 end
