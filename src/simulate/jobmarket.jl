@@ -145,7 +145,7 @@ function jobMarket!(model, time, pars)
     
     # *** unemployment rate and index
     
-    unemploymentRate = model.unemploymentSeries[floor(Int, year - pars.startTime) + 1]
+    unemploymentRate = model.unemploymentSeries[floor(Int, year + (pars.startTime-1860)) + 1]
     uRates = computeURByClassAge(unemploymentRate, classShares, ageBandShares, pars)         
     
     # people entering the jobmarket need waiting time calculated 
