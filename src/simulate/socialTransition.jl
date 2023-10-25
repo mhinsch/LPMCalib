@@ -10,30 +10,7 @@ function selectSocialTransition(p, pars)
 end
 
 
-# class sensitive versions
-# TODO? 
-# * move to separate, optional module
-# * replace with non-class version here
-initialIncomeLevel(person, pars) = pars.incomeInitialLevels[person.classRank+1]
-
 workingAge(person, pars) = pars.workingAge[person.classRank+1]
-
-function incomeDist(person, pars)
-    # TODO make parameters
-    if person.classRank == 0
-        LogNormal(2.5, 0.25)
-    elseif person.classRank == 1
-        LogNormal(2.8, 0.3)
-    elseif person.classRank == 2
-        LogNormal(3.2, 0.35)
-    elseif person.classRank == 3
-        LogNormal(3.7, 0.4)
-    elseif person.classRank == 4
-        LogNormal(4.5, 0.5)
-    else
-        error("unknown class rank!")
-    end
-end
 
 
 mutable struct SocialCache
@@ -56,9 +33,15 @@ end
 
 doneStudying(person, pars) = person.classRank >= 4
 
-# TODO
-function addToWorkforce!(person, model)
+
+function studentStartWorking!(person, pars)
+    setWageProgression!(person, pars)
+    # updates provider as well
+    setAsSelfproviding!(person)
+    
+    enterJobMarket!(person)
 end
+
 
 # move newly adult agents into study or work
 function socialTransition!(person, time, model, pars)
@@ -68,8 +51,7 @@ function socialTransition!(person, time, model, pars)
     if rand() < probStudy
         startStudying!(person, pars)
     else
-        startWorking!(person, pars)
-        addToWorkforce!(person, model)
+        studentStartWorking!(person, pars)
     end
 end
 
@@ -91,7 +73,7 @@ function startStudyProb(person, model, pars)
         return 0.0
     end
 
-    forgoneSalary = initialIncomeLevel(person, pars) * 
+    forgoneSalary = pars.incomeInitialLevels[person.classRank+1] * 
         pars.weeklyHours[person.careNeedLevel+1]
     relCost = forgoneSalary / perCapitaDisposableIncome
     incomeEffect = (pars.constantIncomeParam+1) / 
@@ -114,35 +96,5 @@ end
 
 function startStudying!(person, pars)
     addClassRank!(person, 1) 
-end
-
-# TODO here for now, maybe not the best place?
-function resetWork!(person, pars)
-    person.status = WorkStatus.unemployed
-    person.newEntrant = true
-    person.workingHours = 0
-    person.income = 0
-    person.jobTenure = 0
-    # TODO
-    # monthHired
-    # jobShift
-    setEmptyJobSchedule!(person)
-    person.outOfTownStudent = true
-end
-
-function startWorking!(person, pars)
-    resetWork!(person, pars)
-
-    person.status = WorkStatus.worker
-
-    dKi = rand(Normal(0, pars.wageVar))
-    person.initialWage = initialIncomeLevel(person, pars) * exp(dKi)
-
-    dist = incomeDist(person, pars)
-
-    person.finalWage = rand(dist)
-
-    # updates provider as well
-    setAsSelfproviding!(person)
 end
 

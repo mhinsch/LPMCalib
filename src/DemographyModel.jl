@@ -166,14 +166,13 @@ function stepModel!(model, time, pars)
     updateWealth!(model.pop, model.wealthPercentiles, pars.workpars)
     
     selected = Iterators.filter(selectUnemployed, model.pop)
-    applyTransition!(selected, "fire") do person
+    applyTransition!(selected, "hire") do person
         unemployedTransition!(person, time, model, fuse(pars.poppars, pars.workpars))
     end
     selected = Iterators.filter(selectEmployed, model.pop)
-    applyTransition!(selected, "hire") do person
+    applyTransition!(selected, "fire") do person
         employedTransition!(person, time, model, fuse(pars.poppars, pars.workpars))
     end
-    #jobMarket!(model, time, fuse(pars.workpars, pars.poppars))
 
     selected = Iterators.filter(p->selectSocialCareTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "social care") do person

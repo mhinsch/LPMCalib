@@ -9,12 +9,11 @@ function jobPreCalc!(model, time, pars)
     year, month = date2yearsmonths(time)
     
     classShares, ageShares = calcAgeClassShares(Iterators.filter(isActive, model.pop), pars)
-    
     unemploymentRate = model.unemploymentSeries[floor(Int, year - 1860) + 1]
-    
     uRates = computeURByClassAge(unemploymentRate, classShares, ageShares, pars)         
-    
     model.jobCache = JobCache(uRates)
+    
+    nothing
 end
 
 
@@ -30,10 +29,6 @@ function calcFireProbability(person, model, pars)
 end
 
 
-function loseJob!(person, pars)
-    person.status = WorkStatus.unemployed
-end
-
 
 selectEmployed(person) = statusWorker(person)
 
@@ -41,7 +36,8 @@ function employedTransition!(person, time, model, pars)
     probFired = calcFireProbability(person, model, pars)
 
     if rand() < probFired
-        loseJob!(person, pars)
+        loseJob!(person)
+        enterJobMarket!(person)
     else        
         person.jobTenure += 1
         if person.workingHours > 0

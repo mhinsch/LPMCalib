@@ -47,10 +47,6 @@ function workTransition!(person, time, model, pars)
         person.status = WorkStatus.student
         person.classRank = 0
 
-        if rand() < pars.probOutOfTownStudent
-            person.outOfTownStudent = true
-        end
-
         return
     end
 
@@ -62,7 +58,7 @@ function workTransition!(person, time, model, pars)
         shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
 
         dK = rand(Normal(0, pars.wageVar))
-        person.pension = shareWorkingTime * exp(dK)
+        person.pension = person.lastIncome * shareWorkingTime * exp(dK)
         return
     end
 

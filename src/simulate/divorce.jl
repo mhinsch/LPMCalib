@@ -53,7 +53,7 @@ function divorce!(man, time, model, parameters)
         wife.yearDivorced.append(self.year)
         =# 
         if wife.status == WorkStatus.student
-            startWorking!(wife, parameters)
+            studentStartWorking!(wife, parameters)
         end
 
         peopleToMove = [man]

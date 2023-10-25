@@ -117,18 +117,7 @@ function effectsOfMaternity!(woman, pars)
     
     woman.workingHours = 0
     woman.income = 0
-    woman.potentialIncome = 0
     woman.availableWorkingHours = 0
-    # commented in sim.py:
-    # woman.weeklyTime = [[0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12, [0]*12+[1]*12]
-    # sets all weeklyTime slots to 1
-    # TODO copied from the python code, but does it make sense?
-    setFullWeeklyTime!(woman)
-    #= TODO
-    woman.maxWeeklySupplies = [0, 0, 0, 0]
-    woman.residualDailySupplies = [0]*7
-    woman.residualWeeklySupplies = [x for x in woman.maxWeeklySupplies]
-    =# 
 
     # TODO not necessarily true in many cases
     if woman.provider == undefinedPerson

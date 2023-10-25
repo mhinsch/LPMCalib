@@ -144,7 +144,6 @@ end
     maternityLeaveDuration :: Rational{Int}  = 9//12
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
-    probOutOfTownStudent :: Float64     = 0.5
     ageOfRetirement :: Int              = 65
     minContributionPeriods :: Int       = 12 * 35
     wageVar :: Float64                  = 0.2

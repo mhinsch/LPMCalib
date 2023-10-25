@@ -209,7 +209,6 @@ function initWork!(person, pars)
 
     person.wage = computeWage(person, pars)
     person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
-    person.potentialIncome = person.income
     person.jobTenure = rand(1:50)
 
     nothing

@@ -78,6 +78,20 @@ function computeURByClassAge(ur, classShares, ageShares, pars)
     rates
 end
 
+
+function assignJob!(person, month, shift, pars)
+    person.status = WorkStatus.worker
+    person.unemploymentMonths = 0
+    person.monthHired = month
+    person.wage = computeWage(person, pars)
+
+    person.jobShift = shift
+    person.daysOff = [x for x in 1:8 if !(x in shift.days)]
+    person.workingHours = pars.weeklyHours[person.careNeedLevel+1]
+    person.availableWorkingHours = person.workingHours
+    person.jobSchedule = weeklySchedule(shift, person.workingHours)
+end
+
 "Assign job shifts to unemployed workers."
 function assignJobs!(hiredAgents, shiftsPool, month, pars)
     # removed that for now, was only effectively used in setup
@@ -89,21 +103,12 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
             month = rand(1:12)
         end
         
-        person.status = WorkStatus.worker
-        person.newEntrant = false
-        person.unemploymentMonths = 0
-        person.monthHired = month
-        person.wage = computeWage(person, pars)
-        
         weights = cumsum(x.socialIndex for x in shifts) 
         shift_i = searchsortedfirst(weights, rand()*weights[end])
         shift = shifts[shift_i]
         
-        person.jobShift = shift
-        person.daysOff = [x for x in 1:8 if !(x in shift.days)]
-        person.workingHours = pars.weeklyHours[person.careNeedLevel+1]
-        person.availableWorkingHours = person.workingHours
-        person.jobSchedule = weeklySchedule(shift, person.workingHours)
+        assignJob!(person, month, shift, pars)
+        
         remove_unsorted!(shifts, shift_i)
     end
     
