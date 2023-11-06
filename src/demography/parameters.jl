@@ -285,6 +285,16 @@ end
     careQuantum :: Int							= 2
 end
 
+"housing"
+@with_kw mutable struct HousingPars
+    ownershipProbExp :: Float64 = 0.1
+    incomeOwnershipShares :: Vector{Float64} = [0.2, 0.4, 0.5, 0.57, 0.63, 0.67, 0.71, 0.75, 0.79, 0.83]
+    ageOwnershipShares :: Vector{Float64} = [0.12, 0.44, 0.61, 0.71, 0.77, 0.79]
+    HOAgeRanges :: Vector{Float64} = [24, 34, 44, 54, 64]
+    HOAgeBiases :: Vector{Float64} = [1.0, 3.67, 5.0, 5.9, 6.4, 6.6]
+end
+
+
 
 "Data files"
 @with_kw mutable struct DataPars
@@ -311,10 +321,11 @@ struct ModelPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
     carepars :: CarePars
+    housingpars :: HousingPars
     datapars    :: DataPars
 end 
 
 
 ModelPars() = ModelPars(MapPars(), BenefitMapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), DataPars())
+              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), HousingPars(), DataPars())
 

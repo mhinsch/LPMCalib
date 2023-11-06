@@ -32,6 +32,7 @@ include("simulate/income.jl")
 include("simulate/jobmarket.jl")
 include("simulate/benefits.jl")
 include("simulate/wealth.jl")
+include("simulate/housing_topdown.jl")
 
 
 using Utilities
@@ -164,6 +165,8 @@ function stepModel!(model, time, pars)
     updateIncome!(model, time, pars.workpars)
     
     updateWealth!(model.pop, model.wealthPercentiles, pars.workpars)
+    
+    houseOwnership!(model, pars.housingpars)
     
     selected = Iterators.filter(selectUnemployed, model.pop)
     applyTransition!(selected, "hire") do person

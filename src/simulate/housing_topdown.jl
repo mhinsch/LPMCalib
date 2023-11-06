@@ -1,23 +1,29 @@
-function houseOwnership!(model, year, pars)
+using Utilities
+
+
+function houseOwnership!(model, pars)
     houses = model.houses
     
     households = filter(isOccupied, houses)
     # Compute household's income decile
-    sort!(x->x.householdIncome, households)
+    sort!(households, by=x->x.householdIncome)
     for (i, h) in enumerate(households)
-        house.incomeDecile = floor(Int, (i-1)/length(households) * 10)
+        h.incomeDecile = floor(Int, (i-1)/length(households) * 10)
     end
     
     # TODO: this might need rethinking. What about shared flats, adult and earning children,
     # grandparents living in house, etc.?
     for house in households
         n = 0
+        age = 0
         for agent in Iterators.filter(x->!isDependent(x), house.occupants)
             n += 1
             age += agent.age
-            @assert (isSingle(agent) && n<2) || livingTogether(agent, agent.partner)
+            # not currently the case!
+            #@assert (isSingle(agent) && n<2) || 
+            #    (!isSingle(agent) && livingTogether(agent, agent.partner))
         end
-        @assert 1<=n<=2
+        #@assert 1<=n<=2
         
         # average age of independent occupants
         house.ageOccupants = age / n
@@ -33,7 +39,7 @@ function houseOwnership!(model, year, pars)
             push!(housesByAge[searchsortedfirst(pars.HOAgeRanges, h.ageOccupants)], h)
         end
         # iterate age classes
-        for (a, agehouses) in enumerate(housesByAge)
+        for (a, ageHouse) in enumerate(housesByAge)
             # how many people should own their house in this age class
             share = pars.ageOwnershipShares[a]
             
@@ -42,7 +48,8 @@ function houseOwnership!(model, year, pars)
             if nEmpiricalOwners < length(ownedHouses)
                 # In this case some house are sold
                 numHousesToSell = length(ownedHouses) - nEmpiricalOwners
-                weights = [1.0/exp(pars.ownershipProbExp * x.ownershipIndex) for x in ownedHouses]
+                # TODO: add ownership index
+                weights = [1.0/exp(pars.ownershipProbExp * 1#=x.ownershipIndex=#) for x in ownedHouses]
                 sampler = WeightSampler(weights)
                 for i in numHousesToSell
                     idx = sampleNoReplace!(sampler)
@@ -50,8 +57,9 @@ function houseOwnership!(model, year, pars)
                 end
             elseif nEmpiricalOwners > length(ownedHouses)
                 # In this case, some renting agents by a house.
-                numHousesToBuy = nEmpiricalOwners - length(actualOwners)
-                weights = [exp(pars.ownershipProbExp * x.ownershipIndex) for x in rentedHouses]
+                numHousesToBuy = nEmpiricalOwners - length(ownedHouses)
+                # TODO add ownership index
+                weights = [exp(pars.ownershipProbExp * 1#=x.ownershipIndex=#) for x in rentedHouses]
                 sampler = WeightSampler(weights)
                 for i in numHousesToBuy
                     idx = sampleNoReplace!(sampler)

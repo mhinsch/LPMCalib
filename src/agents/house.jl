@@ -35,9 +35,11 @@ mutable struct House{P, T}
     cumulativeIncome :: Float64
     wealth :: Float64
     ownedByOccupants :: Bool
+    incomeDecile :: Int
+    ageOccupants :: Float64
 end # House 
 
-House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 0.0, 0.0, 0.0, false)
+House{P, T}(t, p) where{P, T} = House(t, p, P[], 0, 0, House{P, T}[], 0.0, 0.0, 0.0, 0.0, 0.0, false, -1, 0.0)
 
 occupantType(h::House{P, T}) where {P, T} = P
 

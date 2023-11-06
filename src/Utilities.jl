@@ -14,7 +14,7 @@ export setVerbose!, unsetVerbose!, verbose, verbosePrint, delayedVerbose
 export fuse, countSubset 
 export dump, dump_property, dump_header
 export sumClassBias, rateBias, preCalcRateBias!
-export WeightSampler, sampleNoReplace, sampleNoReplaceFrom, resetSampler, initWeight, mapWeights
+export WeightSampler, sampleNoReplace!, sampleNoReplaceFrom!, resetSampler!, initWeight!, mapWeights
 
 
 
