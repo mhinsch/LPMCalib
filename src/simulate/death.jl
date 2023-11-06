@@ -124,7 +124,7 @@ function death!(person, currstep, model, parameters)
 
     assumption() do
         @assert person.alive       
-        @assert isMale(person) || isFemale(person) # Assumption 
+        @assert isMale(person) || isFemale(person) 
     end
  
     if curryear < 1950 # made-up probabilities

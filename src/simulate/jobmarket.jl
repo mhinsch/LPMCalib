@@ -1,53 +1,6 @@
 using StatsBase
 using Distributions
 
-mutable struct WeightSampler{LIST}
-    weights :: LIST
-    wSum :: Float64
-end
-
-WeightSampler(weights::LIST) where {LIST} = WeightSampler(weights, sum(weights))
-
-function sampleNoReplace!(sampler)
-    r = rand() * sampler.wSum
-    i = 1
-    while  (r -= sampler.weights[i]) > 0  
-        i += 1
-    end
-    
-    sampler.wSum -= sampler.weights[i]
-    sampler.weights[i] = 0.0
-    
-    i
-end
-
-function sampleNoReplaceFrom!(sampler, list, n)
-    @assert length(sampler.weights) == length(list)
-    res = Vector{eltype(list)}()
-    for i in 1:n
-        push!(res, list[sampleNoReplace!(sampler)])
-    end
-    res
-end
-    
-
-function resetSampler!(sampler, sz=0)
-    resize!(sampler.weights, sz)
-    sampler.wSum = 0
-end
-
-function initWeight!(sampler, i, val=0.0)
-    sampler.weights[i] = val
-    sampler.wSum += val
-end
-
-function mapWeights!(fn, sampler, list)
-    resetSampler!(sampler, length(list))
-    for (i, e) in enumerate(list)
-        initWeight!(sampler, i, fn(e))
-    end
-end
-
 
 function assignUnemploymentDuration!(unemployed, uRates, durationShares, pars)
     @assert sum(durationShares) <= 1

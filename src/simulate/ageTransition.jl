@@ -3,8 +3,9 @@ using Distributions
 export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition!
 
 
-selectAgeTransition(person, pars) = person.alive
+selectAgeTransition(person, pars) = true
 
+"Update age, maternity status and independence."
 function ageTransition!(person, time, model, pars)
     if isInMaternity(person)
         # count maternity months
@@ -16,16 +17,10 @@ function ageTransition!(person, time, model, pars)
         end
     end
 
-        # TODO part of location module, TBD
-        #if hasBirthday(person, month)
-        #    person.movedThisYear = false
-        #    person.yearInTown += 1
-        #end
-    agestep!(person)
+    person.age += 1//12
     
-    # TODO parameterise dt
     if !isSingle(person)
-        person.pTime = person.pTime + 1//12
+        person.pTime += 1//12
     end
 
     if person.age == 18
@@ -34,15 +29,18 @@ function ageTransition!(person, time, model, pars)
     end
 end
 
+
 selectWorkTransition(person, pars) = 
-    person.alive && person.status != WorkStatus.retired && hasBirthday(person)
+    person.status != WorkStatus.retired && hasBirthday(person)
     
+"Update work-related status dependent on age."
 function workTransition!(person, time, model, pars)
     if person.age == pars.ageTeenagers
         person.status = WorkStatus.teenager
         return
     end
-
+    
+    # all agents first become students, start working in social transition
     if person.age == pars.ageOfAdulthood
         person.status = WorkStatus.student
         person.classRank = 0
@@ -61,6 +59,4 @@ function workTransition!(person, time, model, pars)
         person.pension = person.lastIncome * shareWorkingTime * exp(dK)
         return
     end
-
-    #person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
 end

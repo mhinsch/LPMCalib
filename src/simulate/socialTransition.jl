@@ -3,16 +3,6 @@ using Distributions: Normal, LogNormal
 export socialTransition!, selectSocialTransition 
 
 
-function selectSocialTransition(p, pars)
-    p.alive && hasBirthday(p) && 
-    p.age == workingAge(p, pars) &&
-    p.status == WorkStatus.student
-end
-
-
-workingAge(person, pars) = pars.workingAge[person.classRank+1]
-
-
 mutable struct SocialCache
     socialClassShares :: Vector{Float64}
 end
@@ -31,8 +21,11 @@ function socialPreCalc!(model, pars)
 end
 
 
-doneStudying(person, pars) = person.classRank >= 4
+function startStudying!(person, pars)
+    person.classRank += 1 
+end
 
+doneStudying(person, pars) = person.classRank >= 4
 
 function studentStartWorking!(person, pars)
     setWageProgression!(person, pars)
@@ -43,7 +36,18 @@ function studentStartWorking!(person, pars)
 end
 
 
-# move newly adult agents into study or work
+"Age at which a person can next stop studying and start working."
+startWorkingAge(person, pars) = pars.startWorkingAge[person.classRank+1]
+
+function selectSocialTransition(p, pars)
+    # check once a year
+    hasBirthday(p) &&
+    # people start working at set ages, dependent on how much they have studied
+    p.age == startWorkingAge(p, pars) &&
+    p.status == WorkStatus.student
+end
+
+"Decide whether agent goes on to study or starts working. Only gets triggered for specific ages."
 function socialTransition!(person, time, model, pars)
     probStudy = doneStudying(person, pars)  ?  
         0.0 : startStudyProb(person, model, pars)
@@ -56,7 +60,7 @@ function socialTransition!(person, time, model, pars)
 end
 
 
-# probability to start studying instead of working
+"Probability to start studying instead of working."
 function startStudyProb(person, model, pars)
     if person.father == person.mother == undefinedPerson
         return 0.0
@@ -94,7 +98,5 @@ function startStudyProb(person, model, pars)
     return max(0.0, pStudy)
 end
 
-function startStudying!(person, pars)
-    addClassRank!(person, 1) 
-end
+
 

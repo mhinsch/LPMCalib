@@ -9,7 +9,7 @@ export PersonHouse, isUndefined, undefinedHouse
 export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, agestepAlive!, livingTogether
+export getHomeTown, getHomeTownName, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday, yearsold
 export hasOwnChildrenAtHome, areParentChild, related1stDegree, areSiblings

@@ -192,7 +192,8 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "relocate") do person
         relocate!(person, time, model, pars.workpars)
     end
-
+    
+    # sort new adults into students and workers
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
     applyTransition!(selected, "social") do person
         socialTransition!(person, time, model, pars.workpars) 
