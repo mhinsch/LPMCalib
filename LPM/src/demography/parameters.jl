@@ -1,6 +1,7 @@
 using  Parameters
 export MapPars, PopulationPars, DivorcePars, WorkPars, ModelPars
 
+
 "Parameters describing map properties"
 @with_kw mutable struct MapPars 
     mapDensityModifier::Float64 = 0.6   # for allocating houses in towns 
@@ -144,7 +145,6 @@ end
     maternityLeaveDuration :: Rational{Int}  = 9//12
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
-    probOutOfTownStudent :: Float64     = 0.5
     ageOfRetirement :: Int              = 65
     minContributionPeriods :: Int       = 12 * 35
     wageVar :: Float64                  = 0.2
@@ -153,7 +153,8 @@ end
     finalIncomeSigma :: Vector{Float64} = [0.25, 0.3, 0.35, 0.4, 0.5]
     #incomeFinalLevels :: Vector{Float64} = [12.0, 16.0, 25.0, 40.0, 60.0]
     incomeGrowthRate :: Vector{Float64} = [0.4/12.0, 0.35/12.0, 0.3/12.0, 0.25/12.0, 0.2/12.0]
-    workingAge :: Vector{Int}           = [16, 18, 20, 22, 24]
+    "specific ages at which people can stop studying and start working"
+    startWorkingAge :: Vector{Int}           = [16, 18, 20, 22, 24]
     "working hours by care requirement"
     weeklyHours :: Vector{Float64}      = [40.0, 20.0, 10.0, 0.0, 0.0]
     constantIncomeParam :: Float64      = 50.0
@@ -168,7 +169,6 @@ end
     taxationRates :: Vector{Float64} = [0.4, 0.2, 0.0]
     unemploymentAgeBias :: Vector{Float64} = [1.0, 0.55, 0.35, 0.25, 0.2, 0.2]
     unemploymentClassBias :: Float64	= 0.75
-    unemploymentBeta :: Float64			= 1.0
     shareFinancialWealth :: Float64		= 0.3
     pensionReturnRate :: Float64		= 0.05/12
     shiftsWeights :: Vector{Float64}	= [51.80, 66.10, 70.10, 71.40, 54.10, 63.40, 68.60, 65.00, 
@@ -179,13 +179,21 @@ end
     sundaySocialIndex :: Float64		= 0.5
     shiftBeta :: Float64				= 0.1
     dayBeta :: Float64					= 0.1
-    meanLayOffsRate :: Float64			= 0.005
     probationPeriod :: Int				= 3
-    layOffsBeta :: Float64				= 0.1
-    maleUDS :: Vector{Float64}			= [0.07, 0.11, 0.12, 0.07, 0.07, 0.06, 0.12, 0.06, 0.08, 0.04]
-    femaleUDS :: Vector{Float64}		= [0.12, 0.12, 0.12, 0.08, 0.07, 0.08, 0.12, 0.06, 0.06, 0.03]
+    
+    hireRate :: Float64					= log(1/(1-0.25)) # expected mean unempl time == 4 months
 end
 
+
+# work pars for the old ratios job market model
+@with_kw mutable struct RMWorkPars
+    maleUDS :: Vector{Float64}			= [0.07, 0.11, 0.12, 0.07, 0.07, 0.06, 0.12, 0.06, 0.08, 0.04]
+    femaleUDS :: Vector{Float64}		= [0.12, 0.12, 0.12, 0.08, 0.07, 0.08, 0.12, 0.06, 0.06, 0.03]
+    
+    unemploymentBeta :: Float64			= 1.0
+    layOffsBeta :: Float64				= 0.1
+    meanLayOffsRate :: Float64			= 0.005
+end
 
 "Parameters for benefits."
 @with_kw mutable struct BenefitPars
@@ -278,6 +286,16 @@ end
     careQuantum :: Int							= 2
 end
 
+"housing"
+@with_kw mutable struct HousingPars
+    ownershipProbExp :: Float64 = 0.1
+    incomeOwnershipShares :: Vector{Float64} = [0.2, 0.4, 0.5, 0.57, 0.63, 0.67, 0.71, 0.75, 0.79, 0.83]
+    ageOwnershipShares :: Vector{Float64} = [0.12, 0.44, 0.61, 0.71, 0.77, 0.79]
+    HOAgeRanges :: Vector{Float64} = [24, 34, 44, 54, 64]
+    HOAgeBiases :: Vector{Float64} = [1.0, 3.67, 5.0, 5.9, 6.4, 6.6]
+end
+
+
 
 "Data files"
 @with_kw mutable struct DataPars
@@ -304,10 +322,11 @@ struct ModelPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
     carepars :: CarePars
+    housingpars :: HousingPars
     datapars    :: DataPars
 end 
 
 
 ModelPars() = ModelPars(MapPars(), BenefitMapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), DataPars())
+              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), HousingPars(), DataPars())
 

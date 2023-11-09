@@ -135,7 +135,7 @@ function main(parOverrides...)
     
     f_agent = rand(model.pop)
     
-    obs_pop, ax_pop = create_series(fig[1, 2], ["population size", "#married", "working ft"];
+    obs_pop, ax_pop = create_series(fig[1, 2], ["population size", "#married", "working", "unemployed"];
         axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
         
     obs_age, ax_age = create_barplot(fig[1, 3], "population pyramid"; direction=:x, 
@@ -181,7 +181,8 @@ function main(parOverrides...)
             # add values to graph objects
             push!(obs_pop[][1], data.alive.n)
             push!(obs_pop[][2], data.married.n)
-            push!(obs_pop[][3], data.work_ft.n)
+            push!(obs_pop[][3], data.employed.n)
+            push!(obs_pop[][4], data.unemployed.n)
             
             push!(obs_care[][1], data.care_supply.mean)
             push!(obs_care[][2], data.unmet_care.mean)

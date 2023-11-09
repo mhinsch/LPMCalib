@@ -77,7 +77,8 @@ end
         @stat("class", HistAcc(0.0, 1.0, 4.0)) <| Float64(person.classRank)
         @stat("careneed", HistAcc(0.0, 1.0)) <| Float64(person.careNeedLevel)
         @stat("income", MVA) <| person.income
-        @stat("work_ft", CountAcc) <| (person.workingHours == 40)
+        @stat("employed", CountAcc) <| statusWorker(person)
+        @stat("unemployed", CountAcc) <| statusUnemployed(person)
         @stat("n_orphans", CountAcc) <| isOrphan(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(person.status)

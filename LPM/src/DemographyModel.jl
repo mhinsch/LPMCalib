@@ -22,6 +22,7 @@ include("simulate/birth.jl")
 include("simulate/divorce.jl")       
 include("simulate/ageTransition.jl")
 include("simulate/socialTransition.jl")
+include("simulate/jobtransition.jl")
 include("simulate/relocate.jl")
 include("simulate/marriages.jl")
 include("simulate/dependencies.jl")
@@ -31,6 +32,7 @@ include("simulate/income.jl")
 include("simulate/jobmarket.jl")
 include("simulate/benefits.jl")
 include("simulate/wealth.jl")
+include("simulate/housing_topdown.jl")
 
 
 using Utilities
@@ -58,6 +60,7 @@ mutable struct Model
     socialCache :: SocialCache
     socialCareCache :: SocialCareCache
     divorceCache :: DivorceCache
+    jobCache :: JobCache
 end
 
 
@@ -84,7 +87,7 @@ function createDemographyModel!(demoData, workData, pars)
             demoData.pre51Deaths[yearsMort, 2:3], demoData.deathFemale, demoData.deathMale, 
             workData.unemployment, workData.wealth,
             BirthCache{Person}(), DeathCache(), MarriageCache{Person}(), SocialCache(),
-            SocialCareCache(), DivorceCache())
+            SocialCareCache(), DivorceCache(), JobCache())
 end
 
 
@@ -137,6 +140,7 @@ function stepModel!(model, time, pars)
     divorcePreCalc!(model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
     deathPreCalc!(model, pars.poppars)
+    jobPreCalc!(model, time, fuse(pars.poppars, pars.workpars))
 
     applyTransition!(model.pop, "death") do person
         death!(person, time, model, pars.poppars)
@@ -162,7 +166,16 @@ function stepModel!(model, time, pars)
     
     updateWealth!(model.pop, model.wealthPercentiles, pars.workpars)
     
-    jobMarket!(model, time, fuse(pars.workpars, pars.poppars))
+    houseOwnership!(model, pars.housingpars)
+    
+    selected = Iterators.filter(selectUnemployed, model.pop)
+    applyTransition!(selected, "hire") do person
+        unemployedTransition!(person, time, model, fuse(pars.poppars, pars.workpars))
+    end
+    selected = Iterators.filter(selectEmployed, model.pop)
+    applyTransition!(selected, "fire") do person
+        employedTransition!(person, time, model, fuse(pars.poppars, pars.workpars))
+    end
 
     selected = Iterators.filter(p->selectSocialCareTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "social care") do person
@@ -182,7 +195,8 @@ function stepModel!(model, time, pars)
     applyTransition!(selected, "relocate") do person
         relocate!(person, time, model, pars.workpars)
     end
-
+    
+    # sort new adults into students and workers
     selected = Iterators.filter(p->selectSocialTransition(p, pars.workpars), model.pop) 
     applyTransition!(selected, "social") do person
         socialTransition!(person, time, model, pars.workpars) 

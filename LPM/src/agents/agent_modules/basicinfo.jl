@@ -1,6 +1,6 @@
 using Utilities
 
-export isFemale, isMale, agestep!, agestepAlive!, hasBirthday, yearsold
+export isFemale, isMale, hasBirthday, yearsold
 export Gender, male, female, unknown
 
 "Gender type enumeration"
@@ -17,9 +17,6 @@ end
 
 isFemale(person) = person.gender == female
 isMale(person) = person.gender == male
-
-"increment an age for a person to be used in typical stepping functions"
-agestep!(person, dt=1//12) = person.age += dt  
 
 hasBirthday(person) = person.age % 1 == 0
 

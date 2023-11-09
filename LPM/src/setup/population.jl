@@ -189,7 +189,7 @@ function initWork!(person, pars)
 
     class = person.classRank+1
 
-    if person.age < pars.workingAge[class]
+    if person.age < pars.startWorkingAge[class]
         person.status = WorkStatus.student
         return
     end
@@ -197,7 +197,7 @@ function initWork!(person, pars)
     person.status = WorkStatus.worker
 
     workingTime = 0
-    for i in pars.workingAge[class]:floor(Int, person.age)
+    for i in pars.startWorkingAge[class]:floor(Int, person.age)
         workingTime *= pars.workDiscountingTime
         workingTime += 1
     end
@@ -209,7 +209,6 @@ function initWork!(person, pars)
 
     person.wage = computeWage(person, pars)
     person.income = person.wage * pars.weeklyHours[person.careNeedLevel+1]
-    person.potentialIncome = person.income
     person.jobTenure = rand(1:50)
 
     nothing
