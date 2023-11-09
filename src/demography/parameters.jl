@@ -1,5 +1,4 @@
 using  Parameters
-export MapPars, PopulationPars, DivorcePars, WorkPars, ModelPars
 
 "Parameters describing map properties"
 @with_kw mutable struct MapPars 
