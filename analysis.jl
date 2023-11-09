@@ -16,6 +16,7 @@ not_in_education(person) =
 potential_worker(person) = !statusChild(person) && !statusTeenager(person) && !statusRetired(person)
 	    
 # 9 bins since we throw away the top decile in the empirical data
+"Calculate mean income per income decile."
 function income_deciles(pop, n_bins = 9)
     incomes = [ p.income for p in pop if not_in_education(p) ]
 	    
