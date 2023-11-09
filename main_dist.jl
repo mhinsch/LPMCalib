@@ -62,7 +62,7 @@ function distance(args)
     push!(dists, dist_households_by_empl("data/households_by_employment.tsv", res, 2019//1))
     push!(dists, dist_unemployment_by_class("data/unemployment_by_SES.tsv", res, 2018//1))
     
-    println("dists: ", dists)
+    #println("dists: ", dists)
     
     sum(dists) / length(dists)
 end

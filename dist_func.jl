@@ -233,7 +233,7 @@ function dist_income_deciles(dat_file, sim_data_all, obs_time)
 
     sim_data_raw = sim_data_all[obs_time].income_deciles
     
-    println("income: ", sim_data_raw, "; ", emp_data_raw)
+    #println("income: ", sim_data_raw, "; ", emp_data_raw)
 
     sum_square_diff_prop(emp_data_raw, sim_data_raw)
 end
