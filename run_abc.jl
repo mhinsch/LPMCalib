@@ -10,9 +10,9 @@ include("abc_hpc/abc/ownabc.jl")
 
 function run_sim_locally(args)
     # sadly our simulation is not thread-safe so we have to run it via its own julia process
-    res = readchomp(`julia main_dist.jl $(split(args))`)
+    res = readchomp(`julia main_dist.jl $(split(args))`) |> split
     
-    parse(Float64, res)
+    parse(Float64, res[end])
 end
 
 # this works when using ThreadSafeDict for memoization but is sadly much, much slower than running externally

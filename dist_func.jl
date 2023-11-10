@@ -11,7 +11,23 @@ function extend!(vec, len, el = 0)
     vec
 end
 
+# square of the non-overlapping area
+function square_non_overlap(dat, sim)
+    sum_d = sum(dat)
+    prop_d = dat ./ sum_d
 
+    sum_s = sum(sim)
+    prop_s = sim ./ sum_s
+	
+	d = 0.0
+	
+	for (ed, es) in zip(prop_d, prop_s)
+		d += min(ed, es)
+	end
+	
+	(1.0-d)^2
+end
+	
 function sum_square_diff_prop(dat, sim)
     sum_d = sum(dat)
     prop_d = dat ./ sum_d
@@ -52,7 +68,7 @@ function dist_pop_pyramid(dat_file, sim_data, obs_time)
     extend!(emp_both, len)
     extend!(sim_both, len)
 
-    sum_square_diff_prop(emp_both, sim_both)
+    square_non_overlap(emp_both, sim_both)
 end
 
 
@@ -97,7 +113,7 @@ function dist_soc_status(dat_file, sim_data_all, obs_time)
 
     @assert length(all_sim) == length(all_emp)
 
-    sum_square_diff_prop(all_emp, all_sim)
+    square_non_overlap(all_emp, all_sim)
 end
 
 
@@ -119,7 +135,7 @@ function dist_hh_size(dat_file, sim_data_all, obs_time)
 
     @assert length(all_emp) == length(all_sim)
 
-    sum_square_diff_prop(all_emp, all_sim)
+    square_non_overlap(all_emp, all_sim)
 end
 
 
@@ -137,7 +153,7 @@ function dist_maternity_age(dat_file, sim_data_all, obs_time, age_min=16, age_ma
 
     @assert length(sim_births) == length(emp_births)
 
-    sum_square_diff_prop(emp_births, sim_births)
+    square_non_overlap(emp_births, sim_births)
 end
 
 
@@ -160,7 +176,7 @@ function dist_maternity_age_SES(dat_file, sim_data_all, obs_time, age_min=16, ag
 
     @assert length(sim_data) == length(emp_data)
 
-    sum_square_diff_prop(emp_data, sim_data)
+    square_non_overlap(emp_data, sim_data)
 end
 
 function dist_couples_age_diff_uk(dat_file, sim_data_all, obs_time)
@@ -181,7 +197,7 @@ function dist_couples_age_diff_uk(dat_file, sim_data_all, obs_time)
     end
 
     emp_data = emp_data_raw[!, :Share]
-    sum_square_diff_prop(emp_data, sim_data)
+    square_non_overlap(emp_data, sim_data)
 end
 
 function dist_couples_age_diff_fr(dat_file, sim_data_all, obs_time)
@@ -202,7 +218,7 @@ function dist_couples_age_diff_fr(dat_file, sim_data_all, obs_time)
     end
 
     emp_data = emp_data_raw[!, :prop]
-    sum_square_diff_prop(emp_data, sim_data)
+    square_non_overlap(emp_data, sim_data)
 end
 
 
@@ -224,7 +240,7 @@ function dist_num_prev_children(dat_file, sim_data_all, obs_time)
     # in case the sim data was actually bigger
     resize!(sim_data, n_emp)
 
-    sum_square_diff_prop(emp_data_raw[!, :Births], sim_data)
+    square_non_overlap(emp_data_raw[!, :Births], sim_data)
 end
 
 
@@ -235,14 +251,14 @@ function dist_income_deciles(dat_file, sim_data_all, obs_time)
     
     #println("income: ", sim_data_raw, "; ", emp_data_raw)
 
-    sum_square_diff_prop(emp_data_raw, sim_data_raw)
+    square_non_overlap(emp_data_raw, sim_data_raw)
 end
 
 
 function dist_prop_lphh(sim_data_all, obs_time)
     data = sim_data_all[obs_time]
     lphh_prop = data.n_lp_chhh.n / data.n_all_chhh.n
-    sum_square_diff_prop([lphh_prop, 1-lphh_prop], [0.23, 0.77])
+    square_non_overlap([lphh_prop, 1-lphh_prop], [0.23, 0.77])
 end
 
 
@@ -259,9 +275,9 @@ function dist_empl_status_by_age(dat_file, sim_data_all, obs_time)
 	# each age group is its own small histogram, so we use 
 	# sum square diff of the normalised data per age group 
 	dists = [ 
-	  sum_square_diff_prop(emp_data_raw[1:3], sim_data_raw[1]),
-	  sum_square_diff_prop(emp_data_raw[4:6], sim_data_raw[2]),
-	  sum_square_diff_prop(emp_data_raw[7:9], sim_data_raw[3])]
+	  square_non_overlap(emp_data_raw[1:3], sim_data_raw[1]),
+	  square_non_overlap(emp_data_raw[4:6], sim_data_raw[2]),
+	  square_non_overlap(emp_data_raw[7:9], sim_data_raw[3])]
 	  
 	
 	#println("empl_age: ", dists)
@@ -294,7 +310,7 @@ function dist_households_by_empl(dat_file, sim_data_all, obs_time)
 	extend!(sim_data_raw, length(emp_data_raw))
 	
 	#println(emp_data_raw, "; ", sim_data_raw)
-	sum_square_diff_prop(emp_data_raw, sim_data_raw)
+	square_non_overlap(emp_data_raw, sim_data_raw)
 end
 
 
