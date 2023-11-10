@@ -53,7 +53,7 @@ function empl_status_hh(hh)
 	employed + unemployed * 2 + inactive * 4
 end
 
-@observe Data model ctime begin
+@observe Data model ctime pars begin
 
 	@record "time" ctime
 	
