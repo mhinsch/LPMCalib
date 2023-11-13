@@ -20,16 +20,22 @@ function run_sim_threaded(args)
     distance(split(args))
 end
 
-function simulate(param_values, names)
+function simulate(param_values, names, n_repl=1)
     @assert length(names) == length(param_values)
     
-    args = "--seed $(rand(1:100000)) --datadir LPM/data -P \"\""
+    d = 0.0
     
-    for (name, value) in zip(names, param_values)
-        args *= " --$name $value" 
-    end
+    for i in 1:n_repl
+	    args = "--seed $(rand(1:100000)) --datadir LPM/data -P \"\""
+	    
+	    for (name, value) in zip(names, param_values)
+	        args *= " --$name $value" 
+	    end
 
-    run_sim_locally(args)
+	    d += run_sim_locally(args)
+    end
+    
+    d / n_repl
     #run_sim_threaded(args)
 end
 
@@ -57,7 +63,7 @@ function run_abc(n_iters, names, priors)
     #abc(priors, dist, 4, 0.5, noise, 2, verbose=true, scale_noise=true, parallel=true)
     for i in 1:n_iters
         println("$(now()) starting iteration $i")
-        result = abc_iter!(particles, pars->simulate(pars, names), 
+        result = abc_iter!(particles, pars->simulate(pars, names, 3), 
                            800, remv, creat, verbose=true, parallel = true)
         #sort!(particles, by=p->p.dist)
         #push!(meds, particles[end ÷ 2].dist)
