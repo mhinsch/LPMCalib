@@ -3,6 +3,11 @@ using Utilities
 export death!, setDead! 
 
 function deathProbability(baseRate, person, model, parameters) 
+    # cap age at 150 for admin reasons
+    if person.age >= 150
+        return 1.0
+    end
+
     cRank = person.classRank
     if person.status == WorkStatus.child || person.status == WorkStatus.student
         cRank = person.parentClassRank
