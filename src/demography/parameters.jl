@@ -269,7 +269,9 @@ end
 
 "Social care"
 @with_kw mutable struct CarePars
-    careBias :: Float64 						= 0.9
+    numCareLevels :: Int						= 5
+    careBias :: Float64							= 0.9
+    careNeedBias :: Float64 					= 0.9
     femaleAgeCareScaling :: Float64				= 19.0
     maleAgeCareScaling :: Float64				= 18.0
     personCareProb :: Float64					= 0.0008

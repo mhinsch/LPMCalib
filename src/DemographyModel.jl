@@ -139,11 +139,11 @@ function stepModel!(model, time, pars)
     socialCarePreCalc!(model, fuse(pars.poppars, pars.carepars))
     divorcePreCalc!(model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
-    deathPreCalc!(model, pars.poppars)
+    deathPreCalc!(model, fuse(pars.poppars, pars.carepars))
     jobPreCalc!(model, time, fuse(pars.poppars, pars.workpars))
 
     applyTransition!(model.pop, "death") do person
-        death!(person, time, model, pars.poppars)
+        death!(person, time, model, fuse(pars.poppars, pars.carepars))
     end
     removeDead!(model)
 

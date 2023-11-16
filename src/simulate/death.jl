@@ -2,7 +2,7 @@ using Utilities
 
 export death!, setDead! 
 
-function deathProbability(baseRate, person, model, parameters) 
+function deathProbability(baseRate, person, model, pars) 
     # cap age at 150 for admin reasons
     if person.age >= 150
         return 1.0
@@ -14,15 +14,12 @@ function deathProbability(baseRate, person, model, parameters)
     end
 
     if isMale(person) 
-        mortalityBias = parameters.maleMortalityBias
+        mortalityBias = pars.maleMortalityBias
     else 
-        mortalityBias = parameters.femaleMortalityBias 
+        mortalityBias = pars.femaleMortalityBias 
     end 
 
     a = isMale(person) ? model.deathCache.classBias_m : model.deathCache.classBias_f
-    #sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
-    #        0:(length(parameters.cumProbClasses)-1), 
-    #        mortalityBias)
 
     if a > 0
         lowClassRate = baseRate / a
@@ -32,23 +29,13 @@ function deathProbability(baseRate, person, model, parameters)
         deathProb = baseRate
     end
            
-        #=
-        b = 0
-        for i in range(int(self.p['numCareLevels'])):
-            b += self.careNeedShares[classRank][i]*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - i)
-                
-        if b > 0:
-            higherNeedRate = classRate/b
-            deathProb = higherNeedRate*math.pow(self.p['careNeedBias'], (self.p['numCareLevels']-1) - person.careNeedLevel) # deathProb
-=#
-        ##### Temporarily by-passing the effect of Unmet Care Need   #############
-        
-    #   The following code is already commented in the python code 
-    #   a = 0
-    #   for x in classPop:
-    #   a += math.pow(self.p['unmetCareNeedBias'], 1-x.averageShareUnmetNeed)
-    #   higherUnmetNeed = (classRate*len(classPop))/a
-    #   deathProb = higherUnmetNeed*math.pow(self.p['unmetCareNeedBias'], 1-shareUnmetNeed)            
+    b = model.deathCache.careBias[cRank+1]
+            
+    if b > 0
+        higherNeedRate = deathProb/b
+        deathProb = higherNeedRate * pars.careNeedBias^(pars.numCareLevels-1-person.careNeedLevel) 
+    end
+    
     deathProb 
 end # function deathProb
 
@@ -81,25 +68,28 @@ mutable struct DeathCache
     avgDieProb_f :: Float64
     classBias_m :: Float64
     classBias_f :: Float64
+    careBias :: Vector{Float64}
 end
 
-DeathCache() = DeathCache(0.0, 0.0, 0.0, 0.0)
+DeathCache() = DeathCache(0.0, 0.0, 0.0, 0.0, [])
 
 function deathPreCalc!(model, pars)
     pc = model.deathCache
     
+    careNeedShares = zeros(length(pars.cumProbClasses), pars.numCareLevels)    
     s_m = 0.0
     s_f = 0.0
     n_m = 0
     n_f = 0
-    for p in model.pop
-        if isMale(p)
-            s_m += ageDieProb(pars, yearsold(p), true)
+    for agent in model.pop
+        if isMale(agent)
+            s_m += ageDieProb(pars, yearsold(agent), true)
             n_m += 1
         else
-            s_f += ageDieProb(pars, yearsold(p), false)
+            s_f += ageDieProb(pars, yearsold(agent), false)
             n_f += 1
         end
+        careNeedShares[agent.classRank+1, agent.careNeedLevel+1] += 1
     end
    
     pc.avgDieProb_m = s_m / n_m
@@ -111,6 +101,15 @@ function deathPreCalc!(model, pars)
     pc.classBias_f = sumClassBias(c -> model.socialCache.socialClassShares[c+1], 
         0:(length(pars.cumProbClasses)-1), 
         pars.femaleMortalityBias)
+        
+    # normalise by population per class
+    s = sum(careNeedShares, dims=1)
+    careNeedShares ./= s
+       
+    pc.careBias = [ 
+        sum(1:pars.numCareLevels) do i
+            careNeedShares[classRank, i] * pars.careNeedBias^(pars.numCareLevels-i)
+        end for classRank in 1:length(pars.cumProbClasses) ]
 end
 
 
