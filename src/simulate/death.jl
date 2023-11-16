@@ -150,21 +150,8 @@ function death!(person, currstep, model, parameters)
                                    
     end # currYear < 1950 
                         
-    #=
-        Not realized yet 
-        classPop = [x for x in self.pop.livingPeople 
-                        if x.careNeedLevel == person.careNeedLevel]
-        Classes to be considered in a different module 
-    =#
-                        
     deathProb = limit(0.0, deathProbability(rawRate, person, model, parameters), 1.0)
                         
-    #=
-        The following is uncommented code in the original code < 1950
-        #### Temporarily by-passing the effect of unmet care need   ######
-        # dieProb = self.deathProb_UCN(rawRate, person.parentsClassRank, person.careNeedLevel, person.averageShareUnmetNeed, classPop)
-    =# 
-                                
     if rand() < p_yearly2monthly(deathProb)
         setDead!(person) 
         return true 
