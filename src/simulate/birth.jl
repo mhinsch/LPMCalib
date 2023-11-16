@@ -144,14 +144,6 @@ function birth!(woman, currstep, model, parameters, addBaby!)
         @assert birthProb >= 0 
     end
                         
-    #=
-    The following code is commented in the python code: 
-    #baseRate = self.baseRate(self.socialClassShares, self.p['fertilityBias'], rawRate)
-    #fertilityCorrector = (self.socialClassShares[woman.classRank] - self.p['initialClassShares'][woman.classRank])/self.p['initialClassShares'][woman.classRank]
-    #baseRate *= 1/math.exp(self.p['fertilityCorrector']*fertilityCorrector)
-    #birthProb = baseRate*math.pow(self.p['fertilityBias'], woman.classRank)
-    =#
-                        
     if rand() < p_yearly2monthly(limit(0.0, birthProb, 1.0)) 
                         
         baby = Person(gender=rand([male,female]))
