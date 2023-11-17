@@ -21,15 +21,6 @@ function updatePersonIncome!(person, pars)
         person.income = 0
     end
     
-    # only used for statistics
-    #=push!(person.monthlyIncomes, person.income * 4.35)
-    if length(person.monthlyIncomes) > 12
-        deleteat!(person.monthlyIncomes, 1)
-    end
-    person.yearlyIncome = sum(person.monthlyIncomes)
-    
-    @assert person.yearlyIncome >= 0=#
-        
     person.disposableIncome = person.income
 end
 
