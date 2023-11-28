@@ -32,7 +32,7 @@ function childCareNeed(child, model, pars)
             pars.freeChildCareHoursSchool
         end
         
-    # this assumes school provides social care
+    # NOTE! this assumes school provides social care
     max(0, childCare - schoolHours)
 end
      
