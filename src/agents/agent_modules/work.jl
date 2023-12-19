@@ -29,7 +29,7 @@ const WST = WorkStatus.T
     workingHours :: Int = 0 
     jobShift :: Shift = Shift()
     daysOff :: Vector{Int} = []
-    jobSchedule :: Matrix{Bool} = zeros(Bool, 7, 24)
+    jobSchedule :: Matrix{Bool} = zeros(Bool, 24, 7)
     "sum of actual working hours"
     availableWorkingHours :: Int = 0
     "lifetime work"
@@ -50,7 +50,7 @@ mutable struct RMWork
 end        
     
 function setEmptyJobSchedule!(work)
-    work.jobSchedule = zeros(Bool, 7, 24)
+    work.jobSchedule = zeros(Bool, 24, 7)
 end
 
 

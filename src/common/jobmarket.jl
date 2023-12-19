@@ -10,10 +10,10 @@ function weeklySchedule(shift, weeklyHours)
         shiftHours = shift.shiftHours[start:start+dailyHours-1]
     end
     
-    weeklySchedule = zeros(Bool, 7, 24)
+    weeklySchedule = zeros(Bool, 24, 7)
     for day in shift.days
         for hour in shiftHours
-            weeklySchedule[day, hour] = true
+            weeklySchedule[hour, day] = true
         end
     end
     
