@@ -55,19 +55,22 @@ function separate(pred, list)
     res_true, res_false
 end
 
-
+"Remove double elements from a sorted vector."
 function sorted_unique!(ar)
+    if isempty(ar)
+        return
+    end
     v = ar[end]
-    l = max(0, length(ar) - 1)
+    l = length(ar) - 1
     for i in l:-1:1
         e = ar[i]
         if e == v
-            ar[i] = ar[end]
-            pop!(ar)
+            remove_unsorted!(ar, i)
         else
             v = e
         end
     end
+    nothing
 end
 
 "Apply a transition function to an iterator."
