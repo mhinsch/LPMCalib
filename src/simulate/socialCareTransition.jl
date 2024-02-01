@@ -56,6 +56,9 @@ function socialCareTransition!(person, time, model, pars)
     careNeed = person.careNeedLevel + rand(Geometric(1.0-transitionRate)) + 1
     # careLevel is 0-based
     person.careNeedLevel = min(careNeed, numCareLevels(pars)-1)
+    
+    careNeedChanged!(person, pars)
+    
     true
 end
 

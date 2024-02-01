@@ -132,7 +132,7 @@ selectBirth(person, parameters) = isFertileWoman(person, parameters) && !isSingl
     ageYoungestAliveChild(person) > 1 
 
 
-function birth!(woman, currstep, model, parameters, addBaby!)
+function birth!(woman::PERSON, currstep, model, parameters, addBaby!) where {PERSON}
     birthProb = computeBirthProb(woman, parameters, model, currstep)
                         
     assumption() do
@@ -146,7 +146,7 @@ function birth!(woman, currstep, model, parameters, addBaby!)
                         
     if rand() < p_yearly2monthly(limit(0.0, birthProb, 1.0)) 
                         
-        baby = Person(gender=rand([male,female]))
+        baby = PERSON(gender=rand([male,female]))
         moveToHouse!(baby, woman.pos)
         setAsParentChild!(baby, woman)
         if !isSingle(woman) # currently not an option

@@ -34,7 +34,7 @@ function setupModel(pars)
 
     model = createDemographyModel!(demoData, workData, pars)
 
-    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.mappars, pars.lhapars)
+    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.carepars, pars.taskcarepars, pars.mappars, pars.lhapars)
     
     model
 end

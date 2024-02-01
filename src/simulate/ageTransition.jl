@@ -15,9 +15,14 @@ function ageTransition!(person, time, model, pars)
         if maternityDuration(person) >= pars.maternityLeaveDuration
             endMaternity!(person)
         end
-    end
-
+    end 
+    
     person.age += 1//12
+    
+    # child ages out of care need this time step
+    if person.age == pars.childCareAge + 1//12
+        careNeedChanged!(person, pars)
+    end
     
     if !isSingle(person)
         person.pTime += 1//12

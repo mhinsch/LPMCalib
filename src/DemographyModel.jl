@@ -3,6 +3,7 @@ module DemographyModel
 export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
 include("agents/shift.jl")
+include("agents/task.jl")
 include("agents/town.jl")
 include("agents/house.jl")
 include("agents/person.jl")
@@ -10,6 +11,7 @@ include("agents/world.jl")
 
 include("common/income.jl")
 include("common/jobmarket.jl")
+include("common/tasksCare.jl")
 
 include("setup/map.jl")
 include("setup/population.jl")
@@ -33,7 +35,7 @@ include("simulate/jobmarket.jl")
 include("simulate/benefits.jl")
 include("simulate/wealth.jl")
 include("simulate/housing_topdown.jl")
-
+include("simulate/taskscare.jl")
 
 using Utilities
 
@@ -101,7 +103,9 @@ function initialConnectP!(pop, houses, pars)
 end
 
 
-function initializeDemographyModel!(model, poppars, workpars, mappars, mapbenefitpars)
+function initializeDemographyModel!(
+    model, poppars, workpars, carepars, taskcarepars, mappars, mapbenefitpars)
+    
     initialConnectH!(model.houses, model.towns, mappars)
     initialConnectP!(model.pop, model.houses, mappars)
 
@@ -113,6 +117,7 @@ function initializeDemographyModel!(model, poppars, workpars, mappars, mapbenefi
     end
     
     initJobs!(model, fuse(poppars, workpars))
+    initCare!(model, fuse(carepars, taskcarepars))
 
     nothing
 end
@@ -159,7 +164,7 @@ function stepModel!(model, time, pars)
 
     selected = Iterators.filter(p->selectAgeTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "age") do person
-        ageTransition!(person, time, model, pars.workpars)
+        ageTransition!(person, time, model, fuse(pars.workpars, pars.taskcarepars))
     end
     
     updateIncome!(model, time, pars.workpars)
@@ -179,12 +184,12 @@ function stepModel!(model, time, pars)
 
     selected = Iterators.filter(p->selectSocialCareTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "social care") do person
-        socialCareTransition!(person, time, model, fuse(pars.poppars, pars.carepars))
+        socialCareTransition!(person, time, model, fuse(pars.poppars, pars.carepars, pars.taskcarepars))
     end
     
     computeBenefits!(model.pop, fuse(pars.benefitpars, pars.workpars))
     
-    socialCare!(model, pars.carepars)
+    distributeCare!(model, fuse(pars.carepars, pars.taskcarepars))
     
     selected = Iterators.filter(p->selectWorkTransition(p, pars.workpars), model.pop)
     applyTransition!(selected, "work") do person

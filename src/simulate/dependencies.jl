@@ -38,7 +38,7 @@ function assignGuardian!(person, time, model, pars)
 end
     
 function findFamilyGuardian(person)
-    potGuardians = Vector{Union{Person, Nothing}}()
+    potGuardians = Vector{Union{typeof(person), Nothing}}()
 
     pparents = parents(person)
     # these might be nonexistent or dead

@@ -288,6 +288,24 @@ end
     careQuantum :: Int							= 2
 end
 
+"Care tasks"
+@with_kw mutable struct TaskCarePars
+    "how often to iterate care distribution"
+    nIterCareDist :: Int						= 3
+    minAgeCare :: Int							= 13
+    babyCareAge :: Int							= 1
+    childCareAge :: Int							= 13
+    babyCarePerDay :: Int						= 12
+    childCarePerDay :: Int						= 24
+    careDemandPerDay :: Vector{Int}			= [ 0, 2, 4, 8, 12 ]
+    "effect of task importance on acceptance probability"
+    acceptProbPolarity :: Float64				= 2
+    "Care weight by relatedness and type. Relatedness (carer is): child, parent, partner, sibling, other. Type: child care, social care."
+    careWeightRelated :: Matrix{Float64}		= [ Inf 0.5; 1.0 1.0; Inf 1.0; 0.8 0.5; 0.5 0.2 ]
+    "Care weight by (spatial) distance in order: same house, same town, otherwise."
+    careWeightDistance :: Vector{Float64}		= [1.0, 0.5, 0.1]
+end
+
 "housing"
 @with_kw mutable struct HousingPars
     ownershipProbExp :: Float64 = 0.1
@@ -324,11 +342,13 @@ struct ModelPars
     divorcepars ::  DivorcePars 
     marriagepars :: MarriagePars
     carepars :: CarePars
+    taskcarepars :: TaskCarePars
     housingpars :: HousingPars
     datapars    :: DataPars
 end 
 
 
 ModelPars() = ModelPars(MapPars(), BenefitMapPars(), PopulationPars(), BirthPars(), WorkPars(), 
-              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), HousingPars(), DataPars())
+              BenefitPars(), DivorcePars(), MarriagePars(), CarePars(), TaskCarePars(), HousingPars(), 
+              DataPars())
 

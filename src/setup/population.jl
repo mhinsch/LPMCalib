@@ -330,3 +330,15 @@ function initJobs!(model, pars)
     
     nothing
 end
+
+
+function initCare!(model, pars)
+    for person in model.pop
+        # skip adolescents/adults that don't need care
+        if person.age > pars.childCareAge && socialCareDemand(person, pars) <= 0
+            continue
+        end
+        
+        initCareTasks!(person, pars)
+    end
+end

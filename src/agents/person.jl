@@ -4,7 +4,7 @@ using DeclUtils
 using TypedDelegation
 
 export Person
-export PersonHouse, isUndefined, undefinedHouse
+export PersonHouse, isUndefined, undefinedHouse, undefined
 
 export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
@@ -12,7 +12,7 @@ export householdIncomePerCapita
 export getHomeTown, getHomeTownName, livingTogether
 export setAsParentChild!, setAsPartners!, setParent!
 export hasAliveChild, ageYoungestAliveChild, hasBirthday, yearsold
-export hasOwnChildrenAtHome, areParentChild, related1stDegree, areSiblings
+export hasOwnChildrenAtHome, related1stDegree 
 export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
 export hasDependents, isDependent, hasProvidees
 export setAsIndependent!, setAsSelfproviding!, resolveDependency!
@@ -29,6 +29,7 @@ include("agent_modules/care.jl")
 include("agent_modules/class.jl")
 include("agent_modules/dependencies.jl")
 include("agent_modules/benefits.jl")
+include("agent_modules/taskperson.jl")
 
 
 """
@@ -46,6 +47,7 @@ Person ties various agent modules into one compound agent type.
     Class...
     Benefits...
     Dependency{Person}...
+    TaskPerson{Task{Person}}...
     
     pos::House{Person, Town} = undefinedHouse
     # undefined Person
@@ -73,18 +75,20 @@ statusUnemployed(p) = p.status == WorkStatus.unemployed
 
 const PersonHouse = House{Person, Town}
 const PersonTown = Town{PersonHouse}
+const PersonTask = Task{Person}
 const undefinedTown = PersonTown((-1,-1), 0.0)
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 const undefinedPerson = Person(nothing)
+const undefinedTask = PersonTask(0, undefinedPerson, undefinedPerson, 0, 0, 0)
 
-undefined(::Type{PersonHouse}) = undefinedHouse
-undefined(::Type{PersonTown}) = undefinedTown
-undefined(::Type{Person}) = undefinedPerson
+undefined(::T) where {T} = undefinedT(T)
+undefined(t::DataType) = undefinedT(t)
+undefinedT(::Type{PersonHouse}) = undefinedHouse
+undefinedT(::Type{PersonTown}) = undefinedTown
+undefinedT(::Type{Person}) = undefinedPerson
+undefinedT(::Type{PersonTask}) = undefinedTask
 
-
-isUndefined(h::PersonHouse) = h == undefinedHouse
-isUndefined(t::PersonTown) = t == undefinedTown
-isUndefined(p::Person) = p == undefinedPerson
+isUndefined(t::T) where {T} = t == undefined(t) 
 
 "associate a house to a person, removes person from previous house"
 function moveToHouse!(person::Person,house)
@@ -120,9 +124,6 @@ function livesInSharedHouse(person)
 end
 
 
-areParentChild(person1, person2) = person1 in person2.children || person2 in person1.children
-areSiblings(person1, person2) = person1.father == person2.father != undefinedPerson || 
-    person1.mother == person2.mother != undefinedPerson
 related1stDegree(person1, person2) = areParentChild(person1, person2) || areSiblings(person1, person2)
 
 
@@ -314,6 +315,17 @@ function maxParentRank(person)
         max(m.classRank, f.classRank)
     end
 end
+
+
+function howBusyAt(p::Person, hour)
+    if p.jobSchedule[hour]
+        return 1.0
+    end
+    
+    return p.taskSchedule[hour]
+end
+
+
 
 function Utilities.dump_header(io, p::Person, FS)
     print(io, "id", FS, "house", FS)

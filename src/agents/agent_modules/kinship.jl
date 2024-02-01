@@ -1,6 +1,7 @@
 using Utilities
 
-export hasChildren, addChild!, isSingle, parents, siblings, nChildren
+export hasChildren, addChild!, isSingle, parents, siblings, nChildren, 
+    areSiblings, areParentChild
 
 @kwdef struct Kinship{P} 
   father::P = undefinedPerson#undefined(P)
@@ -21,6 +22,12 @@ isSingle(person) = isUndefined(person.partner)
 parents(person) = [person.father, person.mother]
 
 nChildren(person) = length(person.children)
+
+areSiblings(person1, person2) = person1.father == person2.father != undefinedPerson || 
+    person1.mother == person2.mother != undefinedPerson
+    
+areParentChild(person1, person2) = person1 in person2.children || person2 in person1.children
+    
 
 function siblings(person::P) where {P}
     sibs = P[]

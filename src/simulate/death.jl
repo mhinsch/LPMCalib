@@ -58,7 +58,9 @@ function setDead!(person)
         # TODO update provision/work status
     end
     empty!(person.providees)
-
+    
+    removeAllCareAndTasks!(person)
+    
     # dependents are being taken care of by assignGuardian!
     nothing
 end 

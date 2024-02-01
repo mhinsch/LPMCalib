@@ -11,7 +11,7 @@ mutable struct MarriageCache{PERSON}
     weights :: Vector{Float64}
 end
 
-MarriageCache{Person}() where {Person} = MarriageCache(Float64[], Person[], Float64[])
+MarriageCache{PERSON}() where {PERSON} = MarriageCache(Float64[], PERSON[], Float64[])
 
 function marriagePreCalc!(model, pars)
     pc = model.marriageCache
