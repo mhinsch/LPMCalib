@@ -145,6 +145,7 @@ end
     maternityLeaveDuration :: Rational{Int}  = 9//12
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
+    ageOfIndependence :: Int			= 18
     ageOfRetirement :: Int              = 65
     minContributionPeriods :: Int       = 12 * 35
     wageVar :: Float64                  = 0.2
@@ -292,9 +293,8 @@ end
 @with_kw mutable struct TaskCarePars
     "how often to iterate care distribution"
     nIterCareDist :: Int						= 3
-    minAgeCare :: Int							= 13
-    babyCareAge :: Int							= 1
-    childCareAge :: Int							= 13
+    stopBabyCareAge :: Int						= 1
+    stopChildCareAge :: Int						= 13
     babyCarePerDay :: Int						= 12
     childCarePerDay :: Int						= 24
     careDemandPerDay :: Vector{Int}			= [ 0, 2, 4, 8, 12 ]

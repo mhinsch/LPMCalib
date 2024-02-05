@@ -10,6 +10,10 @@ function careNeedChanged!(person, pars)
 end
 
 
+function careSupplyChanged!(person, pars)
+    removeAllCare!(person)
+end
+
 "Try to assign carers for all open tasks."
 function distributeCare!(model, pars)
     AgentT = eltype(model.pop)
@@ -49,8 +53,7 @@ availableCareTime(agent, pars) = socialCareSupply(agent, pars) - taskHours(agent
 "Add agent to list if minimum requirements are met."
 function checkAndAddCarer!(list, agent, pars)
     # TODO check location (max dist?)
-    if agent.age < pars.minAgeCare || availableCareTime(agent, pars) <= 0 ||
-        agent in list
+    if availableCareTime(agent, pars) <= 0 || agent in list
         return
     end
     
