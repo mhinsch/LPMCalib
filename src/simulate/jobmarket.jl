@@ -54,15 +54,8 @@ end
 
 function dismissWorkers!(newUnemployed, uRates, pars)
     for person in newUnemployed
-        person.status = WorkStatus.unemployed
-        person.workingHours = 0
-        person.income = 0
-        person.jobTenure = 0
-        person.monthHired = 0
-        person.jobShift = EmptyShift
-        person.jobSchedule = zeros(Bool, 24, 7)
-        # commented in python version
-        # person.weeklyTime = [[1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24, [1]*24]
+        loseJob!(person)
+        changeStatus!(person, WorkStatus.unemployed, pars)
     end
     
     assignUnemploymentDurationByGender!(newUnemployed, uRates, pars)

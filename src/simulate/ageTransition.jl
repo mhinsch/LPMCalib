@@ -6,21 +6,23 @@ export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition
 selectAgeTransition(person, pars) = true
 
 
-function changeStatus!(person, newStatus, model, pars)
+function becomeStudent!(person, pars)
+    person.classRank = 0
+end
+
+
+function startRetirement!(person, pars)
+    loseJob!(person)
+    shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
+
+    dK = rand(Normal(0, pars.wageVar))
+    person.pension = person.lastIncome * shareWorkingTime * exp(dK)
+end
+
+
+function changeStatus!(person, newStatus, pars)
     person.status = newStatus
     careSupplyChanged!(person, pars)
-    
-    if student(person)
-        person.classRank = 0
-    elseif retired(person)
-        setEmptyJobSchedule!(person)
-        person.wage = 0
-
-        shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
-
-        dK = rand(Normal(0, pars.wageVar))
-        person.pension = person.lastIncome * shareWorkingTime * exp(dK)
-    end
 end
 
 
@@ -43,12 +45,14 @@ function changeAge!(person, newAge, model, pars)
     end
     
     if person.age == pars.ageTeenagers
-        changeStatus!(person, WorkStatus.teenager, model, pars)
+        changeStatus!(person, WorkStatus.teenager, pars)
     # all agents first become students, start working in social transition
     elseif person.age == pars.ageOfAdulthood
-        changeStatus!(person, WorkStatus.student, model, pars)
+        becomeStudent!(person, pars)
+        changeStatus!(person, WorkStatus.student, pars)
     elseif person.age == pars.ageOfRetirement
-        changeStatus!(person, WorkStatus.retired, model, pars)
+        startRetirement!(person, pars)
+        changeStatus!(person, WorkStatus.retired, pars)
     end
 end
 

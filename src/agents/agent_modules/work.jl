@@ -42,21 +42,17 @@ const WST = WorkStatus.T
     monthHired :: Int = 0
 end
 
+
 mutable struct RMWork
     "marker for people who enter job market outside of jobMarket function 
     (to assign unemployment duration)"
     newEntrant :: Bool = true
     unemploymentDuration :: Int = 0
 end        
-    
+
+
 function setEmptyJobSchedule!(work)
     work.jobSchedule = zeros(Bool, 24, 7)
-end
-
-
-function enterJobMarket!(person)
-    @assert person.unemploymentMonths == 0
-    person.status = WorkStatus.unemployed
 end
 
 
