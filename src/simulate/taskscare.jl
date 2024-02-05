@@ -1,3 +1,6 @@
+export weeklyCareSupply
+
+
 function removeAllCareAndTasks!(person)
     removeAllTasks!(person)
     removeAllCare!(person)
@@ -46,14 +49,14 @@ function addAskedTasks!(carer, tasks, askedTasks)
     append!(carerTasks, tasks)
 end
 
-
-availableCareTime(agent, pars) = socialCareSupply(agent, pars) - taskHours(agent)
+"Rough measure of availability, does not take into account focus."
+availableCareTime(agent, pars) = weeklyCareSupply(agent, pars) - agent.taskHours
 
 
 "Add agent to list if minimum requirements are met."
 function checkAndAddCarer!(list, agent, pars)
     # TODO check location (max dist?)
-    if availableCareTime(agent, pars) <= 0 || agent in list
+    if isUndefined(agent) || availableCareTime(agent, pars) <= 0 || agent in list
         return
     end
     

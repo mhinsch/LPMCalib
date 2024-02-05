@@ -37,7 +37,7 @@ function employedTransition!(person, time, model, pars)
 
     if rand() < probFired
         loseJob!(person)
-        enterJobMarket!(person)
+        changeStatus!(person, WorkStatus.unemployed, pars)
     else        
         person.jobTenure += 1
         if person.workingHours > 0

@@ -335,7 +335,7 @@ end
 function initCare!(model, pars)
     for person in model.pop
         # skip adolescents/adults that don't need care
-        if person.age > pars.childCareAge && socialCareDemand(person, pars) <= 0
+        if person.age >= pars.stopChildCareAge && socialCareDemand(person, pars) <= 0
             continue
         end
         

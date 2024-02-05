@@ -57,7 +57,7 @@ end
         # number of children in lp households
         @if is_lp @stat("n_ch_lp_hh", HistAcc(0, 1)) <| count(p->p.age<18, house.occupants)
         
-        ncs = house.netCareSupply
+       #= ncs = house.netCareSupply
         scn = householdSocialCareNeed(house, model, pars.carepars)
         cbn = careBalance(house)
         unmet_pre = min(0, max(ncs, -scn))
@@ -67,6 +67,7 @@ end
         @stat("unmet_care", MVA) <| Float64(min(cbn, 0))
         @stat("unmet_scare_pre", MVA) <| Float64(unmet_pre)
         @stat("unmet_scare_post", MVA) <| Float64(unmet_post)
+        =#
     end
 
     @for person in model.pop begin
@@ -82,10 +83,10 @@ end
         @stat("n_orphans", CountAcc) <| isOrphan(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(person.status)
-        @stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
-            Float64(socialCareSupply(person, pars.carepars))
-        @stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 
-            Float64(socialCareDemand(person, pars.carepars))
+        #@stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
+        #    Float64(weeklyCareSupply(person, pars.carepars))
+        #@stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 
+        #    Float64(weeklyCareDemand(person, pars.carepars))
     end
     
     @for person in Iterators.filter(p -> isFemale(p) && ! isSingle(p), model.pop) begin

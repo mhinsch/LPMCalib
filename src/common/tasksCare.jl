@@ -1,8 +1,22 @@
+function weeklyCareSupply(person, pars)
+    if person.careNeedLevel > 0
+        return 0
+    end
+    
+    if isInMaternity(person)
+        return pars.careSupplyMaternity
+    end
+    
+    s = Int(person.status)
+    
+    pars.careSupplyByStatus[s+1]
+end
 
-socialCareDemandPerDay(person, pars) = pars.careDemandPerDay[person.careNeedLevel + 1]
+
+socialCareDemandPerDay(person, pars) = pars.socialCareDemandPerDay[person.careNeedLevel + 1]
 childCareDemandPerDay(person, pars) = 
-    person.age < pars.childCareAge ? 
-        ( person.age < pars.babyCareAge ? pars.babyCarePerDay : pars.childCarePerDay) :
+    person.age < pars.stopChildCareAge ? 
+        ( person.age < pars.stopBabyCareAge ? pars.babyCarePerDay : pars.childCarePerDay) :
         0
 
 function initCareTasks!(person, pars)

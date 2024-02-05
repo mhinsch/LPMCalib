@@ -15,6 +15,9 @@
     
     "How eagerly the agent accepts tasks."
     diligence :: Float64 = 1.0
+    
+    # cache this for efficiency
+    taskHours :: Int = 0
 end
 
 
@@ -41,6 +44,7 @@ function scheduleTask!(agent, task)
     push!(agent.todo[day], task)
     agent.taskSchedule[task.time] += task.focus
     @assert agent.taskSchedule[task.time] <= 1.0
+    agent.taskHours += 1
     nothing
 end
 
@@ -53,6 +57,7 @@ function unscheduleTask!(agent, task)
     remove_unsorted!(agent.todo[day], idx)
     agent.taskSchedule[task.time] -= task.focus
     @assert agent.taskSchedule[task.time] >= 0.0
+    agent.taskHours -= 1
     nothing
 end
 

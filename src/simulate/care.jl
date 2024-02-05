@@ -66,6 +66,10 @@ function socialCareSupply(person, pars)
         return 0
     end
     
+    if isInMaternity(person)
+        return 80
+    end
+    
     s = Int(person.status)
     
     pars.careSupplyByStatus[s+1]

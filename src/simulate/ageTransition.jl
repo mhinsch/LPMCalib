@@ -39,7 +39,7 @@ function changeAge!(person, newAge, model, pars)
         careNeedChanged!(person, pars)
     end
 
-    if person.age == pars.ageIndependence
+    if person.age == pars.ageOfIndependence
         # also updates guardian
         setAsIndependent!(person)
     end
@@ -68,7 +68,7 @@ function ageTransition!(person, time, model, pars)
         end
     end 
     
-    person.changeAge(person, person.age + 1//12, model, pars)
+    changeAge!(person, person.age + 1//12, model, pars)
     
     if !isSingle(person)
         person.pTime += 1//12

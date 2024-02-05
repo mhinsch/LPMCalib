@@ -32,7 +32,7 @@ function studentStartWorking!(person, pars)
     # updates provider as well
     setAsSelfproviding!(person)
     
-    enterJobMarket!(person)
+    changeStatus!(person, WorkStatus.unemployed, pars)
 end
 
 
