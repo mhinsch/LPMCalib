@@ -1,4 +1,4 @@
-export weeklyCareSupply
+export weeklyCareSupply, availableCareTime
 
 
 function removeAllCareAndTasks!(person)

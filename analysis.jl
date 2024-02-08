@@ -31,6 +31,10 @@ function work_by_time(pop)
 end
 
 
+requiresCare(person, pars) = person.careNeedLevel > 0 || person.age < 13
+providesCare(person, pars) = person.careNeedLevel == 0 && person.age >= 13
+
+
 @observe Data model t pars begin
     @record "time" Float64 t
     @record "N" Int length(model.pop)
@@ -81,8 +85,11 @@ end
         @stat("employed", CountAcc) <| statusWorker(person)
         @stat("unemployed", CountAcc) <| statusUnemployed(person)
         @stat("n_orphans", CountAcc) <| isOrphan(person)
+        @if isFemale(person) && person.age>50 @stat("n_children", HistAcc(0,1)) <| nChildren(person)
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(person.status)
+        @if requiresCare(person, pars) @stat("open_tasks", MVA) <| Float64(length(person.openTasks))
+        @if providesCare(person, pars) @stat("av_care_time", MVA) <| Float64(availableCareTime(person, pars.carepars))
         #@stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
         #    Float64(weeklyCareSupply(person, pars.carepars))
         #@stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 

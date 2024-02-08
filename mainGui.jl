@@ -19,6 +19,12 @@ function Makie.get_ticks(lt::LTTicks, scale, formatter, vmin, vmax)
 end
 
 
+function proportions(histo)
+    hsum = sum(histo)
+    histo ./ hsum
+end
+
+
 function setto!(a1::AbstractVector, a2::AbstractVector)
     resize!(a1, length(a2))
     a1[:] = a2
@@ -95,6 +101,32 @@ function create_map!(fig, model)
 end
 
 
+function display_care(agent)
+    sched = zeros(Int, 24 * 7)
+    
+    for t in agent.assignedTasks
+        sched[t.time] = 1
+    end
+    
+    for t in agent.openTasks
+        sched[t.time] = 2
+    end
+    
+    str = ""
+    symb = ["_", "+", "!"]
+    
+    for hour in 1:24
+        for day in 1:7
+           s = sched[(day-1) * 24 + hour]
+           str *= symb[s+1] * "\t"
+        end
+        str *= "\n"
+    end
+    
+    str
+end
+
+
 function create_series(fig, labels; args...)
     data = [ [0.0] for l in labels ]
     obsable = Observable(data)
@@ -126,9 +158,11 @@ function main(parOverrides...)
 
     model = setupModel(pars)
     logfile = setupLogging(simPars)
+    
+# *** Window 1
 
     GLMakie.activate!()
-    fig = Figure(resolution=(1600,900))
+    fig = Figure(size=(1600,900))
     
     obs_hc, positions, obs_positions_c, obs_positions_p, obs_positions_s = 
         create_map!(fig[1:2, 1], model)
@@ -138,8 +172,8 @@ function main(parOverrides...)
     obs_pop, ax_pop = create_series(fig[1, 2], ["population size", "#married", "working", "unemployed"];
         axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
         
-    obs_age, ax_age = create_barplot(fig[1, 3], "population pyramid"; direction=:x, 
-        axis=(; yticks=LTTicks(WilkinsonTicks(10), 0.0, 3.0)))
+    obs_age, ax_age = create_barplot(fig[1, 3], "population pyramid"; direction=:x)#, 
+        #axis=(; yticks=LTTicks(WilkinsonTicks(10), 0.0, 3.0)))
     
     obs_careneed, ax_careneed = create_barplot(fig[2,2][1,1], "care need")
     obs_class, ax_class = create_barplot(fig[2,2][1,2], "social class")
@@ -149,9 +183,21 @@ function main(parOverrides...)
     
     obs_care, ax_care = create_series(fig[2,3], ["care supply", "unmet care need"],
         axis=(; xticks=LTTicks(WilkinsonTicks(5), 1920.0, 1/12)))
+        
+# *** Window 2
     
+    display(GLMakie.Screen(), fig)
     
-    display(fig)
+    fig2 = Figure(size=(600,900))
+    display(GLMakie.Screen(), fig2)
+    
+    obs_agent_care = Observable("")
+    Label(fig2[1,1], obs_agent_care, tellwidth=false, justification=:left)
+    
+    obs_agent = Observable("")
+    Label(fig2[2,1], obs_agent, tellwidth=false, justification=:left)
+    
+# *** buttons    
     
     runbutton = Button(fig[3,3][1,1]; label = "run", tellwidth = false)    
     pause = Observable(false)
@@ -166,8 +212,7 @@ function main(parOverrides...)
     randbutton = Button(fig[3,1][1,2]; label = "agent", tellwidth = false)    
     on(randbutton.clicks) do clicks; f_agent = rand(model.pop); end
     
-    obs_agent= Observable("")
-    Label(fig[3,1][1,3], obs_agent, tellwidth=false, justification=:left)
+# *** simulation
     
     time = Rational(pars.poppars.startTime)
     while goon[]
@@ -184,15 +229,18 @@ function main(parOverrides...)
             push!(obs_pop[][3], data.employed.n)
             push!(obs_pop[][4], data.unemployed.n)
             
-            push!(obs_care[][1], data.care_supply.mean)
-            push!(obs_care[][2], data.unmet_care.mean)
+            #push!(obs_care[][1], data.care_supply.mean)
+            #push!(obs_care[][2], data.unmet_care.mean)
+            push!(obs_care[][1], data.av_care_time.mean)
+            push!(obs_care[][2], data.open_tasks.mean)
             
             setto!(obs_careneed[], data.careneed.bins)
             setto!(obs_class[], data.class.bins)
             setto!(obs_inc_dec[], data.income_deciles)
             setto!(obs_age_diff[], data.age_diff.bins)
             
-            setto!(obs_age[], data.age.bins)
+            #setto!(obs_age[], data.age.bins)
+            setto!(obs_age[], data.n_children.bins |> proportions)
             
             house_colors!(obs_hc[], model.houses)
             #setto!(dat_f_status, data.f_status.bins)
@@ -236,14 +284,16 @@ function main(parOverrides...)
         m_status = isUndefined(f_agent.partner) ? "single" : "married"
         m_s = isUndefined(f_agent.mother) ? "" : "mother"
         f_s = isUndefined(f_agent.father) ? "" : "father"
-        n_sibs = count(x->!isUndefined(x), siblings(f_agent))
+        n_fsibs, n_hsibs = nSiblings(f_agent)
         n_ch = count(x->!isUndefined(x), f_agent.children)
         obs_agent[] = "age: $(floor(Int, f_agent.age))\n" * 
             "status: $m_status\n" *
             "living parents: $m_s $f_s\n" *
-            "$n_sibs siblings\n" *
+            "$n_fsibs full siblings\n" *
+            "$n_hsibs half siblings\n" *
             "$n_ch children\n" *
             "care need: $(f_agent.careNeedLevel)"  
+        obs_agent_care[] = display_care(f_agent)
         obs_year[] = "$(floor(Int, Float64(time)))"
     end
 
