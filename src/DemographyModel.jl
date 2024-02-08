@@ -189,8 +189,6 @@ function stepModel!(model, time, pars)
     
     computeBenefits!(model.pop, fuse(pars.benefitpars, pars.workpars))
     
-    distributeCare!(model, fuse(pars.carepars, pars.taskcarepars))
-    
     selected = Iterators.filter(p->selectRelocate(p, pars.workpars), model.pop)
     applyTransition!(selected, "relocate") do person
         relocate!(person, time, model, pars.workpars)
@@ -214,6 +212,7 @@ function stepModel!(model, time, pars)
             fuse(pars.poppars, pars.marriagepars, pars.birthpars, pars.mappars))
     end
     
+    distributeCare!(model, fuse(pars.carepars, pars.taskcarepars))
     
     append!(model.pop, model.babies)
     empty!(model.babies)
