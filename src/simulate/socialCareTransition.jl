@@ -58,6 +58,7 @@ function socialCareTransition!(person, time, model, pars)
     person.careNeedLevel = min(careNeed, numCareLevels(pars)-1)
     
     careNeedChanged!(person, pars)
+    careSupplyChanged!(person, pars)
     
     true
 end

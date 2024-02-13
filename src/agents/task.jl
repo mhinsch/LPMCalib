@@ -1,3 +1,6 @@
+export taskTimeToDay, taskTimeToHour
+
+
 mutable struct Task{PERSON}
     "task type: 1 - child care; 2 - social care"
     typ :: Int
@@ -14,5 +17,6 @@ end
 
 "Task time -> day of the week."
 taskTimeToDay(t) = (t-1) ÷ 24 + 1
+taskTimeToHour(t) = (t-1) % 24 + 1
 
 

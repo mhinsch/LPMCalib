@@ -52,7 +52,7 @@ end
 
 
 function setEmptyJobSchedule!(work)
-    work.jobSchedule = zeros(Bool, 24, 7)
+    fill!(work.jobSchedule, false)
 end
 
 
