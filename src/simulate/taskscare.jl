@@ -43,6 +43,26 @@ function distributeCare!(model, pars)
     end
 end
 
+
+function duringSchoolTime(task, pars)
+    d = taskTimeToDay(task.time)
+    h = taskTimeToHour(task.time)
+    
+    1<=d<=5 && 10<=h<=16
+end
+
+
+function assignSchoolCare!(agent, pars)
+    for task in agent.openTasks
+        if task.typ == 1 && duringSchoolTime(task, pars)
+            acceptTask!(task, [], schoolCare, pars)
+            markTaskAssigned!(task)
+        end
+    end
+    nothing
+end
+
+
 "Add tasks to carer's list of asked tasks."
 function addAskedTasks!(carer, tasks, askedTasks)
     carerTasks = get!(askedTasks, carer) do; valtype(askedTasks)() end
@@ -161,7 +181,6 @@ function availabilityWeight(carer, tasks, par)
     1.0
 end
 
-
 "Assign all open tasks of an agent to a potential carer."
 function assignOpenTasks!(agent, askedTasks, pars)
     if !hasOpenTasks(agent)
@@ -171,7 +190,8 @@ function assignOpenTasks!(agent, askedTasks, pars)
     potentialCarers = createCarerList(agent, pars)
     
     # TODO add as dummy agent to potential carers
-    #checkPaidForCare!(agent, pars)
+    assignSchoolCare!(agent, pars)
+    
     ttWeights = zeros(length(potentialCarers))
     weights = zeros(length(potentialCarers))
     
@@ -306,7 +326,7 @@ function checkAcceptTasks!(tasks, agent, pars)
         prob = taskAcceptProb(task, tasksToGiveUp, agent, pars)
         if rand() > prob
             # needed, since caree needs to mark task as open again
-            unassignTask!(task)
+            markTaskUnassigned!(task)
         else
             acceptTask!(task, tasksToGiveUp, agent, pars)
         end

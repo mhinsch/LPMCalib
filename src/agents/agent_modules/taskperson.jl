@@ -25,7 +25,22 @@ end
 
 hasOpenTasks(person) = length(person.openTasks) > 0
 
-function unassignTask!(task)
+
+function markTaskAssigned!(task)
+    owner = task.owner
+    @assert !isUndefined(owner)
+    
+    idx = findfirst(isequal(task), owner.openTasks)
+    @assert idx != nothing
+    
+    remove_unsorted!(owner.openTasks, idx)
+    push!(owner.assignedTasks, task)
+    task.worker = undefined(owner)
+    nothing
+end
+
+
+function markTaskUnassigned!(task)
     owner = task.owner
     @assert !isUndefined(owner)
     
@@ -41,6 +56,10 @@ end
 
 function scheduleTask!(agent, task)
     @assert !isUndefined(task)
+    # e.g. school
+    if !isRealPerson(agent)
+        return nothing
+    end
     day = taskTimeToDay(task.time)
     @assert !(task in agent.todo[day])
     push!(agent.todo[day], task)
@@ -52,6 +71,9 @@ end
 
 
 function unscheduleTask!(agent, task)
+    if !isRealPerson(agent)
+        return nothing
+    end
     day = taskTimeToDay(task.time)
     idx = findfirst(isequal(task), agent.todo[day])
     @assert idx != nothing
@@ -75,14 +97,18 @@ end
 
 
 function removeAllCare!(person)
+    if !isRealPerson(person)
+        return nothing
+    end
     for day in person.todo
         for task in day
-            unassignTask!(task)
+            markTaskUnassigned!(task)
         end
         empty!(day)
     end
     
     fill!(person.taskSchedule, 0.0)
+    nothing
 end
 
 
@@ -96,7 +122,7 @@ function acceptTask!(task, tasksToClear, agent, pars)
     
     for t in tasksToClear
         unscheduleTask!(agent, t[2])
-        unassignTask!(t[2])
+        markTaskUnassigned!(t[2])
     end
     
     scheduleTask!(agent, task)

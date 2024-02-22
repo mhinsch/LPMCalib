@@ -65,6 +65,10 @@ end # struct Person
 @delegate_onefield Person pos [getHomeTown, getHomeTownName]
 
 
+# by convention person objects that are institutions have age == -1
+isRealPerson(p) = p.age >= 0
+
+
 statusChild(p) = p.status == WorkStatus.child
 statusTeenager(p) = p.status == WorkStatus.teenager
 statusStudent(p) = p.status == WorkStatus.student
@@ -89,6 +93,10 @@ undefinedT(::Type{Person}) = undefinedPerson
 undefinedT(::Type{PersonTask}) = undefinedTask
 
 isUndefined(t::T) where {T} = t == undefined(t) 
+
+
+const schoolCare = Person(nothing)
+
 
 "associate a house to a person, removes person from previous house"
 function moveToHouse!(person::Person,house)

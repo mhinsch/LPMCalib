@@ -1,3 +1,5 @@
+
+
 function weeklyCareSupply(person, pars)
     if person.careNeedLevel > 0
         return 0
