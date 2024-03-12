@@ -53,6 +53,9 @@ end
 
 
 function assignSchoolCare!(agent, pars)
+    if agent.age < 4 || agent.age >= 16
+        return nothing
+    end
     for task in agent.openTasks
         if task.typ == 1 && duringSchoolTime(task, pars)
             acceptTask!(task, [], schoolCare, pars)

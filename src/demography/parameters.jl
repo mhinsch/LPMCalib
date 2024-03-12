@@ -297,7 +297,6 @@ end
     stopChildCareAge :: Int						= 13
     babyCarePerDay :: Int						= 14
     childCarePerDay :: Int						= 14
-    freeChildCareByAge :: Vector{Int}			= [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
     socialCareDemandPerDay :: Vector{Int}		= [ 0, 2, 4, 8, 12 ]
     careSupplyMaternity :: Int					= 98
     "effect of task importance on acceptance probability"
