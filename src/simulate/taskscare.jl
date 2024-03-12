@@ -192,7 +192,6 @@ function assignOpenTasks!(agent, askedTasks, pars)
     
     potentialCarers = createCarerList(agent, pars)
     
-    # TODO add as dummy agent to potential carers
     assignSchoolCare!(agent, pars)
     
     ttWeights = zeros(length(potentialCarers))
@@ -274,6 +273,11 @@ function taskAcceptPlan(agent, task, pars)
     end
     
     @assert isempty(tasks) || (tasks[1][1] isa Float64)
+    
+    # tapped out, can't give up free hour
+    if isempty(tasks) && availableCareTime(agent, pars) <= 0
+        return tasks
+    end
     
     # sort by order of importance
     sort!(tasks, by=x->x[1])

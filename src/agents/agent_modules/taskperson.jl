@@ -56,6 +56,7 @@ end
 
 function scheduleTask!(agent, task)
     @assert !isUndefined(task)
+    @assert task.focus > 0
     # e.g. school
     if !isRealPerson(agent)
         return nothing
@@ -63,9 +64,13 @@ function scheduleTask!(agent, task)
     day = taskTimeToDay(task.time)
     @assert !(task in agent.todo[day])
     push!(agent.todo[day], task)
+    # another hour committed
+    if agent.taskSchedule[task.time] <= 0
+        agent.taskHours += 1
+    end
     agent.taskSchedule[task.time] += task.focus
     @assert agent.taskSchedule[task.time] <= 1.0
-    agent.taskHours += 1
+    #@assert agent.taskHours == taskHours(agent)
     nothing
 end
 
@@ -80,8 +85,12 @@ function unscheduleTask!(agent, task)
     
     remove_unsorted!(agent.todo[day], idx)
     agent.taskSchedule[task.time] -= task.focus
+    # freed up an hour
+    if agent.taskSchedule[task.time] <= 0
+        agent.taskHours -= 1
+    end
     @assert agent.taskSchedule[task.time] >= 0.0
-    agent.taskHours -= 1
+    #@assert agent.taskHours == taskHours(agent)
     nothing
 end
 
@@ -108,6 +117,7 @@ function removeAllCare!(person)
     end
     
     fill!(person.taskSchedule, 0.0)
+    person.taskHours = 0
     nothing
 end
 
