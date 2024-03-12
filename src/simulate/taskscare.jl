@@ -279,6 +279,12 @@ function taskAcceptPlan(agent, task, pars)
         return tasks
     end
     
+    # if new task is at different location we'd have to give up all previous tasks
+    # currently assumes caree determines location
+    if !isempty(tasks) && !tasksColocated(tasks[1][2], task)
+        return tasks
+    end
+    
     # sort by order of importance
     sort!(tasks, by=x->x[1])
     

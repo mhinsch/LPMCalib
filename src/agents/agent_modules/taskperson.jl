@@ -25,6 +25,7 @@ end
 
 hasOpenTasks(person) = length(person.openTasks) > 0
 
+tasksColocated(task1, task2) = task1.owner.pos == task2.owner.pos
 
 function markTaskAssigned!(task)
     owner = task.owner

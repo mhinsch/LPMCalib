@@ -19,4 +19,3 @@ end
 taskTimeToDay(t) = (t-1) ÷ 24 + 1
 taskTimeToHour(t) = (t-1) % 24 + 1
 
-
