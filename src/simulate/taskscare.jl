@@ -24,6 +24,7 @@ function distributeCare!(model, pars)
     
     askedTasks = Dict{AgentT, Vector{TaskT}}()
     
+    print("tasks:")
     # tasks can be rejected, plus more important tasks can
     # override already assigned tasks, so we iterate a couple of times
     for i in 1:pars.nIterCareDist
@@ -35,12 +36,18 @@ function distributeCare!(model, pars)
             assignOpenTasks!(caree, askedTasks, pars)
         end
         
+        nc = length(askedTasks)
+        nt = sum(x->length(x[2]), askedTasks)
+        print("$nc\t")
+        
         # let carers accept tasks
         for (carer, tasks) in askedTasks
             checkAcceptTasks!(tasks, carer, pars)
-            empty!(tasks)
         end
+        
+        empty!(askedTasks)
     end
+    println()
 end
 
 
@@ -181,7 +188,9 @@ taskTypes(pars) = 1:2
 
 # TODO
 function availabilityWeight(carer, tasks, par)
-    1.0
+    t = availableCareTime(carer, par)/length(tasks)
+    @assert t >= 0
+    t+1
 end
 
 "Assign all open tasks of an agent to a potential carer."
