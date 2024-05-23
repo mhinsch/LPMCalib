@@ -1,7 +1,46 @@
+module Social
+
 using Distributions: Normal, LogNormal
 
-export socialTransition!, selectSocialTransition 
+using Age
+using Events
 
+export socialTransition!, selectSocialTransition 
+export ChangeStatus, SocialT
+
+
+struct ChangeStatus end
+
+
+function changeStatus!(person, newStatus, pars)
+    oldStatus = person.status
+    person.status = newStatus
+    trigger!(ChangeStatus(), person, oldStatus, pars)
+end
+
+
+function startRetirement!(person, pars)
+    loseJob!(person)
+    shareWorkingTime = person.workingPeriods / pars.minContributionPeriods
+
+    dK = rand(Normal(0, pars.wageVar))
+    person.pension = person.lastIncome * shareWorkingTime * exp(dK)
+end
+
+struct SocialT end
+
+function process!(::ChangeAge1Yr, ::SocialT, person, model, pars)
+    if person.age == pars.ageTeenagers
+        changeStatus!(person, WorkStatus.teenager, pars)
+    # all agents first become students, start working in social transition
+    elseif person.age == pars.ageOfAdulthood
+        becomeStudent!(person, pars)
+        changeStatus!(person, WorkStatus.student, pars)
+    elseif person.age == pars.ageOfRetirement
+        startRetirement!(person, pars)
+        changeStatus!(person, WorkStatus.retired, pars)
+    end
+end
 
 mutable struct SocialCache
     socialClassShares :: Vector{Float64}
@@ -26,6 +65,10 @@ function startStudying!(person, pars)
 end
 
 doneStudying(person, pars) = person.classRank >= 4
+
+function becomeStudent!(person, pars)
+    person.classRank = 0
+end
 
 function studentStartWorking!(person, pars)
     setWageProgression!(person, pars)
@@ -100,3 +143,4 @@ end
 
 
 
+end

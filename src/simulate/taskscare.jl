@@ -1,4 +1,24 @@
-export weeklyCareSupply, availableCareTime
+module TasksCareT
+    
+using Age, Social
+using Events
+
+export weeklyCareSupply, availableCareTime, TasksCareT
+
+
+struct TasksCareT end
+
+
+function process!(::ChangeAge1Yr, ::TasksCareT, person, model, pars)
+    # child ages out of care need this time step
+    if person.age == pars.stopBabyCareAge || person.age == pars.stopChildCareAge 
+        careNeedChanged!(person, pars)
+    end
+end
+
+function process!(::ChangeStatus, ::TasksCareT, person, oldStatus, pars)
+    careSupplyChanged!(person, pars)
+end
 
 
 function removeAllCareAndTasks!(person)
@@ -354,4 +374,6 @@ function checkAcceptTasks!(tasks, agent, pars)
         end
     end
 end
-    
+
+end	# module TasksCareT
+

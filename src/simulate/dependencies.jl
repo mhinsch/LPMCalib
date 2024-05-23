@@ -1,5 +1,21 @@
-export selectAssignGuardian, assignGuardian!, findFamilyGuardian, findOtherGuardian
+module Dependencies
+    
 
+using Age
+using Events
+
+
+export selectAssignGuardian, assignGuardian!, findFamilyGuardian, findOtherGuardian
+export DependenciesT
+
+struct DependenciesT end
+
+function process!(::ChangeAge1Yr, ::DependenciesT, person, model, pars)
+    if person.age == pars.ageOfIndependence
+        # also updates guardian
+        setAsIndependent!(person)
+    end
+end
 
 function hasValidGuardian(person)
     for g in person.guardians
@@ -96,4 +112,6 @@ function adopt!(guard, person)
     if ! isSingle(guard)
         setAsGuardianDependent!(guard.partner, person)
     end
+end
+
 end
