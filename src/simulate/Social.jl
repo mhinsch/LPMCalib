@@ -3,9 +3,9 @@ module Social
 using Distributions: Normal, LogNormal
 
 using Age
-using Events
+using ChangeEvents
 
-export socialTransition!, selectSocialTransition 
+export socialTransition!, selectSocialTransition, SocialCache, changeStatus! 
 export ChangeStatus, SocialT
 
 
@@ -29,7 +29,7 @@ end
 
 struct SocialT end
 
-function process!(::ChangeAge1Yr, ::SocialT, person, model, pars)
+function ChangeEvents.process!(::ChangeAge1Yr, ::SocialT, person, model, pars)
     if person.age == pars.ageTeenagers
         changeStatus!(person, WorkStatus.teenager, pars)
     # all agents first become students, start working in social transition

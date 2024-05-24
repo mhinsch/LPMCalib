@@ -2,7 +2,8 @@ include("lib/loadLibsPath.jl")
 
 addToLoadPath!(String(@__DIR__) * "/.", 
                String(@__DIR__) * "/lib",
-               String(@__DIR__) * "/src")
+               String(@__DIR__) * "/src",
+               String(@__DIR__) * "/src/simulate")
 
 using ArgParse
 

@@ -18,16 +18,17 @@ include("setup/population.jl")
 include("setup/mapPop.jl")
 include("setup/mapBenefits.jl")
 
+
+using Age, Social, TasksCare, Dependencies
+
+
 include("simulate/allocate.jl")
 include("simulate/death.jl")
 include("simulate/birth.jl")  
 include("simulate/divorce.jl")       
-include("simulate/ageTransition.jl")
-include("simulate/socialTransition.jl")
 include("simulate/jobtransition.jl")
 include("simulate/relocate.jl")
 include("simulate/marriages.jl")
-include("simulate/dependencies.jl")
 include("simulate/socialCareTransition.jl")
 include("simulate/care.jl")
 include("simulate/income.jl")
@@ -35,7 +36,10 @@ include("simulate/jobmarket.jl")
 include("simulate/benefits.jl")
 include("simulate/wealth.jl")
 include("simulate/housing_topdown.jl")
-include("simulate/taskscare.jl")
+
+
+include("demoEvents.jl")
+
 
 using Utilities
 

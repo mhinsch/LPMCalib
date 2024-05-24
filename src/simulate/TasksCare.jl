@@ -1,22 +1,22 @@
-module TasksCareT
+module TasksCare
     
 using Age, Social
-using Events
+using ChangeEvents
 
-export weeklyCareSupply, availableCareTime, TasksCareT
-
+export weeklyCareSupply, availableCareTime 
+export TasksCareT 
 
 struct TasksCareT end
 
 
-function process!(::ChangeAge1Yr, ::TasksCareT, person, model, pars)
+function ChangeEvents.process!(::ChangeAge1Yr, ::TasksCareT, person, model, pars)
     # child ages out of care need this time step
     if person.age == pars.stopBabyCareAge || person.age == pars.stopChildCareAge 
         careNeedChanged!(person, pars)
     end
 end
 
-function process!(::ChangeStatus, ::TasksCareT, person, oldStatus, pars)
+function ChangeEvents.process!(::ChangeStatus, ::TasksCareT, person, oldStatus, pars)
     careSupplyChanged!(person, pars)
 end
 
