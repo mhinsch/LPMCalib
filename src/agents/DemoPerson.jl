@@ -1,10 +1,13 @@
+module DemoPerson
+
 using CompositeStructs
 
-using DeclUtils
-using TypedDelegation
+
+using Tasks, Towns, DemoHouse
 
 export Person
-export PersonHouse, isUndefined, undefinedHouse, undefined
+export PersonHouse, PersonTown, PersonTask 
+export isUndefined, undefinedPerson, undefinedHouse, undefined
 
 export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
 export householdIncomePerCapita
@@ -47,7 +50,7 @@ Person ties various agent modules into one compound agent type.
     Class...
     Benefits...
     Dependency{Person}...
-    TaskPerson{Task{Person}}...
+    TaskPerson{ATask{Person}}...
     
     pos::House{Person, Town} = undefinedHouse
     # undefined Person
@@ -62,7 +65,7 @@ Person ties various agent modules into one compound agent type.
 end # struct Person 
 
 # delegate functions to components
-@delegate_onefield Person pos [getHomeTown, getHomeTownName]
+DemoHouse.getHomeTown(person::Person) = getHomeTown(person.pos)
 
 
 # by convention person objects that are institutions have age == -1
@@ -79,7 +82,7 @@ statusUnemployed(p) = p.status == WorkStatus.unemployed
 
 const PersonHouse = House{Person, Town}
 const PersonTown = Town{PersonHouse}
-const PersonTask = Task{Person}
+const PersonTask = ATask{Person}
 const undefinedTown = PersonTown((-1,-1), 0.0)
 const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 const undefinedPerson = Person(nothing)
@@ -374,4 +377,5 @@ function Utilities.dump(io, person::Person, FS="\t", ES=",")
     Utilities.dump(io, person.class, FS, ES); print(io, FS)
     Utilities.dump(io, person.dependencies, FS, ES)
 end
-  
+
+end

@@ -5,7 +5,7 @@ using Distributions: Normal, LogNormal
 using Age
 using ChangeEvents
 
-export socialTransition!, selectSocialTransition, SocialCache, changeStatus! 
+export socialTransition!, selectSocialTransition, socialPreCalc!, SocialCache, changeStatus! 
 export ChangeStatus, SocialT
 
 

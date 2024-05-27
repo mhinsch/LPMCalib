@@ -1,7 +1,9 @@
-export taskTimeToDay, taskTimeToHour
+module Tasks
+
+export ATask, taskTimeToDay, taskTimeToHour
 
 
-mutable struct Task{PERSON}
+mutable struct ATask{PERSON}
     "task type: 1 - child care; 2 - social care"
     typ :: Int
     owner :: PERSON
@@ -19,3 +21,5 @@ end
 taskTimeToDay(t) = (t-1) ÷ 24 + 1
 taskTimeToHour(t) = (t-1) % 24 + 1
 
+
+end

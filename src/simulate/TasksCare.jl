@@ -1,9 +1,11 @@
 module TasksCare
     
+using DemoPerson
+
 using Age, Social
 using ChangeEvents
 
-export weeklyCareSupply, availableCareTime 
+export weeklyCareSupply, availableCareTime, removeAllCareAndTasks! 
 export TasksCareT 
 
 struct TasksCareT end

@@ -3,7 +3,7 @@ using CompositeStructs
 
 export  House, HouseLocation
 
-export getHomeTown, getHouseLocation, undefined, isEmpty, town 
+export getHomeTown, getHouseLocation, addOccupant!, removeOccupant!, isEmpty, town 
 
 using Utilities
 using DeclUtils

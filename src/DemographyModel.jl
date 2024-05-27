@@ -2,12 +2,9 @@ module DemographyModel
 
 export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
-include("agents/shift.jl")
-include("agents/task.jl")
-include("agents/town.jl")
-include("agents/house.jl")
-include("agents/person.jl")
-include("agents/world.jl")
+
+using DemoPerson, DemoHouse, Towns, Tasks, Shifts, World 
+
 
 include("common/income.jl")
 include("common/jobmarket.jl")

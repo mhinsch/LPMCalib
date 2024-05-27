@@ -1,5 +1,7 @@
 using EnumX
 
+using Shifts
+
 export setEmptyJobSchedule!, setFullWeeklyTime!
 
 export WorkStatus
@@ -27,6 +29,7 @@ const WST = WorkStatus.T
     financialWealth :: Float64 = 0
     "potential total working hours per week"
     workingHours :: Int = 0 
+    # type fixed for now, needs changes in CompositeStructs to make generic
     jobShift :: Shift = Shift()
     daysOff :: Vector{Int} = []
     jobSchedule :: Matrix{Bool} = zeros(Bool, 24, 7)

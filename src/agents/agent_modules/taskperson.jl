@@ -1,4 +1,4 @@
-export howBusyAt
+export howBusyAt, removeAllCare!, removeAllTasks!
 
 # TODO
 # We might need to rethink how to store assigned vs open tasks.

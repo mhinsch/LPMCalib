@@ -1,7 +1,7 @@
 module Dependencies
     
 
-using Age
+using Age, DemoPerson
 using ChangeEvents
 
 
