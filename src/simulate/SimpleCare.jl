@@ -1,10 +1,13 @@
-module Care
+module SimpleCare
+    
 
-export socialCareSupply, socialCareDemand, householdSocialCareNeed, numCareLevels
+using CareCM
+
+
+export socialCareSupply, socialCareDemand, householdSocialCareNeed 
+
 
 socialCareDemand(person, pars) = pars.careDemandInHours[person.careNeedLevel+1]
-
-numCareLevels(pars) = length(pars.careDemandInHours)
 
 
 function childCareNeed(child, model, pars)

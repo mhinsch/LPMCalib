@@ -6,7 +6,7 @@ using Utilities
 using MaternityAM, DemoPerson
 
 
-export weeklyCareSupply, initCareTasks!
+export socialCareDemandPerDay, weeklyCareSupply, initCareTasks!
 
 
 function weeklyCareSupply(person, pars)
