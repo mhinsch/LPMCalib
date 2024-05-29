@@ -5,7 +5,7 @@ using Utilities
 
 using ChangeEvents
 
-using BasicInfoAM, WorkAM, KinshipAM#, DemoPerson
+using BasicInfoAM, WorkAM, KinshipAM, DemoPerson
 
 export death!, setDead!, deathPreCalc!
 export DeathCache
