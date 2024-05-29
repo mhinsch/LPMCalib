@@ -1,8 +1,5 @@
 using ChangeEvents
-using Age
-using Dependencies
-using TasksCare
-using Social
+using Age, Death, Dependencies, TasksCare, Social
 
 
 function ChangeEvents.trigger!(c::ChangeAge1Yr, args...)
@@ -14,4 +11,10 @@ end
 
 function ChangeEvents.trigger!(c::ChangeStatus, args...)
     process!(c, TasksCareT(), args...)
+end
+
+
+function ChangeEvents.trigger!(c::ChangeDeath, args...)
+    process!(c, TasksCareT(), args...)
+    process!(c, DependenciesT(), args...)
 end

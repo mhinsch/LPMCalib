@@ -9,8 +9,8 @@ using BasicInfoAM, WorkAM, DemoPerson
 using IncomeCM
 using Age
 
-export socialTransition!, selectSocialTransition, socialPreCalc!, SocialCache, changeStatus! 
-export studentStartWorking!
+export socialTransition!, selectSocialTransition, socialPreCalc!, changeStatus!, studentStartWorking!
+export SocialCache
 export ChangeStatus, SocialT
 
 

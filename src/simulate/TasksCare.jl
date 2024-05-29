@@ -7,7 +7,7 @@ using ChangeEvents
 
 using KinshipAM, TasksAM, DemoPerson, Tasks
 using TasksCareCM
-using Age, Social
+using Age, Social, Death
 
 export availableCareTime, removeAllCareAndTasks!, careNeedChanged!, careSupplyChanged!, distributeCare! 
 export TasksCareT 
@@ -25,6 +25,11 @@ end
 function ChangeEvents.process!(::ChangeStatus, ::TasksCareT, person, oldStatus, pars)
     careSupplyChanged!(person, pars)
 end
+
+
+function ChangeEvents.process!(::ChangeDeath, ::TasksCareT, person)
+    removeAllCareAndTasks!(person)
+end    
 
 
 function removeAllCareAndTasks!(person)

@@ -3,10 +3,10 @@ module Dependencies
 
 using Utilities
 
-
-using BasicInfoAM, KinshipAM, WorkAM
-using Age, MoveHouse, DemoPerson
 using ChangeEvents
+
+using BasicInfoAM, KinshipAM, WorkAM, DemoPerson
+using Age, Death, MoveHouse 
 
 
 export selectAssignGuardian, assignGuardian!, findFamilyGuardian, findOtherGuardian
@@ -19,7 +19,26 @@ function ChangeEvents.process!(::ChangeAge1Yr, ::DependenciesT, person, model, p
         # also updates guardian
         setAsIndependent!(person)
     end
+    
+    nothing
 end
+
+function ChangeEvents.process!(::ChangeDeath, ::DependenciesT, person)
+    # dead persons are no longer dependents
+    setAsIndependent!(person)
+
+    # dead persons no longer have to be provided for
+    setAsSelfproviding!(person)
+
+    for p in person.providees
+        p.provider = undefinedPerson
+        # TODO update provision/work status
+    end
+    empty!(person.providees)
+    
+    nothing
+end
+
 
 function hasValidGuardian(person)
     for g in person.guardians

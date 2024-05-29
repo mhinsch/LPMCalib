@@ -3,11 +3,13 @@ module Death
 
 using Utilities
 
+using ChangeEvents
+
 using BasicInfoAM, WorkAM, KinshipAM, DemoPerson
-using TasksCare
 
 export death!, setDead!, deathPreCalc!
-export DeathCache 
+export DeathCache
+export ChangeDeath
 
 function deathProbability(baseRate, person, model, pars) 
     # cap age at 150 for admin reasons
@@ -47,26 +49,17 @@ function deathProbability(baseRate, person, model, pars)
 end # function deathProb
 
 
+struct ChangeDeath end
+
+
 function setDead!(person) 
     person.alive = false
     resetHouse!(person)
     if !isSingle(person) 
         resolvePartnership!(person.partner,person)
     end
-
-    # dead persons are no longer dependents
-    setAsIndependent!(person)
-
-    # dead persons no longer have to be provided for
-    setAsSelfproviding!(person)
-
-    for p in person.providees
-        p.provider = undefinedPerson
-        # TODO update provision/work status
-    end
-    empty!(person.providees)
     
-    removeAllCareAndTasks!(person)
+    trigger!(ChangeDeath(), person)
     
     # dependents are being taken care of by assignGuardian!
     nothing
@@ -169,5 +162,6 @@ function death!(person, currstep, model, parameters)
 
     false
 end 
+
 
 end
