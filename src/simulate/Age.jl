@@ -1,9 +1,11 @@
 module Age
 
 
-using Distributions
+using ChangeEvents
 
-export selectAgeTransition, ageTransition!, selectWorkTransition, workTransition!
+using MaternityAM, KinshipAM
+
+export selectAgeTransition, ageTransition!  
 export ChangeAge1Yr
 
 
@@ -21,7 +23,7 @@ function changeAge!(person, newAge, model, pars)
         return
     end
     
-    trigger!(ChangeAge1Yr, person, model, pars)
+    trigger!(ChangeAge1Yr(), person, model, pars)
     nothing
 end
 

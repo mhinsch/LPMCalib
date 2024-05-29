@@ -1,5 +1,9 @@
+module BasicInfoAM
+
+
 using Utilities
 
+export BasicInfo
 export isFemale, isMale, hasBirthday, yearsold
 export Gender, male, female, unknown
 
@@ -24,3 +28,4 @@ function yearsold(person)
     trunc(Int, person.age)
 end 
 
+end

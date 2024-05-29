@@ -1,3 +1,12 @@
+module IncomeCM
+    
+
+using Distributions
+
+
+export setWageProgression!, assignWealthByIncPercentile!, computeWage
+
+
 "Set initial and final wage depending on social class."
 function setWageProgression!(person, pars)
     crank = person.classRank+1
@@ -39,4 +48,4 @@ function computeWage(person, pars)
 end
 
 
-
+end

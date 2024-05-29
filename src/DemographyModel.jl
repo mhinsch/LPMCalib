@@ -5,10 +5,9 @@ export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
 using DemoPerson, DemoHouse, Towns, Tasks, Shifts, World 
 
+using TasksCareCM
 
-include("common/income.jl")
 include("common/jobmarket.jl")
-include("common/tasksCare.jl")
 
 include("setup/map.jl")
 include("setup/population.jl")
@@ -16,19 +15,12 @@ include("setup/mapPop.jl")
 include("setup/mapBenefits.jl")
 
 
-using Age, Social, TasksCare, Dependencies
+using Dependencies, Age, Social, TasksCare, Income, SocialCare, Relocate, Divorce, Marriage
 
 
-include("simulate/allocate.jl")
 include("simulate/death.jl")
 include("simulate/birth.jl")  
-include("simulate/divorce.jl")       
 include("simulate/jobtransition.jl")
-include("simulate/relocate.jl")
-include("simulate/marriages.jl")
-include("simulate/socialCareTransition.jl")
-include("simulate/care.jl")
-include("simulate/income.jl")
 include("simulate/jobmarket.jl")
 include("simulate/benefits.jl")
 include("simulate/wealth.jl")

@@ -1,9 +1,13 @@
+module WorkAM
+
+
 using EnumX
 
 using Shifts
 
-export setEmptyJobSchedule!, setFullWeeklyTime!
-
+export Work
+export setEmptyJobSchedule!, loseJob!
+export statusChild, statusTeenager, statusStudent, statusWorker, statusRetired, statusUnemployed
 export WorkStatus
 
 # better (scoped) enums from package EnumX
@@ -54,6 +58,15 @@ mutable struct RMWork
 end        
 
 
+statusChild(p) = p.status == WorkStatus.child
+statusTeenager(p) = p.status == WorkStatus.teenager
+statusStudent(p) = p.status == WorkStatus.student
+statusWorker(p) = p.status == WorkStatus.worker
+statusRetired(p) = p.status == WorkStatus.retired
+statusUnemployed(p) = p.status == WorkStatus.unemployed
+
+
+
 function setEmptyJobSchedule!(work)
     fill!(work.jobSchedule, false)
 end
@@ -69,3 +82,4 @@ function loseJob!(person)
 end
 
 
+end

@@ -1,4 +1,6 @@
 module World
+    
+using DemoHouse
 
 export adjacent8Towns, findHousesInTown, emptyHouses, emptyHousesInTown
 

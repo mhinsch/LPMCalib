@@ -1,5 +1,8 @@
 using MiniObserve
 
+using BasicInfoAM, KinshipAM, WorkAM, DemoPerson, DemoHouse
+using TasksCare
+
 # mean and variance
 const MVA = MeanVarAcc{Float64}
 # maximum, minimum

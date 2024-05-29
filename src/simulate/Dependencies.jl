@@ -1,7 +1,11 @@
 module Dependencies
     
 
-using Age, DemoPerson
+using Utilities
+
+
+using BasicInfoAM, KinshipAM, WorkAM
+using Age, MoveHouse, DemoPerson
 using ChangeEvents
 
 
@@ -10,7 +14,7 @@ export DependenciesT
 
 struct DependenciesT end
 
-function process!(::ChangeAge1Yr, ::DependenciesT, person, model, pars)
+function ChangeEvents.process!(::ChangeAge1Yr, ::DependenciesT, person, model, pars)
     if person.age == pars.ageOfIndependence
         # also updates guardian
         setAsIndependent!(person)

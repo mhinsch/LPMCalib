@@ -1,4 +1,15 @@
-export howBusyAt, removeAllCare!, removeAllTasks!
+module TasksAM
+    
+
+using Utilities
+
+
+using InstitutionsAM, Tasks
+
+
+export TaskPerson
+export howBusyAt, hasOpenTasks, acceptTask!, markTaskAssigned!, markTaskUnassigned!, findTasksAt
+export tasksColocated, removeAllCare!, removeAllTasks!
 
 # TODO
 # We might need to rethink how to store assigned vs open tasks.
@@ -159,4 +170,7 @@ function findTasksAt(agent, t)
     day = taskTimeToDay(t)
     [ task for task in agent.todo[day]
         if task.time == t ]
+end
+
+
 end

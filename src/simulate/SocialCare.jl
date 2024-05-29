@@ -1,7 +1,13 @@
+module SocialCare
+
+
 using Distributions
 using Utilities
+using BasicInfoAM, WorkAM
+using Care, TasksCare
 
-export selectSocialCareTransition, socialCareTransition!
+export selectSocialCareTransition, socialCareTransition!, socialCarePreCalc!
+export SocialCareCache
 
 
 function selectSocialCareTransition(p, pars)
@@ -63,4 +69,5 @@ function socialCareTransition!(person, time, model, pars)
     true
 end
 
-    
+
+end

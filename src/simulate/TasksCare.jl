@@ -1,11 +1,15 @@
 module TasksCare
     
-using DemoPerson
 
-using Age, Social
+using Utilities
+
 using ChangeEvents
 
-export weeklyCareSupply, availableCareTime, removeAllCareAndTasks! 
+using KinshipAM, TasksAM, DemoPerson, Tasks
+using TasksCareCM
+using Age, Social
+
+export availableCareTime, removeAllCareAndTasks!, careNeedChanged!, careSupplyChanged!, distributeCare! 
 export TasksCareT 
 
 struct TasksCareT end

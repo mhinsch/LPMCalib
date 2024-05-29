@@ -1,3 +1,9 @@
+module MoveHouse
+    
+
+using DemoPerson, DemoHouse, World
+
+
 export findEmptyHouseInTown, findEmptyHouseInOrdAdjacentTown, 
         findEmptyHouseAnywhere, movePeopleToEmptyHouse!, movePeopleToHouse!
 
@@ -54,4 +60,7 @@ function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=PersonTown[])
         return newhouse
     end
     undefinedHouse 
+end
+
+
 end

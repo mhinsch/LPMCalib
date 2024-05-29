@@ -15,8 +15,11 @@ export fuse, countSubset
 export dump, dump_property, dump_header
 export sumClassBias, rateBias, preCalcRateBias!
 export WeightSampler, sampleNoReplace!, sampleNoReplaceFrom!, resetSampler!, initWeight!, mapWeights
+export undefined, isUndefined
 
 
+function undefined end
+function isUndefined end
 
 "convert date in rational representation to (years, months) as tuple"
 function date2yearsmonths(date::Rational{Int})

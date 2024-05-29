@@ -2,6 +2,9 @@ using StatsBase
 using Distributions
 
 
+using MaternityAM
+
+
 function assignUnemploymentDuration!(unemployed, uRates, durationShares, pars)
     @assert sum(durationShares) <= 1
     totUnemployed = length(unemployed)

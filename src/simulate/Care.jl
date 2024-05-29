@@ -1,6 +1,6 @@
-include("kinship.jl")
+module Care
 
-export socialCareSupply, socialCareDemand, householdSocialCareNeed
+export socialCareSupply, socialCareDemand, householdSocialCareNeed, numCareLevels
 
 socialCareDemand(person, pars) = pars.careDemandInHours[person.careNeedLevel+1]
 
@@ -149,4 +149,7 @@ function socialCare!(model, pars)
     
     network = buildSupplyDemandNetwork(model, pars)
     resolveCareSupply!(network, model, pars)
+end
+
+
 end

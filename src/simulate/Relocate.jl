@@ -1,3 +1,9 @@
+module Relocate
+    
+
+using BasicInfoAM, WorkAM, KinshipAM, DemoPerson
+using MoveHouse
+
 export relocate!, selectRelocate
 
 
@@ -19,4 +25,7 @@ function relocate!(person, time, model, pars)
     end
     
     false
+end
+
+
 end

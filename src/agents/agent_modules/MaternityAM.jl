@@ -1,3 +1,6 @@
+module MaternityAM
+    
+export Maternity
 export startMaternity!, stepMaternity!, endMaternity!, isInMaternity, maternityDuration
 
 @kwdef struct Maternity
@@ -22,3 +25,4 @@ function endMaternity!(mat)
     mat.monthsSinceBirth = 0
 end
 
+end

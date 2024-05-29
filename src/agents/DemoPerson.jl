@@ -1,38 +1,33 @@
 module DemoPerson
 
+
 using CompositeStructs
 
+using Utilities
 
 using Tasks, Towns, DemoHouse
 
 export Person
 export PersonHouse, PersonTown, PersonTask 
-export isUndefined, undefinedPerson, undefinedHouse, undefined
+export undefinedPerson, undefinedHouse 
 
-export moveToHouse!, resetHouse!, resolvePartnership!, householdIncome
+export moveToHouse!, resetHouse!, livesInSharedHouse, resolvePartnership!, householdIncome
 export householdIncomePerCapita
 
-export getHomeTown, getHomeTownName, livingTogether
-export setAsParentChild!, setAsPartners!, setParent!
-export hasAliveChild, ageYoungestAliveChild, hasBirthday, yearsold
+export livingTogether, setAsParentChild!, setAsPartners!, setParent!
+export hasAliveChild, ageYoungestAliveChild 
 export hasOwnChildrenAtHome, related1stDegree 
 export canLiveAlone, isOrphan, setAsGuardianDependent!, setAsProviderProvidee!
-export hasDependents, isDependent, hasProvidees
 export setAsIndependent!, setAsSelfproviding!, resolveDependency!
 export checkConsistencyDependents
 export maxParentRank
+export schoolCare
 
-export statusChild, statusTeenager, statusStudent, statusWorker, statusRetired, statusUnemployed
 
-include("agent_modules/basicinfo.jl")
-include("agent_modules/kinship.jl")
-include("agent_modules/maternity.jl")
-include("agent_modules/work.jl")
-include("agent_modules/care.jl")
-include("agent_modules/class.jl")
-include("agent_modules/dependencies.jl")
-include("agent_modules/benefits.jl")
-include("agent_modules/taskperson.jl")
+
+using InstitutionsAM
+using WorkAM, KinshipAM, MaternityAM, BasicInfoAM, CareAM, ClassAM, DependenciesAM, TasksAM
+using BenefitsAM
 
 
 """
@@ -67,17 +62,8 @@ end # struct Person
 # delegate functions to components
 DemoHouse.getHomeTown(person::Person) = getHomeTown(person.pos)
 
-
 # by convention person objects that are institutions have age == -1
-isRealPerson(p) = p.age >= 0
-
-
-statusChild(p) = p.status == WorkStatus.child
-statusTeenager(p) = p.status == WorkStatus.teenager
-statusStudent(p) = p.status == WorkStatus.student
-statusWorker(p) = p.status == WorkStatus.worker
-statusRetired(p) = p.status == WorkStatus.retired
-statusUnemployed(p) = p.status == WorkStatus.unemployed
+InstitutionsAM.isRealPerson(p) = p.age >= 0
 
 
 const PersonHouse = House{Person, Town}
@@ -88,21 +74,21 @@ const undefinedHouse = PersonHouse(undefinedTown, (-1, -1))
 const undefinedPerson = Person(nothing)
 const undefinedTask = PersonTask(0, undefinedPerson, undefinedPerson, 0, 0, 0)
 
-undefined(::T) where {T} = undefinedT(T)
-undefined(t::DataType) = undefinedT(t)
+Utilities.undefined(::T) where {T} = undefinedT(T)
+Utilities.undefined(t::DataType) = undefinedT(t)
 undefinedT(::Type{PersonHouse}) = undefinedHouse
 undefinedT(::Type{PersonTown}) = undefinedTown
 undefinedT(::Type{Person}) = undefinedPerson
 undefinedT(::Type{PersonTask}) = undefinedTask
 
-isUndefined(t::T) where {T} = t == undefined(t) 
+Utilities.isUndefined(t::T) where {T} = t == undefined(t) 
 
 
 const schoolCare = Person(nothing)
 
 
 "associate a house to a person, removes person from previous house"
-function moveToHouse!(person::Person,house)
+function moveToHouse!(person,house)
     if ! isUndefined(person.pos) 
         removeOccupant!(person.pos, person)
     end
@@ -377,5 +363,6 @@ function Utilities.dump(io, person::Person, FS="\t", ES=",")
     Utilities.dump(io, person.class, FS, ES); print(io, FS)
     Utilities.dump(io, person.dependencies, FS, ES)
 end
+
 
 end

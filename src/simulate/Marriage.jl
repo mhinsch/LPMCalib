@@ -1,6 +1,13 @@
-export marriage!, selectMarriage
+module Marriage
+
+
+export marriage!, selectMarriage, marriagePreCalc!
+export MarriageCache
 
 using Utilities
+
+using BasicInfoAM, KinshipAM, DependenciesAM, WorkAM, DemoPerson, DemoHouse, Towns
+using MoveHouse
 
 ageClass(person) = trunc(Int, person.age/10)
 
@@ -190,4 +197,7 @@ function joinCouple!(man, woman, model, pars)
     # required by moving around (I think)
     
     true
+end
+
+
 end

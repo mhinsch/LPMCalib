@@ -1,12 +1,15 @@
+module KinshipAM
+
 using Utilities
 
+export Kinship
 export hasChildren, addChild!, isSingle, parents, siblings, nChildren, 
     nSiblings, areSiblings, areParentChild
 
 @kwdef struct Kinship{P} 
-  father::P = undefinedPerson#undefined(P)
-  mother::P = undefinedPerson#undefined(P)
-  partner::P = undefinedPerson#undefined(P)
+  father::P = undefined(P)
+  mother::P = undefined(P)
+  partner::P = undefined(P)
   pTime :: Rational{Int} = 0//1
   children::Vector{P} = []
 end 
@@ -23,8 +26,9 @@ parents(person) = (person.father, person.mother)
 
 nChildren(person) = length(person.children)
 
-areSiblings(person1, person2) = person1.father == person2.father != undefinedPerson || 
-    person1.mother == person2.mother != undefinedPerson
+areSiblings(person1, person2) = 
+    (person1.father == person2.father && !isUndefined(person1.father)) || 
+    (person1.mother == person2.mother && !isUndefined(person1.mother))
     
 areFullSiblings(person1, person2) = parents(person1) == parents(person2)    
     
@@ -63,3 +67,4 @@ function siblings(person::P) where {P}
     sibs
 end
 
+end

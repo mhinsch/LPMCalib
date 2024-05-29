@@ -1,3 +1,6 @@
+using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM
+using IncomeCM
+using Care
 
 # return agents with age in interval minAge, maxAge
 # assumes pop is sorted by age

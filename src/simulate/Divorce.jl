@@ -1,4 +1,13 @@
-export selectDivorce, divorce!
+module Divorce
+    
+
+using Utilities
+
+using BasicInfoAM, KinshipAM, WorkAM, DemoPerson
+using MoveHouse, Social
+
+export selectDivorce, divorce!, divorcePreCalc!
+export DivorceCache
 
 
 mutable struct DivorceCache
@@ -82,3 +91,4 @@ end
 selectDivorce(person, pars) = person.alive && isMale(person) && !isSingle(person)
 
 
+end

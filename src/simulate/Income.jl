@@ -1,3 +1,13 @@
+module Income
+    
+
+using Utilities
+
+using WorkAM, MaternityAM
+using DemoHouse
+
+export updateIncome!
+
 
 function updatePersonIncome!(person, pars)
     if statusWorker(person)
@@ -136,4 +146,7 @@ function updateIncome!(model, time, pars)
         #nDependentMembers = count(isDependent, house.occupants)
         #house.povertyLineIncome += nDependentMembers * pars.additionalChild
     #end 
+end
+
+
 end

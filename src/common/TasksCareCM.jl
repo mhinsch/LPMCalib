@@ -1,3 +1,12 @@
+module TasksCareCM
+    
+
+using Utilities
+
+using MaternityAM, DemoPerson
+
+
+export weeklyCareSupply, initCareTasks!
 
 
 function weeklyCareSupply(person, pars)
@@ -56,4 +65,7 @@ function initCareTasks!(person, pars)
             hour += 1
         end           
     end
+end
+
+
 end
