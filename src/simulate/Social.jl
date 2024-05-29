@@ -6,22 +6,12 @@ using Utilities
 
 using ChangeEvents
 using BasicInfoAM, WorkAM, DemoPerson
-using IncomeCM
+using SocialCM, IncomeCM
 using Age
 
-export socialTransition!, selectSocialTransition, socialPreCalc!, changeStatus!, studentStartWorking!
+export socialTransition!, selectSocialTransition, socialPreCalc!, studentStartWorking!
 export SocialCache
-export ChangeStatus, SocialT
-
-
-struct ChangeStatus end
-
-
-function changeStatus!(person, newStatus, pars)
-    oldStatus = person.status
-    person.status = newStatus
-    trigger!(ChangeStatus(), person, oldStatus, pars)
-end
+export SocialT
 
 
 function startRetirement!(person, pars)

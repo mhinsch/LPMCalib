@@ -1,5 +1,6 @@
 using ChangeEvents
-using Age, Death, Dependencies, TasksCare, Social
+using SocialCM
+using Age, Death, Dependencies, TasksCare 
 
 
 function ChangeEvents.trigger!(c::ChangeAge1Yr, args...)

@@ -6,8 +6,8 @@ using Utilities
 using ChangeEvents
 
 using KinshipAM, TasksAM, DemoPerson, Tasks
-using TasksCareCM
-using Age, Social, Death
+using TasksCareCM, SocialCM
+using Age, Death
 
 export availableCareTime, removeAllCareAndTasks!, careNeedChanged!, careSupplyChanged!, distributeCare! 
 export TasksCareT 

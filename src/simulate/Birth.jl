@@ -4,7 +4,7 @@ module Birth
 using Utilities
 
 using BasicInfoAM, KinshipAM, WorkAM, MaternityAM, DemoPerson
-using Social
+using SocialCM
 
 export selectBirth, birth!, birthPreCalc! 
 export BirthCache

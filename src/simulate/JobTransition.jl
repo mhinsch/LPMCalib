@@ -4,8 +4,8 @@ module JobTransition
 using Utilities
 
 using WorkAM
-using JobMarketCM, IncomeCM
-using JobMarket, Social
+using JobMarketCM, IncomeCM, SocialCM
+using JobMarket
 
 
 export selectUnemployed, selectEmployed, unemployedTransition!, employedTransition!, jobPreCalc!

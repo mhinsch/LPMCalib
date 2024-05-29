@@ -5,8 +5,7 @@ using Utilities
 
 
 using WorkAM
-using IncomeCM
-using Social
+using IncomeCM, SocialCM
 
 
 export ageBand, calcAgeClassShares, assignJobs!, computeURByClassAge
