@@ -1,6 +1,13 @@
+module Death
+
+
 using Utilities
 
-export death!, setDead! 
+using BasicInfoAM, WorkAM, KinshipAM, DemoPerson
+using TasksCare
+
+export death!, setDead!, deathPreCalc!
+export DeathCache 
 
 function deathProbability(baseRate, person, model, pars) 
     # cap age at 150 for admin reasons
@@ -163,3 +170,4 @@ function death!(person, currstep, model, parameters)
     false
 end 
 
+end

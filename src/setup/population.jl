@@ -1,5 +1,5 @@
 using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM
-using IncomeCM
+using IncomeCM, JobMarketCM
 using Care
 
 # return agents with age in interval minAge, maxAge

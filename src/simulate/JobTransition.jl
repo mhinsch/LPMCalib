@@ -1,3 +1,17 @@
+module JobTransition
+    
+
+using Utilities
+
+using WorkAM
+using JobMarketCM, IncomeCM
+using JobMarket, Social
+
+
+export selectUnemployed, selectEmployed, unemployedTransition!, employedTransition!, jobPreCalc!
+export JobCache
+
+
 mutable struct JobCache
     urates :: Matrix{Float64}
 end
@@ -67,3 +81,4 @@ function unemployedTransition!(person, curTime, model, pars)
 end
 
 
+end

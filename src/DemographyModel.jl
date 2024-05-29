@@ -1,13 +1,11 @@
 module DemographyModel
 
-export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
+using Utilities
 
 using DemoPerson, DemoHouse, Towns, Tasks, Shifts, World 
-
 using TasksCareCM
 
-include("common/jobmarket.jl")
 
 include("setup/map.jl")
 include("setup/population.jl")
@@ -15,22 +13,14 @@ include("setup/mapPop.jl")
 include("setup/mapBenefits.jl")
 
 
-using Dependencies, Age, Social, TasksCare, Income, SocialCare, Relocate, Divorce, Marriage
-
-
-include("simulate/death.jl")
-include("simulate/birth.jl")  
-include("simulate/jobtransition.jl")
-include("simulate/jobmarket.jl")
-include("simulate/benefits.jl")
-include("simulate/wealth.jl")
-include("simulate/housing_topdown.jl")
+using Dependencies, Age, Social, TasksCare, Income, SocialCare, Relocate, Divorce, Marriage, Death
+using Birth, JobTransition, Benefits, Wealth, HousingTopDown
 
 
 include("demoEvents.jl")
 
 
-using Utilities
+export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
 
 mutable struct Model

@@ -1,8 +1,14 @@
+module JobMarket
+    
+
 using StatsBase
 using Distributions
 
 
-using MaternityAM
+using WorkAM, MaternityAM
+
+
+export isActive
 
 
 function assignUnemploymentDuration!(unemployed, uRates, durationShares, pars)
@@ -205,3 +211,4 @@ function adjustJobsByAgeAndClass!(acActivePopM, uRates, unemploymentRate, month,
 end    
 
 
+end

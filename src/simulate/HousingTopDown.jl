@@ -1,4 +1,12 @@
+module HousingTopDown
+
+
 using Utilities
+
+using DependenciesAM, DemoHouse
+
+
+export houseOwnership!
 
 
 function houseOwnership!(model, pars)
@@ -85,4 +93,7 @@ function minOwnershipShare(totHouses, pars)
     
     # 
     length(totHouses) / a
+end
+
+
 end

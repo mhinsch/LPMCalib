@@ -1,3 +1,17 @@
+module JobMarketCM
+    
+
+using Utilities
+
+
+using WorkAM
+using IncomeCM
+using Social
+
+
+export ageBand, calcAgeClassShares, assignJobs!, computeURByClassAge
+
+
 "Assign a person's weekly schedule based on their shift and working hours."
 function weeklySchedule(shift, weeklyHours)
     dailyHours = floor(Int, weeklyHours/5)
@@ -113,4 +127,7 @@ function assignJobs!(hiredAgents, shiftsPool, month, pars)
     end
     
     nothing
+end
+
+
 end

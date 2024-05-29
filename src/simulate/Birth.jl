@@ -1,6 +1,13 @@
+module Birth
+
+
 using Utilities
 
-export selectBirth, birth! 
+using BasicInfoAM, KinshipAM, WorkAM, MaternityAM, DemoPerson
+using Social
+
+export selectBirth, birth!, birthPreCalc! 
+export BirthCache
 
 isFertileWoman(p, pars) = isFemale(p) && pars.minPregnancyAge <= p.age <= pars.maxPregnancyAge
 canBePregnant(p) = !isSingle(p) && ageYoungestAliveChild(p) > 1
@@ -170,3 +177,4 @@ function birth!(woman::PERSON, currstep, model, pars, addBaby!) where {PERSON}
     nothing 
 end
 
+end

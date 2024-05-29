@@ -1,6 +1,13 @@
+module Wealth
+
 
 using StatsBase
 using Distributions
+
+using IncomeCM
+
+
+export updateWealth!
 
 
 "Set individual wealth (depending on income and care expenses)."
@@ -30,4 +37,7 @@ function updateWealth!(pop, wealthPercentiles, pars)
     end
     
     nothing
+end
+
+
 end

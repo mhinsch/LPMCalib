@@ -1,3 +1,14 @@
+module Benefits
+    
+
+using Utilities
+
+using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM, DemoPerson
+
+
+export computeBenefits!
+
+
 # Debugg benefit allocation process
 function computeBenefits!(pop, pars)
     
@@ -331,3 +342,4 @@ function computeMaxRooms(house, pars)
     min(4, allowedRooms)
 end
 
+end
