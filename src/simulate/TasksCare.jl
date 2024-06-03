@@ -346,7 +346,7 @@ end
 "Sigmoid with f(0)=0, f(1/2)=1/2, f(1)=1. Linear for shape=1; higher values increase slope at 0.5."
 function sigmoid(x, shape)
     xs = x^shape
-    xs/(xs + (1-xs)^shape)
+    xs/(xs + (1-x)^shape)
 end
 
 "Simple way to calculate probability to accept a task from importance."
