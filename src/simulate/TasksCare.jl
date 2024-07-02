@@ -53,6 +53,7 @@ function distributeCare!(model, pars)
     AgentT = eltype(model.pop)
     TaskT = eltype(model.pop[1].openTasks)
     
+    # agent => tasks
     askedTasks = Dict{AgentT, Vector{TaskT}}()
     
     print("tasks:")
@@ -68,8 +69,9 @@ function distributeCare!(model, pars)
         end
         
         nc = length(askedTasks)
+        # x[2] is the list of tasks
         nt = sum(x->length(x[2]), askedTasks)
-        print("$nc\t")
+        #print("$nc\t")
         
         # let carers accept tasks
         for (carer, tasks) in askedTasks
