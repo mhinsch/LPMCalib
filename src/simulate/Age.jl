@@ -9,12 +9,15 @@ export selectAgeTransition, ageTransition!
 export ChangeAge1Yr
 
 
+# transition filter
 selectAgeTransition(person, pars) = true
 
 
+# event tag
 struct ChangeAge1Yr end
 
 
+"Change a person's age. Emits the `ChangeAge1Yr` signal if the new age is an integer."
 function changeAge!(person, newAge, model, pars)
     person.age = newAge
     
@@ -42,6 +45,7 @@ function ageTransition!(person, time, model, pars)
     
     changeAge!(person, person.age + 1//12, model, pars)
     
+    # count relationship time
     if !isSingle(person)
         person.pTime += 1//12
     end

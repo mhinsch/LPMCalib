@@ -1,3 +1,8 @@
+"""
+Main program, non-gui version.
+"""
+
+
 # library
 using Random
 
@@ -7,6 +12,7 @@ include("mainHelpers.jl")
 # create parameters
 const simPars, pars = loadParameters(ARGS)
 
+# logging and analysis
 include(simPars.analysisFile)
 
 Random.seed!(simPars.seed)

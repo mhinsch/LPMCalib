@@ -1,5 +1,12 @@
+"""
+Some common infrastructure for setting up and running the model.
+"""
+
+
+
 include("lib/loadLibsPath.jl")
 
+# add various directories to Julia's model search path
 addToLoadPath!(String(@__DIR__) * "/.", 
                String(@__DIR__) * "/lib",
                String(@__DIR__) * "/src",
@@ -14,7 +21,6 @@ using Utilities
 
 using DemographyPars
 using DemographyModel
-#using DemographyModelEO
 
 
 include("src/demography/data.jl")
@@ -22,6 +28,7 @@ include("src/demography/data.jl")
 include("src/handleParams.jl")
 
 
+"Generate and return a usable model object."
 function setupModel(pars)
     datp = pars.datapars
     dir = datp.datadir
@@ -44,6 +51,7 @@ function setupModel(pars)
 end
 
 
+"Prepare and return output file or nothing."
 function setupLogging(simPars; FS = "\t")
     if simPars.logfile == ""
         return nothing
@@ -57,6 +65,7 @@ function setupLogging(simPars; FS = "\t")
 end
 
 
+"Run fully initialised model non-interactively from start to finish."
 function runModel!(model, simPars, pars, logfile = nothing; FS = "\t")
     curTime = pars.poppars.startTime
 

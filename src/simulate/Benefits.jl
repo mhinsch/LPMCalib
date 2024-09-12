@@ -1,3 +1,7 @@
+"Implements the UK benefits system."
+
+
+
 module Benefits
     
 
@@ -9,7 +13,7 @@ using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM, DemoPerson
 export computeBenefits!
 
 
-# Debugg benefit allocation process
+# Debug benefit allocation process
 function computeBenefits!(pop, pars)
     
     # Reset counters
