@@ -1,5 +1,5 @@
 """
-Parameter types and values 
+Parameter types for the Demography model.
 """
 
 module DemographyPars
@@ -11,7 +11,9 @@ import Random.seed!
 
 export SimulationPars, reseed0!, seed!
 
+# semantic model parameters
 include("./demography/parameters.jl")
+
 
 "General simulation parameters"
 @with_kw mutable struct SimulationPars 
@@ -33,14 +35,5 @@ end
 reseed0!(simPars) = 
     simPars.seed = simPars.seed == 0 ?  floor(Int, time()) : 
                                         simPars.seed 
-
-function seed!(simPars::SimulationPars,
-                randomizeSeedZero=true)
-    if randomizeSeedZero 
-        reseed0!(simPars)
-    end
-    Random.seed!(simPars.seed)
-end
-
 
 end # DemographyPars

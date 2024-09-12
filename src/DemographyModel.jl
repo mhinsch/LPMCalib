@@ -1,9 +1,15 @@
+#= Implementation of a specific model. =#
+
+
+
 module DemographyModel
 
 
 using Utilities
 
+# entity types
 using DemoPerson, DemoHouse, Towns, Tasks, Shifts, World 
+# common modules
 using TasksCareCM
 
 
@@ -12,24 +18,26 @@ include("setup/population.jl")
 include("setup/mapPop.jl")
 include("setup/mapBenefits.jl")
 
-
+# simulation processes
 using Dependencies, Age, Social, TasksCare, Income, SocialCare, Relocate, Divorce, Marriage, Death
 using Birth, JobTransition, Benefits, Wealth, HousingTopDown
 
-
+# event subscription
 include("demoEvents.jl")
 
 
 export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
 
-
+"Main model struct that contains entities, loaded data and caches."
 mutable struct Model
+# model entities
     towns :: Vector{PersonTown}
     houses :: Vector{PersonHouse}
     pop :: Vector{Person}
     babies :: Vector{Person}
     shiftsPool :: Vector{Shift}
     
+# some empirical data used in the model
     fertFByAge51 :: Vector{Float64}
     fertility :: Matrix{Float64}
     pre51Fertility :: Vector{Float64}
@@ -39,6 +47,7 @@ mutable struct Model
     unemploymentSeries :: Vector{Float64}
     wealthPercentiles :: Vector{Float64}
     
+# caches used by some of the transitions
     birthCache :: BirthCache{Person}
     deathCache :: DeathCache
     marriageCache :: MarriageCache{Person}
@@ -49,13 +58,13 @@ mutable struct Model
 end
 
 
+"Create a basic model instance from parameters and loaded empirical data."
 function createDemographyModel!(demoData, workData, pars)
     towns = createTowns(pars.mappars)
 
     houses = Vector{PersonHouse}()
 
     # maybe switch using parameter
-    #ukPopulation = createPopulation(pars.poppars)
     population = createPyramidPopulation(pars.poppars, demoData.initialAgePyramid)
     
     yearsFert = [1951 > demoData.pre51Fertility[y, 1] >= pars.poppars.startTime 
@@ -75,25 +84,31 @@ function createDemographyModel!(demoData, workData, pars)
             SocialCareCache(), DivorceCache(), JobCache())
 end
 
-
+"Create houses."
 function initialConnectH!(houses, towns, pars)
     newHouses = initializeHousesInTowns!(towns, pars)
     append!(houses, newHouses)
 end
 
+"Assign population to homes."
 function initialConnectP!(pop, houses, pars)
     assignCouplesToHouses!(pop, houses)
 end
 
 
+"Initialise the model."
 function initializeDemographyModel!(
     model, poppars, workpars, carepars, taskcarepars, mappars, mapbenefitpars)
     
+    
+    # create houses and assign to pop
     initialConnectH!(model.houses, model.towns, mappars)
     initialConnectP!(model.pop, model.houses, mappars)
-
+    
+    # initialise local housing allowance
     initializeLHA!(model.towns, mapbenefitpars)
-
+    
+    # initialise social structure and work status
     for person in model.pop
         initClass!(person, poppars)
         initWork!(person, workpars)
@@ -106,6 +121,7 @@ function initializeDemographyModel!(
 end
 
 
+"Remove individuals that died from the population."
 function removeDead!(model)
     for i in length(model.pop):-1:1
         if !model.pop[i].alive
@@ -114,22 +130,29 @@ function removeDead!(model)
     end
 end
 
-
+"Add a baby to a temp list, to be added to pop later."
 function addBaby!(model, baby)
     push!(model.babies, baby)
 end
 
 
-# TODO not entirely sure if this really belongs here
+"One model time step."
 function stepModel!(model, time, pars)
+    # avoid order effects
     shuffle!(model.pop)
+    
+    # *** pre-calc various population properties
+    
     socialPreCalc!(model, pars)
     socialCarePreCalc!(model, fuse(pars.poppars, pars.carepars))
     divorcePreCalc!(model, fuse(pars.poppars, pars.divorcepars, pars.workpars))
     birthPreCalc!(model, fuse(pars.poppars, pars.birthpars))
     deathPreCalc!(model, fuse(pars.poppars, pars.carepars))
     jobPreCalc!(model, time, fuse(pars.poppars, pars.workpars))
-
+    
+    
+    # *** run transitions
+    
     applyTransition!(model.pop, "death") do person
         death!(person, time, model, fuse(pars.poppars, pars.carepars))
     end
@@ -197,6 +220,7 @@ function stepModel!(model, time, pars)
     
     distributeCare!(model, fuse(pars.carepars, pars.taskcarepars))
     
+    # now we can add the babies to the pop
     append!(model.pop, model.babies)
     empty!(model.babies)
 end
