@@ -22,6 +22,7 @@ end
 
 BirthCache{T}() where {T} = BirthCache(T[], Float64[], Float64[], zeros(5, 5))
 
+"Cache population properties that are used in the calculation of birth rate."
 function birthPreCalc!(model, pars)
     pc = model.birthCache
     empty!(pc.potentialMothers)
@@ -31,6 +32,7 @@ function birthPreCalc!(model, pars)
         end
     end
     
+    # age specific probabilities
     resize!(pc.pPotentialMotherInFertWAndAge, 150)
     fill!(pc.pPotentialMotherInFertWAndAge, 0)
     cbp = zeros(Int, 150)

@@ -39,6 +39,7 @@ end
     end
 end=#
 
+"Adjust social care need."
 function socialCareTransition!(person, time, model, pars)
     scaling = isFemale(person) ? pars.femaleAgeCareScaling : pars.maleAgeCareScaling 
     ageCareProb = exp(person.age/scaling) * pars.personCareProb

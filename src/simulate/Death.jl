@@ -24,15 +24,14 @@ function deathProbability(baseRate, person, model, pars)
 
     if isMale(person) 
         mortalityBias = pars.maleMortalityBias
+        sumBias = model.deathCache.classBias_m
     else 
         mortalityBias = pars.femaleMortalityBias 
+        sumBias = model.deathCache.classBias_f
     end 
 
-    a = isMale(person) ? model.deathCache.classBias_m : model.deathCache.classBias_f
-
-    if a > 0
-        lowClassRate = baseRate / a
-        classRate = lowClassRate * mortalityBias^cRank
+    if sumBias > 0
+        classRate = baseRate * mortalityBias^cRank / sumBias 
         deathProb = classRate
     else
         deathProb = baseRate

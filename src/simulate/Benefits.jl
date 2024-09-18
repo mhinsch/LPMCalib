@@ -68,7 +68,7 @@ function disabilityBenefits!(pop, pars)
     for agent in Iterators.filter(x->16<=x.age<pars.ageOfRetirement && x.careNeedLevel>0, pop)
         disabledAdultBenefit = pars.carePIP[floor(Int, (agent.careNeedLevel+1)/2)]
         if agent.careNeedLevel > 1
-            disabledAdultBenefit + pars.mobilityPIP[floor(Int, agent.careNeedLevel/2)]
+            disabledAdultBenefit += pars.mobilityPIP[floor(Int, agent.careNeedLevel/2)]
         end
         
         agent.highestDisabilityBenefits = agent.careNeedLevel > 2

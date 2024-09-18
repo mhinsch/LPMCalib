@@ -5,10 +5,8 @@ using StatsBase
 using Distributions
 
 
+using JobMarketCM
 using WorkAM, MaternityAM
-
-
-export isActive
 
 
 function assignUnemploymentDuration!(unemployed, uRates, durationShares, pars)
@@ -82,9 +80,6 @@ function Matrix{Vector{T}}(sz) where {T}
     m
 end
 
-isActive(person) = (statusWorker(person) || statusUnemployed(person)) && canWork(person)
-isWorking(person) = statusWorker(person) && canWork(person)
-isUnemployed(person) = statusUnemployed(person) && canWork(person)
 
 function jobMarket!(model, time, pars)
     year, month = date2yearsmonths(time)

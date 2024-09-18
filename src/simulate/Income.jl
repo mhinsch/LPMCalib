@@ -24,7 +24,6 @@ function updatePersonIncome!(person, pars)
             person.income = person.wage * person.availableWorkingHours
             person.lastIncome = person.wage * pars.weeklyHours[person.careNeedLevel+1]
         end
-        # Detract taxes and 
     elseif statusRetired(person)
         person.income = person.pension
     else

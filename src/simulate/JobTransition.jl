@@ -1,3 +1,8 @@
+"""
+New, rate-based job market model.
+"""
+
+
 module JobTransition
     
 
@@ -5,7 +10,6 @@ using Utilities
 
 using WorkAM
 using JobMarketCM, IncomeCM, SocialCM
-using JobMarket
 
 
 export selectUnemployed, selectEmployed, unemployedTransition!, employedTransition!, jobPreCalc!

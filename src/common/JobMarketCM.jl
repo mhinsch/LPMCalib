@@ -9,10 +9,16 @@ using IncomeCM, SocialCM
 
 
 export ageBand, calcAgeClassShares, assignJobs!, computeURByClassAge
+export isActive, isWorking, isUnemployed
+
+isActive(person) = (statusWorker(person) || statusUnemployed(person)) && canWork(person)
+isWorking(person) = statusWorker(person) && canWork(person)
+isUnemployed(person) = statusUnemployed(person) && canWork(person)
 
 
 "Assign a person's weekly schedule based on their shift and working hours."
 function weeklySchedule(shift, weeklyHours)
+    # TODO! are shifts always 5 days?
     dailyHours = floor(Int, weeklyHours/5)
     reducedHours = length(shift.shiftHours) - dailyHours
     if reducedHours <= 0
@@ -38,7 +44,9 @@ end
 "count SES and age bands for pop"
 function calcAgeClassShares(pop, pars)
     
+    # proportion of population in that class
     classShares = zeros(length(pars.cumProbClasses))
+    # proportion of population in an age band, calculated for each class
     ageBandShares = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
     for p in pop
         classShares[p.classRank+1] += 1
@@ -68,22 +76,22 @@ ageBand(age) =
 
 function computeURByClassAge(ur, classShares, ageShares, pars)
     rates = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
-    
-    a = 0
-    for i in 1:length(pars.cumProbClasses)
-        a += classShares[i] * pars.unemploymentClassBias^(i-1)
-    end
-    lowClassRate = a > 0.0 ? ur/a : 0.0
+    classBias = zeros(length(pars.cumProbClasses))
+    preCalcRateBias!(c->classShares[i+1], 0:length(pars.cumProbClasses)-1, 
+        pars.unemploymentClassBias, classBias, 1)
     
     for classGroup in 1:length(pars.cumProbClasses)
+        # calc normalisation factor for age bias
         a_age = 0
         for i in 1:pars.numberAgeBands 
             a_age += ageShares[classGroup, i] * pars.unemploymentAgeBias[i]
         end
         
         for ageGroup in 1:pars.numberAgeBands
-            classRate = lowClassRate * pars.unemploymentClassBias^(classGroup-1)
+            # class bias
+            classRate = ur * classBias[classGroup]
             lowerAgeBandRate = a_age>0.0 ? classRate/a_age : 0.0
+            # class-specific age bias
             rates[classGroup, ageGroup] = lowerAgeBandRate*pars.unemploymentAgeBias[ageGroup]        
         end
     end
