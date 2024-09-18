@@ -175,10 +175,13 @@ end
     end
     
     str =#
-
+    
+function add_series_point!(arr, dat, dx = 1)
+    push!(arr, Point2(arr[end][1]+1, dat))
+end
 
 function create_series(fig, labels; args...)
-    data = [ [0.0] for l in labels ]
+    data = [ [Point2(1, 0.0)] for l in labels ]
     obsable = Observable(data)
     
     axis, _ = series(fig, obsable; labels=labels, args...)

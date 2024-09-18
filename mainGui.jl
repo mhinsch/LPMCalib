@@ -87,15 +87,15 @@ function main(parOverrides...)
             log_results(logfile, data)
             
             # add values to graph objects
-            push!(obs_pop[][1], data.alive.n)
-            push!(obs_pop[][2], data.married.n)
-            push!(obs_pop[][3], data.employed.n)
-            push!(obs_pop[][4], data.unemployed.n)
+            add_series_point!(obs_pop[][1], data.alive.n)
+            add_series_point!(obs_pop[][2], data.married.n)
+            add_series_point!(obs_pop[][3], data.employed.n)
+            add_series_point!(obs_pop[][4], data.unemployed.n)
             
             #push!(obs_care[][1], data.care_supply.mean)
             #push!(obs_care[][2], data.unmet_care.mean)
-            push!(obs_care[][1], data.av_care_time.mean)
-            push!(obs_care[][2], data.open_tasks.mean)
+            add_series_point!(obs_care[][1], data.av_care_time.mean)
+            add_series_point!(obs_care[][2], data.open_tasks.mean)
             
             setto!(obs_careneed[], data.careneed.bins)
             setto!(obs_class[], data.class.bins)
