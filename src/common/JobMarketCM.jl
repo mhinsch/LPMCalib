@@ -4,12 +4,14 @@ module JobMarketCM
 using Utilities
 
 
-using WorkAM
+using WorkAM, MaternityAM
 using IncomeCM, SocialCM
 
 
 export ageBand, calcAgeClassShares, assignJobs!, computeURByClassAge
 export isActive, isWorking, isUnemployed
+
+canWork(person) = person.careNeedLevel < 4 && !isInMaternity(person) 
 
 isActive(person) = (statusWorker(person) || statusUnemployed(person)) && canWork(person)
 isWorking(person) = statusWorker(person) && canWork(person)
@@ -77,7 +79,7 @@ ageBand(age) =
 function computeURByClassAge(ur, classShares, ageShares, pars)
     rates = zeros(length(pars.cumProbClasses), pars.numberAgeBands)
     classBias = zeros(length(pars.cumProbClasses))
-    preCalcRateBias!(c->classShares[i+1], 0:length(pars.cumProbClasses)-1, 
+    preCalcRateBias!(c->classShares[c+1], 0:length(pars.cumProbClasses)-1, 
         pars.unemploymentClassBias, classBias, 1)
     
     for classGroup in 1:length(pars.cumProbClasses)

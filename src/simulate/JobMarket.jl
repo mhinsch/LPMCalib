@@ -68,9 +68,6 @@ function dismissWorkers!(newUnemployed, uRates, pars)
     assignUnemploymentDurationByGender!(newUnemployed, uRates, pars)
 end
 
-# TODO generalise, put elsewhere
-canWork(person) = person.careNeedLevel < 4 && !isInMaternity(person) 
-
 # Base.zero(::Type{Vector{T}}) where T = T[]
 function Matrix{Vector{T}}(sz) where {T}
     m = Matrix{Vector{T}}(undef, sz)

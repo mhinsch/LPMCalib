@@ -56,7 +56,6 @@ function distributeCare!(model, pars)
     # agent => tasks
     askedTasks = Dict{AgentT, Vector{TaskT}}()
     
-    print("tasks:")
     # tasks can be rejected, plus more important tasks can
     # override already assigned tasks, so we iterate a couple of times
     for i in 1:pars.nIterCareDist
@@ -80,7 +79,6 @@ function distributeCare!(model, pars)
         
         empty!(askedTasks)
     end
-    println()
 end
 
 

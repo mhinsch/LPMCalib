@@ -90,6 +90,7 @@ end
             println(count, " agents processed in ", name)
         end
     end
+    nothing
 end
 
 #="keep variable across function calls"

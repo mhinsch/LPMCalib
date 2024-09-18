@@ -57,9 +57,9 @@ function movePeopleToEmptyHouse!(people, dmax, allHouses, allTowns=PersonTown[])
 
     if newhouse != undefinedHouse
         movePeopleToHouse!(people, newhouse)
-        return newhouse
     end
-    undefinedHouse 
+    
+    newhouse
 end
 
 
