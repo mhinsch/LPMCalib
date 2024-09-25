@@ -1,13 +1,17 @@
 module Marriage
 
 
+using Utilities
+
+using BasicInfoAM, KinshipAM, DependenciesAM, WorkAM, BasicHouseAM
+using Towns #, DemoPerson, DemoHouse
+using FamilyIM, HousingIM, DependenciesIM
+using MoveHouse
+
+
 export marriage!, selectMarriage, marriagePreCalc!
 export MarriageCache
 
-using Utilities
-
-using BasicInfoAM, KinshipAM, DependenciesAM, WorkAM, DemoPerson, DemoHouse, Towns
-using MoveHouse
 
 ageClass(person) = trunc(Int, person.age/10)
 

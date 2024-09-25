@@ -46,6 +46,7 @@ function ageTransition!(person, time, model, pars)
     changeAge!(person, person.age + 1//12, model, pars)
     
     # count relationship time
+    # currently unused
     if !isSingle(person)
         person.pTime += 1//12
     end

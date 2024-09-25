@@ -1,6 +1,6 @@
 module World
     
-using DemoHouse
+using BasicHouseAM
 
 export adjacent8Towns, findHousesInTown, emptyHouses, emptyHousesInTown
 
@@ -10,10 +10,17 @@ adjacent8Towns(town) = town.adjacent
 "Find all houses belonging to a specific town."
 findHousesInTown(t) = t.houses
 
-emptyHouses(allHouses)  = [ house for house in allHouses if isEmpty(house) ]
+function emptyHouses(allHouses)
+    ret = similar(allHouses, 0)
+    for house in allHouses 
+        if isEmpty(house)
+            push!(ret, house)
+        end
+    end
+    ret
+end
 
-emptyHousesInTown(town) = 
-    [ house for house in findHousesInTown(town) if isEmpty(house) ]
+emptyHousesInTown(town) = emptyHouses(findHousesInTown(town))
     
     
 end

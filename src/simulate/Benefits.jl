@@ -7,8 +7,8 @@ module Benefits
 
 using Utilities
 
-using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM, DemoPerson
-
+using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM#, DemoPerson
+using FamilyIM, HousingIM
 
 export computeBenefits!
 

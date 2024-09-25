@@ -5,7 +5,8 @@ using Distributions: Normal, LogNormal
 using Utilities
 
 using ChangeEvents
-using BasicInfoAM, WorkAM, DemoPerson
+using BasicInfoAM, WorkAM #, DemoPerson
+using IncomeIM, DependenciesIM
 using SocialCM, IncomeCM
 using Age
 
@@ -100,7 +101,7 @@ end
 
 "Probability to start studying instead of working."
 function startStudyProb(person, model, pars)
-    if person.father == person.mother == undefinedPerson
+    if isUndefined(person.father) && isUndefined(person.mother)
         return 0.0
     end
     

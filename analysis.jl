@@ -1,6 +1,8 @@
 using MiniObserve
 
-using BasicInfoAM, KinshipAM, WorkAM, DemoPerson, DemoHouse
+using BasicInfoAM, KinshipAM, WorkAM, BasicHouseAM
+using DependenciesIM
+using FullModelPerson, FullModelHouse
 using TasksCare
 
 # mean and variance
@@ -92,7 +94,7 @@ providesCare(person, pars) = person.careNeedLevel == 0 && person.age >= 13
         @if isFemale(person) @stat("f_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if isMale(person) @stat("m_status", HistAcc(0, 1, 5)) <| Int(person.status)
         @if requiresCare(person, pars) @stat("open_tasks", MVA) <| Float64(length(person.openTasks))
-        @if providesCare(person, pars) @stat("av_care_time", MVA) <| Float64(availableCareTime(person, pars.carepars))
+        @if providesCare(person, pars) @stat("av_care_time", MVA) <| Float64(availableCareTime(person, fuse(pars.carepars, pars.taskcarepars)))
         #@stat("p_care_supply", HistAcc(0.0, 4.0), MVA) <| 
         #    Float64(weeklyCareSupply(person, pars.carepars))
         #@stat("p_care_demand", HistAcc(0.0, 4.0), MVA) <| 

@@ -1,4 +1,6 @@
 using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM
+using BasicHouseAM
+using FamilyIM, DependenciesIM
 using IncomeCM, JobMarketCM
 using CareCM
 

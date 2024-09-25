@@ -13,17 +13,20 @@ addToLoadPath!(String(@__DIR__) * "/.",
                String(@__DIR__) * "/src/common",
                String(@__DIR__) * "/src/agents",
                String(@__DIR__) * "/src/agents/agent_modules",
-               String(@__DIR__) * "/src/simulate")
+               String(@__DIR__) * "/src/agents/interactions",
+               String(@__DIR__) * "/src/simulate",
+               String(@__DIR__) * "/src/fullModel"
+               )
 
 using ArgParse
 
 using Utilities
 
-using DemographyPars
-using DemographyModel
+using FullModelPars
+using FullModel
 
 
-include("src/demography/data.jl")
+include("src/fullModel/data.jl")
 
 include("src/handleParams.jl")
 
@@ -43,9 +46,9 @@ function setupModel(pars)
     workData = loadWorkData(dir * "/" * datp.unemplFName, 
         dir * "/" * datp.wealthFName)
 
-    model = createDemographyModel!(demoData, workData, pars)
+    model = createModel!(demoData, workData, pars)
 
-    initializeDemographyModel!(model, pars.poppars, pars.workpars, pars.carepars, pars.taskcarepars, pars.mappars, pars.lhapars)
+    initializeModel!(model, pars.poppars, pars.workpars, pars.carepars, pars.taskcarepars, pars.mappars, pars.lhapars)
     
     model
 end

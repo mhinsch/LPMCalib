@@ -1,40 +1,46 @@
-#= Implementation of a specific model. =#
+"""
+Implementation of the full model, containing all usable modules.
+"""
 
 
-
-module DemographyModel
+module FullModel
 
 
 using Utilities
 
 # entity types
-using DemoPerson, DemoHouse, Towns, Tasks, Shifts, World 
+using FullModelPerson, FullModelHouse, Towns, Tasks, Shifts, World 
 # common modules
 using TasksCareCM
 
 
-include("setup/map.jl")
-include("setup/population.jl")
-include("setup/mapPop.jl")
-include("setup/mapBenefits.jl")
+include("../setup/map.jl")
+include("../setup/population.jl")
+include("../setup/mapPop.jl")
+include("../setup/mapBenefits.jl")
 
 # simulation processes
 using Dependencies, Age, Social, TasksCare, Income, SocialCare, Relocate, Divorce, Marriage, Death
 using Birth, JobTransition, Benefits, Wealth, HousingTopDown
 
 # event subscription
-include("demoEvents.jl")
+include("fullModelEvents.jl")
 
 
-export Model, createDemographyModel!, initializeDemographyModel!, stepModel!
+export Model, createModel!, initializeModel!, stepModel!
 
 "Main model struct that contains entities, loaded data and caches."
 mutable struct Model
 # model entities
+    "Towns containing houses."
     towns :: Vector{PersonTown}
+    "Houses (located in towns)."
     houses :: Vector{PersonHouse}
+    "The entire population."
     pop :: Vector{Person}
+    "Babies born in the current time step (moved to pop at the end)."
     babies :: Vector{Person}
+    "Probability distribution of shifts."
     shiftsPool :: Vector{Shift}
     
 # some empirical data used in the model
@@ -58,8 +64,11 @@ mutable struct Model
 end
 
 
+TasksCare.schoolCare() = schoolCareP
+
+
 "Create a basic model instance from parameters and loaded empirical data."
-function createDemographyModel!(demoData, workData, pars)
+function createModel!(demoData, workData, pars)
     towns = createTowns(pars.mappars)
 
     houses = Vector{PersonHouse}()
@@ -97,7 +106,7 @@ end
 
 
 "Initialise the model."
-function initializeDemographyModel!(
+function initializeModel!(
     model, poppars, workpars, carepars, taskcarepars, mappars, mapbenefitpars)
     
     
@@ -226,4 +235,4 @@ function stepModel!(model, time, pars)
 end
 
 
-end # module DemographyModel
+end # module FullModel

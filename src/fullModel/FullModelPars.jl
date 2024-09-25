@@ -1,8 +1,8 @@
 """
-Parameter types for the Demography model.
+Parameter types for the full model.
 """
 
-module DemographyPars
+module FullModelPars
 
 using Random
 using Parameters
@@ -12,7 +12,7 @@ import Random.seed!
 export SimulationPars, reseed0!, seed!
 
 # semantic model parameters
-include("./demography/parameters.jl")
+include("../parameters/parameters.jl")
 
 
 "General simulation parameters"
@@ -36,4 +36,4 @@ reseed0!(simPars) =
     simPars.seed = simPars.seed == 0 ?  floor(Int, time()) : 
                                         simPars.seed 
 
-end # DemographyPars
+end # FullModelPars

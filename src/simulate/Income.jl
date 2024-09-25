@@ -4,7 +4,7 @@ module Income
 using Utilities
 
 using WorkAM, MaternityAM
-using DemoHouse
+using BasicHouseAM
 
 export updateIncome!
 
@@ -13,10 +13,10 @@ function updatePersonIncome!(person, pars)
     if statusWorker(person)
         if isInMaternity(person)
             maternityIncome = person.income
-            if monthsSinceBirth(person) == 0
+            if person.monthsSinceBirth == 0
                 person.wage = 0
                 maternityIncome = pars.maternityLeaveIncomeReduction * person.income
-            elseif monthsSinceBirth(person) > 2
+            elseif person.monthsSinceBirth > 2
                 maternityIncome = min(pars.minStatutoryMaternityPay, maternityIncome)
             end
             person.income = maternityIncome

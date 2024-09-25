@@ -3,7 +3,8 @@ module Birth
 
 using Utilities
 
-using BasicInfoAM, KinshipAM, WorkAM, MaternityAM, DemoPerson
+using BasicInfoAM, KinshipAM, WorkAM, MaternityAM#, DemoPerson
+using FamilyIM, HousingIM, DependenciesIM
 using SocialCM
 
 export selectBirth, birth!, birthPreCalc! 
@@ -129,7 +130,7 @@ function effectsOfMaternity!(woman, pars)
     woman.availableWorkingHours = 0
 
     # TODO not necessarily true in many cases
-    if woman.provider == undefinedPerson
+    if isUndefined(woman.provider)
         setAsProviderProvidee!(woman.partner, woman)
     end
 

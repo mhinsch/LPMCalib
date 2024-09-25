@@ -5,12 +5,17 @@ using Utilities
 
 using ChangeEvents
 
-using KinshipAM, TasksAM, DemoPerson, Tasks
+using KinshipAM, TasksAM, Tasks #, DemoPerson
 using TasksCareCM, SocialCM
 using Age, Death
 
 export availableCareTime, removeAllCareAndTasks!, careNeedChanged!, careSupplyChanged!, distributeCare! 
+export schoolCare
 export TasksCareT 
+
+
+function schoolCare end
+
 
 struct TasksCareT end
 
@@ -96,7 +101,7 @@ function assignSchoolCare!(agent, pars)
     end
     for task in agent.openTasks
         if task.typ == 1 && duringSchoolTime(task, pars)
-            acceptTask!(task, [], schoolCare, pars)
+            acceptTask!(task, [], schoolCare(), pars)
             markTaskAssigned!(task)
         end
     end

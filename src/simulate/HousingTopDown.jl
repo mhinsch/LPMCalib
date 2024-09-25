@@ -3,7 +3,8 @@ module HousingTopDown
 
 using Utilities
 
-using DependenciesAM, DemoHouse
+using DependenciesAM#, DemoHouse
+using BasicHouseAM
 
 
 export houseOwnership!

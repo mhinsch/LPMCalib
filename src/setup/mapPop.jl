@@ -1,6 +1,9 @@
 using Random
 
+using HousingIM
+
 export assignCouplesToHouses!
+
 
 "Randomly assign a population of couples to non-inhebted set of houses"
 function assignCouplesToHouses!(population::Array{Person}, houses::Array{PersonHouse})

@@ -9,7 +9,7 @@ using InstitutionsAM, Tasks
 
 export TaskPerson
 export howBusyAt, hasOpenTasks, acceptTask!, markTaskAssigned!, markTaskUnassigned!, findTasksAt
-export tasksColocated, removeAllCare!, removeAllTasks!
+export tasksColocated, removeAllCare!, removeAllTasks!, taskType
 
 # TODO
 # We might need to rethink how to store assigned vs open tasks.
@@ -33,6 +33,8 @@ export tasksColocated, removeAllCare!, removeAllTasks!
     taskHours :: Int = 0
 end
 
+
+taskType(person) = eltype(person.openTasks)
 
 hasOpenTasks(person) = length(person.openTasks) > 0
 

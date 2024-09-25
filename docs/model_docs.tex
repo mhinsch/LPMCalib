@@ -12,6 +12,8 @@
 \setlength{\parindent}{0em}
 \setlength{\parskip}{1ex}
 
+\newcommand{\marginnote}[1]{\protect\marginpar{\small\texttt{#1}}}
+
 \begin{document}
 
 
@@ -23,7 +25,7 @@ Throughout this document names of model parameters are printed \textbf{bold}. Te
 
 \subsection{Common concepts}
 
-\subsubsection*{Bias}\label{bias}
+\subsubsection*{Bias \marginnote{Utilities.jl}}\label{bias}
 
 Several parts of the model use the concept of a bias whose value depends on which of several subpopulations an agent belongs to, such as age or class. These biases are often used to modify population-level rates (some of which are derived from empirical data). The bias value is therefore normalised by the expected value so that it averages out to $1$ over the entire population.
 
@@ -49,11 +51,11 @@ For each newly employed agent a shift is drawn from the shift pool weighted by \
 
 \subsubsection*{Tasks}\label{tasks}
 
-An agent's schedule of care responsibilities is represented as a set of \emph{tasks}. Each task represents a single unit of work of a set length (per default 30 min) at a specific point in the week (i.e.~a day and a time). Tasks differ in type (e.g. social vs. child care), urgency and focus. Usually agents can only perform one activity at a time (e.g.~work or perform care), however, tasks that require less than full focus can be performed at the same time unless the sum of the focus does not exceed 1. This is meant to represent situations such as taking care of several children at once or looking after a child while at the same time being present for a person who might need occasional help.
+An agent's schedule of care responsibilities is represented as a set of \emph{tasks}. Each task represents a single unit of work of a set length (per default 30 min) at a specific point in the week (i.e.~a day and a time). Tasks differ in type (e.g. social vs. child care), urgency and focus. Usually agents can only perform one activity at a time (e.g.~work or perform care), however, tasks that require less than full focus can be performed at the same time as long as the sum of the focus does not exceed 1. This is meant to represent situations such as taking care of several children at once or looking after a child while at the same time being present for a person who might need occasional help.
 
 \section{Processes}
 
-\subsection{Deaths} 
+\subsection{Deaths \marginnote{Deaths.jl}}
 
 The probability to die is calculated from a base death rate $p_{d,r}$ by biasing it by SES and care need. SES bias is calculated as described in \ref{bias} as $B_\textrm{SES}=\textrm{bias}(\textrm{class}, \textrm{mortalityBias}, \cdot)$ using parameters \textbf{maleMortalityBias} and \textbf{femaleMortalityBias}, respectively. Care need bias is based on the parameter \textbf{careNeedBias} and determined for each class rank separately. In this case we use $b(\textrm{careNeedBias}, \textrm{careNeed}) = \textrm{careNeedBias}^{4-\textrm{careNeed}}$.
 
@@ -77,7 +79,24 @@ Where $f_{d,\mathrm{avg}}$ is the mean of $f_d$ in the male or female population
 For years after and including 1950, empirical sex- and age-specific mortality data is directly used as base death rate.
 
 
-\subsection{Births}
+\subsection{Dependencies \marginnote{Dependencies.jl}} 
+
+All individuals that can not live alone and do not have a guardian get assigned a new guardian if possible. In order of preference first we try to find a family guardian and only if none is found a stranger is assigned instead. Guardianship ceases when the dependant reaches the age \textbf{ageOfIndependence}.
+
+\subsubsection*{Family guardian}
+
+The list of potential guardians in this class is, in order, the individual's parents, partners of their previous guardian(s), parents and siblings of the individual's parents and parents and siblings of the previous guardian(s). The first person out of this list that is alive and an adult is selected, if available.
+
+\subsubsection*{Other guardian}
+
+If no family guardian is found a random couple where both partners are adults and have worker status is selected.
+
+\subsubsection*{Effects}
+
+If a guardian is found the individual is moved to the guardian's house and the guardian and their partner (if there is one) are assigned as guardians to the individual.
+
+
+\subsection{Births \marginnote{Births.jl}}
 
 Only married females between \textbf{minPregnancyAge} and \textbf{maxPregnancyAge} whose youngest child is older than 1 can give birth.
 
@@ -99,45 +118,60 @@ her partner as parents and guardians, the woman as a provider and the woman's ho
 Th woman's working hours, income, potential income and available working hours are set to 0, her schedule is set to full and her partner is set as her provider unless she already has a provider.
 
 
-\subsection{Dependencies} 
+\subsection{Age transition \marginnote{Age.jl}}
+Increase months since birth for every agent in maternity. If time since
+birth equals \textbf{maternityLeaveDuration} reset maternity status. 
 
-All individuals that can not live alone and do not have a guardian get assigned a new guardian if possible. In order of preference first we try to find a family guardian and only if none is found a stranger is assigned instead.
+Agents that are now 18 years old become independent. That means all guardian-dependent relationships are dissolved.
 
-\subsubsection*{Family guardian}
 
-The list of potential guardians in this class is, in order, the individual's parents, partners of their previous guardian(s), parents and siblings of the individual's parents and parents and siblings of the previous guardian(s). The first person out of this list that is alive and an adult is selected, if available.
-
-\subsubsection*{Other guardian}
-
-If no family guardian is found a random couple where both partners are adults and have worker status is selected.
-
-\subsubsection*{Effects}
-
-If a guardian is found the individual is moved to the guardian's house and the guardian and their partner (if there is one) are assigned as guardians to the individual.
-
-\subsection{Income}
+\subsection{Income \marginnote{Income.jl}}
 
 TODO
 
-\subsection{Wealth}
+\subsection{Wealth \marginnote{Wealth.jl}}
 
 TODO
 
-\subsection{Housing}
+\subsection{Housing \marginnote{HousingTopDown.jl}}
 
 The parameter \textbf{ageOwnershipShares} determines the proportion of house owners in each age class of independent adults. The number of owned houses per age class in the simulation is adjusted in each time step to conform to this number by changing the status of randomly selected houses accordingly.
 
-\subsection{Job Market}
+\subsection{Jobs \marginnote{JobTransition.jl}}
 
-Losing or getting a job are simple probabilistic processes. We assume that unemployed adults are hired with a constant rate \textbf{hireRate}. The probability to get hired per time step is then $p_h=1-1/e^\textrm{hireRate}$. A newly hired person draws a random shift from the shift pool weighted by the shifts' \textsf{socialIndex} (see \ref{shifts}).
+
+\subsubsection*{Job market}
+
+Losing or getting a job are simple probabilistic processes. We assume that unemployed adults are hired with a constant rate \textbf{hireRate}. 
+
+The probability to get hired per time step is then $p_h=1-1/e^\textrm{hireRate}$. A newly hired person draws a random shift from the shift pool weighted by the shifts' \textsf{socialIndex} (see \ref{shifts}).
 
 The rate with which employed people lose their jobs is calculated as $r_f = \frac{\textrm{hireRate}}{1/u - 1}$ where $u$ is the class- and age-specific unemployment rate. The probability to get fired is accordingly $p_f = 1-1/e^{r_f}$. 
+
+
+\subsubsection*{Wage updates}
+
+For all workers that are not in maternity leave, working period and work experience are increased by 1 and wage and income calculated.
+
+With a worker's initial and final incomes $I_i$ and $I_f$ (see social transition) the base wage $w_b$ is calculated based on the agent's SES and work experience as
+\[
+w_b = I_f \frac{I_i}{I_f}^{e^{-\mathbf{incomeGrowthRate}(\mathrm{class})\cdot \mathrm{workExperience}}}
+\]
+
+Using the wage stochasticity
+\[
+\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}],
+\]
+
+the wage is then simply $w=w_b \cdot \mathrm{dk}$
+
+This wage is used to determine the agent's income, which is the product of the wage and the care need-dependent number of working hours.
 
 \subsubsection*{Unemployment rate $u$}
 
 To obtain class- and age-specific unemployment rate $u$ the empirically derived population unemployment rate is weighted by a class bias (using the definition in \ref{bias}) with parameter \textbf{unemploymentClassBias}. The weighted rate is then again multiplied with an age-specific bias parameter \textbf{unemploymentAgeBias}\textsubscript{\textbf{age group}} (normalised to avoid changing the expected value in the population).
 
-\subsection{Social care need}
+\subsection{Social care need \marginnote{SocialCare.jl}}
 
 A person's care need increases with probability $p_n$, calculated as
 \[
@@ -150,7 +184,7 @@ If care need increases the increase is $1+d$, with $d$ drawn from a Geometric di
 
 An increase in care need triggers a reevaluation of care support the individual can provide as well as the care it receives.
 
-\subsection{Benefits}
+\subsection{Benefits \marginnote{Benefits.jl}}
 
 
 \subsubsection*{Child benefit}
@@ -183,7 +217,122 @@ Finally, carers that spend at least 35 hours per week on care receive \textbf{ca
 % Universal credit and pension credit are quite complicated. Do we want a full description here? Or do we highlight things that are specific to the model?
 
 
-\subsection{Marriages}
+\subsection{Relocation \marginnote{Relocate.jl}}
+
+Single agents that can live alone, are workers and share their house with at least one other person who is neither their dependent or guardian, move into their own house with probability \textbf{moveOutProb}. They move into a randomly selected empty house (either in the same or an adjacent town or anywhere) together with their dependents.
+
+
+\subsection{Work status \marginnote{Social.jl}}
+
+Check transitions for all agents born in the current month whose age is 
+equal to the \textbf{startWorkingAge} of their class rank and whose current status is student.
+
+
+\subsubsection*{Study}
+
+Agents with a SES class rank lower than 4 begin to study or keep studying with a probability $p_s$. This increases their SES class by 1. 
+
+Probability to study $p_s$ is 0 if both parents of the agent are dead, if the agent has no provider or if the household disposable income is 0.
+
+Otherwise $p_s$ is the product of income, education and care effects:
+\[
+p_s = \mathrm{incomeEffect} \cdot \mathrm{careEffect} \cdot \mathrm{educationEffect}
+\]
+
+The income effect is calculated as:
+\[
+\mathrm{incomeEffect} = \frac{\mathbf{constantIncomeParam} + 1}{ 
+e^{\mathbf{eduWageSensitivity} \cdot \mathrm{relCost}}} + \mathbf{constantIncomeParam}
+\]
+
+Where \textit{relCost} is the ratio of forgone salary to \textit{perCapitaDisposableIncome} [add calculation]:
+\begin{eqnarray*}
+\mathrm{forgoneSalary} &=& \mathbf{incomeInitialLevels}(\mathrm{classRank}) \cdot 
+\mathbf{weeklyHours}(\mathrm{careNeedLevel})\\
+\mathrm{relCost} &=& \mathrm{forgoneSalary} / \mathrm{perCapitaDisposableIncome}
+\end{eqnarray*}
+
+With $d_E$ as the difference between an agent's parents' maximum class rank and that of the the agent 
+itself we obtain the education effect as:
+\begin{eqnarray*}
+E &=& e^{\mathbf{eduRankSensitivity}\cdot d_E}\\
+\mathrm{educationEffect} &=& \frac{E}{E + \mathrm{constantEduParam}}
+\end{eqnarray*}
+
+
+The care effect, finally, is calculated as:
+\[
+\mathrm{careEffect} = \frac{1}{e^{\mathbf{careEducationParam}\cdot(\mathrm{socialWork}+\mathrm{childWork})}}
+\]
+
+\subsubsection*{Work}
+
+Agents that do not study or stop studying, start working instead. Their status is set to worker and their initial income is set to
+\[
+I_i=\mathbf{incomeInitialLevels}(\mathrm{classRank})\cdot e^\mathrm{dk}.
+\]
+
+Where \textit{dk} is again the wage stochasticity factor:
+
+\[
+\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}]
+\]
+
+The agent's final wage $I_f$ is drawn from the class-specific income distribution.
+
+
+\subsubsection*{Age progression}
+
+This is applicable to all agents that are not retired and who were born in the current month.
+
+For every eligible agent changes in life
+stage are checked: 
+
+\textbf{ageTeenagers} $\rightarrow$ teenager
+
+\textbf{ageOfAdulthood} $\rightarrow$ student
+
+\textbf{ageOfRetirement} $\rightarrow$ retired 
+
+New students get a class rank of 0 and become out of town students with probability \textbf{probOutOfTownStudent}. 
+
+Newly retired agents' wage and working hours are set to 0. Their pension is calculated as 
+\[
+\mathrm{pension} = \mathrm{lastIncome} \cdot \mathrm{shareWorkingTime} \cdot e^\mathrm{dk}
+\]
+with
+\[
+\mathrm{shareWorkingTime} = \mathrm{workingPeriods} / \mathbf{minContributionPeriods}
+\]
+and
+\[
+\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}].
+\]
+
+
+ 
+\subsection{Divorces \marginnote{Divorce.jl}} 
+
+Each couple has the potential to divorce. The probability to divorce is calculated from a base divorce rate $p_\textrm{div}$ biased by SES (see \ref{bias}), using parameter \textbf{divorceBias} with 
+
+\[
+    p_\textrm{div}  =  \left\{ 
+        \begin{array}{ll}
+             \mathbf{basicDivorceRate} \cdot \mathbf{divorceRateModifier} ( \frac{age(m)}{10}) & \mathrm{year} < 2012  \\
+            \mathbf{divorceVariable} \cdot   \mathbf{divorceRateModifier} ( \frac{age(m)}{10}) & otherwise  
+        \end{array}
+    \right. 
+\]
+\subsubsection*{Effects}
+
+If the woman's status is student she starts working.
+
+The man moves out together with each of the man's children who are not the woman's children, as well as with a probability of \textbf{probChildrenWithFather} each of the man's dependents who have the same relationship status with both the man and woman.
+
+The new home is a randomly selected house from either the same or an adjacent town or the entire country. 
+
+
+\subsection{Marriages \marginnote{Marriage.jl}}
 
 All single adult males with a care need level below 4 attempt to find a partner.
 
@@ -267,165 +416,22 @@ The couple are set as each others' partners and all dependents of either individ
 
 With probability \textbf{probApartWillMoveTogether} both individuals in the couple as well as their dependent children or other dependent members of the households move in together. With probability \textbf{coupleMovesToExistingHousehold} the house they move to is the house with the least occupants out of the two houses of the new couple.  Otherwise they move into a randomly selected empty house in the same or an adjacent town to one of the two households.
 
- 
-\subsection{Divorces} 
 
-Each couple has the potential to divorce. The probability to divorce is calculated from a base divorce rate $p_\textrm{div}$ biased by SES (see \ref{bias}), using parameter \textbf{divorceBias} with 
+\subsection{Social care \marginnote{TasksCare.jl}}
 
-\[
-    p_\textrm{div}  =  \left\{ 
-        \begin{array}{ll}
-             \mathbf{basicDivorceRate} \cdot \mathbf{divorceRateModifier} ( \frac{age(m)}{10}) & \mathrm{year} < 2012  \\
-            \mathbf{divorceVariable} \cdot   \mathbf{divorceRateModifier} ( \frac{age(m)}{10}) & otherwise  
-        \end{array}
-    \right. 
-\]
-\subsubsection*{Effects}
+To distribute the available care to individuals with care need the following is iterated \textbf{nIterCareDist} times:
 
-If the woman's status is student she starts working.
+\begin{description}
 
-The man moves out together with each of the man's children who are not the woman's children, as well as with a probability of \textbf{probChildrenWithFather} each of the man's dependents who have the same relationship status with both the man and woman.
+\item[assigning tasks] all agents with care requirements add their open care tasks to a potential carer's inbox.
 
-The new home is a randomly selected house from either the same or an adjacent town or the entire country. 
+\item[accepting tasks] all potential carers go through the tasks in their inbox and decide wether to accept them or not.
 
-\subsection{Age transition}
-Increase months since birth for every agent in maternity. If time since
-birth equals \textbf{maternityLeaveDuration} reset maternity status. 
+\end{description}
 
-Agents that are now 18 years old become independent. That means all guardian-dependent relationships are dissolved.
+\subsubsection*{Assigning tasks}
 
-\subsection{Work}
+\subsubsection*{Accepting tasks}
 
-This is applicable to all agents that are not retired and who were born in the current month.
-
-For every eligible agent changes in life
-stage are checked: 
-
-\textbf{ageTeenagers} $\rightarrow$ teenager
-
-\textbf{ageOfAdulthood} $\rightarrow$ student
-
-\textbf{ageOfRetirement} $\rightarrow$ retired 
-
-\subsubsection*{Students}
-
-New students get a class rank of 0 and become out of town students with probability \textbf{probOutOfTownStudent}. 
-
-\subsubsection*{Retirement}
-
-Newly retired agents' wage and working hours are set to 0. Their pension is calculated as 
-\[
-\mathrm{pension} = \mathrm{lastIncome} \cdot \mathrm{shareWorkingTime} \cdot e^\mathrm{dk}
-\]
-with
-\[
-\mathrm{shareWorkingTime} = \mathrm{workingPeriods} / \mathbf{minContributionPeriods}
-\]
-and
-\[
-\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}].
-\]
-
-\subsubsection*{Workers}
-
-For all workers that are not in maternity leave, working period and work experience are increased by 1 and wage and income calculated.
-
-With a worker's initial and final incomes $I_i$ and $I_f$ (see social transition) the base wage $w_b$ is calculated based on the agent's SES and work experience as
-\[
-w_b = I_f \frac{I_i}{I_f}^{e^{-\mathbf{incomeGrowthRate}(\mathrm{class})\cdot \mathrm{workExperience}}}
-\]
-
-Using the wage stochasticity
-\[
-\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}],
-\]
-
-the wage is then simply $w=w_b \cdot \mathrm{dk}$
-
-This wage is used to determine the agent's income, which is the product of the wage and the care need-dependent number of working hours.
-
-\subsection{Work status}
-
-Check transitions for all agents born in the current month whose age is 
-equal to the \textbf{workingAge} of their class rank and whose current status is student.
-
-
-\subsubsection*{Study}
-
-Agents with a SES class rank lower than 4 begin to study or keep studying with a probability $p_s$. This increases their SES class by 1. 
-
-Probability to study $p_s$ is 0 if both parents of the agent are dead, if the agent has no provider or if the household disposable income is 0.
-
-Otherwise $p_s$ is the product of income, education and care effects:
-\[
-p_s = \mathrm{incomeEffect} \cdot \mathrm{careEffect} \cdot \mathrm{educationEffect}
-\]
-
-The income effect is calculated as:
-\[
-\mathrm{incomeEffect} = \frac{\mathbf{constantIncomeParam} + 1}{ 
-e^{\mathbf{eduWageSensitivity} \cdot \mathrm{relCost}}} + \mathbf{constantIncomeParam}
-\]
-
-Where \textit{relCost} is the ratio of forgone salary to \textit{perCapitaDisposableIncome} [add calculation]:
-\begin{eqnarray*}
-\mathrm{forgoneSalary} &=& \mathbf{incomeInitialLevels}(\mathrm{classRank}) \cdot 
-\mathbf{weeklyHours}(\mathrm{careNeedLevel})\\
-\mathrm{relCost} &=& \mathrm{forgoneSalary} / \mathrm{perCapitaDisposableIncome}
-\end{eqnarray*}
-
-With $d_E$ as the difference between an agent's parents' maximum class rank and that of the the agent 
-itself we obtain the education effect as:
-\begin{eqnarray*}
-E &=& e^{\mathbf{eduRankSensitivity}\cdot d_E}\\
-\mathrm{educationEffect} &=& \frac{E}{E + \mathrm{constantEduParam}}
-\end{eqnarray*}
-
-
-The care effect, finally, is calculated as:
-\[
-\mathrm{careEffect} = \frac{1}{e^{\mathbf{careEducationParam}\cdot(\mathrm{socialWork}+\mathrm{childWork})}}
-\]
-
-\subsubsection*{Work}
-
-Agents that do not study or stop studying, start working instead. Their status is set to worker and their initial income is set to
-\[
-I_i=\mathbf{incomeInitialLevels}(\mathrm{classRank})\cdot e^\mathrm{dk}.
-\]
-
-Where \textit{dk} is again the wage stochasticity factor:
-
-\[
-\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}]
-\]
-
-The agent's final wage $I_f$ is drawn from the class-specific income distribution.
-
-\subsection{Social care}
-
-Increase in social care needs is checked for all agents.
-
-The yearly probability that the social care need of an agent increases is calculated as:
-\[
-p_\mathrm{care\_inc} = \mathrm{classBias} \cdot (\mathbf{baseCareProb} + \mathrm{ageCareProb})
-\]
-
-The age-dependent component ageCareProb in turn is determined as:
-\[
-\mathrm{ageCareProb} = \mathbf{personCareProb} \cdot e^{\mathrm{age}/\mathrm{scaling}}
-\]
-
-Where scaling is either \textbf{femaleAgeCareScaling} or \textbf{maleAgeCareScaling}.
-
-If an agent's care need increases, the amount of increase is drawn from a (one-based) geometric distribution with success rate $s$:
-\[
-s = 1-\mathbf{careTransitionRate} \cdot \mathrm{classBias}
-\]
-
-
-\subsection{Relocation}
-
-Single agents that can live alone, are workers and share their house with at least one other person who is neither their dependent or guardian, move into their own house with probability \textbf{moveOutProb}. They move into a randomly selected empty house (either in the same or an adjacent town or anywhere) together with their dependents.
 
 \end{document}

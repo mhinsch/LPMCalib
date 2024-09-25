@@ -1,5 +1,6 @@
-#= Handle event subscriptions =#
-
+"""
+Handle event subscriptions.
+"""
 
 
 using ChangeEvents

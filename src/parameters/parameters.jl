@@ -44,7 +44,7 @@ end # UKMapPars
 "Parameters for housing benefits."
 @with_kw mutable struct BenefitMapPars
     #
-    # Local house allowances for houses with 1,2,3 and 4-bed room houses 
+    "Local house allowances for houses with 1,2,3 and 4-bed room houses" 
     lha :: Vector{Matrix{Float64}} = [
                     [0.0    91.81  91.81  91.81  0.0    0.0    0.0    0.0;
                      91.81  91.81  91.81  91.81  97.81  0.0    0.0    0.0;
@@ -105,7 +105,8 @@ end
 @with_kw mutable struct PopulationPars
     startTime :: Rational{Int}  	= 1920
     finishTime :: Rational{Int} 	= 2040 
-    initialPop::Int                 = 5000    # Number of females or males  in the initial population
+    "Population size at start of simulation"
+    initialPop::Int                 = 5000    
     initialPMales :: Float64		= 0.477   # from 1921 census
     # a population of males to be randomly generated in the 
     # range of minStartAge - maxStartAge
@@ -142,7 +143,8 @@ end
 
 "Parameters related to work and education"
 @with_kw mutable struct WorkPars
-    maternityLeaveDuration :: Rational{Int}  = 9//12
+    maternityLeaveDuration :: Int  = 9
+    minStatutoryMaternityPay :: Float64 = 151.97
     ageTeenagers :: Int                 = 13
     ageOfAdulthood :: Int               = 16
     ageOfIndependence :: Int			= 18

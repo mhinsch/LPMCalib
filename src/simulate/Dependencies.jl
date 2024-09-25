@@ -5,7 +5,8 @@ using Utilities
 
 using ChangeEvents
 
-using BasicInfoAM, KinshipAM, WorkAM, DemoPerson
+using BasicInfoAM, KinshipAM, WorkAM #, DemoPerson
+using DependenciesIM
 using Age, Death, MoveHouse 
 
 
@@ -31,7 +32,7 @@ function ChangeEvents.process!(::ChangeDeath, ::DependenciesT, person)
     setAsSelfproviding!(person)
 
     for p in person.providees
-        p.provider = undefinedPerson
+        p.provider = undefined(p.provider)
         # TODO update provision/work status
     end
     empty!(person.providees)
@@ -113,7 +114,7 @@ function findFamilyGuardian(person)
         return g
     end
 
-    return undefinedPerson
+    return undefined(person)
 end
 
 function findOtherGuardian(person, people, pars)

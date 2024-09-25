@@ -1,7 +1,8 @@
 module Relocate
     
 
-using BasicInfoAM, WorkAM, KinshipAM, DemoPerson
+using BasicInfoAM, WorkAM, KinshipAM #, DemoPerson
+using HousingIM, DependenciesIM
 using MoveHouse
 
 export relocate!, selectRelocate
