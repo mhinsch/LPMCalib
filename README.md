@@ -80,7 +80,7 @@ Process implementations should always only depend on other model parts that are 
 
 The way model parameters are implemented remains largely unchanged from the very first versions of the model and is in dire need of an overhaul.
 
-All model parameters are top-level members of a struct and have defined default values (using `@with_kw`). These structs are defined in a model-specific directory (`src/demography`) and correspond to rough categories (map, population, divorce, etc...). This was an early attempt at modularisation but unfortunately these categories do not have any kind of reliable relationship with the model modules defined in `src/simulate`. Ideally there would be a way for each model module to define the parameters it requires and to then stitch those together into the model parameter object. It's not entirely clear, however, how best to deal with e.g. overlaps or tree-like dependencies (modules A and B both require parameters defined by C).
+All model parameters are top-level members of a struct and have defined default values (using `@with_kw`). These structs are defined in `src/parameters/parameters.jl` and correspond to rough categories (map, population, divorce, etc...). This was an early (and somewhat misguided) attempt at modularisation but unfortunately these categories do not have any kind of reliable relationship with the model modules defined in `src/simulate`. Ideally there would be a way for each model module to define the parameters it requires and to then stitch those together into the model parameter object. It's not entirely clear, however, how best to deal with e.g. overlaps or tree-like dependencies (modules A and B both require parameters defined by C).
 
 
 ### Caching
