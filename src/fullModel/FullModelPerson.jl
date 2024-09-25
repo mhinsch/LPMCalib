@@ -10,7 +10,6 @@ using Tasks, Towns, FullModelHouse
 export Person
 export PersonHouse, PersonTown, PersonTask 
 export undefinedPerson, undefinedHouse 
-export maxParentRank
 export schoolCareP
 
 
@@ -77,8 +76,9 @@ Utilities.isUndefined(t::T) where {T} = t == undefined(t)
 
 const schoolCareP = Person(nothing)
 
-
-function maxParentRank(person)
+# currently unused
+# TODO move into interaction module
+#= function maxParentRank(person)
     f = person.father
     m = person.mother
     if isUndefined(f) && isUndefined(m)
@@ -91,9 +91,9 @@ function maxParentRank(person)
         max(m.classRank, f.classRank)
     end
 end
+=#
 
-
-function howBusyAt(p::Person, hour)
+function TasksAM.howBusyAt(p::Person, hour)
     if p.jobSchedule[hour]
         return 1.0
     end
