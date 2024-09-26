@@ -373,7 +373,10 @@ function taskAcceptProb(task, giveUp, carer, pars)
     ratio = importance/(importance + curImportance)
     prob = sigmoid(ratio, pars.acceptProbPolarity)
     
-    diligence(carer, prob * importance)
+    # TODO rethink, this doesn't make sense
+    # should modify shape of sigmoid instead
+    # maybe also introduce reluctance to switch tasks
+    #diligence(carer, prob * importance)
 end
 
 "Check for all tasks whether to accept."

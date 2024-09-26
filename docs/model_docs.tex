@@ -417,7 +417,7 @@ The couple are set as each others' partners and all dependents of either individ
 With probability \textbf{probApartWillMoveTogether} both individuals in the couple as well as their dependent children or other dependent members of the households move in together. With probability \textbf{coupleMovesToExistingHousehold} the house they move to is the house with the least occupants out of the two houses of the new couple.  Otherwise they move into a randomly selected empty house in the same or an adjacent town to one of the two households.
 
 
-\subsection{Social care \marginnote{TasksCare.jl}}
+\subsection{Social and child care \marginnote{TasksCare.jl}}
 
 To distribute the available care to individuals with care need the following is iterated \textbf{nIterCareDist} times:
 
@@ -431,7 +431,55 @@ To distribute the available care to individuals with care need the following is 
 
 \subsubsection*{Assigning tasks}
 
+First, for school aged individuals school care is assigned, i.e.~all care tasks that are of type \emph{child care} and take place during school hours (9am to 3pm on work days) are marked as resolved.
+
+All remaining tasks are then assigned to potential carers. Potential carers are all individuals that have care time available out of those living in the same house, parents, children and siblings of the caree.
+
+Tasks are assigned in "chunks", i.e.~in sets of tasks of the same type that need to be performed on the same day. The carer to be asked to perform a given set of tasks is drawn at random from the list of potential carers, weighted by carer weighting.
+
+For a given carer $c$ and task $t$ we calculate carer weighting as
+\[
+\textrm{weight}_{c,t} = \textrm{w}_\textrm{dist} \cdot \textrm{w}_\textrm{rel} \cdot \textrm{w}_\textrm{time}.
+\]
+
+With a distance index $d$ out of 1 for the same house, 2 for the same town and 3 otherwise, $w_\textrm{dist}(c) = \textbf{careWeightDistance}_d$. 
+
+Relatedness status of the potential carer $r$ is classified as 1 - child, 2 - parent, 3 - partner, 4 - sibling and 5 - otherwise. For a task type $t$, $\textbf{careWeightRelated}_{r,t}$ then determines relatedness weight $\textrm{w}_\textrm{rel}$.
+
+Availability weight finally is derived from available time $t$ and number of tasks $n$ as $\textrm{w}_\textrm{time} = t/n$.
+
+The set of tasks is added to the potential carer's list of assigned tasks and to the global list of tasks that have been assigned to a carer in this iteration.
+
+
 \subsubsection*{Accepting tasks}
 
+After all tasks have been assigned it is determined which tasks the assigned carers accept. For this all sets of tasks that have been assigned in this iteration are checked for their acceptance. Carers decide separately for each task out of a set whether to accept it or not. 
+
+A carer's probability to accept a task is determined by what would happen if they were to to do it. 
+
+First, a task is declined if it overlaps with working hours or if it would increase the carer's care time beyond the maximum (note that tasks can overlap). 
+
+Then the acceptance probability is calculated from the relative importance of the new task compared to those that would have to be cancelled. A tasks importance $I$ is calculated from the task's \textsf{urgency} and the relatedness weight $w_\textrm{rel}$ (see above) as 
+\[
+I = w_\textrm{rel} \cdot \textbf{urgency}.
+\]
+
+The set of tasks \textsf{giveUp} that would have to be given up to accommodate the new task is empty if the carer has currently no tasks in the same time slot. It is the full set of current tasks at that time if the location of the new task differs from that of the old tasks. Otherwise current tasks are added to \textsf{giveUp} in order of least importance until the sum of the new task's focus and that of all retained tasks is below 1.
+
+We calculate the aggregate importance of all tasks that would have to be given up, $I_c$, as
+
+\[
+I_c = 1-\prod_{g\in\textrm{giveUp}}1-I_g
+\]
+
+We derive the acceptance probability from the importance ratio $r_I = I_n/(I_n+I_c)$ using a sigmoid function:
+
+\[
+P(\textrm{accept}) = \frac{r_I^a}{r_I^a + (1-r_I)^a}.
+\]
+
+Here $a$ is the parameter \textbf{acceptProbPolarity}. It determines how strongly the ratio $r_I$ affects the decision.
+
+Accepted tasks are marked as resolved and tasks that had to be given up or those that did not get accepted are marked as unassigned.
 
 \end{document}
