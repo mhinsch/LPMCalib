@@ -4,6 +4,7 @@ struct Link{T}
 end
 
 
+"Generate a kinship network for a household."
 function kinshipNetwork(filter, house, model, pars)
     LinkT = Link{typeof(house)}
     conns = Vector{LinkT}()

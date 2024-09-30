@@ -1,11 +1,15 @@
+#= Parameter handling. Since parameters are split into categories some special proecessing needs to be done so this is not generic enough to be moved into a library. =#
+
+
 using ParamUtils
 using YAML
 
 
-"extract name of parameter category from struct type name"
+"Extract name of parameter category from struct type name."
 nameOfParType(t) = replace(String(nameof(t)), "Pars" => "") |> Symbol
 
 
+"Convert parameter objects into YAML and store in file."
 function saveParametersToFile(simPars::SimulationPars, pars::ModelPars, fname)
     dict = Dict{Symbol, Any}()
 
@@ -20,6 +24,7 @@ function saveParametersToFile(simPars::SimulationPars, pars::ModelPars, fname)
 end
 
 
+"Load parameters from YAML file."
 function loadParametersFromFile(fname)
     DT = Dict{Symbol, Any}
     yaml = fname == "" ? DT() : YAML.load_file(fname, dicttype=DT)
@@ -32,8 +37,13 @@ function loadParametersFromFile(fname)
 end
 
 
+"""Handles the entire parameter processing pipeline. 
 
+First, parameters are read from a file provided on the command line or alternatively initialised with default values. Then command line arguments are parsed and parameter values as provided assigned correspondingly (overriding defaults/values from file). Finally the current set of parameter values is written to an output file if a name was provided.
+"""
 function loadParameters(argv, cmdl...)
+    # *** set up command line parsing
+    
 	arg_settings = ArgParseSettings("run simulation", autofix_names=true)
 
 	@add_arg_table! arg_settings begin
@@ -49,7 +59,7 @@ function loadParameters(argv, cmdl...)
         add_arg_table!(arg_settings, cmdl...)
     end
 
-    # setup command line arguments with docs 
+    # *** add parameters as command line arguments (including inline doc strings) 
     
 	add_arg_group!(arg_settings, "Simulation Parameters")
 	fieldsAsArgs!(arg_settings, SimulationPars)

@@ -15,8 +15,11 @@ export fuse, countSubset
 export dump, dump_property, dump_header
 export sumClassBias, rateBias, preCalcRateBias!
 export WeightSampler, sampleNoReplace!, sampleNoReplaceFrom!, resetSampler!, initWeight!, mapWeights
+export undefined, isUndefined
 
 
+function undefined end
+function isUndefined end
 
 "convert date in rational representation to (years, months) as tuple"
 function date2yearsmonths(date::Rational{Int})
@@ -40,6 +43,7 @@ function remove_unsorted!(list, index)
 end
 
 
+"Separate `list` into two lists dependent on the value of `pred`."
 function separate(pred, list)
     res_true = eltype(list)[]
     res_false = eltype(list)[]
@@ -55,19 +59,22 @@ function separate(pred, list)
     res_true, res_false
 end
 
-
+"Remove double elements from a sorted vector."
 function sorted_unique!(ar)
+    if isempty(ar)
+        return
+    end
     v = ar[end]
-    l = max(0, length(ar) - 1)
+    l = length(ar) - 1
     for i in l:-1:1
         e = ar[i]
         if e == v
-            ar[i] = ar[end]
-            pop!(ar)
+            remove_unsorted!(ar, i)
         else
             v = e
         end
     end
+    nothing
 end
 
 "Apply a transition function to an iterator."
@@ -83,6 +90,7 @@ end
             println(count, " agents processed in ", name)
         end
     end
+    nothing
 end
 
 #="keep variable across function calls"

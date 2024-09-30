@@ -1,3 +1,8 @@
+using BasicInfoAM, KinshipAM, WorkAM, DependenciesAM
+using BasicHouseAM
+using FamilyIM, DependenciesIM
+using IncomeCM, JobMarketCM
+using CareCM
 
 # return agents with age in interval minAge, maxAge
 # assumes pop is sorted by age
@@ -329,4 +334,16 @@ function initJobs!(model, pars)
     initWealth!(model.houses, model.wealthPercentiles, pars)
     
     nothing
+end
+
+
+function initCare!(model, pars)
+    for person in model.pop
+        # skip adolescents/adults that don't need care
+        if person.age >= pars.stopChildCareAge && socialCareDemandPerDay(person, pars) <= 0
+            continue
+        end
+        
+        initCareTasks!(person, pars)
+    end
 end

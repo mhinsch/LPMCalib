@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = /home/martin/.julia/dev/CompositeStructs
+	branch = child_constructors
+	commit = 4d1c0c690ed9e4216a34eff8f2ca41dc4de33d40
+	parent = af450ac093f29a20447f8fb386e9949be2f199ac
+	method = merge
+	cmdver = 0.4.9
