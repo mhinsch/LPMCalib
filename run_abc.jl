@@ -49,7 +49,12 @@ function readParamConfig(fname)
     
     String.(pconf[!, :Parameter]), priors
 end
-    
+
+
+function run_ABCdeZ(n_iters, names, list_priors)
+	abcdesmc!(Product(list_priors), simulate, 0.01, names, nsims_max = 20000, parallel=true)
+end
+
 
 function run_abc(n_iters, names, priors)
     noise = [0.05 for p in priors];
