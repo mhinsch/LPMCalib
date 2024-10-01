@@ -127,11 +127,60 @@ Agents that are now 18 years old become independent. That means all guardian-dep
 
 \subsection{Income \marginnote{Income.jl}}
 
-TODO
+\subsubsection*{Personal income}
+
+A person's income depends on maternity and retirement status. For workers that are not on maternity the income is calculated as
+
+\[
+\mathrm{income} = \mathrm{wage} \cdot \mathrm{availableWorkingHours}.
+\]
+
+For retired individuals the income equals their \textsf{pension}.
+
+TODO: 
+\begin{itemize}
+\item check maternity pay implementation for correctness
+\item check care effect on income
+\end{itemize}
+
+\subsubsection*{Household income}
+
+TODO: 
+\begin{itemize}
+\item check implementation
+\end{itemize}
+
 
 \subsection{Wealth \marginnote{Wealth.jl}}
 
-TODO
+Wealth is assigned to the working population by percentiles based on empirical data. Each individual in percentile $p$ gets assigned \textsf{wealth}:
+
+\[
+\mathrm{wealth} = \mathbf{wealthPercentiles}_p \cdot e^\textrm{dk},
+\]
+
+where $\mathit{dk}$ is drawn from a normal distribution:
+
+\[
+\mathrm{dk} \in \mathcal{N}[0, \mathbf{wageVar}].
+\]
+
+If an individual $i$'s \textsf{wage} is not 0 their \textsf{financialWealth} is then calculated as:
+
+\[
+\mathrm{financialWealth} = \mathrm{wealth} \cdot \mathbf{shareFinancialWealth}
+\]
+
+otherwise as:
+
+\[
+\begin{array}{c}
+\mathrm{financialWealth} = \\
+(\mathrm{financialWealth}_\mathrm{prev} - \mathrm{wealthSpentOnCare}) \cdot (1+\mathbf{pensionReturnRate}).
+\end{array}
+\]
+
+
 
 \subsection{Housing \marginnote{HousingTopDown.jl}}
 
