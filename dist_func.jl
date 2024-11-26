@@ -1,8 +1,16 @@
+"""
+Distance functions for each data source, plus utilities.
+"""
+
+
+
 using CSV
 using DataFrames
 using DataFramesMeta
 using Statistics
 
+
+"Extend vector by pushing len times new element el."
 function extend!(vec, len, el = 0)
     for i in length(vec):(len-1)
         push!(vec, el)
